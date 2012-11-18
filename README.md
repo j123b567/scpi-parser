@@ -1,7 +1,45 @@
 SCPI parser library
 ===========
 
-[SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?". 
+[SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
+
+Source codes are published with open source Simplified BSD license.
+
+Command pattern definition
+-----------
+Command pattern is defined by well known representation from SCPI instruments. Pattern is case insensitive but uses lower and upper case letters to show short and long form of the command.
+
+    Pattern "SYSTem" matches strings "SYST", "syst", "SyStEm", "system", ...
+
+Command pattern is devided by colon ":" to show command hierarchy
+
+    Pattern "SYSTem:VERsion?" mathes strings "SYST:version?", "system:ver?", "SYST:VER?", ...
+
+SCPI standard also uses brackets "[]" to define unnecesery parts of command. This behaviour is not implemented yet.
+
+    Pattern "SYSTem:ERRor[:NEXT]?" should match "SYST:ERR?", "system:err?" and also "system:error:next?", ...
+
+In current implementation, you should write two patterns to implement this behaviour
+
+    Pattern "SYSTem:ERRor?" and "SYSTem:ERRor:NEXT?"
+
+
+Command callback
+-----------
+Command callbac is defined as function with context parameter, e.g.:
+
+    int DMM_MeasureVoltageDcQ(scpi_context_t * context)
+
+The "Q" at the end of the function name indicates, that this function is Query function (command with "?").
+
+The command callback can use predefined function to parse input parameters and to write output.
+
+Reading input parameter is done by functions "SCPI_ParamInt", "SCPI_ParamDouble", "SCPI_ParamString".
+
+Writing output is done by functions "SCPI_ResultInt", "SCPI_ResultDouble", "SCPI_ResultString", "SCPI_ResultText". You can write multiple output variables. They are automaticcaly separated by coma ",".
+
+Source code organisation
+------------
 
 Source codes are devided into few files to provide better portability to other systems.
 
