@@ -63,7 +63,7 @@ int DMM_MeasureVoltageDcQ(scpi_context_t * context) {
 }
 
 scpi_command_t scpi_commands[] = {
-    /* Required IEEE488.2 Common Commands (see SCPI Standard V1999.0 ch4.1.1) */
+    /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
     { .pattern = "*ESE", .callback = SCPI_CoreEse,},
     { .pattern = "*ESE?", .callback = SCPI_CoreEseQ,},
@@ -78,7 +78,7 @@ scpi_command_t scpi_commands[] = {
     { .pattern = "*TST?", .callback = SCPI_CoreTstQ,},
     { .pattern = "*WAI", .callback = SCPI_CoreWai,},
 
-    /* Required SCPI commands (see SCPI Standard V1999.0 ch 4.2.1) */
+    /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
     {.pattern = "SYSTem:ERRor?", .callback = SCPI_SystemErrorNextQ,},
     {.pattern = "SYSTem:ERRor:NEXT?", .callback = SCPI_SystemErrorNextQ,},
     {.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
@@ -144,11 +144,12 @@ scpi_context_t scpi_context;
 /*
  * 
  */
+#include "scpi/scpi_utils.h"
 int main(int argc, char** argv) {
     (void) argc;
     (void) argv;
     int result;
-    
+   
     //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
     
     SCPI_Init(&scpi_context, scpi_commands, &scpi_buffer, &scpi_interface);

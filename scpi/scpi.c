@@ -51,7 +51,6 @@ static char * cmdlineSeparator(const char * cmd, size_t len);
 static char * cmdlineTerminator(const char * cmd, size_t len);
 static const char * cmdlineNext(const char * cmd, size_t len);
 static bool_t cmdMatch(const char * pattern, const char * cmd, size_t len);
-static size_t skipWhitespace(const char * cmd, size_t len);
 
 static void paramSkipBytes(scpi_context_t * context, size_t num);
 static void paramSkipWhitespace(scpi_context_t * context);
@@ -264,21 +263,6 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
     return result;
 }
 
-/**
- * Count white spaces from the beggining
- * @param cmd - command
- * @param len - max search length
- * @return number of white spaces
- */
-size_t skipWhitespace(const char * cmd, size_t len) {
-    size_t i;
-    for (i = 0; i < len; i++) {
-        if (!isspace(cmd[i])) {
-            return i;
-        }
-    }
-    return len;
-}
 
 /**
  * Write data to SCPI output
@@ -571,11 +555,16 @@ bool_t paramNext(scpi_context_t * context, bool_t mandatory) {
 bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory) {
     size_t len;
 
+    if (!value) {
+        return FALSE;
+    }
+
     if (!paramNext(context, mandatory)) {
         return FALSE;
     }
+       
     len = strToLong(context->paramlist.parameters, value);
-
+   
     if (len == 0) {
         if (mandatory) {
             SCPI_ErrorPush(context, SCPI_ERROR_SYNTAX);
@@ -585,6 +574,12 @@ bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory
         paramSkipBytes(context, len);
     }
 
+    paramSkipWhitespace(context);
+    if ((context->paramlist.length > 0) && (context->paramlist.parameters[0] != ',')) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+        return FALSE;
+    }
+    
     return TRUE;
 }
 
@@ -598,9 +593,14 @@ bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory
 bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandatory) {
     size_t len;
 
+    if (!value) {
+        return FALSE;
+    }
+
     if (!paramNext(context, mandatory)) {
         return FALSE;
     }
+   
     len = strToDouble(context->paramlist.parameters, value);
 
     if (len == 0) {
@@ -612,6 +612,12 @@ bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandato
         paramSkipBytes(context, len);
     }
 
+    paramSkipWhitespace(context);
+    if ((context->paramlist.length > 0) && (context->paramlist.parameters[0] != ',')) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+        return FALSE;
+    }
+    
     return TRUE;
 }
 
@@ -624,10 +630,23 @@ bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandato
  * @return 
  */
 bool_t SCPI_ParamString(scpi_context_t * context, char ** value, size_t * len, bool_t mandatory) {
-    (void)context;
-    (void)value;
-    (void)len;
-    (void)mandatory;
+    size_t length;
     
+    if (!value || !len) {
+        return FALSE;
+    }
+    
+    if (!paramNext(context, mandatory)) {
+        return FALSE;
+    }
+
+    if (locateStr(context->paramlist.parameters, context->paramlist.length, value, &length)) {
+        paramSkipBytes(context, length);
+        if (len) {
+            *len = length;
+        }
+        return TRUE;
+    }
+
     return FALSE;
 }

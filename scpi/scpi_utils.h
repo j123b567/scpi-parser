@@ -49,8 +49,9 @@ extern "C" {
     size_t longToStr(int32_t val, char * str, size_t len);
     size_t doubleToStr(double val, char * str, size_t len);
     size_t strToLong(const char * str, int32_t * val);
-    size_t strToDouble(const char * str, double * val);    
-    
+    size_t strToDouble(const char * str, double * val);
+    bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2);
+    size_t skipWhitespace(const char * cmd, size_t len);
 
 #ifdef	__cplusplus
 }

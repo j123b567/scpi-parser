@@ -103,6 +103,8 @@ const char * SCPI_ErrorTranslate(int16_t err) {
         case SCPI_ERROR_UNDEFINED_HEADER: return "Undefined header";
         case SCPI_ERROR_PARAMETER_NOT_ALLOWED: return "Parameter not allowed";
         case SCPI_ERROR_MISSING_PARAMETER: return "Missing parameter";
+        case SCPI_ERROR_INVALID_SUFFIX: return "Invalid suffix";
+        case SCPI_ERROR_SUFFIX_NOT_ALLOWED: return "Suffix not allowed";
         default: return "Unknown error";
     }
 }

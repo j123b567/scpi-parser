@@ -157,7 +157,8 @@ void SCPI_EventClear(void) {
 }
 
 /**
- * *CLS
+ * *CLS - This command clears all status data structures in a device. 
+ *        For a device which minimally complies with SCPI. (SCPI std 4.1.3.2)
  * @param context
  * @return 
  */

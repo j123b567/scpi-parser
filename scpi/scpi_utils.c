@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /**
  * Find the first occurrence in str of a character in set.
@@ -48,18 +49,17 @@
  * @return 
  */
 char * strnpbrk(const char *str, size_t size, const char *set) {
-        const char *scanp;
-        long c, sc;
-        const char * strend = str + size;
-        
-        while ((strend != str) && ((c = *str++) != 0)) {
-            for (scanp = set; (sc = *scanp++) != '\0';)
-                if (sc == c)                  
-                    return ((char *) (str - 1));
-        }
-        return (NULL);
-}
+    const char *scanp;
+    long c, sc;
+    const char * strend = str + size;
 
+    while ((strend != str) && ((c = *str++) != 0)) {
+        for (scanp = set; (sc = *scanp++) != '\0';)
+            if (sc == c)
+                return ((char *) (str - 1));
+    }
+    return (NULL);
+}
 
 /**
  * Converts signed 32b integer value to string
@@ -105,7 +105,7 @@ size_t longToStr(int32_t val, char * str, size_t len) {
  * @return number of bytes written to str (without '\0')
  */
 size_t doubleToStr(double val, char * str, size_t len) {
-    return snprintf(str, len, "%lf", val);
+    return snprintf(str, len, "%lg", val);
 }
 
 /**
@@ -129,7 +129,7 @@ size_t strToLong(const char * str, int32_t * val) {
 size_t strToDouble(const char * str, double * val) {
     char * endptr;
     *val = strtod(str, &endptr);
-    return endptr - str;    
+    return endptr - str;
 }
 
 /**
@@ -150,4 +150,98 @@ bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2
     }
 
     return FALSE;
+}
+
+bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
+    size_t i;
+    int quot = 0;
+    int32_t strStart = -1;
+    int32_t strStop = -1;
+    int valid = 0;
+
+
+    for (i = 0; i < len1; i++) {
+        if ((strStart < 0) && isspace(str1[i])) {
+            continue;
+        }
+
+        if ((strStart < 0) && !quot && (str1[i] == '"')) {
+            quot = 1;
+            continue;
+        }
+
+        if (strStart < 0) {
+            strStart = i;
+        }
+
+        if ((strStop < 0) && quot && (str1[i] == '"')) {
+            strStop = i;
+            valid = 1;
+            continue;
+        }
+
+        if ((strStop >= 0) && quot && (str1[i] == ',')) {
+            break;
+        }
+
+        if ((strStop >= 0) && quot && !isspace(str1[i])) {
+            valid = 0;
+        }
+
+        if (!quot && !isspace(str1[i]) && (str1[i] != ',')) {
+            strStop = i;
+        }
+
+        if (isspace(str1[i])) {
+            continue;
+        }
+
+        if ((strStop >= 0) && (str1[i] == ',')) {
+            valid = 1;
+            break;
+        }
+    }
+
+    if ((i == len1) && !quot) {
+        valid = 1;
+        if (strStop < 0) {
+            strStop = i;
+        } else {
+            strStop++;
+        }
+        if (strStart < 0) {
+            strStart = i;
+        }
+    } else if (!quot) {
+        strStop++;
+    }
+
+
+    if (valid) {
+        if (str2) {
+            *str2 = (char *) &str1[strStart];
+        }
+
+        if (len2) {
+            *len2 = strStop - strStart;
+        }
+    }
+
+    return valid;
+}
+
+/**
+ * Count white spaces from the beggining
+ * @param cmd - command
+ * @param len - max search length
+ * @return number of white spaces
+ */
+size_t skipWhitespace(const char * cmd, size_t len) {
+    size_t i;
+    for (i = 0; i < len; i++) {
+        if (!isspace(cmd[i])) {
+            return i;
+        }
+    }
+    return len;
 }

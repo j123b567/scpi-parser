@@ -51,6 +51,8 @@ extern "C" {
 #define SCPI_ERROR_UNDEFINED_HEADER     -113
 #define SCPI_ERROR_PARAMETER_NOT_ALLOWED        -108
 #define SCPI_ERROR_MISSING_PARAMETER    -109
+#define SCPI_ERROR_INVALID_SUFFIX       -131
+#define SCPI_ERROR_SUFFIX_NOT_ALLOWED   -138
 
 #ifdef	__cplusplus
 }
