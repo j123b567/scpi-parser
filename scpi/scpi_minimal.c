@@ -35,7 +35,7 @@
  */
 
 
-#include "scpi.h"
+#include "scpi_parser.h"
 #include "scpi_minimal.h"
 #include "scpi_constants.h"
 #include "scpi_error.h"
@@ -46,9 +46,9 @@
  * @param context
  * @return 
  */
-int SCPI_Stub(scpi_t * context) {
+scpi_result_t SCPI_Stub(scpi_t * context) {
     (void) context;
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -56,10 +56,9 @@ int SCPI_Stub(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StubQ(scpi_t * context) {
-    (void) context;
+scpi_result_t SCPI_StubQ(scpi_t * context) {
     SCPI_ResultString(context, "");
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -67,10 +66,9 @@ int SCPI_StubQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_SystemVersionQ(scpi_t * context) {
-    (void) context;
+scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
     SCPI_ResultString(context, SCPI_DEV_VERSION);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -78,15 +76,24 @@ int SCPI_SystemVersionQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_SystemErrorNextQ(scpi_t * context) {
-    (void) context;
-
+scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
     int16_t err = SCPI_ErrorPop(context);
 
     SCPI_ResultInt(context, err);
     SCPI_ResultText(context, SCPI_ErrorTranslate(err));
 
-    return 0;
+    return SCPI_RES_OK;
+}
+
+/**
+ * SYSTem:ERRor:COUNt?
+ * @param context
+ * @return 
+ */
+scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
+    SCPI_ResultInt(context, SCPI_ErrorCount(context));
+
+    return SCPI_RES_OK;
 }
 
 /**
@@ -94,16 +101,14 @@ int SCPI_SystemErrorNextQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusQuestionableEventQ(scpi_t * context) {
-    (void) context;
-
+scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
     // return value
     SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_QUES));
 
     // clear register
     SCPI_RegSet(SCPI_REG_QUES, 0);
 
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -111,13 +116,11 @@ int SCPI_StatusQuestionableEventQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusQuestionableEnableQ(scpi_t * context) {
-    (void) context;
-
+scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
     // return value
     SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_QUESE));
 
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -125,12 +128,12 @@ int SCPI_StatusQuestionableEnableQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusQuestionableEnable(scpi_t * context) {
+scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
     int32_t new_QUESE;
     if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
         SCPI_RegSet(SCPI_REG_QUESE, new_QUESE);
     }
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -138,9 +141,9 @@ int SCPI_StatusQuestionableEnable(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusPreset(scpi_t * context) {
+scpi_result_t SCPI_StatusPreset(scpi_t * context) {
     (void) context;
     // clear STATUS:...
     SCPI_RegSet(SCPI_REG_QUES, 0);
-    return 0;
+    return SCPI_RES_OK;
 }

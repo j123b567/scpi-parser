@@ -34,12 +34,10 @@
  * 
  */
 
-#include "scpi.h"
+#include "scpi_parser.h"
 #include "scpi_ieee488.h"
 #include "scpi_error.h"
 #include "scpi_constants.h"
-#include <string.h>
-#include <stdint.h>
 
 /* register array */
 static scpi_reg_val_t regs[SCPI_REG_COUNT];
@@ -162,13 +160,13 @@ void SCPI_EventClear(void) {
  * @param context
  * @return 
  */
-int SCPI_CoreCls(scpi_t * context) {
+scpi_result_t SCPI_CoreCls(scpi_t * context) {
     (void) context;
     SCPI_EventClear();
     SCPI_ErrorClear(context);
     SCPI_RegSet(SCPI_REG_OPER, 0);
     SCPI_RegSet(SCPI_REG_QUES, 0);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -176,12 +174,12 @@ int SCPI_CoreCls(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreEse(scpi_t * context) {
+scpi_result_t SCPI_CoreEse(scpi_t * context) {
     int32_t new_ESE;
     if (SCPI_ParamInt(context, &new_ESE, TRUE)) {
         SCPI_RegSet(SCPI_REG_ESE, new_ESE);
     }
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -189,10 +187,10 @@ int SCPI_CoreEse(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreEseQ(scpi_t * context) {
+scpi_result_t SCPI_CoreEseQ(scpi_t * context) {
     (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_ESE));
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -200,11 +198,11 @@ int SCPI_CoreEseQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreEsrQ(scpi_t * context) {
+scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
     (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_ESR));
     SCPI_RegSet(SCPI_REG_ESR, 0);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -212,12 +210,12 @@ int SCPI_CoreEsrQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreIdnQ(scpi_t * context) {
+scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
     (void) context;
     SCPI_ResultString(context, SCPI_MANUFACTURE);
     SCPI_ResultString(context, SCPI_DEV_NAME);
     SCPI_ResultString(context, SCPI_DEV_VERSION);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -225,10 +223,10 @@ int SCPI_CoreIdnQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreOpc(scpi_t * context) {
+scpi_result_t SCPI_CoreOpc(scpi_t * context) {
     (void) context;
     SCPI_RegSetBits(SCPI_REG_ESR, ESR_OPC);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -236,11 +234,11 @@ int SCPI_CoreOpc(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreOpcQ(scpi_t * context) {
+scpi_result_t SCPI_CoreOpcQ(scpi_t * context) {
     (void) context;
     // Operation is always completed
     SCPI_ResultInt(context, 1);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -248,11 +246,11 @@ int SCPI_CoreOpcQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreRst(scpi_t * context) {
+scpi_result_t SCPI_CoreRst(scpi_t * context) {
     if (context && context->interface && context->interface->reset) {
         return context->interface->reset(context);
     }
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -260,12 +258,12 @@ int SCPI_CoreRst(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreSre(scpi_t * context) {
+scpi_result_t SCPI_CoreSre(scpi_t * context) {
     int32_t new_SRE;
     if (SCPI_ParamInt(context, &new_SRE, TRUE)) {
         SCPI_RegSet(SCPI_REG_SRE, new_SRE);
     }
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -273,10 +271,10 @@ int SCPI_CoreSre(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreSreQ(scpi_t * context) {
+scpi_result_t SCPI_CoreSreQ(scpi_t * context) {
     (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_SRE));
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -284,10 +282,10 @@ int SCPI_CoreSreQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreStbQ(scpi_t * context) {
+scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
     (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_STB));
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -295,14 +293,14 @@ int SCPI_CoreStbQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreTstQ(scpi_t * context) {
+scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
     (void) context;
     int result = 0;
     if (context && context->interface && context->interface->test) {
         result = context->interface->test(context);
     }    
     SCPI_ResultInt(context, result);
-    return 0;
+    return SCPI_RES_OK;
 }
 
 /**
@@ -310,9 +308,9 @@ int SCPI_CoreTstQ(scpi_t * context) {
  * @param context
  * @return 
  */
-int SCPI_CoreWai(scpi_t * context) {
+scpi_result_t SCPI_CoreWai(scpi_t * context) {
     (void) context;
     // NOP
-    return 0;
+    return SCPI_RES_OK;
 }
 

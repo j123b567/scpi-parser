@@ -35,7 +35,7 @@
  */
 
 #include <string.h>
-#include "scpi.h"
+#include "scpi_parser.h"
 #include "scpi_units.h"
 #include "scpi_utils.h"
 #include "scpi_error.h"

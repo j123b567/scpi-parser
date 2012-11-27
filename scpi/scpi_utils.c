@@ -34,12 +34,12 @@
  * 
  */
 
-#include "scpi.h"
-#include "scpi_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "scpi_utils.h"
 
 static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 

@@ -10,7 +10,6 @@
 #include "CUnit/Basic.h"
 
 #include "../scpi/scpi.h"
-#include "../scpi/scpi_utils.h"
 
 /*
  * CUnit Test Suite

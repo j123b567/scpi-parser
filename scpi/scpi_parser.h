@@ -26,43 +26,43 @@
  */
 
 /**
- * @file   scpi_error.h
+ * @file   scpi_parser.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
- * @brief  Error handling and storing routines
+ * @brief  SCPI parser implementation
  * 
  * 
  */
 
-#ifndef SCPI_ERROR_H
-#define	SCPI_ERROR_H
+#ifndef SCPI_PARSER_H
+#define	SCPI_PARSER_H
 
 #include "scpi_types.h"
+#include "scpi_debug.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-    void SCPI_ErrorInit(scpi_t * context);
-    void SCPI_ErrorClear(scpi_t * context);
-    int16_t SCPI_ErrorPop(scpi_t * context);
-    void SCPI_ErrorPush(scpi_t * context, int16_t err);
-    int32_t SCPI_ErrorCount(scpi_t * context);    
-    const char * SCPI_ErrorTranslate(int16_t err);
 
-#define SCPI_ERROR_SYNTAX               -102
-#define SCPI_ERROR_INVALID_SEPARATOR    -103
-#define SCPI_ERROR_UNDEFINED_HEADER     -113
-#define SCPI_ERROR_PARAMETER_NOT_ALLOWED        -108
-#define SCPI_ERROR_MISSING_PARAMETER    -109
-#define SCPI_ERROR_INVALID_SUFFIX       -131
-#define SCPI_ERROR_SUFFIX_NOT_ALLOWED   -138
+    void SCPI_Init(scpi_t * context, scpi_command_t * command_list, scpi_buffer_t * buffer, scpi_interface_t * interface);
 
-#define SCPI_ERROR_EXECUTION_ERROR      -200    
-    
+    int SCPI_Input(scpi_t * context, const char * data, size_t len);
+    int SCPI_Parse(scpi_t * context, const char * data, size_t len);
+
+
+    size_t SCPI_ResultString(scpi_t * context, const char * data);
+    size_t SCPI_ResultInt(scpi_t * context, int32_t val);
+    size_t SCPI_ResultDouble(scpi_t * context, double val);
+    size_t SCPI_ResultText(scpi_t * context, const char * data);
+
+    bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory);
+    bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory);
+    bool_t SCPI_ParamString(scpi_t * context, char ** value, size_t * len, bool_t mandatory);
+
+
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* SCPI_ERROR_H */
+#endif	/* SCPI_PARSER_H */
 

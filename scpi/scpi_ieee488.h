@@ -37,8 +37,7 @@
 #ifndef SCPI_IEEE488_H
 #define	SCPI_IEEE488_H
 
-#include "scpi.h"
-#include <stdint.h>
+#include "scpi_types.h"
 
 typedef uint16_t scpi_reg_val_t;
 
@@ -56,19 +55,19 @@ typedef enum {
     SCPI_REG_COUNT,
 } scpi_reg_name_t;
 
-int SCPI_CoreCls(scpi_t * context);
-int SCPI_CoreEse(scpi_t * context);
-int SCPI_CoreEseQ(scpi_t * context);
-int SCPI_CoreEsrQ(scpi_t * context);
-int SCPI_CoreIdnQ(scpi_t * context);
-int SCPI_CoreOpc(scpi_t * context);
-int SCPI_CoreOpcQ(scpi_t * context);
-int SCPI_CoreRst(scpi_t * context);
-int SCPI_CoreSre(scpi_t * context);
-int SCPI_CoreSreQ(scpi_t * context);
-int SCPI_CoreStbQ(scpi_t * context);
-int SCPI_CoreTstQ(scpi_t * context);
-int SCPI_CoreWai(scpi_t * context);
+scpi_result_t SCPI_CoreCls(scpi_t * context);
+scpi_result_t SCPI_CoreEse(scpi_t * context);
+scpi_result_t SCPI_CoreEseQ(scpi_t * context);
+scpi_result_t SCPI_CoreEsrQ(scpi_t * context);
+scpi_result_t SCPI_CoreIdnQ(scpi_t * context);
+scpi_result_t SCPI_CoreOpc(scpi_t * context);
+scpi_result_t SCPI_CoreOpcQ(scpi_t * context);
+scpi_result_t SCPI_CoreRst(scpi_t * context);
+scpi_result_t SCPI_CoreSre(scpi_t * context);
+scpi_result_t SCPI_CoreSreQ(scpi_t * context);
+scpi_result_t SCPI_CoreStbQ(scpi_t * context);
+scpi_result_t SCPI_CoreTstQ(scpi_t * context);
+scpi_result_t SCPI_CoreWai(scpi_t * context);
 
 
 #define STB_R01 0x01                    // Not used

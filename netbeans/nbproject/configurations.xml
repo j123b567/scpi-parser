@@ -7,9 +7,13 @@
       <logicalFolder name="f1" displayName="scpi" projectFiles="true">
         <itemPath>../scpi/scpi.h</itemPath>
         <itemPath>../scpi/scpi_constants.h</itemPath>
+        <itemPath>../scpi/scpi_debug.h</itemPath>
         <itemPath>../scpi/scpi_error.h</itemPath>
+        <itemPath>../scpi/scpi_fifo.h</itemPath>
         <itemPath>../scpi/scpi_ieee488.h</itemPath>
         <itemPath>../scpi/scpi_minimal.h</itemPath>
+        <itemPath>../scpi/scpi_parser.h</itemPath>
+        <itemPath>../scpi/scpi_types.h</itemPath>
         <itemPath>../scpi/scpi_units.h</itemPath>
         <itemPath>../scpi/scpi_utils.h</itemPath>
       </logicalFolder>
@@ -22,10 +26,12 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="f1" displayName="scpi" projectFiles="true">
-        <itemPath>../scpi/scpi.c</itemPath>
+        <itemPath>../scpi/scpi_debug.c</itemPath>
         <itemPath>../scpi/scpi_error.c</itemPath>
+        <itemPath>../scpi/scpi_fifo.c</itemPath>
         <itemPath>../scpi/scpi_ieee488.c</itemPath>
         <itemPath>../scpi/scpi_minimal.c</itemPath>
+        <itemPath>../scpi/scpi_parser.c</itemPath>
         <itemPath>../scpi/scpi_units.c</itemPath>
         <itemPath>../scpi/scpi_utils.c</itemPath>
       </logicalFolder>
@@ -35,6 +41,12 @@
                    displayName="Test Files"
                    projectFiles="false"
                    kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f1"
+                     displayName="FIFO test"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/test_fifo.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f3"
                      displayName="Test SCPI utils"
                      projectFiles="true"
@@ -97,6 +109,24 @@
                             group="bin"/>
         </packFileList>
       </packaging>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
       <folder path="TestFiles/f3">
         <cTool>
           <incDir>

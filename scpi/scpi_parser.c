@@ -26,7 +26,7 @@
  */
 
 /**
- * @file   scpi.c
+ * @file   scpi_parser.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  SCPI parser implementation
@@ -34,13 +34,13 @@
  * 
  */
 
-#include "scpi.h"
-#include "scpi_utils.h"
-#include "scpi_error.h"
 #include <ctype.h>
 #include <string.h>
-#include <stdio.h>
-#include <stdint.h>
+
+#include "scpi_parser.h"
+#include "scpi_utils.h"
+#include "scpi_error.h"
+
 
 static size_t patternSeparatorPos(const char * pattern, size_t len);
 static size_t cmdSeparatorPos(const char * cmd, size_t len);
@@ -295,7 +295,7 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
             for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
                 if (cmdMatch(context->cmdlist[i].pattern, cmdline_ptr, cmd_len)) {
                     if (context->cmdlist[i].callback != NULL) {
-                        context->error = FALSE;
+                        context->cmd_error = FALSE;
                         context->paramlist.cmd = &context->cmdlist[i];
                         context->paramlist.parameters = cmdline_ptr + cmd_len;
                         context->paramlist.length = cmdlineSeparatorPos(context->paramlist.parameters, cmdline_end - context->paramlist.parameters);
@@ -303,12 +303,14 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
                         context->input_count = 0;
 
                         SCPI_DEBUG_COMMAND(context);
-                        context->cmdlist[i].callback(context);
+                        if ((context->cmdlist[i].callback(context) != SCPI_RES_OK) && !context->cmd_error) {
+                            SCPI_ErrorPush(context, SCPI_ERROR_EXECUTION_ERROR);                            
+                        }
 
                         writeNewLine(context); // conditionaly write new line
 
                         paramSkipWhitespace(context);
-                        if (context->paramlist.length != 0 && !context->error) {
+                        if (context->paramlist.length != 0 && !context->cmd_error) {
                             SCPI_ErrorPush(context, SCPI_ERROR_PARAMETER_NOT_ALLOWED);
                         }
 
@@ -340,6 +342,7 @@ void SCPI_Init(scpi_t * context, scpi_command_t * command_list, scpi_buffer_t * 
     context->buffer.length = buffer->length;
     context->buffer.position = 0;
     context->interface = interface;
+    SCPI_ErrorInit(context);
 }
 
 /**
@@ -382,21 +385,6 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
 
     return result;
 }
-
-/**
- * Debug function: show current command and its parameters
- * @param context
- * @return 
- */
-bool_t SCPI_DebugCommand(scpi_t * context) {
-    (void) context;
-    printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
-    fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);
-    printf("\" - %ld)\r\n", context->paramlist.length);
-
-    return TRUE;
-}
-
 
 /* writing results */
 
@@ -507,7 +495,6 @@ bool_t paramNext(scpi_t * context, bool_t mandatory) {
             paramSkipBytes(context, 1);
             paramSkipWhitespace(context);
         } else {
-            printf("******** :%c:\r\n", context->paramlist.parameters[0]);
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SEPARATOR);
             return FALSE;
         }

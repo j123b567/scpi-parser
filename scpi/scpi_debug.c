@@ -26,43 +26,27 @@
  */
 
 /**
- * @file   scpi_error.h
+ * @file   scpi_debug.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
- * @brief  Error handling and storing routines
+ * @brief  Debugging SCPI
  * 
  * 
  */
 
-#ifndef SCPI_ERROR_H
-#define	SCPI_ERROR_H
+#include <stdio.h>
+#include "scpi_debug.h"
 
-#include "scpi_types.h"
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-    
-    void SCPI_ErrorInit(scpi_t * context);
-    void SCPI_ErrorClear(scpi_t * context);
-    int16_t SCPI_ErrorPop(scpi_t * context);
-    void SCPI_ErrorPush(scpi_t * context, int16_t err);
-    int32_t SCPI_ErrorCount(scpi_t * context);    
-    const char * SCPI_ErrorTranslate(int16_t err);
-
-#define SCPI_ERROR_SYNTAX               -102
-#define SCPI_ERROR_INVALID_SEPARATOR    -103
-#define SCPI_ERROR_UNDEFINED_HEADER     -113
-#define SCPI_ERROR_PARAMETER_NOT_ALLOWED        -108
-#define SCPI_ERROR_MISSING_PARAMETER    -109
-#define SCPI_ERROR_INVALID_SUFFIX       -131
-#define SCPI_ERROR_SUFFIX_NOT_ALLOWED   -138
-
-#define SCPI_ERROR_EXECUTION_ERROR      -200    
-    
-#ifdef	__cplusplus
+/**
+ * Debug function: show current command and its parameters
+ * @param context
+ * @return 
+ */
+bool_t SCPI_DebugCommand(scpi_t * context) {
+	(void) context;
+	printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
+	fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);
+	printf("\" - %ld)\r\n", context->paramlist.length);
+	
+	return TRUE;
 }
-#endif
-
-#endif	/* SCPI_ERROR_H */
-

@@ -37,19 +37,22 @@
 #ifndef SCPI_MINIMAL_H
 #define	SCPI_MINIMAL_H
 
+#include "scpi_types.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-    int SCPI_Stub(scpi_t * context);
-    int SCPI_StubQ(scpi_t * context);
-    
-    int SCPI_SystemVersionQ(scpi_t * context);
-    int SCPI_SystemErrorNextQ(scpi_t * context);
-    int SCPI_StatusQuestionableEventQ(scpi_t * context);
-    int SCPI_StatusQuestionableEnableQ(scpi_t * context);
-    int SCPI_StatusQuestionableEnable(scpi_t * context);
-    int SCPI_StatusPreset(scpi_t * context);
+    scpi_result_t SCPI_Stub(scpi_t * context);
+    scpi_result_t SCPI_StubQ(scpi_t * context);
+
+    scpi_result_t SCPI_SystemVersionQ(scpi_t * context);
+    scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context);
+    scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context);
+    scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context);
+    scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context);
+    scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context);
+    scpi_result_t SCPI_StatusPreset(scpi_t * context);
 
 
 #ifdef	__cplusplus

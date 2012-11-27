@@ -38,14 +38,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "scpi/scpi.h"
-#include "scpi/scpi_ieee488.h"
-#include "scpi/scpi_error.h"
-#include "scpi/scpi_constants.h"
-#include "scpi/scpi_minimal.h"
-#include "scpi/scpi_utils.h"
-#include "scpi/scpi_units.h"
 
-int DMM_MeasureVoltageDcQ(scpi_t * context) {
+scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
@@ -63,7 +57,8 @@ int DMM_MeasureVoltageDcQ(scpi_t * context) {
     }
 
     SCPI_ResultDouble(context, 0);
-    return 0;
+    
+    return SCPI_RES_OK;
 }
 
 scpi_command_t scpi_commands[] = {
@@ -85,6 +80,7 @@ scpi_command_t scpi_commands[] = {
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
     {.pattern = "SYSTem:ERRor?", .callback = SCPI_SystemErrorNextQ,},
     {.pattern = "SYSTem:ERRor:NEXT?", .callback = SCPI_SystemErrorNextQ,},
+    {.pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
     {.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
 
     //{.pattern = "STATus:OPERation?", .callback = scpi_stub_callback,},
@@ -187,8 +183,8 @@ int main(int argc, char** argv) {
     // interactive demo
     //char smbuffer[10];
     //while (1) {
-    //    fgets(smbuffer, 10, stdin);
-    //    SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
+    //     fgets(smbuffer, 10, stdin);
+    //     SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
     //}
 
 

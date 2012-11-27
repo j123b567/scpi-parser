@@ -37,61 +37,11 @@
 #ifndef SCPI_UNITS_H
 #define	SCPI_UNITS_H
 
-#include "scpi.h"
+#include "scpi_types.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-    enum _scpi_unit_t {
-        SCPI_UNIT_NONE,
-        SCPI_UNIT_VOLT,
-        SCPI_UNIT_AMPER,
-        SCPI_UNIT_OHM,
-        SCPI_UNIT_HERTZ,
-        SCPI_UNIT_CELSIUS,
-        SCPI_UNIT_SECONDS,
-    };
-    typedef enum _scpi_unit_t scpi_unit_t;
-
-    struct _scpi_unit_def_t {
-        const char * name;
-        scpi_unit_t unit;
-        double mult;
-    };
-    typedef struct _scpi_unit_def_t scpi_unit_def_t;
-
-#define SCPI_UNITS_LIST_END       {.name = NULL, .unit = SCPI_UNIT_NONE, .mult = 0}
-
-    enum _scpi_special_number_t {
-        SCPI_NUM_NUMBER,
-        SCPI_NUM_MIN,
-        SCPI_NUM_MAX,
-        SCPI_NUM_DEF,
-        SCPI_NUM_UP,
-        SCPI_NUM_DOWN,
-        SCPI_NUM_NAN,
-        SCPI_NUM_INF,
-        SCPI_NUM_NINF,
-    };
-    typedef enum _scpi_special_number_t scpi_special_number_t;
-
-    struct _scpi_special_number_def_t {
-        const char * name;
-        scpi_special_number_t type;
-    };
-    typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
-
-    struct _scpi_number_t {
-        double value;
-        scpi_unit_t unit;
-        scpi_special_number_t type;
-    };
-    typedef struct _scpi_number_t scpi_number_t;
-
-
-#define SCPI_SPECIAL_NUMBERS_LIST_END   {.name = NULL, .type = SCPI_NUM_NUMBER}
-
 
     bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory);
     size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len);
