@@ -48,7 +48,7 @@ void test_longToStr() {
 void test_doubleToStr() {
     size_t result;
     char str[50];
-    
+
 #define TEST_DOUBLE_TO_STR(v, r, s)                     \
     do {                                                \
         result = doubleToStr(v, str, sizeof(str));      \
@@ -56,7 +56,7 @@ void test_doubleToStr() {
         CU_ASSERT_STRING_EQUAL(str, s);                 \
     } while(0)                                          \
 
-    
+
     TEST_DOUBLE_TO_STR(1, 1, "1");
     TEST_DOUBLE_TO_STR(-1, 2, "-1");
     TEST_DOUBLE_TO_STR(1.1, 3, "1.1");
@@ -86,10 +86,10 @@ void test_strToLong() {
     TEST_STR_TO_LONG("MHz", 0, 0);
     TEST_STR_TO_LONG("1.4", 1, 1);
     TEST_STR_TO_LONG(" 1", 2, 1);
-    TEST_STR_TO_LONG(" +100", 5, 100);  // space and +
-    TEST_STR_TO_LONG("0xFF", 4, 255);   // hexadecimal FF
-    TEST_STR_TO_LONG("077", 3, 63);     // octal 77
-    TEST_STR_TO_LONG("018", 2, 1);      // octal 1, 8 is ignored
+    TEST_STR_TO_LONG(" +100", 5, 100); // space and +
+    TEST_STR_TO_LONG("0xFF", 4, 255); // hexadecimal FF
+    TEST_STR_TO_LONG("077", 3, 63); // octal 77
+    TEST_STR_TO_LONG("018", 2, 1); // octal 1, 8 is ignored
 }
 
 void test_strToDouble() {
@@ -131,9 +131,57 @@ void test_compareStr() {
     CU_ASSERT_TRUE(compareStr("ABCD", 4, "abcd", 4));
     CU_ASSERT_TRUE(compareStr("AbCd", 3, "AbCE", 3));
     CU_ASSERT_TRUE(compareStr("ABCD", 1, "a", 1));
-    
+
     CU_ASSERT_FALSE(compareStr("abcd", 1, "efgh", 1));
     CU_ASSERT_FALSE(compareStr("ABCD", 4, "abcd", 3));
+}
+
+void test_locateText() {
+
+    char * v;
+    char * b;
+    size_t l;
+    int result;
+
+
+#define TEST_LOCATE_TEXT(s, ex_res, ex_off, ex_len)      \
+    do {                                                \
+        v = (s);                                        \
+        b = NULL;                                       \
+        l = 0;                                          \
+        result = locateText(v, strlen(v), &b, &l);       \
+        CU_ASSERT(result == ex_res);                    \
+        if (result == TRUE) {                           \
+                CU_ASSERT(b == (s + ex_off));           \
+                CU_ASSERT(l == ex_len);                 \
+        } else {                                        \
+                CU_ASSERT(b == NULL);                   \
+                CU_ASSERT(l == 0);                      \
+        }                                               \
+    } while(0)                                          \
+
+
+    TEST_LOCATE_TEXT("", TRUE, 0, 0);
+    TEST_LOCATE_TEXT("   ", TRUE, 3, 0);
+    TEST_LOCATE_TEXT("a", TRUE, 0, 1);
+    TEST_LOCATE_TEXT("ab", TRUE, 0, 2);
+    TEST_LOCATE_TEXT("abc", TRUE, 0, 3);
+    TEST_LOCATE_TEXT(" abc", TRUE, 1, 3);
+    TEST_LOCATE_TEXT(" abc def", TRUE, 1, 7);
+    TEST_LOCATE_TEXT(" abc def ", TRUE, 1, 7);
+    TEST_LOCATE_TEXT("\"\"", TRUE, 1, 0);
+    TEST_LOCATE_TEXT("\"a\"", TRUE, 1, 1);
+    TEST_LOCATE_TEXT(" \"a\" ", TRUE, 2, 1);
+    TEST_LOCATE_TEXT(" \"a\"  ", TRUE, 2, 1);
+    TEST_LOCATE_TEXT(" \"a\"  ,", TRUE, 2, 1);
+    TEST_LOCATE_TEXT(" \"a,b\"", TRUE, 2, 3);
+    TEST_LOCATE_TEXT(" \"a,b\"     ,", TRUE, 2, 3);
+    TEST_LOCATE_TEXT(" a b    ", TRUE, 1, 3);
+    TEST_LOCATE_TEXT(" a b   ,", TRUE, 1, 3);
+    TEST_LOCATE_TEXT(" \"a \" ", TRUE, 2, 2);
+    TEST_LOCATE_TEXT(" \"a  ", FALSE, 0, 0);
+    TEST_LOCATE_TEXT(" \"a\" a, a ", FALSE, 0, 0);
+    TEST_LOCATE_TEXT(" \"a\" , a ", TRUE, 2, 1);
 }
 
 void test_locateStr() {
@@ -159,8 +207,7 @@ void test_locateStr() {
                 CU_ASSERT(l == 0);                      \
         }                                               \
     } while(0)                                          \
-
-
+    
     TEST_LOCATE_STR("", TRUE, 0, 0);
     TEST_LOCATE_STR("   ", TRUE, 3, 0);
     TEST_LOCATE_STR("a", TRUE, 0, 1);
@@ -169,19 +216,35 @@ void test_locateStr() {
     TEST_LOCATE_STR(" abc", TRUE, 1, 3);
     TEST_LOCATE_STR(" abc def", TRUE, 1, 7);
     TEST_LOCATE_STR(" abc def ", TRUE, 1, 7);
-    TEST_LOCATE_STR("\"\"", TRUE, 1, 0);
-    TEST_LOCATE_STR("\"a\"", TRUE, 1, 1);
-    TEST_LOCATE_STR(" \"a\" ", TRUE, 2, 1);
-    TEST_LOCATE_STR(" \"a\"  ", TRUE, 2, 1);
-    TEST_LOCATE_STR(" \"a\"  ,", TRUE, 2, 1);
-    TEST_LOCATE_STR(" \"a,b\"", TRUE, 2, 3);
-    TEST_LOCATE_STR(" \"a,b\"     ,", TRUE, 2, 3);
+    TEST_LOCATE_STR("\"\"", TRUE, 0, 2);
+    TEST_LOCATE_STR("\"a\"", TRUE, 0, 3);
+    TEST_LOCATE_STR(" \"a\" ", TRUE, 1, 3);
+    TEST_LOCATE_STR(" \"a\"  ", TRUE, 1, 3);
+    TEST_LOCATE_STR(" \"a\"  ,", TRUE, 1, 3);
+    TEST_LOCATE_STR(" \"a,b\"", TRUE, 1, 2);
+    TEST_LOCATE_STR(" \"a,b\"     ,", TRUE, 1, 2);
     TEST_LOCATE_STR(" a b    ", TRUE, 1, 3);
     TEST_LOCATE_STR(" a b   ,", TRUE, 1, 3);
-    TEST_LOCATE_STR(" \"a \" ", TRUE, 2, 2);
-    TEST_LOCATE_STR(" \"a  ", FALSE, 0, 0);
-    TEST_LOCATE_STR(" \"a\" a, a ", FALSE, 0, 0);
-    TEST_LOCATE_STR(" \"a\" , a ", TRUE, 2, 1);
+    TEST_LOCATE_STR(" \"a \" ", TRUE, 1, 4);
+    TEST_LOCATE_STR(" \"a  ", TRUE, 1, 2);
+    TEST_LOCATE_STR(" \"a\" a, a ", TRUE, 1, 5);
+    TEST_LOCATE_STR(" \"a\" , a ", TRUE, 1, 3);
+}
+
+void test_matchPattern() {
+    bool_t result;
+    
+#define TEST_MATCH_PATTERN(p, s, r)                             \
+    do {                                                        \
+        result = matchPattern(p, strlen(p), s, strlen(s));      \
+        CU_ASSERT_EQUAL(result, r);                             \
+    } while(0)                                                  \
+
+    TEST_MATCH_PATTERN("A", "a", TRUE);
+    TEST_MATCH_PATTERN("Ab", "a", TRUE);
+    TEST_MATCH_PATTERN("Ab", "ab", TRUE);
+    TEST_MATCH_PATTERN("Ab", "aB", TRUE);
+    TEST_MATCH_PATTERN("AB", "a", FALSE);
 }
 
 int main() {
@@ -206,7 +269,9 @@ int main() {
             || (NULL == CU_add_test(pSuite, "strToLong", test_strToLong))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
+            || (NULL == CU_add_test(pSuite, "locateText", test_locateText))
             || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
+            || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

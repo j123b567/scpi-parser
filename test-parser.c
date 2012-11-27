@@ -42,22 +42,26 @@
 #include "scpi/scpi_error.h"
 #include "scpi/scpi_constants.h"
 #include "scpi/scpi_minimal.h"
+#include "scpi/scpi_utils.h"
+#include "scpi/scpi_units.h"
 
 int DMM_MeasureVoltageDcQ(scpi_context_t * context) {
-    double param1, param2;
-    fprintf(stderr, "meas:volt:dc "); // debug command name
-    
-    // read first parameter
-    if (SCPI_ParamDouble(context, &param1, false)) {
-        fprintf(stderr, "P1=%lf ", param1);
-    }
-    
-    // read second paraeter
-    if (SCPI_ParamDouble(context, &param2, false)) {
-        fprintf(stderr, "P2=%lf ", param2);
+    scpi_number_t param1, param2;
+    char bf[15];
+    fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (SCPI_ParamNumber(context, &param1, false)) {
+        SCPI_NumberToStr(context, &param1, bf, 15);
+        fprintf(stderr, "\tP1=%s\r\n", bf);
     }
 
-    fprintf(stderr, "\r\n");
+    // read second paraeter if present
+    if (SCPI_ParamNumber(context, &param2, false)) {
+        SCPI_NumberToStr(context, &param2, bf, 15);
+        fprintf(stderr, "\tP2=%s\r\n", bf);
+    }
+
     SCPI_ResultDouble(context, 0);
     return 0;
 }
@@ -118,7 +122,7 @@ size_t SCPI_Write(scpi_context_t * context, const char * data, size_t len) {
 
 int SCPI_Error(scpi_context_t * context, int_fast16_t err) {
     (void) context;
-    
+
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
@@ -144,42 +148,50 @@ scpi_context_t scpi_context;
 /*
  * 
  */
-#include "scpi/scpi_utils.h"
 int main(int argc, char** argv) {
     (void) argc;
     (void) argv;
     int result;
-   
-    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
-    
+
     SCPI_Init(&scpi_context, scpi_commands, &scpi_buffer, &scpi_interface);
 
-    // // interactive demo
-    //  char smbuffer[10];
-    //  while(1) {
-    //          fgets(smbuffer, 10, stdin);
-    //          SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));      
-    //  }
-       
-    result = SCPI_Input(&scpi_context, "*CLS\r\n", 6);
-    result = SCPI_Input(&scpi_context, "*RST\r\n", 6);
-    result = SCPI_Input(&scpi_context, "MEAS:volt:DC? 12,50;*OPC\r\n", 26);
-    result = SCPI_Input(&scpi_context, "*IDN?\r\n", 7);
-    result = SCPI_Input(&scpi_context, "SYST:VERS?", 10);
-    result = SCPI_Input(&scpi_context, "\r\n*ID", 5);
-    result = SCPI_Input(&scpi_context, "N?", 2);
-    result = SCPI_Input(&scpi_context, NULL, 0); // emulate command timeout
+#define TEST_SCPI_INPUT(cmd)    result = SCPI_Input(&scpi_context, cmd, strlen(cmd))
 
-    result = SCPI_Input(&scpi_context, "*ESE\r\n", 6);
-    result = SCPI_Input(&scpi_context, "*ESE 0x20\r\n", 11);
+    TEST_SCPI_INPUT("*CLS\r\n");
+    TEST_SCPI_INPUT("*RST\r\n");
+    TEST_SCPI_INPUT("MEAS:volt:DC? 12,50;*OPC\r\n");
+    TEST_SCPI_INPUT("*IDN?\r\n");
+    TEST_SCPI_INPUT("SYST:VERS?");
+    TEST_SCPI_INPUT("\r\n*ID");
+    TEST_SCPI_INPUT("N?");
+    TEST_SCPI_INPUT(""); // emulate command timeout
 
-    result = SCPI_Input(&scpi_context, "IDN?\r\n", 6); // cause error -113, undefined header
+    TEST_SCPI_INPUT("*ESE\r\n"); // cause error -109, missing parameter
+    TEST_SCPI_INPUT("*ESE 0x20\r\n");
 
-    result = SCPI_Input(&scpi_context, "SYST:ERR?\r\n", 11);
-    result = SCPI_Input(&scpi_context, "SYST:ERR?\r\n", 11);
-    result = SCPI_Input(&scpi_context, "*STB?\r\n", 6);
-    result = SCPI_Input(&scpi_context, "*ESR?\r\n", 6);
-    result = SCPI_Input(&scpi_context, "*STB?\r\n", 6);
+    TEST_SCPI_INPUT("IDN?\r\n"); // cause error -113, undefined header
+
+    TEST_SCPI_INPUT("SYST:ERR?\r\n");
+    TEST_SCPI_INPUT("SYST:ERR?\r\n");
+    TEST_SCPI_INPUT("*STB?\r\n");
+    TEST_SCPI_INPUT("*ESR?\r\n");
+    TEST_SCPI_INPUT("*STB?\r\n");
+
+    TEST_SCPI_INPUT("meas:volt:dc? 0.01 V, Default\r\n");
+    TEST_SCPI_INPUT("meas:volt:dc?\r\n");
+    TEST_SCPI_INPUT("meas:volt:dc? def, 0.00001\r\n");
+    TEST_SCPI_INPUT("meas:volt:dc? 0.00001\r\n");
+
+
+    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
+    // interactive demo
+    //char smbuffer[10];
+    //while (1) {
+    //    fgets(smbuffer, 10, stdin);
+    //    SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
+    //}
+
+
     return (EXIT_SUCCESS);
 }
 

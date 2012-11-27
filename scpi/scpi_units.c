@@ -99,44 +99,65 @@ const scpi_unit_def_t scpi_units_def[] = {
     SCPI_UNITS_LIST_END,
 };
 
-
 const scpi_special_number_def_t scpi_special_numbers_def[] = {
-    { .name = "MIN", .type = SCPI_NUM_MIN},
-    { .name = "MINIMUM", .type = SCPI_NUM_MIN},
-    { .name = "MAX", .type = SCPI_NUM_MAX},
-    { .name = "MAXIMUM", .type = SCPI_NUM_MAX},
-    { .name = "DEF", .type = SCPI_NUM_DEF},
-    { .name = "DEFAULT", .type = SCPI_NUM_DEF},
+    { .name = "MINimum", .type = SCPI_NUM_MIN},
+    { .name = "MAXimum", .type = SCPI_NUM_MAX},
+    { .name = "DEFault", .type = SCPI_NUM_DEF},
+    { .name = "UP", .type = SCPI_NUM_UP},
+    { .name = "DOWN", .type = SCPI_NUM_DOWN},
     { .name = "NAN", .type = SCPI_NUM_NAN},
     { .name = "INF", .type = SCPI_NUM_INF},
     { .name = "NINF", .type = SCPI_NUM_NINF},
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
 
-static scpi_special_number_t translateSpecialNumber(const char * str, size_t len) {
+static scpi_special_number_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len) {
     int i;
 
-    for (i = 0; scpi_special_numbers_def[i].name != NULL; i++) {
-        if (compareStr(str, len, scpi_special_numbers_def[i].name, strlen(scpi_special_numbers_def[i].name))) {
-            return scpi_special_numbers_def[i].type;
+    for (i = 0; specs[i].name != NULL; i++) {
+        if (matchPattern(specs[i].name, strlen(specs[i].name), str, len)) {
+            return specs[i].type;
         }
     }
 
     return SCPI_NUM_NUMBER;
 }
 
-static const scpi_unit_def_t * searchUnit(const char * unit, size_t len) {
+static const char * translateSpecialNumberInverse(const scpi_special_number_def_t * specs, scpi_special_number_t type) {
     int i;
-    for(i = 0; scpi_units_def[i].name != NULL; i++) {
-        if (compareStr(unit, len, scpi_units_def[i].name, strlen(scpi_units_def[i].name))) {
-            return &scpi_units_def[i];
+
+    for (i = 0; specs[i].name != NULL; i++) {
+        if (specs[i].type == type) {
+            return specs[i].name;
         }
     }
-    
+
     return NULL;
 }
 
-static bool_t transformNumber(const char * unit, size_t len, scpi_number_t * value) {
+static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, const char * unit, size_t len) {
+    int i;
+    for (i = 0; units[i].name != NULL; i++) {
+        if (compareStr(unit, len, units[i].name, strlen(units[i].name))) {
+            return &units[i];
+        }
+    }
+
+    return NULL;
+}
+
+static const char * translateUnitInverse(const scpi_unit_def_t * units, const scpi_unit_t unit) {
+    int i;
+    for (i = 0; units[i].name != NULL; i++) {
+        if ((units[i].unit == unit) && (units[i].mult == 1)) {
+            return units[i].name;
+        }
+    }
+
+    return NULL;
+}
+
+static bool_t transformNumber(const scpi_unit_def_t * units, const char * unit, size_t len, scpi_number_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -145,16 +166,16 @@ static bool_t transformNumber(const char * unit, size_t len, scpi_number_t * val
         value->unit = SCPI_UNIT_NONE;
         return TRUE;
     }
-    
-    unitDef = searchUnit(unit + s, len - s);
-    
+
+    unitDef = translateUnit(units, unit + s, len - s);
+
     if (unitDef == NULL) {
         return FALSE;
     }
-    
+
     value->value *= unitDef->mult;
     value->unit = unitDef->unit;
-    
+
     return TRUE;
 }
 
@@ -171,19 +192,26 @@ bool_t SCPI_ParamNumber(scpi_context_t * context, scpi_number_t * value, bool_t 
     size_t len;
     size_t numlen;
 
-    result = SCPI_ParamString(context, &param, &len, mandatory);
+    // TODO: get scpi_special_numbers_def and scpi_units_def from context    
 
-    if (!result) {
-        return FALSE;
-    }
+    result = SCPI_ParamString(context, &param, &len, mandatory);
 
     if (!value) {
         return FALSE;
     }
 
+    if (!result) {
+        if (mandatory) {
+            return FALSE;
+        } else {
+            value->type = SCPI_NUM_DEF;
+            return TRUE;
+        }
+    }
+
     value->unit = SCPI_UNIT_NONE;
     value->value = 0.0;
-    value->type = translateSpecialNumber(param, len);
+    value->type = translateSpecialNumber(scpi_special_numbers_def, param, len);
 
     if (value->type != SCPI_NUM_NUMBER) {
         // found special type
@@ -193,13 +221,44 @@ bool_t SCPI_ParamNumber(scpi_context_t * context, scpi_number_t * value, bool_t 
     numlen = strToDouble(param, &value->value);
 
     if (numlen <= len) {
-        if (transformNumber(param + numlen, len - numlen, value)) {
+        if (transformNumber(scpi_units_def, param + numlen, len - numlen, value)) {
             return TRUE;
         } else {
-            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SUFFIX);            
+            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SUFFIX);
         }
     }
     return FALSE;
 
 }
 
+size_t SCPI_NumberToStr(scpi_context_t * context, scpi_number_t * value, char * str, size_t len) {
+    const char * type;
+    const char * unit;
+    size_t result;
+
+    (void) context; // TODO: get scpi_special_numbers_def and scpi_units_def from context
+
+
+    if (!value || !str) {
+        return 0;
+    }
+
+    type = translateSpecialNumberInverse(scpi_special_numbers_def, value->type);
+
+    if (type) {
+        strncpy(str, type, len);
+        return min(strlen(type), len);
+    }
+
+    result = doubleToStr(value->value, str, len);
+
+    unit = translateUnitInverse(scpi_units_def, value->unit);
+
+    if (unit) {
+        strncat(str, " ", len);
+        strncat(str, unit, len);
+        result += strlen(unit) + 1;
+    }
+
+    return result;
+}

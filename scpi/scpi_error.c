@@ -46,7 +46,7 @@ static int16_t scpi_err = 0;
  * @param context - scpi context
  */
 void SCPI_ErrorClear(scpi_context_t * context) {
-    (void)context;
+    (void) context;
     scpi_err = 0;
 }
 
@@ -57,8 +57,8 @@ void SCPI_ErrorClear(scpi_context_t * context) {
  */
 void SCPI_ErrorPush(scpi_context_t * context, int16_t err) {
     scpi_err = err;
-    
-     // Command error (e.g. syntax error)
+
+    // Command error (e.g. syntax error)
     if ((err < -101) && (err > -158)) {
         SCPI_RegSetBits(SCPI_REG_ESR, ESR_CER);
     }
@@ -71,10 +71,14 @@ void SCPI_ErrorPush(scpi_context_t * context, int16_t err) {
     // Device Dependent Error
     if ((err < -501) && (err > -748)) {
         SCPI_RegSetBits(SCPI_REG_ESR, ESR_DER);
-    }  
-    
-    if (context && context->interface && context->interface->error) {
-        context->interface->error(context, err);
+    }
+
+    if (context) {
+        if (context->interface && context->interface->error) {
+            context->interface->error(context, err);
+        }
+
+        context->error = TRUE;
     }
 }
 
@@ -84,7 +88,7 @@ void SCPI_ErrorPush(scpi_context_t * context, int16_t err) {
  * @return error number
  */
 int16_t SCPI_ErrorPop(scpi_context_t * context) {
-    (void)context;
+    (void) context;
     int16_t result = scpi_err;
     scpi_err = 0;
     return result;
@@ -96,7 +100,7 @@ int16_t SCPI_ErrorPop(scpi_context_t * context) {
  * @return Error string representation
  */
 const char * SCPI_ErrorTranslate(int16_t err) {
-    switch(err) {
+    switch (err) {
         case 0: return "No error";
         case SCPI_ERROR_SYNTAX: return "Syntax error";
         case SCPI_ERROR_INVALID_SEPARATOR: return "Invalid separator";

@@ -41,6 +41,8 @@
 #include <string.h>
 #include <ctype.h>
 
+static size_t patternSeparatorShortPos(const char * pattern, size_t len);
+
 /**
  * Find the first occurrence in str of a character in set.
  * @param str
@@ -152,7 +154,7 @@ bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2
     return FALSE;
 }
 
-bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
+bool_t locateText(const char * str1, size_t len1, char ** str2, size_t * len2) {
     size_t i;
     int quot = 0;
     int32_t strStart = -1;
@@ -230,6 +232,68 @@ bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
     return valid;
 }
 
+bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
+    size_t i;
+    int32_t strStart = -1;
+    int32_t strStop = -1;
+    int valid = 0;
+
+
+    for (i = 0; i < len1; i++) {
+        if ((strStart < 0) && isspace(str1[i])) {
+            continue;
+        }
+
+        if (strStart < 0) {
+            strStart = i;
+        }
+
+        if (!isspace(str1[i]) && (str1[i] != ',')) {
+            strStop = i;
+        }
+
+        if (isspace(str1[i])) {
+            continue;
+        }
+
+        if (str1[i] == ',') {
+            valid = 1;
+
+            if (strStop < 0) {
+                strStop = i;
+            }
+            break;
+        }
+    }
+
+    if (i == len1) {
+        valid = 1;
+        if (strStop < 0) {
+            strStop = i;
+        } else {
+            strStop++;
+        }
+        if (strStart < 0) {
+            strStart = i;
+        }
+    } else {
+        strStop++;
+    }
+
+
+    if (valid) {
+        if (str2) {
+            *str2 = (char *) &str1[strStart];
+        }
+
+        if (len2) {
+            *len2 = strStop - strStart;
+        }
+    }
+
+    return valid;
+}
+
 /**
  * Count white spaces from the beggining
  * @param cmd - command
@@ -244,4 +308,36 @@ size_t skipWhitespace(const char * cmd, size_t len) {
         }
     }
     return len;
+}
+
+
+/**
+ * Pattern is composed from upper case an lower case letters. This function
+ * search the first lowercase letter
+ * @param pattern
+ * @param len - max search length
+ * @return position of separator or len
+ */
+size_t patternSeparatorShortPos(const char * pattern, size_t len) {
+    size_t i;
+    for (i = 0; (i < len) && pattern[i]; i++) {
+        if (islower(pattern[i])) {
+            return i;
+        }
+    }
+    return i;
+}
+
+/**
+ * Match pattern and str. Pattern is in format UPPERCASElowercase
+ * @param pattern
+ * @param pattern_len
+ * @param str
+ * @param str_len
+ * @return 
+ */
+bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
+    int pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
+    return compareStr(pattern, pattern_len, str, str_len) ||
+            compareStr(pattern, pattern_sep_pos_short, str, str_len);
 }

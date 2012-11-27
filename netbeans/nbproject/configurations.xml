@@ -10,6 +10,7 @@
         <itemPath>../scpi/scpi_error.h</itemPath>
         <itemPath>../scpi/scpi_ieee488.h</itemPath>
         <itemPath>../scpi/scpi_minimal.h</itemPath>
+        <itemPath>../scpi/scpi_units.h</itemPath>
         <itemPath>../scpi/scpi_utils.h</itemPath>
       </logicalFolder>
     </logicalFolder>
@@ -61,6 +62,8 @@
           <developmentMode>0</developmentMode>
           <incDir>
             <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
           <commandLine>-Wextra -g3 -O0</commandLine>
           <warningLevel>2</warningLevel>
@@ -68,11 +71,14 @@
         <ccTool>
           <incDir>
             <pElem>.</pElem>
+            <pElem>.</pElem>
+            <pElem>.</pElem>
           </incDir>
         </ccTool>
         <linkerTool>
-          <output>${TESTDIR}/TestFiles/f2</output>
+          <output>${TESTDIR}/TestFiles/f1</output>
           <linkerLibItems>
+            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
             <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
             <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
           </linkerLibItems>
@@ -91,26 +97,6 @@
                             group="bin"/>
         </packFileList>
       </packaging>
-      <folder path="TestFiles/f1">
-        <cTool>
-          <incDir>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </cTool>
-        <ccTool>
-          <incDir>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-        <linkerTool>
-          <output>${TESTDIR}/TestFiles/f1</output>
-          <linkerLibItems>
-            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
-          </linkerLibItems>
-        </linkerTool>
-      </folder>
       <folder path="TestFiles/f3">
         <cTool>
           <incDir>

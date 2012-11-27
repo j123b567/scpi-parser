@@ -43,7 +43,6 @@
 #include <stdint.h>
 
 static size_t patternSeparatorPos(const char * pattern, size_t len);
-static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 static size_t cmdSeparatorPos(const char * cmd, size_t len);
 static size_t cmdTerminatorPos(const char * cmd, size_t len);
 static size_t cmdlineSeparatorPos(const char * cmd, size_t len);
@@ -55,16 +54,6 @@ static bool_t cmdMatch(const char * pattern, const char * cmd, size_t len);
 static void paramSkipBytes(scpi_context_t * context, size_t num);
 static void paramSkipWhitespace(scpi_context_t * context);
 static bool_t paramNext(scpi_context_t * context, bool_t mandatory);
-
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
-
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
 
 /*
 int _strnicmp(const char* s1, const char* s2, size_t len) {
@@ -98,23 +87,6 @@ size_t patternSeparatorPos(const char * pattern, size_t len) {
     } else {
         return separator - pattern;
     }
-}
-
-/**
- * Pattern is composed from upper case an lower case letters. This function
- * search the first lowercase letter
- * @param pattern
- * @param len - max search length
- * @return position of separator or len
- */
-size_t patternSeparatorShortPos(const char * pattern, size_t len) {
-    size_t i;
-    for (i = 0; (i < len) && pattern[i]; i++) {
-        if (islower(pattern[i])) {
-            return i;
-        }
-    }
-    return i;
 }
 
 /**
@@ -221,10 +193,8 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
         int cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
-        int pattern_sep_pos_short = patternSeparatorShortPos(pattern_ptr, pattern_sep_pos);
 
-        if (compareStr(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos) ||
-                compareStr(pattern_ptr, pattern_sep_pos_short, cmd_ptr, cmd_sep_pos)) {
+        if (matchPattern(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos)) {
             pattern_ptr = pattern_ptr + pattern_sep_pos;
             cmd_ptr = cmd_ptr + cmd_sep_pos;
             result = TRUE;
@@ -262,7 +232,6 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
 
     return result;
 }
-
 
 /**
  * Write data to SCPI output
@@ -326,6 +295,7 @@ int SCPI_Parse(scpi_context_t * context, const char * data, size_t len) {
             for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
                 if (cmdMatch(context->cmdlist[i].pattern, cmdline_ptr, cmd_len)) {
                     if (context->cmdlist[i].callback != NULL) {
+                        context->error = FALSE;
                         context->paramlist.cmd = &context->cmdlist[i];
                         context->paramlist.parameters = cmdline_ptr + cmd_len;
                         context->paramlist.length = cmdlineSeparatorPos(context->paramlist.parameters, cmdline_end - context->paramlist.parameters);
@@ -338,7 +308,7 @@ int SCPI_Parse(scpi_context_t * context, const char * data, size_t len) {
                         writeNewLine(context); // conditionaly write new line
 
                         paramSkipWhitespace(context);
-                        if (context->paramlist.length != 0) {
+                        if (context->paramlist.length != 0 && !context->error) {
                             SCPI_ErrorPush(context, SCPI_ERROR_PARAMETER_NOT_ALLOWED);
                         }
 
@@ -537,6 +507,7 @@ bool_t paramNext(scpi_context_t * context, bool_t mandatory) {
             paramSkipBytes(context, 1);
             paramSkipWhitespace(context);
         } else {
+            printf("******** :%c:\r\n", context->paramlist.parameters[0]);
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SEPARATOR);
             return FALSE;
         }
@@ -553,33 +524,25 @@ bool_t paramNext(scpi_context_t * context, bool_t mandatory) {
  * @return 
  */
 bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory) {
-    size_t len;
+    char * param;
+    size_t param_len;
+    size_t num_len;
 
     if (!value) {
         return FALSE;
     }
 
-    if (!paramNext(context, mandatory)) {
+    if (!SCPI_ParamString(context, &param, &param_len, mandatory)) {
         return FALSE;
-    }
-       
-    len = strToLong(context->paramlist.parameters, value);
-   
-    if (len == 0) {
-        if (mandatory) {
-            SCPI_ErrorPush(context, SCPI_ERROR_SYNTAX);
-        }
-        return FALSE;
-    } else {
-        paramSkipBytes(context, len);
     }
 
-    paramSkipWhitespace(context);
-    if ((context->paramlist.length > 0) && (context->paramlist.parameters[0] != ',')) {
+    num_len = strToLong(param, value);
+
+    if (num_len != param_len) {
         SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
         return FALSE;
     }
-    
+
     return TRUE;
 }
 
@@ -591,33 +554,25 @@ bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory
  * @return 
  */
 bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandatory) {
-    size_t len;
+    char * param;
+    size_t param_len;
+    size_t num_len;
 
     if (!value) {
         return FALSE;
     }
 
-    if (!paramNext(context, mandatory)) {
+    if (!SCPI_ParamString(context, &param, &param_len, mandatory)) {
         return FALSE;
     }
-   
-    len = strToDouble(context->paramlist.parameters, value);
 
-    if (len == 0) {
-        if (mandatory) {
-            SCPI_ErrorPush(context, SCPI_ERROR_SYNTAX);
-        }
-        return FALSE;
-    } else {
-        paramSkipBytes(context, len);
-    }
+    num_len = strToDouble(param, value);
 
-    paramSkipWhitespace(context);
-    if ((context->paramlist.length > 0) && (context->paramlist.parameters[0] != ',')) {
+    if (num_len != param_len) {
         SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
         return FALSE;
     }
-    
+
     return TRUE;
 }
 
@@ -631,16 +586,47 @@ bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandato
  */
 bool_t SCPI_ParamString(scpi_context_t * context, char ** value, size_t * len, bool_t mandatory) {
     size_t length;
-    
+
     if (!value || !len) {
         return FALSE;
     }
-    
+
     if (!paramNext(context, mandatory)) {
         return FALSE;
     }
 
     if (locateStr(context->paramlist.parameters, context->paramlist.length, value, &length)) {
+        paramSkipBytes(context, length);
+        paramSkipWhitespace(context);
+        if (len) {
+            *len = length;
+        }
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+/**
+ * Parse text parameter (can be inside "")
+ * @param context
+ * @param value
+ * @param len
+ * @param mandatory
+ * @return 
+ */
+bool_t SCPI_ParamText(scpi_context_t * context, char ** value, size_t * len, bool_t mandatory) {
+    size_t length;
+
+    if (!value || !len) {
+        return FALSE;
+    }
+
+    if (!paramNext(context, mandatory)) {
+        return FALSE;
+    }
+
+    if (locateText(context->paramlist.parameters, context->paramlist.length, value, &length)) {
         paramSkipBytes(context, length);
         if (len) {
             *len = length;

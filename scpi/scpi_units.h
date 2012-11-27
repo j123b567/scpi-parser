@@ -94,7 +94,7 @@ extern "C" {
 
 
     bool_t SCPI_ParamNumber(scpi_context_t * context, scpi_number_t * value, bool_t mandatory);
-
+    size_t SCPI_NumberToStr(scpi_context_t * context, scpi_number_t * value, char * str, size_t len);
 
 #ifdef	__cplusplus
 }
