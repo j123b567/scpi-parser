@@ -74,8 +74,6 @@
           <developmentMode>0</developmentMode>
           <incDir>
             <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
           </incDir>
           <commandLine>-Wextra -g3 -O0</commandLine>
           <warningLevel>2</warningLevel>
@@ -83,16 +81,12 @@
         <ccTool>
           <incDir>
             <pElem>.</pElem>
-            <pElem>.</pElem>
-            <pElem>.</pElem>
           </incDir>
         </ccTool>
         <linkerTool>
-          <output>${TESTDIR}/TestFiles/f1</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/scpi_parser</output>
           <linkerLibItems>
-            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
-            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
-            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
+            <linkerLibLibItem>cunit</linkerLibLibItem>
           </linkerLibItems>
           <commandLine>-g3</commandLine>
         </linkerTool>
@@ -110,6 +104,24 @@
         </packFileList>
       </packaging>
       <folder path="TestFiles/f1">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerLibStdlibItem>CUnit</linkerLibStdlibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f2">
         <cTool>
           <incDir>
             <pElem>.</pElem>
@@ -152,6 +164,8 @@
       <compileType>
         <cTool>
           <developmentMode>5</developmentMode>
+          <commandLine>-Os -Wextra</commandLine>
+          <warningLevel>2</warningLevel>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
@@ -178,6 +192,16 @@
                             group="bin"/>
         </packFileList>
       </packaging>
+      <folder path="TestFiles/f1">
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/f1</output>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/f2</output>
+        </linkerTool>
+      </folder>
     </conf>
   </confs>
 </configurationDescriptor>

@@ -8,9 +8,9 @@ CND_BUILDDIR=build
 CND_DISTDIR=dist
 # Debug configuration
 CND_PLATFORM_Debug=GNU-Linux-x86
-CND_ARTIFACT_DIR_Debug=build/Debug/GNU-Linux-x86/tests/TestFiles
-CND_ARTIFACT_NAME_Debug=f1
-CND_ARTIFACT_PATH_Debug=build/Debug/GNU-Linux-x86/tests/TestFiles/f1
+CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-Linux-x86
+CND_ARTIFACT_NAME_Debug=scpi_parser
+CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux-x86/scpi_parser
 CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux-x86/package
 CND_PACKAGE_NAME_Debug=scpi_parser.tar
 CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux-x86/package/scpi_parser.tar

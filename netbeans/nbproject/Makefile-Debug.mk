@@ -39,8 +39,8 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/760632520/scpi_fifo.o \
 	${OBJECTDIR}/_ext/760632520/scpi_ieee488.o \
 	${OBJECTDIR}/_ext/760632520/scpi_minimal.o \
-	${OBJECTDIR}/_ext/760632520/scpi_parser.o \
 	${OBJECTDIR}/_ext/1472/test-parser.o \
+	${OBJECTDIR}/_ext/760632520/scpi_parser.o \
 	${OBJECTDIR}/_ext/760632520/scpi_units.o \
 	${OBJECTDIR}/_ext/760632520/scpi_error.o
 
@@ -66,60 +66,60 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-lcunit -lcunit -lcunit
+LDLIBSOPTIONS=-lcunit
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${TESTDIR}/TestFiles/f1
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/scpi_parser
 
-${TESTDIR}/TestFiles/f1: ${OBJECTFILES}
-	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.c} -g3 -o ${TESTDIR}/TestFiles/f1 ${OBJECTFILES} ${LDLIBSOPTIONS} 
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/scpi_parser: ${OBJECTFILES}
+	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
+	${LINK.c} -g3 -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/scpi_parser ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/_ext/760632520/scpi_debug.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_debug.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_debug.o ../scpi/scpi_debug.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_debug.o ../scpi/scpi_debug.c
 
 ${OBJECTDIR}/_ext/760632520/scpi_utils.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_utils.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_utils.o ../scpi/scpi_utils.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_utils.o ../scpi/scpi_utils.c
 
 ${OBJECTDIR}/_ext/760632520/scpi_fifo.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_fifo.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_fifo.o ../scpi/scpi_fifo.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_fifo.o ../scpi/scpi_fifo.c
 
 ${OBJECTDIR}/_ext/760632520/scpi_ieee488.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_ieee488.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_ieee488.o ../scpi/scpi_ieee488.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_ieee488.o ../scpi/scpi_ieee488.c
 
 ${OBJECTDIR}/_ext/760632520/scpi_minimal.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_minimal.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_minimal.o ../scpi/scpi_minimal.c
-
-${OBJECTDIR}/_ext/760632520/scpi_parser.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_parser.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
-	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_parser.o ../scpi/scpi_parser.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_minimal.o ../scpi/scpi_minimal.c
 
 ${OBJECTDIR}/_ext/1472/test-parser.o: nbproject/Makefile-${CND_CONF}.mk ../test-parser.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1472
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1472/test-parser.o ../test-parser.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1472/test-parser.o ../test-parser.c
+
+${OBJECTDIR}/_ext/760632520/scpi_parser.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_parser.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
+	${RM} $@.d
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_parser.o ../scpi/scpi_parser.c
 
 ${OBJECTDIR}/_ext/760632520/scpi_units.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_units.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_units.o ../scpi/scpi_units.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_units.o ../scpi/scpi_units.c
 
 ${OBJECTDIR}/_ext/760632520/scpi_error.o: nbproject/Makefile-${CND_CONF}.mk ../scpi/scpi_error.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_error.o ../scpi/scpi_error.c
+	$(COMPILE.c) -Wall -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_error.o ../scpi/scpi_error.c
 
 # Subprojects
 .build-subprojects:
@@ -138,13 +138,13 @@ ${TESTDIR}/TestFiles/f3: ${TESTDIR}/tests/test_scpi_utils.o ${OBJECTFILES:%.o=%_
 ${TESTDIR}/tests/test_fifo.o: tests/test_fifo.c 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -I. -MMD -MP -MF $@.d -o ${TESTDIR}/tests/test_fifo.o tests/test_fifo.c
+	$(COMPILE.c) -Wall -I. -I. -MMD -MP -MF $@.d -o ${TESTDIR}/tests/test_fifo.o tests/test_fifo.c
 
 
 ${TESTDIR}/tests/test_scpi_utils.o: tests/test_scpi_utils.c 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} $@.d
-	$(COMPILE.c) -Wall -I. -I. -I. -I. -MMD -MP -MF $@.d -o ${TESTDIR}/tests/test_scpi_utils.o tests/test_scpi_utils.c
+	$(COMPILE.c) -Wall -I. -I. -MMD -MP -MF $@.d -o ${TESTDIR}/tests/test_scpi_utils.o tests/test_scpi_utils.c
 
 
 ${OBJECTDIR}/_ext/760632520/scpi_debug_nomain.o: ${OBJECTDIR}/_ext/760632520/scpi_debug.o ../scpi/scpi_debug.c 
@@ -155,7 +155,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_debug_nomain.o: ${OBJECTDIR}/_ext/760632520/scp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_debug_nomain.o ../scpi/scpi_debug.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_debug_nomain.o ../scpi/scpi_debug.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_debug.o ${OBJECTDIR}/_ext/760632520/scpi_debug_nomain.o;\
 	fi
@@ -168,7 +168,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_utils_nomain.o: ${OBJECTDIR}/_ext/760632520/scp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_utils_nomain.o ../scpi/scpi_utils.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_utils_nomain.o ../scpi/scpi_utils.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_utils.o ${OBJECTDIR}/_ext/760632520/scpi_utils_nomain.o;\
 	fi
@@ -181,7 +181,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_fifo_nomain.o: ${OBJECTDIR}/_ext/760632520/scpi
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_fifo_nomain.o ../scpi/scpi_fifo.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_fifo_nomain.o ../scpi/scpi_fifo.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_fifo.o ${OBJECTDIR}/_ext/760632520/scpi_fifo_nomain.o;\
 	fi
@@ -194,7 +194,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_ieee488_nomain.o: ${OBJECTDIR}/_ext/760632520/s
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_ieee488_nomain.o ../scpi/scpi_ieee488.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_ieee488_nomain.o ../scpi/scpi_ieee488.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_ieee488.o ${OBJECTDIR}/_ext/760632520/scpi_ieee488_nomain.o;\
 	fi
@@ -207,22 +207,9 @@ ${OBJECTDIR}/_ext/760632520/scpi_minimal_nomain.o: ${OBJECTDIR}/_ext/760632520/s
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_minimal_nomain.o ../scpi/scpi_minimal.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_minimal_nomain.o ../scpi/scpi_minimal.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_minimal.o ${OBJECTDIR}/_ext/760632520/scpi_minimal_nomain.o;\
-	fi
-
-${OBJECTDIR}/_ext/760632520/scpi_parser_nomain.o: ${OBJECTDIR}/_ext/760632520/scpi_parser.o ../scpi/scpi_parser.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/_ext/760632520/scpi_parser.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_parser_nomain.o ../scpi/scpi_parser.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_parser.o ${OBJECTDIR}/_ext/760632520/scpi_parser_nomain.o;\
 	fi
 
 ${OBJECTDIR}/_ext/1472/test-parser_nomain.o: ${OBJECTDIR}/_ext/1472/test-parser.o ../test-parser.c 
@@ -233,9 +220,22 @@ ${OBJECTDIR}/_ext/1472/test-parser_nomain.o: ${OBJECTDIR}/_ext/1472/test-parser.
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1472/test-parser_nomain.o ../test-parser.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/1472/test-parser_nomain.o ../test-parser.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/1472/test-parser.o ${OBJECTDIR}/_ext/1472/test-parser_nomain.o;\
+	fi
+
+${OBJECTDIR}/_ext/760632520/scpi_parser_nomain.o: ${OBJECTDIR}/_ext/760632520/scpi_parser.o ../scpi/scpi_parser.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/760632520
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/_ext/760632520/scpi_parser.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} $@.d;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_parser_nomain.o ../scpi/scpi_parser.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_parser.o ${OBJECTDIR}/_ext/760632520/scpi_parser_nomain.o;\
 	fi
 
 ${OBJECTDIR}/_ext/760632520/scpi_units_nomain.o: ${OBJECTDIR}/_ext/760632520/scpi_units.o ../scpi/scpi_units.c 
@@ -246,7 +246,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_units_nomain.o: ${OBJECTDIR}/_ext/760632520/scp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_units_nomain.o ../scpi/scpi_units.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_units_nomain.o ../scpi/scpi_units.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_units.o ${OBJECTDIR}/_ext/760632520/scpi_units_nomain.o;\
 	fi
@@ -259,7 +259,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_error_nomain.o: ${OBJECTDIR}/_ext/760632520/scp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} $@.d;\
-	    $(COMPILE.c) -Wall -I. -I. -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_error_nomain.o ../scpi/scpi_error.c;\
+	    $(COMPILE.c) -Wall -I. -Dmain=__nomain -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/760632520/scpi_error_nomain.o ../scpi/scpi_error.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/_ext/760632520/scpi_error.o ${OBJECTDIR}/_ext/760632520/scpi_error_nomain.o;\
 	fi
@@ -277,7 +277,7 @@ ${OBJECTDIR}/_ext/760632520/scpi_error_nomain.o: ${OBJECTDIR}/_ext/760632520/scp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${TESTDIR}/TestFiles/f1
+	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/scpi_parser
 
 # Subprojects
 .clean-subprojects:
