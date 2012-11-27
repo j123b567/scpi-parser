@@ -186,7 +186,7 @@ static bool_t transformNumber(const scpi_unit_def_t * units, const char * unit, 
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-bool_t SCPI_ParamNumber(scpi_context_t * context, scpi_number_t * value, bool_t mandatory) {
+bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory) {
     bool_t result;
     char * param;
     size_t len;
@@ -231,7 +231,7 @@ bool_t SCPI_ParamNumber(scpi_context_t * context, scpi_number_t * value, bool_t 
 
 }
 
-size_t SCPI_NumberToStr(scpi_context_t * context, scpi_number_t * value, char * str, size_t len) {
+size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len) {
     const char * type;
     const char * unit;
     size_t result;

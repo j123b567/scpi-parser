@@ -51,9 +51,9 @@ static char * cmdlineTerminator(const char * cmd, size_t len);
 static const char * cmdlineNext(const char * cmd, size_t len);
 static bool_t cmdMatch(const char * pattern, const char * cmd, size_t len);
 
-static void paramSkipBytes(scpi_context_t * context, size_t num);
-static void paramSkipWhitespace(scpi_context_t * context);
-static bool_t paramNext(scpi_context_t * context, bool_t mandatory);
+static void paramSkipBytes(scpi_t * context, size_t num);
+static void paramSkipWhitespace(scpi_t * context);
+static bool_t paramNext(scpi_t * context, bool_t mandatory);
 
 /*
 int _strnicmp(const char* s1, const char* s2, size_t len) {
@@ -240,7 +240,7 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
  * @param len - lenght of data to be written
  * @return number of bytes written
  */
-static inline size_t writeData(scpi_context_t * context, const char * data, size_t len) {
+static inline size_t writeData(scpi_t * context, const char * data, size_t len) {
     return context->interface->write(context, data, len);
 }
 
@@ -249,7 +249,7 @@ static inline size_t writeData(scpi_context_t * context, const char * data, size
  * @param context
  * @return number of bytes written
  */
-static inline size_t writeDelimiter(scpi_context_t * context) {
+static inline size_t writeDelimiter(scpi_t * context) {
     if (context->output_count > 0) {
         return writeData(context, ", ", 2);
     } else {
@@ -262,7 +262,7 @@ static inline size_t writeDelimiter(scpi_context_t * context) {
  * @param context
  * @return pocet zapsanych znaku
  */
-static inline size_t writeNewLine(scpi_context_t * context) {
+static inline size_t writeNewLine(scpi_t * context) {
     if (context->output_count > 0) {
         return writeData(context, "\r\n", 2);
     } else {
@@ -277,7 +277,7 @@ static inline size_t writeNewLine(scpi_context_t * context) {
  * @param len - command line length
  * @return 1 if the last evaluated command was found
  */
-int SCPI_Parse(scpi_context_t * context, const char * data, size_t len) {
+int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
     int32_t i;
     int result = 0;
     const char * cmdline_end = data + len;
@@ -334,7 +334,7 @@ int SCPI_Parse(scpi_context_t * context, const char * data, size_t len) {
  * @param buffer
  * @param interface
  */
-void SCPI_Init(scpi_context_t * context, scpi_command_t * command_list, scpi_buffer_t * buffer, scpi_interface_t * interface) {
+void SCPI_Init(scpi_t * context, scpi_command_t * command_list, scpi_buffer_t * buffer, scpi_interface_t * interface) {
     context->cmdlist = command_list;
     context->buffer.data = buffer->data;
     context->buffer.length = buffer->length;
@@ -352,7 +352,7 @@ void SCPI_Init(scpi_context_t * context, scpi_command_t * command_list, scpi_buf
  * @param len - length of data
  * @return 
  */
-int SCPI_Input(scpi_context_t * context, const char * data, size_t len) {
+int SCPI_Input(scpi_t * context, const char * data, size_t len) {
     int result = 0;
     size_t buffer_free;
     char * cmd_term;
@@ -388,7 +388,7 @@ int SCPI_Input(scpi_context_t * context, const char * data, size_t len) {
  * @param context
  * @return 
  */
-bool_t SCPI_DebugCommand(scpi_context_t * context) {
+bool_t SCPI_DebugCommand(scpi_t * context) {
     (void) context;
     printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
     fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);
@@ -406,7 +406,7 @@ bool_t SCPI_DebugCommand(scpi_context_t * context) {
  * @param data
  * @return 
  */
-size_t SCPI_ResultString(scpi_context_t * context, const char * data) {
+size_t SCPI_ResultString(scpi_t * context, const char * data) {
     size_t len = strlen(data);
     size_t result = 0;
     result += writeDelimiter(context);
@@ -421,7 +421,7 @@ size_t SCPI_ResultString(scpi_context_t * context, const char * data) {
  * @param val
  * @return 
  */
-size_t SCPI_ResultInt(scpi_context_t * context, int32_t val) {
+size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
     char buffer[12];
     size_t result = 0;
     size_t len = longToStr(val, buffer, sizeof (buffer));
@@ -437,7 +437,7 @@ size_t SCPI_ResultInt(scpi_context_t * context, int32_t val) {
  * @param val
  * @return 
  */
-size_t SCPI_ResultDouble(scpi_context_t * context, double val) {
+size_t SCPI_ResultDouble(scpi_t * context, double val) {
     char buffer[32];
     size_t result = 0;
     size_t len = doubleToStr(val, buffer, sizeof (buffer));
@@ -454,7 +454,7 @@ size_t SCPI_ResultDouble(scpi_context_t * context, double val) {
  * @param data
  * @return 
  */
-size_t SCPI_ResultText(scpi_context_t * context, const char * data) {
+size_t SCPI_ResultText(scpi_t * context, const char * data) {
     size_t result = 0;
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
@@ -471,7 +471,7 @@ size_t SCPI_ResultText(scpi_context_t * context, const char * data) {
  * @param context
  * @param num
  */
-void paramSkipBytes(scpi_context_t * context, size_t num) {
+void paramSkipBytes(scpi_t * context, size_t num) {
     if (context->paramlist.length < num) {
         num = context->paramlist.length;
     }
@@ -483,7 +483,7 @@ void paramSkipBytes(scpi_context_t * context, size_t num) {
  * Skip white spaces from the beggining of parameters
  * @param context
  */
-void paramSkipWhitespace(scpi_context_t * context) {
+void paramSkipWhitespace(scpi_t * context) {
     size_t ws = skipWhitespace(context->paramlist.parameters, context->paramlist.length);
     paramSkipBytes(context, ws);
 }
@@ -494,7 +494,7 @@ void paramSkipWhitespace(scpi_context_t * context) {
  * @param mandatory
  * @return 
  */
-bool_t paramNext(scpi_context_t * context, bool_t mandatory) {
+bool_t paramNext(scpi_t * context, bool_t mandatory) {
     paramSkipWhitespace(context);
     if (context->paramlist.length == 0) {
         if (mandatory) {
@@ -523,7 +523,7 @@ bool_t paramNext(scpi_context_t * context, bool_t mandatory) {
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory) {
+bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory) {
     char * param;
     size_t param_len;
     size_t num_len;
@@ -553,7 +553,7 @@ bool_t SCPI_ParamInt(scpi_context_t * context, int32_t * value, bool_t mandatory
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandatory) {
+bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory) {
     char * param;
     size_t param_len;
     size_t num_len;
@@ -584,7 +584,7 @@ bool_t SCPI_ParamDouble(scpi_context_t * context, double * value, bool_t mandato
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamString(scpi_context_t * context, char ** value, size_t * len, bool_t mandatory) {
+bool_t SCPI_ParamString(scpi_t * context, char ** value, size_t * len, bool_t mandatory) {
     size_t length;
 
     if (!value || !len) {
@@ -615,7 +615,7 @@ bool_t SCPI_ParamString(scpi_context_t * context, char ** value, size_t * len, b
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamText(scpi_context_t * context, char ** value, size_t * len, bool_t mandatory) {
+bool_t SCPI_ParamText(scpi_t * context, char ** value, size_t * len, bool_t mandatory) {
     size_t length;
 
     if (!value || !len) {

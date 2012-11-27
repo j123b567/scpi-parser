@@ -41,9 +41,9 @@
 extern "C" {
 #endif
 
-    void SCPI_ErrorClear(scpi_context_t * context);
-    int16_t SCPI_ErrorPop(scpi_context_t * context);
-    void SCPI_ErrorPush(scpi_context_t * context, int16_t err);
+    void SCPI_ErrorClear(scpi_t * context);
+    int16_t SCPI_ErrorPop(scpi_t * context);
+    void SCPI_ErrorPush(scpi_t * context, int16_t err);
     const char * SCPI_ErrorTranslate(int16_t err);
 
 #define SCPI_ERROR_SYNTAX               -102

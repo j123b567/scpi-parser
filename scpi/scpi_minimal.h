@@ -41,15 +41,15 @@
 extern "C" {
 #endif
 
-    int SCPI_Stub(scpi_context_t * context);
-    int SCPI_StubQ(scpi_context_t * context);
+    int SCPI_Stub(scpi_t * context);
+    int SCPI_StubQ(scpi_t * context);
     
-    int SCPI_SystemVersionQ(scpi_context_t * context);
-    int SCPI_SystemErrorNextQ(scpi_context_t * context);
-    int SCPI_StatusQuestionableEventQ(scpi_context_t * context);
-    int SCPI_StatusQuestionableEnableQ(scpi_context_t * context);
-    int SCPI_StatusQuestionableEnable(scpi_context_t * context);
-    int SCPI_StatusPreset(scpi_context_t * context);
+    int SCPI_SystemVersionQ(scpi_t * context);
+    int SCPI_SystemErrorNextQ(scpi_t * context);
+    int SCPI_StatusQuestionableEventQ(scpi_t * context);
+    int SCPI_StatusQuestionableEnableQ(scpi_t * context);
+    int SCPI_StatusQuestionableEnable(scpi_t * context);
+    int SCPI_StatusPreset(scpi_t * context);
 
 
 #ifdef	__cplusplus

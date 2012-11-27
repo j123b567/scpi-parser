@@ -45,7 +45,7 @@
 #include "scpi/scpi_utils.h"
 #include "scpi/scpi_units.h"
 
-int DMM_MeasureVoltageDcQ(scpi_context_t * context) {
+int DMM_MeasureVoltageDcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
@@ -115,12 +115,12 @@ scpi_command_t scpi_commands[] = {
     SCPI_CMD_LIST_END
 };
 
-size_t SCPI_Write(scpi_context_t * context, const char * data, size_t len) {
+size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     (void) context;
     return fwrite(data, 1, len, stdout);
 }
 
-int SCPI_Error(scpi_context_t * context, int_fast16_t err) {
+int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
 
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
@@ -143,7 +143,7 @@ scpi_buffer_t scpi_buffer = {
     //    .data = (char[SCPI_BUFFER_LENGTH]){},
 };
 
-scpi_context_t scpi_context;
+scpi_t scpi_context;
 
 /*
  * 

@@ -56,19 +56,19 @@ typedef enum {
     SCPI_REG_COUNT,
 } scpi_reg_name_t;
 
-int SCPI_CoreCls(scpi_context_t * context);
-int SCPI_CoreEse(scpi_context_t * context);
-int SCPI_CoreEseQ(scpi_context_t * context);
-int SCPI_CoreEsrQ(scpi_context_t * context);
-int SCPI_CoreIdnQ(scpi_context_t * context);
-int SCPI_CoreOpc(scpi_context_t * context);
-int SCPI_CoreOpcQ(scpi_context_t * context);
-int SCPI_CoreRst(scpi_context_t * context);
-int SCPI_CoreSre(scpi_context_t * context);
-int SCPI_CoreSreQ(scpi_context_t * context);
-int SCPI_CoreStbQ(scpi_context_t * context);
-int SCPI_CoreTstQ(scpi_context_t * context);
-int SCPI_CoreWai(scpi_context_t * context);
+int SCPI_CoreCls(scpi_t * context);
+int SCPI_CoreEse(scpi_t * context);
+int SCPI_CoreEseQ(scpi_t * context);
+int SCPI_CoreEsrQ(scpi_t * context);
+int SCPI_CoreIdnQ(scpi_t * context);
+int SCPI_CoreOpc(scpi_t * context);
+int SCPI_CoreOpcQ(scpi_t * context);
+int SCPI_CoreRst(scpi_t * context);
+int SCPI_CoreSre(scpi_t * context);
+int SCPI_CoreSreQ(scpi_t * context);
+int SCPI_CoreStbQ(scpi_t * context);
+int SCPI_CoreTstQ(scpi_t * context);
+int SCPI_CoreWai(scpi_t * context);
 
 
 #define STB_R01 0x01                    // Not used

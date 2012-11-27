@@ -46,7 +46,7 @@
  * @param context
  * @return 
  */
-int SCPI_Stub(scpi_context_t * context) {
+int SCPI_Stub(scpi_t * context) {
     (void) context;
     return 0;
 }
@@ -56,7 +56,7 @@ int SCPI_Stub(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StubQ(scpi_context_t * context) {
+int SCPI_StubQ(scpi_t * context) {
     (void) context;
     SCPI_ResultString(context, "");
     return 0;
@@ -67,7 +67,7 @@ int SCPI_StubQ(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_SystemVersionQ(scpi_context_t * context) {
+int SCPI_SystemVersionQ(scpi_t * context) {
     (void) context;
     SCPI_ResultString(context, SCPI_DEV_VERSION);
     return 0;
@@ -78,7 +78,7 @@ int SCPI_SystemVersionQ(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_SystemErrorNextQ(scpi_context_t * context) {
+int SCPI_SystemErrorNextQ(scpi_t * context) {
     (void) context;
 
     int16_t err = SCPI_ErrorPop(context);
@@ -94,7 +94,7 @@ int SCPI_SystemErrorNextQ(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusQuestionableEventQ(scpi_context_t * context) {
+int SCPI_StatusQuestionableEventQ(scpi_t * context) {
     (void) context;
 
     // return value
@@ -111,7 +111,7 @@ int SCPI_StatusQuestionableEventQ(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusQuestionableEnableQ(scpi_context_t * context) {
+int SCPI_StatusQuestionableEnableQ(scpi_t * context) {
     (void) context;
 
     // return value
@@ -125,7 +125,7 @@ int SCPI_StatusQuestionableEnableQ(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusQuestionableEnable(scpi_context_t * context) {
+int SCPI_StatusQuestionableEnable(scpi_t * context) {
     int32_t new_QUESE;
     if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
         SCPI_RegSet(SCPI_REG_QUESE, new_QUESE);
@@ -138,7 +138,7 @@ int SCPI_StatusQuestionableEnable(scpi_context_t * context) {
  * @param context
  * @return 
  */
-int SCPI_StatusPreset(scpi_context_t * context) {
+int SCPI_StatusPreset(scpi_t * context) {
     (void) context;
     // clear STATUS:...
     SCPI_RegSet(SCPI_REG_QUES, 0);

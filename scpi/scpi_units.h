@@ -93,8 +93,8 @@ extern "C" {
 #define SCPI_SPECIAL_NUMBERS_LIST_END   {.name = NULL, .type = SCPI_NUM_NUMBER}
 
 
-    bool_t SCPI_ParamNumber(scpi_context_t * context, scpi_number_t * value, bool_t mandatory);
-    size_t SCPI_NumberToStr(scpi_context_t * context, scpi_number_t * value, char * str, size_t len);
+    bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory);
+    size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len);
 
 #ifdef	__cplusplus
 }

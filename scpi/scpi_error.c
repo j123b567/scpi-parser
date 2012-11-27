@@ -45,7 +45,7 @@ static int16_t scpi_err = 0;
  * Clear error queue
  * @param context - scpi context
  */
-void SCPI_ErrorClear(scpi_context_t * context) {
+void SCPI_ErrorClear(scpi_t * context) {
     (void) context;
     scpi_err = 0;
 }
@@ -55,7 +55,7 @@ void SCPI_ErrorClear(scpi_context_t * context) {
  * @param context - scpi context
  * @param err - error number
  */
-void SCPI_ErrorPush(scpi_context_t * context, int16_t err) {
+void SCPI_ErrorPush(scpi_t * context, int16_t err) {
     scpi_err = err;
 
     // Command error (e.g. syntax error)
@@ -87,7 +87,7 @@ void SCPI_ErrorPush(scpi_context_t * context, int16_t err) {
  * @param context - scpi context
  * @return error number
  */
-int16_t SCPI_ErrorPop(scpi_context_t * context) {
+int16_t SCPI_ErrorPop(scpi_t * context) {
     (void) context;
     int16_t result = scpi_err;
     scpi_err = 0;
