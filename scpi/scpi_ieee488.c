@@ -39,15 +39,12 @@
 #include "scpi_error.h"
 #include "scpi_constants.h"
 
-/* register array */
-static scpi_reg_val_t regs[SCPI_REG_COUNT];
-
 /**
  * Update register value
  * @param name - register name
  */
-static void SCPI_RegUpdate(scpi_reg_name_t name) {
-    SCPI_RegSet(name, SCPI_RegGet(name));
+static void SCPI_RegUpdate(scpi_t * context, scpi_reg_name_t name) {
+    SCPI_RegSet(context, name, SCPI_RegGet(context, name));
 }
 
 /**
@@ -55,9 +52,9 @@ static void SCPI_RegUpdate(scpi_reg_name_t name) {
  * @param name - register name
  * @return register value
  */
-scpi_reg_val_t SCPI_RegGet(scpi_reg_name_t name) {
-    if (name < SCPI_REG_COUNT) {
-        return regs[name];
+scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
+    if ((name < SCPI_REG_COUNT) && (context->registers != NULL)) {
+        return context->registers[name];
     } else {
         return 0;
     }
@@ -68,54 +65,61 @@ scpi_reg_val_t SCPI_RegGet(scpi_reg_name_t name) {
  * @param name - register name
  * @param val - new value
  */
-void SCPI_RegSet(scpi_reg_name_t name, scpi_reg_val_t val) {
-    if (name >= SCPI_REG_COUNT) {
+void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
+    bool_t srq = FALSE;
+    scpi_reg_val_t mask;
+
+    if ((name >= SCPI_REG_COUNT) || (context->registers == NULL)) {
         return;
     }
+    
 
     // set register value
-    regs[name] = val;
+    context->registers[name] = val;
 
     switch (name) {
         case SCPI_REG_STB:
-            if (val & (SCPI_RegGet(SCPI_REG_SRE) &~STB_SRQ)) {
+            mask = SCPI_RegGet(context, SCPI_REG_SRE);
+            mask &= ~STB_SRQ;
+            if (val & mask) {
                 val |= STB_SRQ;
+                srq = TRUE;
             } else {
                 val &= ~STB_SRQ;
             }
             break;
         case SCPI_REG_SRE:
-            SCPI_RegUpdate(SCPI_REG_STB);
+            SCPI_RegUpdate(context, SCPI_REG_STB);
             break;
         case SCPI_REG_ESR:
-            if (val & SCPI_RegGet(SCPI_REG_ESE)) {
-                SCPI_RegSetBits(SCPI_REG_STB, STB_ESR);
+            if (val & SCPI_RegGet(context, SCPI_REG_ESE)) {
+                SCPI_RegSetBits(context, SCPI_REG_STB, STB_ESR);
             } else {
-                SCPI_RegClearBits(SCPI_REG_STB, STB_ESR);
+                SCPI_RegClearBits(context, SCPI_REG_STB, STB_ESR);
             }
             break;
         case SCPI_REG_ESE:
-            SCPI_RegUpdate(SCPI_REG_ESR);
+            SCPI_RegUpdate(context, SCPI_REG_ESR);
             break;
         case SCPI_REG_QUES:
-            if (val & SCPI_RegGet(SCPI_REG_QUESE)) {
-                SCPI_RegSetBits(SCPI_REG_STB, STB_QES);
+            if (val & SCPI_RegGet(context, SCPI_REG_QUESE)) {
+                SCPI_RegSetBits(context, SCPI_REG_STB, STB_QES);
             } else {
-                SCPI_RegClearBits(SCPI_REG_STB, STB_QES);
+                SCPI_RegClearBits(context, SCPI_REG_STB, STB_QES);
             }
             break;
         case SCPI_REG_QUESE:
-            SCPI_RegUpdate(SCPI_REG_QUES);
+            SCPI_RegUpdate(context, SCPI_REG_QUES);
             break;
         case SCPI_REG_OPER:
-            if (val & SCPI_RegGet(SCPI_REG_OPERE)) {
-                SCPI_RegSetBits(SCPI_REG_STB, STB_OPS);
+            if (val & SCPI_RegGet(context, SCPI_REG_OPERE)) {
+                SCPI_RegSetBits(context, SCPI_REG_STB, STB_OPS);
             } else {
-                SCPI_RegClearBits(SCPI_REG_STB, STB_OPS);
+                SCPI_RegClearBits(context, SCPI_REG_STB, STB_OPS);
             }
             break;
         case SCPI_REG_OPERE:
-            SCPI_RegUpdate(SCPI_REG_OPER);
+            SCPI_RegUpdate(context, SCPI_REG_OPER);
             break;
             
             
@@ -125,8 +129,11 @@ void SCPI_RegSet(scpi_reg_name_t name, scpi_reg_val_t val) {
     }
 
     // set updated register value
-    regs[name] = val;
+    context->registers[name] = val;
 
+    if (srq && context->interface && context->interface->srq) {
+        context->interface->srq(context);
+    }
 }
 
 /**
@@ -134,8 +141,8 @@ void SCPI_RegSet(scpi_reg_name_t name, scpi_reg_val_t val) {
  * @param name - register name
  * @param bits bit mask
  */
-void SCPI_RegSetBits(scpi_reg_name_t name, scpi_reg_val_t bits) {
-    SCPI_RegSet(name, SCPI_RegGet(name) | bits);
+void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits) {
+    SCPI_RegSet(context, name, SCPI_RegGet(context, name) | bits);
 }
 
 /**
@@ -143,15 +150,15 @@ void SCPI_RegSetBits(scpi_reg_name_t name, scpi_reg_val_t bits) {
  * @param name - register name
  * @param bits bit mask
  */
-void SCPI_RegClearBits(scpi_reg_name_t name, scpi_reg_val_t bits) {
-    SCPI_RegSet(name, SCPI_RegGet(name) & ~bits);
+void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits) {
+    SCPI_RegSet(context, name, SCPI_RegGet(context, name) & ~bits);
 }
 
 /* ============ */
 
-void SCPI_EventClear(void) {
+void SCPI_EventClear(scpi_t * context) {
     // TODO
-    SCPI_RegSet(SCPI_REG_ESR, 0);
+    SCPI_RegSet(context, SCPI_REG_ESR, 0);
 }
 
 /**
@@ -161,11 +168,10 @@ void SCPI_EventClear(void) {
  * @return 
  */
 scpi_result_t SCPI_CoreCls(scpi_t * context) {
-    (void) context;
-    SCPI_EventClear();
+    SCPI_EventClear(context);
     SCPI_ErrorClear(context);
-    SCPI_RegSet(SCPI_REG_OPER, 0);
-    SCPI_RegSet(SCPI_REG_QUES, 0);
+    SCPI_RegSet(context, SCPI_REG_OPER, 0);
+    SCPI_RegSet(context, SCPI_REG_QUES, 0);
     return SCPI_RES_OK;
 }
 
@@ -177,7 +183,7 @@ scpi_result_t SCPI_CoreCls(scpi_t * context) {
 scpi_result_t SCPI_CoreEse(scpi_t * context) {
     int32_t new_ESE;
     if (SCPI_ParamInt(context, &new_ESE, TRUE)) {
-        SCPI_RegSet(SCPI_REG_ESE, new_ESE);
+        SCPI_RegSet(context, SCPI_REG_ESE, new_ESE);
     }
     return SCPI_RES_OK;
 }
@@ -189,7 +195,7 @@ scpi_result_t SCPI_CoreEse(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreEseQ(scpi_t * context) {
     (void) context;
-    SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_ESE));
+    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_ESE));
     return SCPI_RES_OK;
 }
 
@@ -200,8 +206,8 @@ scpi_result_t SCPI_CoreEseQ(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
     (void) context;
-    SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_ESR));
-    SCPI_RegSet(SCPI_REG_ESR, 0);
+    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_ESR));
+    SCPI_RegSet(context, SCPI_REG_ESR, 0);
     return SCPI_RES_OK;
 }
 
@@ -225,7 +231,7 @@ scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreOpc(scpi_t * context) {
     (void) context;
-    SCPI_RegSetBits(SCPI_REG_ESR, ESR_OPC);
+    SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_OPC);
     return SCPI_RES_OK;
 }
 
@@ -261,7 +267,7 @@ scpi_result_t SCPI_CoreRst(scpi_t * context) {
 scpi_result_t SCPI_CoreSre(scpi_t * context) {
     int32_t new_SRE;
     if (SCPI_ParamInt(context, &new_SRE, TRUE)) {
-        SCPI_RegSet(SCPI_REG_SRE, new_SRE);
+        SCPI_RegSet(context, SCPI_REG_SRE, new_SRE);
     }
     return SCPI_RES_OK;
 }
@@ -273,7 +279,7 @@ scpi_result_t SCPI_CoreSre(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreSreQ(scpi_t * context) {
     (void) context;
-    SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_SRE));
+    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_SRE));
     return SCPI_RES_OK;
 }
 
@@ -284,7 +290,7 @@ scpi_result_t SCPI_CoreSreQ(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
     (void) context;
-    SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_STB));
+    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_STB));
     return SCPI_RES_OK;
 }
 

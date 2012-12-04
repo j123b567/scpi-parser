@@ -39,22 +39,6 @@
 
 #include "scpi_types.h"
 
-typedef uint16_t scpi_reg_val_t;
-
-typedef enum {
-    SCPI_REG_STB = 0,   // Status Byte
-    SCPI_REG_SRE,       // Service Request Enable Register
-    SCPI_REG_ESR,       // Standard Event Status Register (ESR, SESR)
-    SCPI_REG_ESE,       // Event Status Enable Register
-    SCPI_REG_OPER,      // OPERation Status Register
-    SCPI_REG_OPERE,     // OPERation Status Enable Register
-    SCPI_REG_QUES,      // QUEStionable status register
-    SCPI_REG_QUESE,     // QUEStionable status Enable Register
-    
-    /* last definition - number of registers */        
-    SCPI_REG_COUNT,
-} scpi_reg_name_t;
-
 scpi_result_t SCPI_CoreCls(scpi_t * context);
 scpi_result_t SCPI_CoreEse(scpi_t * context);
 scpi_result_t SCPI_CoreEseQ(scpi_t * context);
@@ -90,10 +74,10 @@ scpi_result_t SCPI_CoreWai(scpi_t * context);
 #define ESR_PON 0x80                    // Power On
 
 
-scpi_reg_val_t SCPI_RegGet(scpi_reg_name_t name);
-void SCPI_RegSet(scpi_reg_name_t name, scpi_reg_val_t val);
-void SCPI_RegSetBits(scpi_reg_name_t name, scpi_reg_val_t bits);
-void SCPI_RegClearBits(scpi_reg_name_t name, scpi_reg_val_t bits);
+scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name);
+void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val);
+void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
+void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
 
 
 #endif	/* SCPI_IEEE488_H */

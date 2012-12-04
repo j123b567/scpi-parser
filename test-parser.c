@@ -61,7 +61,7 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-scpi_command_t scpi_commands[] = {
+static scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
     { .pattern = "*ESE", .callback = SCPI_CoreEse,},
@@ -111,35 +111,48 @@ scpi_command_t scpi_commands[] = {
     SCPI_CMD_LIST_END
 };
 
-size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
+static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     (void) context;
     return fwrite(data, 1, len, stdout);
 }
 
-int SCPI_Error(scpi_t * context, int_fast16_t err) {
+static int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
 
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
 
-scpi_interface_t scpi_interface = {
+static scpi_result_t SCPI_Srq(scpi_t * context) {
+    scpi_reg_val_t stb = SCPI_RegGet(context, SCPI_REG_STB);
+    fprintf(stderr, "**SRQ: 0x%X (%d)\r\n", stb, stb);
+    return SCPI_RES_OK;
+}
+
+
+static scpi_interface_t scpi_interface = {
     .write = SCPI_Write,
     .error = SCPI_Error,
     .reset = NULL,
     .test = NULL,
+    .srq = SCPI_Srq,
 };
 
-#define SCPI_BUFFER_LENGTH 256
-char buffer[SCPI_BUFFER_LENGTH];
+#define SCPI_INPUT_BUFFER_LENGTH 256
+static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 
-scpi_buffer_t scpi_buffer = {
-    .length = SCPI_BUFFER_LENGTH,
-    .data = buffer,
-    //    .data = (char[SCPI_BUFFER_LENGTH]){},
+static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
+
+
+scpi_t scpi_context = {
+    .cmdlist = scpi_commands,
+    .buffer = {
+        .length = SCPI_INPUT_BUFFER_LENGTH,
+        .data = scpi_input_buffer,
+    },
+    .interface = &scpi_interface,
+    .registers = scpi_regs,
 };
-
-scpi_t scpi_context;
 
 /*
  * 
@@ -149,7 +162,7 @@ int main(int argc, char** argv) {
     (void) argv;
     int result;
 
-    SCPI_Init(&scpi_context, scpi_commands, &scpi_buffer, &scpi_interface);
+    SCPI_Init(&scpi_context);
 
 #define TEST_SCPI_INPUT(cmd)    result = SCPI_Input(&scpi_context, cmd, strlen(cmd))
 
@@ -165,6 +178,8 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("*ESE\r\n"); // cause error -109, missing parameter
     TEST_SCPI_INPUT("*ESE 0x20\r\n");
 
+    TEST_SCPI_INPUT("*SRE 0xFF\r\n");
+    
     TEST_SCPI_INPUT("IDN?\r\n"); // cause error -113, undefined header
 
     TEST_SCPI_INPUT("SYST:ERR?\r\n");
@@ -179,7 +194,7 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("meas:volt:dc? 0.00001\r\n");
 
 
-    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
+    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", SCPI_RES_ERR"b");
     // interactive demo
     //char smbuffer[10];
     //while (1) {

@@ -121,42 +121,42 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
     
     // Command error (e.g. syntax error) ch 21.8.9
     if ((err < -100) && (err > -199)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_CER);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_CER);
     }
 
     // Execution Error (e.g. range error) ch 21.8.10
     if ((err < -200) && (err > -299)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_EER);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_EER);
     }
 
     // Device specific error -300, -399 ch 21.8.11
     if ((err < -300) && (err > -399)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_DER);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_DER);
     }
 
     // Query error -400, -499 ch 21.8.12
     if ((err < -400) && (err > -499)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_QER);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_QER);
     }
 
     // Power on event -500, -599 ch 21.8.13
     if ((err < -500) && (err > -599)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_PON);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_PON);
     }
 
     // User Request Event -600, -699 ch 21.8.14
     if ((err < -600) && (err > -699)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_URQ);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_URQ);
     }
 
     // Request Control Event -700, -799 ch 21.8.15
     if ((err < -700) && (err > -799)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_REQ);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_REQ);
     }
 
     // Operation Complete Event -800, -899 ch 21.8.16
     if ((err < -800) && (err > -899)) {
-        SCPI_RegSetBits(SCPI_REG_ESR, ESR_OPC);
+        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_OPC);
     }
 
     if (context) {

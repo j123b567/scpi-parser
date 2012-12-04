@@ -63,7 +63,7 @@ extern "C" {
     typedef enum _scpi_result_t scpi_result_t;
     typedef struct _scpi_param_list_t scpi_param_list_t;
     typedef struct _scpi_command_t scpi_command_t;
-    typedef scpi_result_t (*scpi_command_callback_t)(scpi_t *);
+    typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
     /* scpi error queue */
     typedef void * scpi_error_queue_t;
@@ -75,7 +75,10 @@ extern "C" {
     typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
     typedef struct _scpi_number_t scpi_number_t;
 
-
+    /* IEEE 488.2 registers */
+    typedef enum _scpi_reg_name_t scpi_reg_name_t;
+    typedef uint16_t scpi_reg_val_t;
+    
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
         const char * parameters;
@@ -100,7 +103,8 @@ extern "C" {
         scpi_error_callback_t error;
         scpi_write_t write;
         scpi_command_callback_t reset;
-        scpi_command_callback_t test;        
+        scpi_command_callback_t test;
+        scpi_command_callback_t srq;
     };
 
     struct _scpi_t {
@@ -112,6 +116,7 @@ extern "C" {
         int_fast16_t input_count;
         bool_t cmd_error;
         scpi_error_queue_t error_queue;
+        scpi_reg_val_t * registers;
     };
 
     enum _scpi_unit_t {
@@ -161,6 +166,21 @@ extern "C" {
     enum _scpi_result_t {
         SCPI_RES_OK = 1,
         SCPI_RES_ERR = -1,
+    };
+
+
+    enum _scpi_reg_name_t {
+        SCPI_REG_STB = 0, // Status Byte
+        SCPI_REG_SRE, // Service Request Enable Register
+        SCPI_REG_ESR, // Standard Event Status Register (ESR, SESR)
+        SCPI_REG_ESE, // Event Status Enable Register
+        SCPI_REG_OPER, // OPERation Status Register
+        SCPI_REG_OPERE, // OPERation Status Enable Register
+        SCPI_REG_QUES, // QUEStionable status register
+        SCPI_REG_QUESE, // QUEStionable status Enable Register
+
+        /* last definition - number of registers */
+        SCPI_REG_COUNT,
     };
 
 

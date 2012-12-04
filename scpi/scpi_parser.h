@@ -44,7 +44,7 @@
 extern "C" {
 #endif
 
-    void SCPI_Init(scpi_t * context, scpi_command_t * command_list, scpi_buffer_t * buffer, scpi_interface_t * interface);
+    void SCPI_Init(scpi_t * context);
 
     int SCPI_Input(scpi_t * context, const char * data, size_t len);
     int SCPI_Parse(scpi_t * context, const char * data, size_t len);

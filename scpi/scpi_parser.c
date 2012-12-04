@@ -336,12 +336,8 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
  * @param buffer
  * @param interface
  */
-void SCPI_Init(scpi_t * context, scpi_command_t * command_list, scpi_buffer_t * buffer, scpi_interface_t * interface) {
-    context->cmdlist = command_list;
-    context->buffer.data = buffer->data;
-    context->buffer.length = buffer->length;
+void SCPI_Init(scpi_t * context) {
     context->buffer.position = 0;
-    context->interface = interface;
     SCPI_ErrorInit(context);
 }
 

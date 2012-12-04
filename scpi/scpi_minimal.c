@@ -103,10 +103,10 @@ scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
  */
 scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
     // return value
-    SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_QUES));
+    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_QUES));
 
     // clear register
-    SCPI_RegSet(SCPI_REG_QUES, 0);
+    SCPI_RegSet(context, SCPI_REG_QUES, 0);
 
     return SCPI_RES_OK;
 }
@@ -118,7 +118,7 @@ scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
  */
 scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
     // return value
-    SCPI_ResultInt(context, SCPI_RegGet(SCPI_REG_QUESE));
+    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_QUESE));
 
     return SCPI_RES_OK;
 }
@@ -131,7 +131,7 @@ scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
 scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
     int32_t new_QUESE;
     if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
-        SCPI_RegSet(SCPI_REG_QUESE, new_QUESE);
+        SCPI_RegSet(context, SCPI_REG_QUESE, new_QUESE);
     }
     return SCPI_RES_OK;
 }
@@ -144,6 +144,6 @@ scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
 scpi_result_t SCPI_StatusPreset(scpi_t * context) {
     (void) context;
     // clear STATUS:...
-    SCPI_RegSet(SCPI_REG_QUES, 0);
+    SCPI_RegSet(context, SCPI_REG_QUES, 0);
     return SCPI_RES_OK;
 }
