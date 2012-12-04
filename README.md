@@ -43,11 +43,14 @@ Source code organisation
 
 Source codes are devided into few files to provide better portability to other systems.
 
-- *scpi.c* - provides the core parser library
+- *scpi_parser.c* - provides the core parser library
 - *scpi_error.c* - provides basic error handling (error queue of the instrument)
 - *scpi_ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
 - *scpi_minimal.c* - provides basic implementation of SCPI mandatory commands
 - *scpi_utils.c* - provides string handling routines and conversion routines
+- *scpi_units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
+- *scpi_fifo.c* - provides basic implementation of error queue FIFO
+- *scpi_debug.c* - provides debug functions
 
 - *test-parser.c* - is the basic non-interactive demo of the parser
 
@@ -88,6 +91,8 @@ The last structure is scpi context used in parser library.
 		},
 		.interface = &scpi_interface,
 		.registers = scpi_regs,
+		.units = scpi_units_def,
+		.special_numbers = scpi_special_numbers_def,
 	};
 
 All these structures should be global variables of the c file or allocated by function like malloc. It is common mistake to create these structures inside a function as local variables of this function. This will not work. If you don't know why, you should read something about [function stack.](http://stackoverflow.com/questions/4824342/returning-a-local-variable-from-function-in-c).
