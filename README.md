@@ -58,6 +58,7 @@ First of all you need to fill structure of SCPI command definitions
 	scpi_command_t scpi_commands[] = {
 		{ .pattern = "*IDN?", .callback = SCPI_CoreIdnQ,},
 		{ .pattern = "*RST", .callback = SCPI_CoreRst,},
+		{ .pattern = "MEASure:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
 		SCPI_CMD_LIST_END
 	};
 
@@ -68,28 +69,33 @@ Than you need to initialize interface callbacks structure. If you don't want to 
 		.error = NULL,
 		.reset = NULL,
 		.test = NULL,
+		.srq = NULL,
 	};
 
 Important thing is command buffer. Maximum size is up to you and it should be larger than any possible largest command. 
 
-	#define SCPI_BUFFER_LENGTH 256
-	char myBuffer[SCPI_BUFFER_LENGTH];
+	#define SCPI_INPUT_BUFFER_LENGTH 256
+	static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 
-	scpi_buffer_t scpi_buffer = {
-		.length = SCPI_BUFFER_LENGTH,
-		.data = myBuffer,
-	};
 
 The last structure is scpi context used in parser library.
 
-	scpi_t scpi_context;
+	scpi_t scpi_context = {
+		.cmdlist = scpi_commands,
+		.buffer = {
+			.length = SCPI_INPUT_BUFFER_LENGTH,
+			.data = scpi_input_buffer,
+		},
+		.interface = &scpi_interface,
+		.registers = scpi_regs,
+	};
 
 All these structures should be global variables of the c file or allocated by function like malloc. It is common mistake to create these structures inside a function as local variables of this function. This will not work. If you don't know why, you should read something about [function stack.](http://stackoverflow.com/questions/4824342/returning-a-local-variable-from-function-in-c).
 
 
-Now we are ready to connect everything together
+Now we are ready to initialize SCPI context. It is possible to use more SCPI contexts and share some configurations (command list, registers, units list, error callback...)
 
-	SCPI_Init(&scpi_context, scpi_commands, &scpi_buffer, &scpi_interface);
+	SCPI_Init(&scpi_context);
 
 Test implementation of function myWrite, which outputs everything to stdout, can be
 	
