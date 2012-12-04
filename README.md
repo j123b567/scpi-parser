@@ -82,7 +82,7 @@ Important thing is command buffer. Maximum size is up to you and it should be la
 
 The last structure is scpi context used in parser library.
 
-	scpi_context_t scpi_context;
+	scpi_t scpi_context;
 
 All these structures should be global variables of the c file or allocated by function like malloc. It is common mistake to create these structures inside a function as local variables of this function. This will not work. If you don't know why, you should read something about [function stack.](http://stackoverflow.com/questions/4824342/returning-a-local-variable-from-function-in-c).
 
