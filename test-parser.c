@@ -194,7 +194,7 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("meas:volt:dc? 0.00001\r\n");
 
 
-    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", SCPI_RES_ERR"b");
+    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
     // interactive demo
     //char smbuffer[10];
     //while (1) {

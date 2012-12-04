@@ -194,7 +194,6 @@ scpi_result_t SCPI_CoreEse(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreEseQ(scpi_t * context) {
-    (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_ESE));
     return SCPI_RES_OK;
 }
@@ -205,7 +204,6 @@ scpi_result_t SCPI_CoreEseQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
-    (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_ESR));
     SCPI_RegSet(context, SCPI_REG_ESR, 0);
     return SCPI_RES_OK;
@@ -217,7 +215,6 @@ scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
-    (void) context;
     SCPI_ResultString(context, SCPI_MANUFACTURE);
     SCPI_ResultString(context, SCPI_DEV_NAME);
     SCPI_ResultString(context, SCPI_DEV_VERSION);
@@ -230,7 +227,6 @@ scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreOpc(scpi_t * context) {
-    (void) context;
     SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_OPC);
     return SCPI_RES_OK;
 }
@@ -241,7 +237,6 @@ scpi_result_t SCPI_CoreOpc(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreOpcQ(scpi_t * context) {
-    (void) context;
     // Operation is always completed
     SCPI_ResultInt(context, 1);
     return SCPI_RES_OK;
@@ -278,7 +273,6 @@ scpi_result_t SCPI_CoreSre(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreSreQ(scpi_t * context) {
-    (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_SRE));
     return SCPI_RES_OK;
 }
@@ -289,7 +283,6 @@ scpi_result_t SCPI_CoreSreQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
-    (void) context;
     SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_STB));
     return SCPI_RES_OK;
 }
@@ -300,7 +293,6 @@ scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
-    (void) context;
     int result = 0;
     if (context && context->interface && context->interface->test) {
         result = context->interface->test(context);

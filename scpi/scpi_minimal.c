@@ -142,7 +142,6 @@ scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StatusPreset(scpi_t * context) {
-    (void) context;
     // clear STATUS:...
     SCPI_RegSet(context, SCPI_REG_QUES, 0);
     return SCPI_RES_OK;

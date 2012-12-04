@@ -43,7 +43,6 @@
  * @return 
  */
 bool_t SCPI_DebugCommand(scpi_t * context) {
-	(void) context;
 	printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
 	fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);
 	printf("\" - %ld)\r\n", context->paramlist.length);
