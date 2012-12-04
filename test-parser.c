@@ -61,7 +61,7 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-static scpi_command_t scpi_commands[] = {
+static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
     { .pattern = "*ESE", .callback = SCPI_CoreEse,},
@@ -152,6 +152,8 @@ scpi_t scpi_context = {
     },
     .interface = &scpi_interface,
     .registers = scpi_regs,
+    .units = scpi_units_def,
+    .special_numbers = scpi_special_numbers_def,
 };
 
 /*

@@ -117,6 +117,8 @@ extern "C" {
         bool_t cmd_error;
         scpi_error_queue_t error_queue;
         scpi_reg_val_t * registers;
+        const scpi_unit_def_t * units;
+        const scpi_special_number_def_t * special_numbers;
     };
 
     enum _scpi_unit_t {
