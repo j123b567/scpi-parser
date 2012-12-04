@@ -120,3 +120,37 @@ Interactive demo can beimplemented using this loop
 
 
 
+Implementation of command callback
+-------------
+
+Command callback is defined as function with result of type scpi_result_t and one parameter - scpi context
+	scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context)
+
+Command callback should return SCPI_RES_OK if everything goes well.
+
+You can read command parameters and write command results. There are several functions to do this.
+
+Every time, you call function to read parameter, it shifts pointers to the next parameter. You can't read specified parameter directly by its index - e.g. 
+	// pseudocode
+	param3 = read_param(3); // this is not possible
+
+	read_param();           // discard first parameter
+	read_param();           // discard second parameter
+	param3 = read_param();  // read third parameter
+
+If you discard some parameters, there is no way to recover them.
+
+These are the functions, you can use to read parameters
+ - SCPI_ParamInt - read signed 32bit integer value (dec or hex with 0x prefix)
+ - SCPI_ParamDouble - read double value
+ - SCPI_ParamNumber - read double value with or without units or represented by special number (DEF, MIN, MAX, ...). This function is more universal then SCPI_ParamDouble.
+ - SCPI_ParamText - read text value - may be encapsuled in ""
+ - SCPI_ParamString - read unspecified parameter not encapsulated in ""
+
+These are the functions, you can use to write results
+ - SCPI_ResultInt - write integer value
+ - SCPI_ResultDouble - write double value
+ - SCPI_ResultText - write text value encapsulated in ""
+ - SCPI_ResultString - directly write string value
+
+You can use function SCPI_NumberToStr to convert number with units to textual representation and then use SCPI_ResultString to write this to the user.
