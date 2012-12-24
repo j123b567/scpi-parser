@@ -29,7 +29,7 @@
  * @file   main.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
- * @brief  SCPI parser test
+ * @brief  TCP/IP SCPI Server
  * 
  * 
  */
@@ -37,17 +37,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <netinet/in.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include <arpa/inet.h>
+
 #include "scpi/scpi.h"
 #include "../common/scpi-def.h"
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
-    (void) context;
-    return fwrite(data, 1, len, stdout);
+    if (context->user_context != NULL) {
+        int fd = *(int *)(context->user_context);
+        return write(fd, data, len);
+    }
+    return 0;
 }
 
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
-
+    // BEEP
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
@@ -68,55 +79,144 @@ scpi_result_t SCPI_Reset(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+
+static int createServer(int port) {
+    int fd;
+    int rc;
+    int on = 1;
+    struct sockaddr_in servaddr;
+        
+    /* Configure TCP Server */
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr=htonl(INADDR_ANY);
+    servaddr.sin_port=htons(port);
+    
+    /* Create socket */
+    fd = socket(AF_INET,SOCK_STREAM, 0);
+    if (fd < 0)
+    {
+        perror("socket() failed");
+        exit(-1);
+    }    
+    
+    /* Set address reuse enable */
+    rc = setsockopt(fd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (rc < 0)
+    {
+        perror("setsockopt() failed");
+        close(fd);
+        exit(-1);
+    }
+   
+    /* Set non blocking */
+    rc = ioctl(fd, FIONBIO, (char *)&on);
+    if (rc < 0)
+    {
+        perror("ioctl() failed");
+        close(fd);
+        exit(-1);
+    }    
+    
+    /* Bind to socket */
+    rc = bind(fd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    if (rc < 0)
+    {
+        perror("bind() failed");
+        close(fd);
+        exit(-1);
+    }
+    
+    /* Listen on socket */
+    listen(fd, 1);
+    if (rc < 0)
+    {
+        perror("listen() failed");
+        close(fd);
+        exit(-1);
+    }
+    
+    return fd;
+}
+
+static int waitServer(int fd) {
+    fd_set fds;
+    struct timeval timeout;
+    int rc;
+    int max_fd;
+    
+    FD_ZERO(&fds);
+    max_fd = fd;
+    FD_SET(fd, &fds);
+    
+    timeout.tv_sec  = 5;
+    timeout.tv_usec = 0;
+    
+    rc = select(max_fd + 1, &fds, NULL, NULL, &timeout);
+    
+    return rc;
+}
+
 /*
  * 
  */
 int main(int argc, char** argv) {
     (void) argc;
     (void) argv;
-    int result;
+    int rc;
 
+    int listenfd;
+    char smbuffer[10];
+
+    // user_context will be pointer to socket
+    scpi_context.user_context = NULL;
+    
     SCPI_Init(&scpi_context);
 
-#define TEST_SCPI_INPUT(cmd)    result = SCPI_Input(&scpi_context, cmd, strlen(cmd))
-
-    TEST_SCPI_INPUT("*CLS\r\n");
-    TEST_SCPI_INPUT("*RST\r\n");
-    TEST_SCPI_INPUT("MEAS:volt:DC? 12,50;*OPC\r\n");
-    TEST_SCPI_INPUT("*IDN?\r\n");
-    TEST_SCPI_INPUT("SYST:VERS?");
-    TEST_SCPI_INPUT("\r\n*ID");
-    TEST_SCPI_INPUT("N?");
-    TEST_SCPI_INPUT(""); // emulate command timeout
-
-    TEST_SCPI_INPUT("*ESE\r\n"); // cause error -109, missing parameter
-    TEST_SCPI_INPUT("*ESE 0x20\r\n");
-
-    TEST_SCPI_INPUT("*SRE 0xFF\r\n");
+    listenfd = createServer(5025);
     
-    TEST_SCPI_INPUT("IDN?\r\n"); // cause error -113, undefined header
+    while(1) {
+        int clifd;
+        struct sockaddr_in cliaddr;
+        socklen_t clilen;
 
-    TEST_SCPI_INPUT("SYST:ERR?\r\n");
-    TEST_SCPI_INPUT("SYST:ERR?\r\n");
-    TEST_SCPI_INPUT("*STB?\r\n");
-    TEST_SCPI_INPUT("*ESR?\r\n");
-    TEST_SCPI_INPUT("*STB?\r\n");
+        clilen = sizeof(cliaddr);
+        clifd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
+        
+        if (clifd < 0) continue;
 
-    TEST_SCPI_INPUT("meas:volt:dc? 0.01 V, Default\r\n");
-    TEST_SCPI_INPUT("meas:volt:dc?\r\n");
-    TEST_SCPI_INPUT("meas:volt:dc? def, 0.00001\r\n");
-    TEST_SCPI_INPUT("meas:volt:dc? 0.00001\r\n");
+        printf("Connection established %s\r\n", inet_ntoa(cliaddr.sin_addr));
 
+        scpi_context.user_context = &clifd;
 
-    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
-    // interactive demo
-    //char smbuffer[10];
-    //while (1) {
-    //     fgets(smbuffer, 10, stdin);
-    //     SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
-    //}
+        while(1) {
+            rc = waitServer(clifd);
+            if (rc < 0) { // failed
+                perror("  recv() failed");
+                break;
+            }
+            if (rc == 0) { // timeout
+                SCPI_Input(&scpi_context, NULL, 0);
+            }
+            if (rc > 0) { // something to read
+                rc = recv(clifd, smbuffer, sizeof(smbuffer), 0);
+                if (rc < 0) {
+                    if (errno != EWOULDBLOCK) {
+                        perror("  recv() failed");
+                        break;
+                    }
+                } else if (rc == 0) {                
+                    printf("Connection closed\r\n");
+                    break;
+                } else {
+                    SCPI_Input(&scpi_context, smbuffer, rc);
+                }
+            }
+        }
 
-
+        close(clifd);
+    }
+    
     return (EXIT_SUCCESS);
 }
 
