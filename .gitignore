@@ -15,10 +15,10 @@
 *.exe
 *.out
 *.app
+*.test
 
 # Backup files
 *~
-/netbeans/nbproject/private/
-/netbeans/build/Debug/
-/netbeans/dist/Debug/
-/netbeans/core
+/libscpi/obj/
+/libscpi/dist/
+
