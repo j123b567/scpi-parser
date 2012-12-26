@@ -52,19 +52,27 @@ extern "C" {
     typedef bool bool_t;
     //typedef enum { FALSE = 0, TRUE } bool_t;
 
-    /* scpi interface */
-    typedef struct _scpi_t scpi_t;
-    typedef struct _scpi_interface_t scpi_interface_t;
-    typedef struct _scpi_buffer_t scpi_buffer_t;
-    typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
-    typedef int (*scpi_error_callback_t)(scpi_t * context, int_fast16_t error);
+    /* IEEE 488.2 registers */
+    typedef enum _scpi_reg_name_t scpi_reg_name_t;
+    typedef enum _scpi_ctrl_name_t scpi_ctrl_name_t;
+    typedef uint16_t scpi_reg_val_t;
 
     /* scpi commands */
     typedef enum _scpi_result_t scpi_result_t;
     typedef struct _scpi_param_list_t scpi_param_list_t;
     typedef struct _scpi_command_t scpi_command_t;
+
+    /* scpi interface */
+    typedef struct _scpi_t scpi_t;
+    typedef struct _scpi_interface_t scpi_interface_t;
+    typedef struct _scpi_buffer_t scpi_buffer_t;
+    typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
+    typedef scpi_result_t(*scpi_write_control_t)(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val);
+    typedef int (*scpi_error_callback_t)(scpi_t * context, int_fast16_t error);
+
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
+    
     /* scpi error queue */
     typedef void * scpi_error_queue_t;
 
@@ -74,10 +82,6 @@ extern "C" {
     typedef enum _scpi_special_number_t scpi_special_number_t;
     typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
     typedef struct _scpi_number_t scpi_number_t;
-
-    /* IEEE 488.2 registers */
-    typedef enum _scpi_reg_name_t scpi_reg_name_t;
-    typedef uint16_t scpi_reg_val_t;
     
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
@@ -102,10 +106,10 @@ extern "C" {
     struct _scpi_interface_t {
         scpi_error_callback_t error;
         scpi_write_t write;
+        scpi_write_control_t control;
         scpi_command_callback_t flush;
         scpi_command_callback_t reset;
         scpi_command_callback_t test;
-        scpi_command_callback_t srq;
     };
 
     struct _scpi_t {
@@ -186,7 +190,25 @@ extern "C" {
         /* last definition - number of registers */
         SCPI_REG_COUNT,
     };
-
+    
+    enum _scpi_ctrl_name_t {
+        SCPI_CTRL_SRQ = 1,               // service request
+        SCPI_CTRL_GTL,                   // Go to local
+        SCPI_CTRL_SDC,                   // Selected device clear
+        SCPI_CTRL_PPC,                   // Parallel poll configure
+        SCPI_CTRL_GET,                   // Group execute trigger
+        SCPI_CTRL_TCT,                   // Take control
+        SCPI_CTRL_LLO,                   // Device clear
+        SCPI_CTRL_DCL,                   // Local lockout
+        SCPI_CTRL_PPU,                   // Parallel poll unconfigure
+        SCPI_CTRL_SPE,                   // Serial poll enable
+        SCPI_CTRL_SPD,                   // Serial poll disable
+        SCPI_CTRL_MLA,                   // My local address
+        SCPI_CTRL_UNL,                   // Unlisten
+        SCPI_CTRL_MTA,                   // My talk address
+        SCPI_CTRL_UNT,                   // Untalk
+        SCPI_CTRL_MSA,                   // My secondary address
+    };
 
 #ifdef	__cplusplus
 }

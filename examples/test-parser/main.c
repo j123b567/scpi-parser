@@ -45,6 +45,10 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     return fwrite(data, 1, len, stdout);
 }
 
+scpi_result_t SCPI_Flush(scpi_t * context) {    
+    return SCPI_RES_OK;
+}
+
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
 
@@ -52,9 +56,12 @@ int SCPI_Error(scpi_t * context, int_fast16_t err) {
     return 0;
 }
 
-scpi_result_t SCPI_Srq(scpi_t * context) {
-    scpi_reg_val_t stb = SCPI_RegGet(context, SCPI_REG_STB);
-    fprintf(stderr, "**SRQ: 0x%X (%d)\r\n", stb, stb);
+scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+    if (SCPI_CTRL_SRQ == ctrl) {
+        fprintf(stderr, "**SRQ: 0x%X (%d)\r\n", val, val);
+    } else {
+        fprintf(stderr, "**CTRL %02x: 0x%X (%d)\r\n", ctrl, val, val);
+    }
     return SCPI_RES_OK;
 }
 
@@ -66,6 +73,10 @@ scpi_result_t SCPI_Test(scpi_t * context) {
 scpi_result_t SCPI_Reset(scpi_t * context) {
     fprintf(stderr, "**Reset\r\n");
     return SCPI_RES_OK;
+}
+
+scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
+    return SCPI_RES_ERR;
 }
 
 /*
