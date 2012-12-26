@@ -45,16 +45,20 @@ Source code organisation
 
 Source codes are devided into few files to provide better portability to other systems.
 
-- *scpi_parser.c* - provides the core parser library
-- *scpi_error.c* - provides basic error handling (error queue of the instrument)
-- *scpi_ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
-- *scpi_minimal.c* - provides basic implementation of SCPI mandatory commands
-- *scpi_utils.c* - provides string handling routines and conversion routines
-- *scpi_units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
-- *scpi_fifo.c* - provides basic implementation of error queue FIFO
-- *scpi_debug.c* - provides debug functions
+- *libscpi/parser.c* - provides the core parser library
+- *libscpi/error.c* - provides basic error handling (error queue of the instrument)
+- *libscpi/ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
+- *libscpi/minimal.c* - provides basic implementation of SCPI mandatory commands
+- *libscpi/utils.c* - provides string handling routines and conversion routines
+- *libscpi/units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
+- *libscpi/fifo.c* - provides basic implementation of error queue FIFO
+- *libscpi/debug.c* - provides debug functions
 
-- *test-parser.c* - is the basic non-interactive demo of the parser
+- *examples/test-parser* - is the basic non-interactive demo of the parser
+- *examples/test-interactive* - is the basic interactive demo of the parser
+- *examples/test-tcp* - is the basic interactive tcp server (port 5025)
+- *examples/common* - common examples commands
+
 
 Implementation to your instrument
 -------------

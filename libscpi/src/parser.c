@@ -245,6 +245,19 @@ static inline size_t writeData(scpi_t * context, const char * data, size_t len) 
 }
 
 /**
+ * Flush data to SCPI output
+ * @param context
+ * @return
+ */
+static inline int flushData(scpi_t * context) {
+    if (context && context->interface && context->interface->flush) {
+        return context->interface->flush(context);
+    } else {
+        return SCPI_RES_OK;
+    }
+}
+
+/**
  * Write result delimiter to output
  * @param context
  * @return number of bytes written
@@ -263,8 +276,11 @@ static inline size_t writeDelimiter(scpi_t * context) {
  * @return pocet zapsanych znaku
  */
 static inline size_t writeNewLine(scpi_t * context) {
+    size_t len;
     if (context->output_count > 0) {
-        return writeData(context, "\r\n", 2);
+        len = writeData(context, "\r\n", 2);
+        flushData(context);
+        return len;
     } else {
         return 0;
     }

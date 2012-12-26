@@ -102,6 +102,7 @@ extern "C" {
     struct _scpi_interface_t {
         scpi_error_callback_t error;
         scpi_write_t write;
+        scpi_command_callback_t flush;
         scpi_command_callback_t reset;
         scpi_command_callback_t test;
         scpi_command_callback_t srq;
