@@ -163,7 +163,7 @@ bool_t locateText(const char * str1, size_t len1, char ** str2, size_t * len2) {
 
 
     for (i = 0; i < len1; i++) {
-        if ((strStart < 0) && isspace(str1[i])) {
+        if ((strStart < 0) && isspace((unsigned char)str1[i])) {
             continue;
         }
 
@@ -186,15 +186,15 @@ bool_t locateText(const char * str1, size_t len1, char ** str2, size_t * len2) {
             break;
         }
 
-        if ((strStop >= 0) && quot && !isspace(str1[i])) {
+        if ((strStop >= 0) && quot && !isspace((unsigned char)str1[i])) {
             valid = 0;
         }
 
-        if (!quot && !isspace(str1[i]) && (str1[i] != ',')) {
+        if (!quot && !isspace((unsigned char)str1[i]) && (str1[i] != ',')) {
             strStop = i;
         }
 
-        if (isspace(str1[i])) {
+        if (isspace((unsigned char)str1[i])) {
             continue;
         }
 
@@ -240,7 +240,7 @@ bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
 
 
     for (i = 0; i < len1; i++) {
-        if ((strStart < 0) && isspace(str1[i])) {
+        if ((strStart < 0) && isspace((unsigned char)str1[i])) {
             continue;
         }
 
@@ -248,11 +248,11 @@ bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
             strStart = i;
         }
 
-        if (!isspace(str1[i]) && (str1[i] != ',')) {
+        if (!isspace((unsigned char)str1[i]) && (str1[i] != ',')) {
             strStop = i;
         }
 
-        if (isspace(str1[i])) {
+        if (isspace((unsigned char)str1[i])) {
             continue;
         }
 
@@ -303,7 +303,7 @@ bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) {
 size_t skipWhitespace(const char * cmd, size_t len) {
     size_t i;
     for (i = 0; i < len; i++) {
-        if (!isspace(cmd[i])) {
+        if (!isspace((unsigned char)cmd[i])) {
             return i;
         }
     }
@@ -321,7 +321,7 @@ size_t skipWhitespace(const char * cmd, size_t len) {
 size_t patternSeparatorShortPos(const char * pattern, size_t len) {
     size_t i;
     for (i = 0; (i < len) && pattern[i]; i++) {
-        if (islower(pattern[i])) {
+        if (islower((unsigned char)pattern[i])) {
             return i;
         }
     }

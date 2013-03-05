@@ -64,8 +64,10 @@ scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
 
 static size_t writeControl(scpi_t * context, int ctrl, scpi_reg_val_t val) {
     if (context && context->interface && context->interface->control) {
-        context->interface->control(context, ctrl, val);
-    }    
+        return context->interface->control(context, ctrl, val);
+    } else {
+        return 0;
+    }
 }
 
 /**
