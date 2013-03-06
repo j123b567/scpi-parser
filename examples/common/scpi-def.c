@@ -47,15 +47,19 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 
     // read first parameter if present
     if (SCPI_ParamNumber(context, &param1, false)) {
-        SCPI_NumberToStr(context, &param1, bf, 15);
-        fprintf(stderr, "\tP1=%s\r\n", bf);
     }
 
     // read second paraeter if present
     if (SCPI_ParamNumber(context, &param2, false)) {
-        SCPI_NumberToStr(context, &param2, bf, 15);
-        fprintf(stderr, "\tP2=%s\r\n", bf);
     }
+
+    
+    SCPI_NumberToStr(context, &param1, bf, 15);
+    fprintf(stderr, "\tP1=%s\r\n", bf);
+
+    
+    SCPI_NumberToStr(context, &param2, bf, 15);
+    fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
     
