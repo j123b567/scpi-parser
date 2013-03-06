@@ -81,7 +81,7 @@ int16_t SCPI_ErrorPop(scpi_t * context) {
     //}
     
     // basic FIFO
-    fifo_pop((fifo_t *)context->error_queue, &result);
+    fifo_remove((fifo_t *)context->error_queue, &result);
 
     return result;
 }
@@ -109,7 +109,7 @@ static void SCPI_ErrorPushInternal(scpi_t * context, int16_t err) {
     //xQueueSend((xQueueHandle)context->error_queue, &err, 0);
     
     // basic FIFO
-    fifo_push((fifo_t *)context->error_queue, err);
+    fifo_add((fifo_t *)context->error_queue, err);
 }
 /**
  * Push error to queue

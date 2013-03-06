@@ -38,15 +38,15 @@ void testFifo() {
     
 
     TEST_FIFO_COUNT(0);
-    CU_ASSERT_TRUE(fifo_push(&fifo, 1));
+    CU_ASSERT_TRUE(fifo_add(&fifo, 1));
     TEST_FIFO_COUNT(1);
-    CU_ASSERT_TRUE(fifo_push(&fifo, 2));
+    CU_ASSERT_TRUE(fifo_add(&fifo, 2));
     TEST_FIFO_COUNT(2);
-    CU_ASSERT_TRUE(fifo_push(&fifo, 3));
+    CU_ASSERT_TRUE(fifo_add(&fifo, 3));
     TEST_FIFO_COUNT(3);
-    CU_ASSERT_TRUE(fifo_push(&fifo, 4));
+    CU_ASSERT_TRUE(fifo_add(&fifo, 4));
     TEST_FIFO_COUNT(4);
-    CU_ASSERT_FALSE(fifo_push(&fifo, 1));
+    CU_ASSERT_TRUE(fifo_add(&fifo, 1));
     TEST_FIFO_COUNT(4);
 
     CU_ASSERT_EQUAL(fifo.data[0], 1);
@@ -54,30 +54,30 @@ void testFifo() {
     CU_ASSERT_EQUAL(fifo.data[2], 3);
     CU_ASSERT_EQUAL(fifo.data[3], 4);
 
-    CU_ASSERT_TRUE(fifo_pop(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 1);
-    TEST_FIFO_COUNT(3);
-
-    CU_ASSERT_TRUE(fifo_push(&fifo, 5));
-    TEST_FIFO_COUNT(4);
-
-    CU_ASSERT_TRUE(fifo_pop(&fifo, &value));
+    CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
     CU_ASSERT_EQUAL(value, 2);
     TEST_FIFO_COUNT(3);
 
-    CU_ASSERT_TRUE(fifo_pop(&fifo, &value));
+    CU_ASSERT_TRUE(fifo_add(&fifo, 5));
+    TEST_FIFO_COUNT(4);
+
+    CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
     CU_ASSERT_EQUAL(value, 3);
+    TEST_FIFO_COUNT(3);
+
+    CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
+    CU_ASSERT_EQUAL(value, 4);
     TEST_FIFO_COUNT(2);
 
-    CU_ASSERT_TRUE(fifo_pop(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 4);
+    CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
+    CU_ASSERT_EQUAL(value, 1);
     TEST_FIFO_COUNT(1);
 
-    CU_ASSERT_TRUE(fifo_pop(&fifo, &value));
+    CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
     CU_ASSERT_EQUAL(value, 5);
     TEST_FIFO_COUNT(0);
     
-    CU_ASSERT_FALSE(fifo_pop(&fifo, &value));
+    CU_ASSERT_FALSE(fifo_remove(&fifo, &value));
     TEST_FIFO_COUNT(0);
 }
 

@@ -35,6 +35,7 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include "scpi/debug.h"
 
 /**
@@ -47,7 +48,7 @@ bool_t SCPI_DebugCommand(scpi_t * context) {
 	printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
 	res = fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);
 	(void)res;
-	printf("\" - %ld\r\n", (uint32_t)context->paramlist.length);
+	printf("\" - %" PRIu32 "\r\n", (uint32_t)context->paramlist.length);
 	
 	return TRUE;
 }

@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 
-#define FIFO_SIZE 100
+#define FIFO_SIZE 16
 
     struct _fifo_t {
         int16_t wr;
@@ -56,8 +56,8 @@ extern "C" {
 
     void fifo_init(fifo_t * fifo);
     void fifo_clear(fifo_t * fifo);
-    bool_t fifo_push(fifo_t * fifo, int16_t value);
-    bool_t fifo_pop(fifo_t * fifo, int16_t * value);
+    bool_t fifo_add(fifo_t * fifo, int16_t value);
+    bool_t fifo_remove(fifo_t * fifo, int16_t * value);
     bool_t fifo_count(fifo_t * fifo, int16_t * value);
 
 #ifdef	__cplusplus
