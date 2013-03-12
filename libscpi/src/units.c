@@ -99,6 +99,9 @@ const scpi_unit_def_t scpi_units_def[] = {
     SCPI_UNITS_LIST_END,
 };
 
+/*
+ * Special number values definition
+ */
 const scpi_special_number_def_t scpi_special_numbers_def[] = {
     { .name = "MINimum", .type = SCPI_NUM_MIN},
     { .name = "MAXimum", .type = SCPI_NUM_MAX},
@@ -111,22 +114,41 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
 
-static scpi_special_number_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len) {
+/**
+ * Match string constant to one of special number values
+ * @param specs specifications of special numbers (patterns)
+ * @param str string to be recognised
+ * @param len length of string
+ * @param value resultin value
+ * @return TRUE if str matches one of specs patterns
+ */
+static bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_t * value) {
     int i;
 
+    value->value = 0.0;
+    value->unit = SCPI_UNIT_NONE;
+    value->type = SCPI_NUM_NUMBER;
+
     if (specs == NULL) {
-        return SCPI_NUM_NUMBER;
+        return FALSE;
     }
-    
+
     for (i = 0; specs[i].name != NULL; i++) {
         if (matchPattern(specs[i].name, strlen(specs[i].name), str, len)) {
-            return specs[i].type;
+            value->type = specs[i].type;
+            return TRUE;
         }
     }
 
-    return SCPI_NUM_NUMBER;
+    return FALSE;
 }
 
+/**
+ * Convert special number type to its string representation
+ * @param specs specifications of special numbers (patterns)
+ * @param type type of special number
+ * @return String representing special number or NULL
+ */
 static const char * translateSpecialNumberInverse(const scpi_special_number_def_t * specs, scpi_special_number_t type) {
     int i;
 
@@ -143,6 +165,13 @@ static const char * translateSpecialNumberInverse(const scpi_special_number_def_
     return NULL;
 }
 
+/**
+ * Convert string describing unit to its representation
+ * @param units units patterns
+ * @param unit text representation of unknown unit
+ * @param len length of text representation
+ * @return pointer of related unit definition or NULL
+ */
 static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, const char * unit, size_t len) {
     int i;
     
@@ -159,6 +188,12 @@ static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, cons
     return NULL;
 }
 
+/**
+ * Convert unit definition to string
+ * @param units units definitions (patterns)
+ * @param unit type of unit
+ * @return string representation of unit
+ */
 static const char * translateUnitInverse(const scpi_unit_def_t * units, const scpi_unit_t unit) {
     int i;
     
@@ -175,7 +210,15 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
     return NULL;
 }
 
-static bool_t transformNumber(const scpi_unit_def_t * units, const char * unit, size_t len, scpi_number_t * value) {
+/**
+ * Transform number to base units
+ * @param context
+ * @param unit text representation of unit
+ * @param len length of text representation
+ * @param value preparsed numeric value
+ * @return TRUE if value parameter was converted to base units
+ */
+static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -185,9 +228,10 @@ static bool_t transformNumber(const scpi_unit_def_t * units, const char * unit, 
         return TRUE;
     }
 
-    unitDef = translateUnit(units, unit + s, len - s);
+    unitDef = translateUnit(context->units, unit + s, len - s);
 
     if (unitDef == NULL) {
+        SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SUFFIX);
         return FALSE;
     }
 
@@ -206,47 +250,51 @@ static bool_t transformNumber(const scpi_unit_def_t * units, const char * unit, 
  */
 bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory) {
     bool_t result;
-    char * param;
+    const char * param;
     size_t len;
     size_t numlen;
 
+    /* read parameter and shift to the next one */
     result = SCPI_ParamString(context, &param, &len, mandatory);
 
+    /* value not initializes */
     if (!value) {
         return FALSE;
     }
 
+    value->type = SCPI_NUM_DEF;
+
+    /* if parameter was not found, return TRUE or FALSE according
+     * to fact that parameter was mandatory or not */
     if (!result) {
-        if (mandatory) {
-            return FALSE;
-        } else {
-            value->type = SCPI_NUM_DEF;
-            return TRUE;
-        }
+        return mandatory ? FALSE : TRUE;
     }
 
-    value->unit = SCPI_UNIT_NONE;
-    value->value = 0.0;
-    value->type = translateSpecialNumber(context->special_numbers, param, len);
-
-    if (value->type != SCPI_NUM_NUMBER) {
-        // found special type
+    /* convert string to special number type */
+    if (translateSpecialNumber(context->special_numbers, param, len, value)) {
+        /* found special type */
         return TRUE;
     }
 
+    /* convert text from double - no special type */
     numlen = strToDouble(param, &value->value);
 
+    /* transform units of value */
     if (numlen <= len) {
-        if (transformNumber(context->units, param + numlen, len - numlen, value)) {
-            return TRUE;
-        } else {
-            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SUFFIX);
-        }
+        return transformNumber(context, param + numlen, len - numlen, value);
     }
     return FALSE;
 
 }
 
+/**
+ * Convert scpi_number_t to string
+ * @param context
+ * @param value number value
+ * @param str target string
+ * @param len max length of string
+ * @return number of chars written to string
+ */
 size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len) {
     const char * type;
     const char * unit;
