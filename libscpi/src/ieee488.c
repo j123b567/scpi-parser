@@ -43,10 +43,26 @@
 
 /**
  * Update register value
+ * @param context
  * @param name - register name
  */
-static void SCPI_RegUpdate(scpi_t * context, scpi_reg_name_t name) {
+static void regUpdate(scpi_t * context, scpi_reg_name_t name) {
     SCPI_RegSet(context, name, SCPI_RegGet(context, name));
+}
+
+/**
+ * Update STB register according to value and its mask register
+ * @param context
+ * @param val value of register
+ * @param mask name of mask register (enable register)
+ * @param stbBits bits to clear or set in STB
+ */
+static void regUpdateSTB(scpi_t * context, scpi_reg_val_t val, scpi_reg_name_t mask, scpi_reg_val_t stbBits) {
+    if (val & SCPI_RegGet(context, mask)) {
+        SCPI_RegSetBits(context, SCPI_REG_STB, stbBits);
+    } else {
+        SCPI_RegClearBits(context, SCPI_REG_STB, stbBits);
+    }
 }
 
 /**
@@ -62,6 +78,12 @@ scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
     }
 }
 
+/**
+ * Wrapper function to control interface from context
+ * @param context
+ * @param ctrl number of controll message
+ * @param value value of related register
+ */
 static size_t writeControl(scpi_t * context, int ctrl, scpi_reg_val_t val) {
     if (context && context->interface && context->interface->control) {
         return context->interface->control(context, ctrl, val);
@@ -84,9 +106,10 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
     }
     
 
-    // set register value
+    /* set register value */
     context->registers[name] = val;
 
+    /** @TODO: remove recutsion */
     switch (name) {
         case SCPI_REG_STB:
             mask = SCPI_RegGet(context, SCPI_REG_SRE);
@@ -99,37 +122,25 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
             }
             break;
         case SCPI_REG_SRE:
-            SCPI_RegUpdate(context, SCPI_REG_STB);
+            regUpdate(context, SCPI_REG_STB);
             break;
         case SCPI_REG_ESR:
-            if (val & SCPI_RegGet(context, SCPI_REG_ESE)) {
-                SCPI_RegSetBits(context, SCPI_REG_STB, STB_ESR);
-            } else {
-                SCPI_RegClearBits(context, SCPI_REG_STB, STB_ESR);
-            }
+            regUpdateSTB(context, val, SCPI_REG_ESE, STB_ESR);
             break;
         case SCPI_REG_ESE:
-            SCPI_RegUpdate(context, SCPI_REG_ESR);
+            regUpdate(context, SCPI_REG_ESR);
             break;
         case SCPI_REG_QUES:
-            if (val & SCPI_RegGet(context, SCPI_REG_QUESE)) {
-                SCPI_RegSetBits(context, SCPI_REG_STB, STB_QES);
-            } else {
-                SCPI_RegClearBits(context, SCPI_REG_STB, STB_QES);
-            }
+            regUpdateSTB(context, val, SCPI_REG_QUESE, STB_QES);
             break;
         case SCPI_REG_QUESE:
-            SCPI_RegUpdate(context, SCPI_REG_QUES);
+            regUpdate(context, SCPI_REG_QUES);
             break;
         case SCPI_REG_OPER:
-            if (val & SCPI_RegGet(context, SCPI_REG_OPERE)) {
-                SCPI_RegSetBits(context, SCPI_REG_STB, STB_OPS);
-            } else {
-                SCPI_RegClearBits(context, SCPI_REG_STB, STB_OPS);
-            }
+            regUpdateSTB(context, val, SCPI_REG_OPERE, STB_OPS);
             break;
         case SCPI_REG_OPERE:
-            SCPI_RegUpdate(context, SCPI_REG_OPER);
+            regUpdate(context, SCPI_REG_OPER);
             break;
             
             
@@ -164,8 +175,10 @@ void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bi
     SCPI_RegSet(context, name, SCPI_RegGet(context, name) & ~bits);
 }
 
-/* ============ */
-
+/**
+ * Clear event register
+ * @param context
+ */
 void SCPI_EventClear(scpi_t * context) {
     // TODO
     SCPI_RegSet(context, SCPI_REG_ESR, 0);
