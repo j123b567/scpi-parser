@@ -46,11 +46,13 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (SCPI_ParamNumber(context, &param1, false)) {
+    if (!SCPI_ParamNumber(context, &param1, false)) {
+        // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (SCPI_ParamNumber(context, &param2, false)) {
+    if (!SCPI_ParamNumber(context, &param2, false)) {
+        // do something, if parameter not present
     }
 
     
@@ -63,6 +65,27 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 
     SCPI_ResultDouble(context, 0);
     
+    return SCPI_RES_OK;
+}
+
+
+scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
+    double param1, param2;
+    fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (!SCPI_ParamDouble(context, &param1, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    // read second paraeter if present
+    if (!SCPI_ParamDouble(context, &param2, false)) {
+        // do something, if parameter not present
+    }
+
+    fprintf(stderr, "\tP1=%lf\r\n", param1);
+    fprintf(stderr, "\tP2=%lf\r\n", param2);
+
     return SCPI_RES_OK;
 }
 
@@ -104,6 +127,7 @@ static const scpi_command_t scpi_commands[] = {
 
     /* DMM */
     {.pattern = "MEASure:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
+    {.pattern = "CONFigure:VOLTage:DC", .callback = DMM_ConfigureVoltageDc,},
     {.pattern = "MEASure:VOLTage:DC:RATio?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:VOLTage:AC?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:CURRent:DC?", .callback = SCPI_StubQ,},
