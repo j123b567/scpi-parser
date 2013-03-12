@@ -57,8 +57,8 @@ extern "C" {
 
     bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory);
     bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory);
-    bool_t SCPI_ParamString(scpi_t * context, char ** value, size_t * len, bool_t mandatory);
-    bool_t SCPI_ParamText(scpi_t * context, char ** value, size_t * len, bool_t mandatory);    
+    bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
+    bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);    
 
 
 #ifdef	__cplusplus
