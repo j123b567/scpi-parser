@@ -104,59 +104,48 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
     return result;
 }
 
-static void SCPI_ErrorPushInternal(scpi_t * context, int16_t err) {
+static void SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
     //// FreeRTOS
     //xQueueSend((xQueueHandle)context->error_queue, &err, 0);
     
     // basic FIFO
     fifo_add((fifo_t *)context->error_queue, err);
 }
+
+struct error_reg {
+    int16_t from;
+    int16_t to;
+    scpi_reg_val_t bit;
+};
+
+#define ERROR_DEFS_N	8
+
+static const struct error_reg errs[ERROR_DEFS_N] = {
+    {.from = -100, .to = -199, .bit=ESR_CER}, // Command error (e.g. syntax error) ch 21.8.9
+    {.from = -200, .to = -299, .bit=ESR_EER}, // Execution Error (e.g. range error) ch 21.8.10
+    {.from = -300, .to = -399, .bit=ESR_DER}, // Device specific error -300, -399 ch 21.8.11
+    {.from = -400, .to = -499, .bit=ESR_QER}, // Query error -400, -499 ch 21.8.12
+    {.from = -500, .to = -599, .bit=ESR_PON}, // Power on event -500, -599 ch 21.8.13
+    {.from = -600, .to = -699, .bit=ESR_URQ}, // User Request Event -600, -699 ch 21.8.14
+    {.from = -700, .to = -799, .bit=ESR_REQ}, // Request Control Event -700, -799 ch 21.8.15
+    {.from = -800, .to = -899, .bit=ESR_OPC}, // Operation Complete Event -800, -899 ch 21.8.16
+};
+
 /**
  * Push error to queue
  * @param context - scpi context
  * @param err - error number
  */
 void SCPI_ErrorPush(scpi_t * context, int16_t err) {
-    SCPI_ErrorPushInternal(context, err);
-    
-    // Command error (e.g. syntax error) ch 21.8.9
-    if ((err < -100) && (err > -199)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_CER);
-    }
 
-    // Execution Error (e.g. range error) ch 21.8.10
-    if ((err < -200) && (err > -299)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_EER);
-    }
+    int i;
 
-    // Device specific error -300, -399 ch 21.8.11
-    if ((err < -300) && (err > -399)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_DER);
-    }
+    SCPI_ErrorAddInternal(context, err);
 
-    // Query error -400, -499 ch 21.8.12
-    if ((err < -400) && (err > -499)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_QER);
-    }
-
-    // Power on event -500, -599 ch 21.8.13
-    if ((err < -500) && (err > -599)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_PON);
-    }
-
-    // User Request Event -600, -699 ch 21.8.14
-    if ((err < -600) && (err > -699)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_URQ);
-    }
-
-    // Request Control Event -700, -799 ch 21.8.15
-    if ((err < -700) && (err > -799)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_REQ);
-    }
-
-    // Operation Complete Event -800, -899 ch 21.8.16
-    if ((err < -800) && (err > -899)) {
-        SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_OPC);
+    for(i = 0; i < ERROR_DEFS_N; i++) {
+        if ((err <= errs[i].from) && (err >= errs[i].to)) {
+            SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
+        }
     }
 
     if (context) {
