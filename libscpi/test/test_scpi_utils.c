@@ -138,8 +138,8 @@ void test_compareStr() {
 
 void test_locateText() {
 
-    char * v;
-    char * b;
+    const char * v;
+    const char * b;
     size_t l;
     int result;
 
@@ -152,7 +152,7 @@ void test_locateText() {
         result = locateText(v, strlen(v), &b, &l);       \
         CU_ASSERT(result == ex_res);                    \
         if (result == TRUE) {                           \
-                CU_ASSERT(b == (s + ex_off));           \
+                CU_ASSERT(b == (v + ex_off));           \
                 CU_ASSERT(l == ex_len);                 \
         } else {                                        \
                 CU_ASSERT(b == NULL);                   \
@@ -162,6 +162,8 @@ void test_locateText() {
 
 
     TEST_LOCATE_TEXT("", TRUE, 0, 0);
+    TEST_LOCATE_TEXT(",", TRUE, 0, 0);
+    TEST_LOCATE_TEXT("\"\",", TRUE, 1, 0);
     TEST_LOCATE_TEXT("   ", TRUE, 3, 0);
     TEST_LOCATE_TEXT("a", TRUE, 0, 1);
     TEST_LOCATE_TEXT("ab", TRUE, 0, 2);
@@ -186,8 +188,8 @@ void test_locateText() {
 
 void test_locateStr() {
 
-    char * v;
-    char * b;
+    const char * v;
+    const char * b;
     size_t l;
     int result;
 
@@ -209,6 +211,7 @@ void test_locateStr() {
     } while(0)                                          \
     
     TEST_LOCATE_STR("", TRUE, 0, 0);
+    TEST_LOCATE_STR(",", TRUE, 0, 0);
     TEST_LOCATE_STR("   ", TRUE, 3, 0);
     TEST_LOCATE_STR("a", TRUE, 0, 1);
     TEST_LOCATE_STR("ab", TRUE, 0, 2);

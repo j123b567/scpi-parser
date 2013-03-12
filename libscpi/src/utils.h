@@ -52,12 +52,15 @@ extern "C" {
     size_t doubleToStr(double val, char * str, size_t len) LOCAL;
     size_t strToLong(const char * str, int32_t * val) LOCAL;
     size_t strToDouble(const char * str, double * val) LOCAL;
-    bool_t locateText(const char * str1, size_t len1, char ** str2, size_t * len2) LOCAL;
-    bool_t locateStr(const char * str1, size_t len1, char ** str2, size_t * len2) LOCAL;
+    bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
+    bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
     bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
 
+#define min(a, b)  (((a) < (b)) ? (a) : (b))
+#define max(a, b)  (((a) > (b)) ? (a) : (b))
 
+#if 0
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
@@ -67,6 +70,8 @@ extern "C" {
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
+
+#endif
 
 #ifdef	__cplusplus
 }
