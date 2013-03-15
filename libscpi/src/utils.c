@@ -154,7 +154,7 @@ bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2
     return FALSE;
 }
 
-enum locate_text_states {
+enum _locate_text_states {
     STATE_FIRST_WHITESPACE,
     STATE_TEXT_QUOTED,
     STATE_TEXT,
@@ -162,18 +162,20 @@ enum locate_text_states {
     STATE_COMMA,
     STATE_ERROR,
 };
+typedef enum _locate_text_states locate_text_states;
 
-struct locate_text_nfa {
-    enum locate_text_states state;
+struct _locate_text_nfa {
+    locate_text_states state;
     int32_t startIdx;
     int32_t stopIdx;
     size_t i;
 };
+typedef struct _locate_text_nfa locate_text_nfa;
 
 /**
  * Test locate text state, if it is correct final state
  */
-static inline bool_t isFinalState(enum locate_text_states state) {
+static inline bool_t isFinalState(locate_text_states state) {
     return (
         ((state) == STATE_COMMA)
         || ((state) == STATE_LAST_WHITESPACE)
@@ -187,7 +189,7 @@ static inline bool_t isFinalState(enum locate_text_states state) {
  * @param nfa stores automaton state
  * @param c current char processed
  */
-static inline bool_t locateTextAutomaton(struct locate_text_nfa * nfa, unsigned char c) {
+static inline bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c) {
     switch(nfa->state) {
         /* first state locating only white spaces */
         case STATE_FIRST_WHITESPACE:
@@ -249,11 +251,10 @@ static inline bool_t locateTextAutomaton(struct locate_text_nfa * nfa, unsigned 
  * @return string str1 contains text and str2 was set
  */
 bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) {
-    struct locate_text_nfa nfa = {
-        .startIdx = 0,
-        .stopIdx = 0,
-        .state = STATE_FIRST_WHITESPACE,
-    };
+    locate_text_nfa nfa;
+    nfa.state = STATE_FIRST_WHITESPACE;
+    nfa.startIdx = 0;
+    nfa.stopIdx = 0;
 
     for (nfa.i = 0; nfa.i < len1; nfa.i++) {
         if(FALSE == locateTextAutomaton(&nfa, str1[nfa.i])) {
@@ -280,7 +281,7 @@ bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * l
  * @param nfa stores automaton state
  * @param c current char processed
  */
-static inline bool_t locateStrAutomaton(struct locate_text_nfa * nfa, unsigned char c) {
+static inline bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) {
     switch(nfa->state) {
         /* first state locating only white spaces */
         case STATE_FIRST_WHITESPACE:
@@ -322,11 +323,11 @@ static inline bool_t locateStrAutomaton(struct locate_text_nfa * nfa, unsigned c
  * @return string str1 contains text and str2 was set
  */
 bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) {
-    struct locate_text_nfa nfa = {
-        .startIdx = 0,
-        .stopIdx = 0,
-        .state = STATE_FIRST_WHITESPACE,
-    };
+    locate_text_nfa nfa;
+    nfa.state = STATE_FIRST_WHITESPACE;
+    nfa.startIdx = 0;
+    nfa.stopIdx = 0;
+
 
     for (nfa.i = 0; nfa.i < len1; nfa.i++) {
         if(FALSE == locateStrAutomaton(&nfa, str1[nfa.i])) {

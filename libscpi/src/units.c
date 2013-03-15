@@ -62,39 +62,39 @@
  */
 const scpi_unit_def_t scpi_units_def[] = {
     /* voltage */
-    { .name = "UV", .unit = SCPI_UNIT_VOLT, .mult = 1e-6},
-    { .name = "MV", .unit = SCPI_UNIT_VOLT, .mult = 1e-3},
-    { .name = "V", .unit = SCPI_UNIT_VOLT, .mult = 1},
-    { .name = "KV", .unit = SCPI_UNIT_VOLT, .mult = 1e3},
+    {/* name */ "UV",   /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1e-6},
+    {/* name */ "MV",   /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1e-3},
+    {/* name */ "V",    /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1},
+    {/* name */ "KV",   /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1e3},
 
     /* current */
-    { .name = "UA", .unit = SCPI_UNIT_AMPER, .mult = 1e-6},
-    { .name = "MA", .unit = SCPI_UNIT_AMPER, .mult = 1e-3},
-    { .name = "A", .unit = SCPI_UNIT_AMPER, .mult = 1},
-    { .name = "KA", .unit = SCPI_UNIT_AMPER, .mult = 1e3},
+    {/* name */ "UA",   /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1e-6},
+    {/* name */ "MA",   /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1e-3},
+    {/* name */ "A",    /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1},
+    {/* name */ "KA",   /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1e3},
 
     /* resistance */
-    { .name = "OHM", .unit = SCPI_UNIT_OHM, .mult = 1},
-    { .name = "KOHM", .unit = SCPI_UNIT_OHM, .mult = 1e3},
-    { .name = "MOHM", .unit = SCPI_UNIT_OHM, .mult = 1e6},
+    {/* name */ "OHM",  /* unit */ SCPI_UNIT_OHM,       /* mult */ 1},
+    {/* name */ "KOHM", /* unit */ SCPI_UNIT_OHM,       /* mult */ 1e3},
+    {/* name */ "MOHM", /* unit */ SCPI_UNIT_OHM,       /* mult */ 1e6},
 
     /* frequency */
-    { .name = "HZ", .unit = SCPI_UNIT_HERTZ, .mult = 1},
-    { .name = "KHZ", .unit = SCPI_UNIT_HERTZ, .mult = 1e3},
-    { .name = "MHZ", .unit = SCPI_UNIT_HERTZ, .mult = 1e6},
-    { .name = "GHZ", .unit = SCPI_UNIT_HERTZ, .mult = 1e9},
+    {/* name */ "HZ",   /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1},
+    {/* name */ "KHZ",  /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1e3},
+    {/* name */ "MHZ",  /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1e6},
+    {/* name */ "GHZ",  /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1e9},
 
     /* temperature */
-    { .name = "CEL", .unit = SCPI_UNIT_CELSIUS, .mult = 1},
+    {/* name */ "CEL",  /* unit */ SCPI_UNIT_CELSIUS,   /* mult */ 1},
 
     /* time */
-    { .name = "PS", .unit = SCPI_UNIT_SECONDS, .mult = 1e-12},
-    { .name = "NS", .unit = SCPI_UNIT_SECONDS, .mult = 1e-9},
-    { .name = "US", .unit = SCPI_UNIT_SECONDS, .mult = 1e-6},
-    { .name = "MS", .unit = SCPI_UNIT_SECONDS, .mult = 1e-3},
-    { .name = "S", .unit = SCPI_UNIT_SECONDS, .mult = 1},
-    { .name = "MIN", .unit = SCPI_UNIT_SECONDS, .mult = 60},
-    { .name = "HR", .unit = SCPI_UNIT_SECONDS, .mult = 3600},
+    {/* name */ "PS",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-12},
+    {/* name */ "NS",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-9},
+    {/* name */ "US",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-6},
+    {/* name */ "MS",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-3},
+    {/* name */ "S",    /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1},
+    {/* name */ "MIN",  /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 60},
+    {/* name */ "HR",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 3600},
 
     SCPI_UNITS_LIST_END,
 };
@@ -103,14 +103,14 @@ const scpi_unit_def_t scpi_units_def[] = {
  * Special number values definition
  */
 const scpi_special_number_def_t scpi_special_numbers_def[] = {
-    { .name = "MINimum", .type = SCPI_NUM_MIN},
-    { .name = "MAXimum", .type = SCPI_NUM_MAX},
-    { .name = "DEFault", .type = SCPI_NUM_DEF},
-    { .name = "UP", .type = SCPI_NUM_UP},
-    { .name = "DOWN", .type = SCPI_NUM_DOWN},
-    { .name = "NAN", .type = SCPI_NUM_NAN},
-    { .name = "INF", .type = SCPI_NUM_INF},
-    { .name = "NINF", .type = SCPI_NUM_NINF},
+    {/* name */ "MINimum",      /* type */ SCPI_NUM_MIN},
+    {/* name */ "MAXimum",      /* type */ SCPI_NUM_MAX},
+    {/* name */ "DEFault",      /* type */ SCPI_NUM_DEF},
+    {/* name */ "UP",           /* type */ SCPI_NUM_UP},
+    {/* name */ "DOWN",         /* type */ SCPI_NUM_DOWN},
+    {/* name */ "NAN",          /* type */ SCPI_NUM_NAN},
+    {/* name */ "INF",          /* type */ SCPI_NUM_INF},
+    {/* name */ "NINF",         /* type */ SCPI_NUM_NINF},
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
 

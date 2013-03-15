@@ -84,7 +84,7 @@ scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
  * @param ctrl number of controll message
  * @param value value of related register
  */
-static size_t writeControl(scpi_t * context, int ctrl, scpi_reg_val_t val) {
+static size_t writeControl(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
     if (context && context->interface && context->interface->control) {
         return context->interface->control(context, ctrl, val);
     } else {

@@ -35,13 +35,13 @@
  */
 
 #ifndef SCPI_TYPES_H
-#define	SCPI_TYPES_H
+#define SCPI_TYPES_H
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -53,54 +53,130 @@ extern "C" {
     //typedef enum { FALSE = 0, TRUE } bool_t;
 
     /* IEEE 488.2 registers */
+    enum _scpi_reg_name_t {
+        SCPI_REG_STB = 0, // Status Byte
+        SCPI_REG_SRE, // Service Request Enable Register
+        SCPI_REG_ESR, // Standard Event Status Register (ESR, SESR)
+        SCPI_REG_ESE, // Event Status Enable Register
+        SCPI_REG_OPER, // OPERation Status Register
+        SCPI_REG_OPERE, // OPERation Status Enable Register
+        SCPI_REG_QUES, // QUEStionable status register
+        SCPI_REG_QUESE, // QUEStionable status Enable Register
+
+        /* last definition - number of registers */
+        SCPI_REG_COUNT,
+    };
     typedef enum _scpi_reg_name_t scpi_reg_name_t;
+
+    enum _scpi_ctrl_name_t {
+        SCPI_CTRL_SRQ = 1,               // service request
+        SCPI_CTRL_GTL,                   // Go to local
+        SCPI_CTRL_SDC,                   // Selected device clear
+        SCPI_CTRL_PPC,                   // Parallel poll configure
+        SCPI_CTRL_GET,                   // Group execute trigger
+        SCPI_CTRL_TCT,                   // Take control
+        SCPI_CTRL_LLO,                   // Device clear
+        SCPI_CTRL_DCL,                   // Local lockout
+        SCPI_CTRL_PPU,                   // Parallel poll unconfigure
+        SCPI_CTRL_SPE,                   // Serial poll enable
+        SCPI_CTRL_SPD,                   // Serial poll disable
+        SCPI_CTRL_MLA,                   // My local address
+        SCPI_CTRL_UNL,                   // Unlisten
+        SCPI_CTRL_MTA,                   // My talk address
+        SCPI_CTRL_UNT,                   // Untalk
+        SCPI_CTRL_MSA,                   // My secondary address
+    };
     typedef enum _scpi_ctrl_name_t scpi_ctrl_name_t;
+
     typedef uint16_t scpi_reg_val_t;
 
     /* scpi commands */
+    enum _scpi_result_t {
+        SCPI_RES_OK = 1,
+        SCPI_RES_ERR = -1,
+    };
     typedef enum _scpi_result_t scpi_result_t;
-    typedef struct _scpi_param_list_t scpi_param_list_t;
+
     typedef struct _scpi_command_t scpi_command_t;
+
+    struct _scpi_param_list_t {
+        const scpi_command_t * cmd;
+        const char * parameters;
+        size_t length;
+    };
+    #define SCPI_CMD_LIST_END       {NULL, NULL, }
+    typedef struct _scpi_param_list_t scpi_param_list_t;
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
     typedef struct _scpi_interface_t scpi_interface_t;
+
+    struct _scpi_buffer_t {
+        size_t length;
+        size_t position;
+        char * data;
+    };
     typedef struct _scpi_buffer_t scpi_buffer_t;
+
     typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
     typedef scpi_result_t(*scpi_write_control_t)(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val);
     typedef int (*scpi_error_callback_t)(scpi_t * context, int_fast16_t error);
 
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
-    
     /* scpi error queue */
     typedef void * scpi_error_queue_t;
 
     /* scpi units */
-    typedef enum _scpi_unit_t scpi_unit_t;
-    typedef struct _scpi_unit_def_t scpi_unit_def_t;
-    typedef enum _scpi_special_number_t scpi_special_number_t;
-    typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
-    typedef struct _scpi_number_t scpi_number_t;
-    
-    struct _scpi_param_list_t {
-        const scpi_command_t * cmd;
-        const char * parameters;
-        size_t length;
+    enum _scpi_unit_t {
+        SCPI_UNIT_NONE,
+        SCPI_UNIT_VOLT,
+        SCPI_UNIT_AMPER,
+        SCPI_UNIT_OHM,
+        SCPI_UNIT_HERTZ,
+        SCPI_UNIT_CELSIUS,
+        SCPI_UNIT_SECONDS,
     };
+    typedef enum _scpi_unit_t scpi_unit_t;
 
+    struct _scpi_unit_def_t {
+        const char * name;
+        scpi_unit_t unit;
+        double mult;
+    };
+    #define SCPI_UNITS_LIST_END       {NULL, SCPI_UNIT_NONE, 0}
+    typedef struct _scpi_unit_def_t scpi_unit_def_t;
 
-#define SCPI_CMD_LIST_END       {.pattern = NULL, .callback = NULL, }
+    enum _scpi_special_number_t {
+        SCPI_NUM_NUMBER,
+        SCPI_NUM_MIN,
+        SCPI_NUM_MAX,
+        SCPI_NUM_DEF,
+        SCPI_NUM_UP,
+        SCPI_NUM_DOWN,
+        SCPI_NUM_NAN,
+        SCPI_NUM_INF,
+        SCPI_NUM_NINF,
+    };
+    typedef enum _scpi_special_number_t scpi_special_number_t;
+
+    struct _scpi_special_number_def_t {
+        const char * name;
+        scpi_special_number_t type;
+    };
+    #define SCPI_SPECIAL_NUMBERS_LIST_END   {NULL, SCPI_NUM_NUMBER}    
+    typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
+
+    struct _scpi_number_t {
+        double value;
+        scpi_unit_t unit;
+        scpi_special_number_t type;
+    };
+    typedef struct _scpi_number_t scpi_number_t;
 
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
-    };
-
-    struct _scpi_buffer_t {
-        size_t length;
-        size_t position;
-        char * data;
     };
 
     struct _scpi_interface_t {
@@ -127,92 +203,9 @@ extern "C" {
         void * user_context;
     };
 
-    enum _scpi_unit_t {
-        SCPI_UNIT_NONE,
-        SCPI_UNIT_VOLT,
-        SCPI_UNIT_AMPER,
-        SCPI_UNIT_OHM,
-        SCPI_UNIT_HERTZ,
-        SCPI_UNIT_CELSIUS,
-        SCPI_UNIT_SECONDS,
-    };
-
-
-#define SCPI_UNITS_LIST_END       {.name = NULL, .unit = SCPI_UNIT_NONE, .mult = 0}
-
-    struct _scpi_unit_def_t {
-        const char * name;
-        scpi_unit_t unit;
-        double mult;
-    };
-
-    enum _scpi_special_number_t {
-        SCPI_NUM_NUMBER,
-        SCPI_NUM_MIN,
-        SCPI_NUM_MAX,
-        SCPI_NUM_DEF,
-        SCPI_NUM_UP,
-        SCPI_NUM_DOWN,
-        SCPI_NUM_NAN,
-        SCPI_NUM_INF,
-        SCPI_NUM_NINF,
-    };
-
-#define SCPI_SPECIAL_NUMBERS_LIST_END   {.name = NULL, .type = SCPI_NUM_NUMBER}    
-
-    struct _scpi_special_number_def_t {
-        const char * name;
-        scpi_special_number_t type;
-    };
-
-    struct _scpi_number_t {
-        double value;
-        scpi_unit_t unit;
-        scpi_special_number_t type;
-    };
-
-    enum _scpi_result_t {
-        SCPI_RES_OK = 1,
-        SCPI_RES_ERR = -1,
-    };
-
-
-    enum _scpi_reg_name_t {
-        SCPI_REG_STB = 0, // Status Byte
-        SCPI_REG_SRE, // Service Request Enable Register
-        SCPI_REG_ESR, // Standard Event Status Register (ESR, SESR)
-        SCPI_REG_ESE, // Event Status Enable Register
-        SCPI_REG_OPER, // OPERation Status Register
-        SCPI_REG_OPERE, // OPERation Status Enable Register
-        SCPI_REG_QUES, // QUEStionable status register
-        SCPI_REG_QUESE, // QUEStionable status Enable Register
-
-        /* last definition - number of registers */
-        SCPI_REG_COUNT,
-    };
-    
-    enum _scpi_ctrl_name_t {
-        SCPI_CTRL_SRQ = 1,               // service request
-        SCPI_CTRL_GTL,                   // Go to local
-        SCPI_CTRL_SDC,                   // Selected device clear
-        SCPI_CTRL_PPC,                   // Parallel poll configure
-        SCPI_CTRL_GET,                   // Group execute trigger
-        SCPI_CTRL_TCT,                   // Take control
-        SCPI_CTRL_LLO,                   // Device clear
-        SCPI_CTRL_DCL,                   // Local lockout
-        SCPI_CTRL_PPU,                   // Parallel poll unconfigure
-        SCPI_CTRL_SPE,                   // Serial poll enable
-        SCPI_CTRL_SPD,                   // Serial poll disable
-        SCPI_CTRL_MLA,                   // My local address
-        SCPI_CTRL_UNL,                   // Unlisten
-        SCPI_CTRL_MTA,                   // My talk address
-        SCPI_CTRL_UNT,                   // Untalk
-        SCPI_CTRL_MSA,                   // My secondary address
-    };
-
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 
-#endif	/* SCPI_TYPES_H */
+#endif  /* SCPI_TYPES_H */
 

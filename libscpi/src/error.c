@@ -121,14 +121,14 @@ struct error_reg {
 #define ERROR_DEFS_N	8
 
 static const struct error_reg errs[ERROR_DEFS_N] = {
-    {.from = -100, .to = -199, .bit=ESR_CER}, // Command error (e.g. syntax error) ch 21.8.9
-    {.from = -200, .to = -299, .bit=ESR_EER}, // Execution Error (e.g. range error) ch 21.8.10
-    {.from = -300, .to = -399, .bit=ESR_DER}, // Device specific error -300, -399 ch 21.8.11
-    {.from = -400, .to = -499, .bit=ESR_QER}, // Query error -400, -499 ch 21.8.12
-    {.from = -500, .to = -599, .bit=ESR_PON}, // Power on event -500, -599 ch 21.8.13
-    {.from = -600, .to = -699, .bit=ESR_URQ}, // User Request Event -600, -699 ch 21.8.14
-    {.from = -700, .to = -799, .bit=ESR_REQ}, // Request Control Event -700, -799 ch 21.8.15
-    {.from = -800, .to = -899, .bit=ESR_OPC}, // Operation Complete Event -800, -899 ch 21.8.16
+    {-100, -199, ESR_CER}, // Command error (e.g. syntax error) ch 21.8.9
+    {-200, -299, ESR_EER}, // Execution Error (e.g. range error) ch 21.8.10
+    {-300, -399, ESR_DER}, // Device specific error -300, -399 ch 21.8.11
+    {-400, -499, ESR_QER}, // Query error -400, -499 ch 21.8.12
+    {-500, -599, ESR_PON}, // Power on event -500, -599 ch 21.8.13
+    {-600, -699, ESR_URQ}, // User Request Event -600, -699 ch 21.8.14
+    {-700, -799, ESR_REQ}, // Request Control Event -700, -799 ch 21.8.15
+    {-800, -899, ESR_OPC}, // Operation Complete Event -800, -899 ch 21.8.16
 };
 
 /**
