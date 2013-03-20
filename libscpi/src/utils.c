@@ -229,6 +229,9 @@ static inline bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c)
                 nfa->state = STATE_ERROR;
             }
             break;
+
+        default:
+            break;
     }
 
     /* if it is terminating state, break from for loop */
@@ -303,6 +306,9 @@ static inline bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) 
                 nfa->stopIdx = nfa->i + 1;
             }
             break;
+
+        default:
+            break;            
     }
 
     /* if it is terminating state, break from for loop */
