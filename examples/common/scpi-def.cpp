@@ -90,65 +90,67 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
 }
 
 static const scpi_command_t scpi_commands[] = {
+    /* {"pattern", callback} *
+    
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
-    { .pattern = "*CLS", .callback = SCPI_CoreCls,},
-    { .pattern = "*ESE", .callback = SCPI_CoreEse,},
-    { .pattern = "*ESE?", .callback = SCPI_CoreEseQ,},
-    { .pattern = "*ESR?", .callback = SCPI_CoreEsrQ,},
-    { .pattern = "*IDN?", .callback = SCPI_CoreIdnQ,},
-    { .pattern = "*OPC", .callback = SCPI_CoreOpc,},
-    { .pattern = "*OPC?", .callback = SCPI_CoreOpcQ,},
-    { .pattern = "*RST", .callback = SCPI_CoreRst,},
-    { .pattern = "*SRE", .callback = SCPI_CoreSre,},
-    { .pattern = "*SRE?", .callback = SCPI_CoreSreQ,},
-    { .pattern = "*STB?", .callback = SCPI_CoreStbQ,},
-    { .pattern = "*TST?", .callback = SCPI_CoreTstQ,},
-    { .pattern = "*WAI", .callback = SCPI_CoreWai,},
+    {"*CLS", SCPI_CoreCls,},
+    {"*ESE", SCPI_CoreEse,},
+    {"*ESE?", SCPI_CoreEseQ,},
+    {"*ESR?", SCPI_CoreEsrQ,},
+    {"*IDN?", SCPI_CoreIdnQ,},
+    {"*OPC", SCPI_CoreOpc,},
+    {"*OPC?", SCPI_CoreOpcQ,},
+    {"*RST", SCPI_CoreRst,},
+    {"*SRE", SCPI_CoreSre,},
+    {"*SRE?", SCPI_CoreSreQ,},
+    {"*STB?", SCPI_CoreStbQ,},
+    {"*TST?", SCPI_CoreTstQ,},
+    {"*WAI", SCPI_CoreWai,},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {.pattern = "SYSTem:ERRor?", .callback = SCPI_SystemErrorNextQ,},
-    {.pattern = "SYSTem:ERRor:NEXT?", .callback = SCPI_SystemErrorNextQ,},
-    {.pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
-    {.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
+    {"SYSTem:ERRor?", SCPI_SystemErrorNextQ,},
+    {"SYSTem:ERRor:NEXT?", SCPI_SystemErrorNextQ,},
+    {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ,},
+    {"SYSTem:VERSion?", SCPI_SystemVersionQ,},
 
-    //{.pattern = "STATus:OPERation?", .callback = scpi_stub_callback,},
-    //{.pattern = "STATus:OPERation:EVENt?", .callback = scpi_stub_callback,},
-    //{.pattern = "STATus:OPERation:CONDition?", .callback = scpi_stub_callback,},
-    //{.pattern = "STATus:OPERation:ENABle", .callback = scpi_stub_callback,},
-    //{.pattern = "STATus:OPERation:ENABle?", .callback = scpi_stub_callback,},
+    //{"STATus:OPERation?", scpi_stub_callback,},
+    //{"STATus:OPERation:EVENt?", scpi_stub_callback,},
+    //{"STATus:OPERation:CONDition?", scpi_stub_callback,},
+    //{"STATus:OPERation:ENABle", scpi_stub_callback,},
+    //{"STATus:OPERation:ENABle?", scpi_stub_callback,},
 
-    {.pattern = "STATus:QUEStionable?", .callback = SCPI_StatusQuestionableEventQ,},
-    {.pattern = "STATus:QUEStionable:EVENt?", .callback = SCPI_StatusQuestionableEventQ,},
-    //{.pattern = "STATus:QUEStionable:CONDition?", .callback = scpi_stub_callback,},
-    {.pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
-    {.pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
+    {"STATus:QUEStionable?", SCPI_StatusQuestionableEventQ,},
+    {"STATus:QUEStionable:EVENt?", SCPI_StatusQuestionableEventQ,},
+    //{"STATus:QUEStionable:CONDition?", scpi_stub_callback,},
+    {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable,},
+    {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ,},
 
-    {.pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
+    {"STATus:PRESet", SCPI_StatusPreset,},
 
     /* DMM */
-    {.pattern = "MEASure:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
-    {.pattern = "CONFigure:VOLTage:DC", .callback = DMM_ConfigureVoltageDc,},
-    {.pattern = "MEASure:VOLTage:DC:RATio?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:VOLTage:AC?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:CURRent:DC?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:CURRent:AC?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:RESistance?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:FRESistance?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:FREQuency?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:PERiod?", .callback = SCPI_StubQ,},
+    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ,},
+    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc,},
+    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ,},
+    {"MEASure:VOLTage:AC?", SCPI_StubQ,},
+    {"MEASure:CURRent:DC?", SCPI_StubQ,},
+    {"MEASure:CURRent:AC?", SCPI_StubQ,},
+    {"MEASure:RESistance?", SCPI_StubQ,},
+    {"MEASure:FRESistance?", SCPI_StubQ,},
+    {"MEASure:FREQuency?", SCPI_StubQ,},
+    {"MEASure:PERiod?", SCPI_StubQ,},
     
-    {.pattern = "SYSTem:COMMunication:TCPIP:CONTROL?", .callback = SCPI_SystemCommTcpipControlQ,},
+    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ,},
 
     SCPI_CMD_LIST_END
 };
 
 static scpi_interface_t scpi_interface = {
-    .error = SCPI_Error,
-    .write = SCPI_Write,
-    .control = SCPI_Control,
-    .flush = SCPI_Flush,
-    .reset = SCPI_Reset,
-    .test = SCPI_Test,
+    /* error */ SCPI_Error,
+    /* write */ SCPI_Write,
+    /* control */ SCPI_Control,
+    /* flush */ SCPI_Flush,
+    /* reset */ SCPI_Reset,
+    /* test */ SCPI_Test,
 };
 
 #define SCPI_INPUT_BUFFER_LENGTH 256
@@ -158,13 +160,17 @@ static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 
 
 scpi_t scpi_context = {
-    .cmdlist = scpi_commands,
-    .buffer = {
-        .length = SCPI_INPUT_BUFFER_LENGTH,
-        .data = scpi_input_buffer,
-    },
-    .interface = &scpi_interface,
-    .registers = scpi_regs,
-    .units = scpi_units_def,
-    .special_numbers = scpi_special_numbers_def,
+    /* cmdlist */ scpi_commands,
+    /* buffer */ { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0,  /* data */ scpi_input_buffer, },
+    /* paramlist */ { /* cmd */ NULL, /* parameters */ NULL, /* length */ 0, },
+    /* interface */ &scpi_interface,
+    /* output_count */ 0,
+    /* input_count */ 0,
+    /* cmd_error */ FALSE,
+    /* error_queue */ NULL,
+    /* registers */ scpi_regs,
+    /* units */ scpi_units_def,
+    /* special_numbers */ scpi_special_numbers_def,
+    /* user_context */ NULL,
 };
+
