@@ -26,43 +26,46 @@
  */
 
 /**
- * @file   scpi_error.h
- * @date   Thu Nov 15 10:58:45 UTC 2012
+ * @file   config.h
+ * @date   Wed Mar 20 12:21:26 UTC 2013
  * 
- * @brief  Error handling and storing routines
+ * @brief  SCPI Configuration
  * 
  * 
  */
 
-#ifndef SCPI_ERROR_H
-#define	SCPI_ERROR_H
-
-#include "scpi/types.h"
+#ifndef __SCPI_CONFIG_H_
+#define __SCPI_CONFIG_H_
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-    void SCPI_ErrorInit(scpi_t * context);
-    void SCPI_ErrorClear(scpi_t * context);
-    int16_t SCPI_ErrorPop(scpi_t * context);
-    void SCPI_ErrorPush(scpi_t * context, int16_t err);
-    int32_t SCPI_ErrorCount(scpi_t * context);    
-    const char * SCPI_ErrorTranslate(int16_t err);
 
-#define SCPI_ERROR_SYNTAX               -102
-#define SCPI_ERROR_INVALID_SEPARATOR    -103
-#define SCPI_ERROR_UNDEFINED_HEADER     -113
-#define SCPI_ERROR_PARAMETER_NOT_ALLOWED        -108
-#define SCPI_ERROR_MISSING_PARAMETER    -109
-#define SCPI_ERROR_INVALID_SUFFIX       -131
-#define SCPI_ERROR_SUFFIX_NOT_ALLOWED   -138
+/* ======== test strnlen ======== */
+#ifndef HAVE_STRNLEN
+#define HAVE_STRNLEN            1
+#endif
+/* ======== test strncasecmp ======== */
+#ifndef HAVE_STRNCASECMP
+#define HAVE_STRNCASECMP        1
+#endif
 
-#define SCPI_ERROR_EXECUTION_ERROR      -200
-    
+/* define local macros depending on existance of strnlen */
+#if HAVE_STRNLEN
+#define SCPI_strnlen(s, l)	strnlen((s), (l))
+#else
+#define SCPI_strnlen(s, l)	BSD_strnlen((s), (l))
+#endif
+
+/* define local macros depending on existance of strncasecmp */
+#if HAVE_STRNCASECMP
+#define SCPI_strncasecmp(s1, s2, l)	strncasecmp((s1), (s2), (l))
+#else
+#define SCPI_strncasecmp(s1, s2, l)	strcasecmp((s1), (s2))
+#endif
+
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* SCPI_ERROR_H */
-
+#endif

@@ -37,6 +37,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "scpi/config.h"
 #include "scpi/parser.h"
 #include "utils.h"
 #include "scpi/error.h"
@@ -183,11 +184,11 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
     int result = FALSE;
 
     const char * pattern_ptr = pattern;
-    int pattern_len = strlen(pattern);
+    int pattern_len = SCPI_strnlen(pattern, len);
     const char * pattern_end = pattern + pattern_len;
 
     const char * cmd_ptr = cmd;
-    size_t cmd_len = strnlen(cmd, len);
+    size_t cmd_len = SCPI_strnlen(cmd, len);
     const char * cmd_end = cmd + cmd_len;
 
     while (1) {
@@ -199,24 +200,24 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
             cmd_ptr = cmd_ptr + cmd_sep_pos;
             result = TRUE;
 
-            // command is complete
+            /* command is complete */
             if ((pattern_ptr == pattern_end) && (cmd_ptr >= cmd_end)) {
                 break;
             }
 
-            // pattern complete, but command not
+            /* pattern complete, but command not */
             if ((pattern_ptr == pattern_end) && (cmd_ptr < cmd_end)) {
                 result = FALSE;
                 break;
             }
 
-            // command complete, but pattern not
+            /* command complete, but pattern not */
             if (cmd_ptr >= cmd_end) {
                 result = FALSE;
                 break;
             }
 
-            // both command and patter contains command separator at this position
+            /* both command and patter contains command separator at this position */
             if ((pattern_ptr[0] == cmd_ptr[0]) && ((pattern_ptr[0] == ':') || (pattern_ptr[0] == '?'))) {
                 pattern_ptr = pattern_ptr + 1;
                 cmd_ptr = cmd_ptr + 1;
@@ -240,7 +241,7 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
  * @param len - lenght of data to be written
  * @return number of bytes written
  */
-static inline size_t writeData(scpi_t * context, const char * data, size_t len) {
+static size_t writeData(scpi_t * context, const char * data, size_t len) {
     return context->interface->write(context, data, len);
 }
 
@@ -249,7 +250,7 @@ static inline size_t writeData(scpi_t * context, const char * data, size_t len) 
  * @param context
  * @return
  */
-static inline int flushData(scpi_t * context) {
+static int flushData(scpi_t * context) {
     if (context && context->interface && context->interface->flush) {
         return context->interface->flush(context);
     } else {
@@ -262,7 +263,7 @@ static inline int flushData(scpi_t * context) {
  * @param context
  * @return number of bytes written
  */
-static inline size_t writeDelimiter(scpi_t * context) {
+static size_t writeDelimiter(scpi_t * context) {
     if (context->output_count > 0) {
         return writeData(context, ", ", 2);
     } else {
@@ -275,7 +276,7 @@ static inline size_t writeDelimiter(scpi_t * context) {
  * @param context
  * @return pocet zapsanych znaku
  */
-static inline size_t writeNewLine(scpi_t * context) {
+static size_t writeNewLine(scpi_t * context) {
     if (context->output_count > 0) {
         size_t len;
         len = writeData(context, "\r\n", 2);
@@ -291,14 +292,14 @@ static inline size_t writeNewLine(scpi_t * context) {
  * @param context
  */
 static void processCommand(scpi_t * context) {
+    const scpi_command_t * cmd = context->paramlist.cmd;
+
     context->cmd_error = FALSE;
     context->output_count = 0;
     context->input_count = 0;
 
-    const scpi_command_t * cmd = context->paramlist.cmd;
-
     SCPI_DEBUG_COMMAND(context);
-    /* if callback exists - call command callback*/
+    /* if callback exists - call command callback */
     if (cmd->callback != NULL) {
         if ((cmd->callback(context) != SCPI_RES_OK) && !context->cmd_error) {
             SCPI_ErrorPush(context, SCPI_ERROR_EXECUTION_ERROR);

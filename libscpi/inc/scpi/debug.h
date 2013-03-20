@@ -44,8 +44,8 @@ extern "C" {
 #endif
 
 
-    //#define SCPI_DEBUG_COMMAND(a)   scpi_debug_command(a)
-#define SCPI_DEBUG_COMMAND(a)  
+    /* #define SCPI_DEBUG_COMMAND(a)   scpi_debug_command(a) */
+    #define SCPI_DEBUG_COMMAND(a)
 
 
     bool_t SCPI_DebugCommand(scpi_t * context);

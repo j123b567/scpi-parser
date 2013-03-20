@@ -102,10 +102,10 @@ scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
-    // return value
+    /* return value */
     SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_QUES));
 
-    // clear register
+    /* clear register */
     SCPI_RegSet(context, SCPI_REG_QUES, 0);
 
     return SCPI_RES_OK;
@@ -117,7 +117,7 @@ scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
-    // return value
+    /* return value */
     SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_QUESE));
 
     return SCPI_RES_OK;
@@ -142,7 +142,7 @@ scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StatusPreset(scpi_t * context) {
-    // clear STATUS:...
+    /* clear STATUS:... */
     SCPI_RegSet(context, SCPI_REG_QUES, 0);
     return SCPI_RES_OK;
 }

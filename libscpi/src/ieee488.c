@@ -145,11 +145,11 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
             
             
         case SCPI_REG_COUNT:
-            // nothing to do
+            /* nothing to do */
             break;
     }
 
-    // set updated register value
+    /* set updated register value */
     context->registers[name] = val;
 
     if (srq) {
@@ -180,7 +180,7 @@ void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bi
  * @param context
  */
 void SCPI_EventClear(scpi_t * context) {
-    // TODO
+    /* TODO */
     SCPI_RegSet(context, SCPI_REG_ESR, 0);
 }
 
@@ -260,7 +260,7 @@ scpi_result_t SCPI_CoreOpc(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreOpcQ(scpi_t * context) {
-    // Operation is always completed
+    /* Operation is always completed */
     SCPI_ResultInt(context, 1);
     return SCPI_RES_OK;
 }
@@ -319,7 +319,7 @@ scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
     int result = 0;
     if (context && context->interface && context->interface->test) {
         result = context->interface->test(context);
-    }    
+    }
     SCPI_ResultInt(context, result);
     return SCPI_RES_OK;
 }
@@ -331,7 +331,7 @@ scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreWai(scpi_t * context) {
     (void) context;
-    // NOP
+    /* NOP */
     return SCPI_RES_OK;
 }
 

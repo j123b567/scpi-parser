@@ -54,24 +54,24 @@ scpi_result_t SCPI_CoreTstQ(scpi_t * context);
 scpi_result_t SCPI_CoreWai(scpi_t * context);
 
 
-#define STB_R01 0x01                    // Not used
-#define STB_PRO 0x02                    // Protection Event Flag
-#define STB_QMA 0x04                    // Error/Event queue message available
-#define STB_QES 0x08                    // Questionable status
-#define STB_MAV 0x10                    // Message Available
-#define STB_ESR 0x20                    // Standard Event Status Register
-#define STB_SRQ 0x40                    // Service Request
-#define STB_OPS 0x80                    // Operation Status Flag
+#define STB_R01 0x01    /* Not used */
+#define STB_PRO 0x02    /* Protection Event Flag */
+#define STB_QMA 0x04    /* Error/Event queue message available */
+#define STB_QES 0x08    /* Questionable status */
+#define STB_MAV 0x10    /* Message Available */
+#define STB_ESR 0x20    /* Standard Event Status Register */
+#define STB_SRQ 0x40    /* Service Request */
+#define STB_OPS 0x80    /* Operation Status Flag */
 
 
-#define ESR_OPC 0x01                    // Operation complete
-#define ESR_REQ 0x02                    // Request Control
-#define ESR_QER 0x04                    // Query Error
-#define ESR_DER 0x08                    // Device Dependent Error
-#define ESR_EER 0x10                    // Execution Error (e.g. range error)
-#define ESR_CER 0x20                    // Command error (e.g. syntax error)
-#define ESR_URQ 0x40                    // User Request
-#define ESR_PON 0x80                    // Power On
+#define ESR_OPC 0x01    /* Operation complete */
+#define ESR_REQ 0x02    /* Request Control */
+#define ESR_QER 0x04    /* Query Error */
+#define ESR_DER 0x08    /* Device Dependent Error */
+#define ESR_EER 0x10    /* Execution Error (e.g. range error) */
+#define ESR_CER 0x20    /* Command error (e.g. syntax error) */
+#define ESR_URQ 0x40    /* User Request */
+#define ESR_PON 0x80    /* Power On */
 
 
 scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name);

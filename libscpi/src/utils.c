@@ -147,7 +147,7 @@ bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2
         return FALSE;
     }
 
-    if (strncasecmp(str1, str2, len2) == 0) {
+    if (SCPI_strncasecmp(str1, str2, len2) == 0) {
         return TRUE;
     }
 
@@ -160,7 +160,7 @@ enum _locate_text_states {
     STATE_TEXT,
     STATE_LAST_WHITESPACE,
     STATE_COMMA,
-    STATE_ERROR,
+    STATE_ERROR
 };
 typedef enum _locate_text_states locate_text_states;
 
@@ -175,7 +175,7 @@ typedef struct _locate_text_nfa locate_text_nfa;
 /**
  * Test locate text state, if it is correct final state
  */
-static inline bool_t isFinalState(locate_text_states state) {
+static bool_t isFinalState(locate_text_states state) {
     return (
         ((state) == STATE_COMMA)
         || ((state) == STATE_LAST_WHITESPACE)
@@ -189,7 +189,7 @@ static inline bool_t isFinalState(locate_text_states state) {
  * @param nfa stores automaton state
  * @param c current char processed
  */
-static inline bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c) {
+static bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c) {
     switch(nfa->state) {
         /* first state locating only white spaces */
         case STATE_FIRST_WHITESPACE:
@@ -284,7 +284,7 @@ bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * l
  * @param nfa stores automaton state
  * @param c current char processed
  */
-static inline bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) {
+static bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) {
     switch(nfa->state) {
         /* first state locating only white spaces */
         case STATE_FIRST_WHITESPACE:
@@ -403,3 +403,25 @@ bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, 
     return compareStr(pattern, pattern_len, str, str_len) ||
             compareStr(pattern, pattern_sep_pos_short, str, str_len);
 }
+
+
+#if !HAVE_STRNLEN
+/* use FreeBSD strnlen */
+
+/*-
+ * Copyright (c) 2009 David Schultz <das@FreeBSD.org>
+ * All rights reserved.
+ */
+size_t
+BSD_strnlen(const char *s, size_t maxlen)
+{
+	size_t len;
+	
+	for (len = 0; len < maxlen; len++, s++) {
+		if (!*s)
+			break;
+	}
+	return (len);
+}
+#endif
+

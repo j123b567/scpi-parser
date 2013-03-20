@@ -50,41 +50,41 @@ extern "C" {
 
     /* basic data types */
     typedef bool bool_t;
-    //typedef enum { FALSE = 0, TRUE } bool_t;
+    /* typedef enum { FALSE = 0, TRUE } bool_t; */
 
     /* IEEE 488.2 registers */
     enum _scpi_reg_name_t {
-        SCPI_REG_STB = 0, // Status Byte
-        SCPI_REG_SRE, // Service Request Enable Register
-        SCPI_REG_ESR, // Standard Event Status Register (ESR, SESR)
-        SCPI_REG_ESE, // Event Status Enable Register
-        SCPI_REG_OPER, // OPERation Status Register
-        SCPI_REG_OPERE, // OPERation Status Enable Register
-        SCPI_REG_QUES, // QUEStionable status register
-        SCPI_REG_QUESE, // QUEStionable status Enable Register
+        SCPI_REG_STB = 0, /* Status Byte */
+        SCPI_REG_SRE,     /* Service Request Enable Register */
+        SCPI_REG_ESR,     /* Standard Event Status Register (ESR, SESR) */
+        SCPI_REG_ESE,     /* Event Status Enable Register */
+        SCPI_REG_OPER,    /* OPERation Status Register */
+        SCPI_REG_OPERE,   /* OPERation Status Enable Register */
+        SCPI_REG_QUES,    /* QUEStionable status register */
+        SCPI_REG_QUESE,   /* QUEStionable status Enable Register */
 
         /* last definition - number of registers */
-        SCPI_REG_COUNT,
+        SCPI_REG_COUNT
     };
     typedef enum _scpi_reg_name_t scpi_reg_name_t;
 
     enum _scpi_ctrl_name_t {
-        SCPI_CTRL_SRQ = 1,               // service request
-        SCPI_CTRL_GTL,                   // Go to local
-        SCPI_CTRL_SDC,                   // Selected device clear
-        SCPI_CTRL_PPC,                   // Parallel poll configure
-        SCPI_CTRL_GET,                   // Group execute trigger
-        SCPI_CTRL_TCT,                   // Take control
-        SCPI_CTRL_LLO,                   // Device clear
-        SCPI_CTRL_DCL,                   // Local lockout
-        SCPI_CTRL_PPU,                   // Parallel poll unconfigure
-        SCPI_CTRL_SPE,                   // Serial poll enable
-        SCPI_CTRL_SPD,                   // Serial poll disable
-        SCPI_CTRL_MLA,                   // My local address
-        SCPI_CTRL_UNL,                   // Unlisten
-        SCPI_CTRL_MTA,                   // My talk address
-        SCPI_CTRL_UNT,                   // Untalk
-        SCPI_CTRL_MSA,                   // My secondary address
+        SCPI_CTRL_SRQ = 1, /* service request */
+        SCPI_CTRL_GTL,     /* Go to local */
+        SCPI_CTRL_SDC,     /* Selected device clear */
+        SCPI_CTRL_PPC,     /* Parallel poll configure */
+        SCPI_CTRL_GET,     /* Group execute trigger */
+        SCPI_CTRL_TCT,     /* Take control */
+        SCPI_CTRL_LLO,     /* Device clear */
+        SCPI_CTRL_DCL,     /* Local lockout */
+        SCPI_CTRL_PPU,     /* Parallel poll unconfigure */
+        SCPI_CTRL_SPE,     /* Serial poll enable */
+        SCPI_CTRL_SPD,     /* Serial poll disable */
+        SCPI_CTRL_MLA,     /* My local address */
+        SCPI_CTRL_UNL,     /* Unlisten */
+        SCPI_CTRL_MTA,     /* My talk address */
+        SCPI_CTRL_UNT,     /* Untalk */
+        SCPI_CTRL_MSA      /* My secondary address */
     };
     typedef enum _scpi_ctrl_name_t scpi_ctrl_name_t;
 
@@ -93,7 +93,7 @@ extern "C" {
     /* scpi commands */
     enum _scpi_result_t {
         SCPI_RES_OK = 1,
-        SCPI_RES_ERR = -1,
+        SCPI_RES_ERR = -1
     };
     typedef enum _scpi_result_t scpi_result_t;
 
@@ -135,7 +135,7 @@ extern "C" {
         SCPI_UNIT_OHM,
         SCPI_UNIT_HERTZ,
         SCPI_UNIT_CELSIUS,
-        SCPI_UNIT_SECONDS,
+        SCPI_UNIT_SECONDS
     };
     typedef enum _scpi_unit_t scpi_unit_t;
 
@@ -156,7 +156,7 @@ extern "C" {
         SCPI_NUM_DOWN,
         SCPI_NUM_NAN,
         SCPI_NUM_INF,
-        SCPI_NUM_NINF,
+        SCPI_NUM_NINF
     };
     typedef enum _scpi_special_number_t scpi_special_number_t;
 
