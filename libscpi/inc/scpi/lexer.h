@@ -60,6 +60,8 @@ enum _token_type_t {
     TokProgramExpression,
     TokCompoundProgramHeader,
     TokCommonProgramHeader,
+    TokCompoundQueryProgramHeader,
+    TokCommonQueryProgramHeader,
     TokWhiteSpace,
     TokUnknown,
 };
@@ -81,8 +83,6 @@ typedef struct _lex_state_t lex_state_t;
 
 
 int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token);
-int SCPI_LexCommonProgramHeader(lex_state_t * state, token_t * token);
-int SCPI_LexCompoundProgramHeader(lex_state_t * state,  token_t * token);
 int SCPI_LexProgramHeader(lex_state_t * state,  token_t * token);
 int SCPI_LexQuestion(lex_state_t * state, token_t * token);
 int SCPI_LexCharacterProgramData(lex_state_t * state, token_t * token);

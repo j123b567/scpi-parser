@@ -10,7 +10,7 @@ programMessage
 	
 	
 programMessageUnit 
-	:	WS* programHeader QUESTION? (WS programData (COMMA programData)*)?
+	:	WS* programHeader (WS programData (COMMA programData)*)?
 	;
 
 programHeader
@@ -19,11 +19,11 @@ programHeader
 	;
 
 compoundProgramHeader
-	:	COLON? PROGRAM_MNEMONIC (COLON PROGRAM_MNEMONIC)*
+	:	COLON? PROGRAM_MNEMONIC (COLON PROGRAM_MNEMONIC)* QUESTION?
 	;
 	
 commonProgramHeader 
-	:	STAR PROGRAM_MNEMONIC
+	:	STAR PROGRAM_MNEMONIC QUESTION?
 	;
 	
 programDataSeparator 

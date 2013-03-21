@@ -217,79 +217,62 @@ int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token) {
 }
 
 /* 7.6.1 <COMMAND PROGRAM HEADER> */
-int SCPI_LexCommonProgramHeader(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
+static int skipCommonProgramHeader(lex_state_t * state) {
     if (skipStar(state)) {
         if(!skipProgramMnemonic(state)) {
             state->pos--;
+        } else {
+            return 1;
         }
     }
-    
-    token->len = state->pos - token->ptr;
-    
-    if((token->len > 0)) {
-        token->type = TokCommonProgramHeader;
-    } else {
-        token->type = TokUnknown;
-        state->pos = token->ptr;
-        token->len = 0;
-    }
-    
-    return token->len;
+    return 0;
 }
 
-int SCPI_LexCompoundProgramHeader(lex_state_t * state,  token_t * token) {
-    token->ptr = state->pos;
+static int skipCompoundProgramHeader(lex_state_t * state) {
+    const char * rollback = state->pos;
     
     skipColon(state);
     
     if(skipProgramMnemonic(state)) {
         while(skipColon(state)) {
             if(!skipProgramMnemonic(state)) {
-                // TODO: lexer error
-                break;
+                state->pos = rollback;
+                return 0;
             }
         }
-    }
-    
-    token->len = state->pos - token->ptr;
-    
-    if((token->len > 0)) {
-        token->type = TokCompoundProgramHeader;
+        return 1;
     } else {
-        token->type = TokUnknown;
-        state->pos = token->ptr;
-        token->len = 0;
+        state->pos = rollback;        
+        return 0;
     }
-    
-    return token->len;
 }
 
 int SCPI_LexProgramHeader(lex_state_t * state,  token_t * token) {
-    int res;
-    
-    res = SCPI_LexCommonProgramHeader(state, token);
-    if(res > 0) return res;
-    
-    res = SCPI_LexCompoundProgramHeader(state, token);
-    if(res > 0) return res;
-    
-    return 0;
-}
-
-int SCPI_LexQuestion(lex_state_t * state, token_t * token) {
     token->ptr = state->pos;
+    token->type = TokUnknown;
     
-    if (skipChr(state, '?')) {
-        token->len = 1;
-        token->type = TokQuiestion;
-    } else {
-        token->len = 0;
-        token->type = TokUnknown;
+    if(skipCommonProgramHeader(state)) {
+        if (skipChr(state, '?')) {
+            token->type = TokCommonQueryProgramHeader;
+        } else {
+            token->type = TokCommonProgramHeader;
+        }
+    } else if(skipCompoundProgramHeader(state)) {
+        if (skipChr(state, '?')) {
+            token->type = TokCompoundQueryProgramHeader;
+        } else {
+            token->type = TokCompoundProgramHeader;
+        }
     }
     
-    return token->len;
+    if (token->type != TokUnknown) {
+        token->len = state->pos - token->ptr;
+    } else {
+        token->len = 0;
+        state->pos = token->ptr;
+    }
+    
+    return token->len;    
 }
 
 /* 7.7.1 <CHARACTER PROGRAM DATA> */

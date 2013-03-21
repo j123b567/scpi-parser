@@ -44,6 +44,8 @@ const char * typeToStr(token_type_t type) {
         case TokProgramExpression: return "TokProgramExpression";
         case TokCompoundProgramHeader: return "TokCompoundProgramHeader";
         case TokCommonProgramHeader: return "TokCommonProgramHeader";
+        case TokCompoundQueryProgramHeader: return "TokCompoundQueryProgramHeader";
+        case TokCommonQueryProgramHeader: return "TokCommonQueryProgramHeader";
         case TokWhiteSpace: return "TokWhiteSpace";
         default: return "TokUnknown";
     }
@@ -91,7 +93,8 @@ static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, token_
 
 
 void testWhiteSpace(void) {
-    TEST_TOKEN("  \t MEA", SCPI_LexWhiteSpace, 0, 4, TokWhiteSpace);
+    TEST_TOKEN("  \t MEAS", SCPI_LexWhiteSpace, 0, 4, TokWhiteSpace);
+    TEST_TOKEN("MEAS", SCPI_LexWhiteSpace, 0, 0, TokUnknown);
 }
 
 void testNondecimal(void) {
@@ -120,14 +123,15 @@ void testSuffix(void) {
 }
 
 void testProgramHeader(void) {
-    TEST_TOKEN("*IDN? ", SCPI_LexCommonProgramHeader, 0, 4, TokCommonProgramHeader);
-    TEST_TOKEN("*?; ", SCPI_LexCommonProgramHeader, 0, 0, TokUnknown);
-    TEST_TOKEN("MEAS:VOLT:DC? ", SCPI_LexCommonProgramHeader, 0, 0, TokUnknown);
-    TEST_TOKEN("MEAS:VOLT:DC? ", SCPI_LexCompoundProgramHeader, 0, 12, TokCompoundProgramHeader);
-    TEST_TOKEN(":MEAS:VOLT:DC? ", SCPI_LexCompoundProgramHeader, 0, 13, TokCompoundProgramHeader);
-    TEST_TOKEN(":MEAS::VOLT:DC? ", SCPI_LexCompoundProgramHeader, 0, 6, TokCompoundProgramHeader);
-    TEST_TOKEN(":MEAS::VOLT:DC? ", SCPI_LexProgramHeader, 0, 6, TokCompoundProgramHeader);
-    TEST_TOKEN("*IDN?", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);
+    TEST_TOKEN("*IDN? ", SCPI_LexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
+    TEST_TOKEN("*RST ", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);
+    TEST_TOKEN("*?; ", SCPI_LexProgramHeader, 0, 0, TokUnknown);
+    TEST_TOKEN("MEAS:VOLT:DC? ", SCPI_LexProgramHeader, 0, 13, TokCompoundQueryProgramHeader);
+    TEST_TOKEN("CONF:VOLT:DC ", SCPI_LexProgramHeader, 0, 12, TokCompoundProgramHeader);
+    TEST_TOKEN(":MEAS:VOLT:DC? ", SCPI_LexProgramHeader, 0, 14, TokCompoundQueryProgramHeader);
+    TEST_TOKEN(":MEAS::VOLT:DC? ", SCPI_LexProgramHeader, 0, 0, TokUnknown);
+    TEST_TOKEN("*IDN?", SCPI_LexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
+    TEST_TOKEN("*RST", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);
 }
 
 void testArbitraryBlock(void) {

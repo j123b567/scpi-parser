@@ -39,6 +39,7 @@
 
 #include "scpi/config.h"
 #include "scpi/parser.h"
+#include "scpi/lexer.h"
 #include "utils.h"
 #include "scpi/error.h"
 
@@ -664,3 +665,52 @@ bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_
 
     return FALSE;
 }
+
+
+
+void SCPI_ProgramMessageUnit(scpi_t * context) {
+    lex_state_t state;
+    token_t tmp;
+    token_t header;
+    token_t token;
+    
+    state.buffer = state.pos = context->buffer.data;
+    state.len = context->buffer.position;
+    
+    /* ignore whitespace at the begginig */
+    SCPI_LexWhiteSpace(&state, &tmp);
+    
+    SCPI_LexProgramHeader(&state, &header);
+    
+    SCPI_LexWhiteSpace(&state, &tmp);
+    
+    SCPI_ParseProgramDate(context, &state, &token);
+    
+    SCPI_LexWhiteSpace(&state, &tmp);
+    
+    {
+        SCPI_LexComma(&state, &token);
+        
+        SCPI_LexWhiteSpace(&state, &tmp);
+        
+        SCPI_ParseProgramDate(context, &state);
+        
+        SCPI_LexWhiteSpace(&state, &tmp);
+    }
+    
+    SCPI_LexNewLine(&state, &tmp);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
