@@ -48,8 +48,6 @@ enum _token_type_t {
     TokBinnum,
     TokProgramMnemonic,
     TokDecimalNumericProgramData,
-    TokMantisa,
-    TokExponent,
     TokSuffixProgramData,
     TokSingleQuoteProgramData,
     TokDoubleQuoteProgramData,
@@ -130,6 +128,8 @@ static int isE(int c) {
 }
 
 /* skip characters */
+/* 7.4.1 <PROGRAM MESSAGE UNIT SEPARATOR>*/
+// TODO: static int skipProgramMessageUnitSeparator(lex_state_t * state)
 static int skipWs(lex_state_t * state) {
     int someSpace = 0;
     while(!iseos(state) && isws(state->pos[0])) {
@@ -139,6 +139,12 @@ static int skipWs(lex_state_t * state) {
     
     return someSpace;
 }
+
+/* 7.4.2 <PROGRAM DATA SEPARATOR> */
+// static int skipProgramDataSeparator(lex_state_t * state)
+
+/* 7.5.2 <PROGRAM MESSAGE TERMINATOR> */
+// static int skipProgramMessageTerminator(lex_state_t * state)
 
 static int skipDigit(lex_state_t * state) {
     if(!iseos(state) && isdigit(state->pos[0])) {
@@ -212,6 +218,7 @@ static int skipColon(lex_state_t * state) {
     }    
 }
 
+/* 7.6.1.2 <COMMAND PROGRAM HEADER> */
 static int skipProgramMnemonic(lex_state_t * state) {
     const char * startPos = state->pos;
     if(!iseos(state) && isalpha(state->pos[0])) {
@@ -237,225 +244,11 @@ int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token) {
     } else {
         token->type = TokUnknown;
     }        
-        
-    return token->len;
-}
-
-int SCPI_LexHexnum(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
-    if(skipChr(state, '#')) {
-        if(!iseos(state) && isH(state->pos[0])) {
-            state->pos++;
-            
-            while(!iseos(state) && isxdigit(state->pos[0])) {
-                state->pos++;
-            }
-            
-        } else {
-            state->pos--;
-        }
-    }
-       
-    token->len = state->pos - token->ptr;
-    if(token->len > 0) {
-        token->type = TokHexnum;
-    } else {
-        token->type = TokUnknown;
-    }
     
     return token->len;
 }
 
-int SCPI_LexBinnum(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
-    if(skipChr(state, '#')) {
-        if(!iseos(state) && isB(state->pos[0])) {
-            state->pos++;
-            
-            while(!iseos(state) && isbdigit(state->pos[0])) {
-                state->pos++;
-            }
-            
-        } else {
-            state->pos--;
-        }
-    }
-       
-    token->len = state->pos - token->ptr;
-    if(token->len > 0) {
-        token->type = TokBinnum;
-    } else {
-        token->type = TokUnknown;
-    }
-    
-    return token->len;
-}
-
-int SCPI_LexOctnum(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
-    if(skipChr(state, '#')) {
-        if(!iseos(state) && isQ(state->pos[0])) {
-            state->pos++;
-            
-            while(!iseos(state) && isqdigit(state->pos[0])) {
-                state->pos++;
-            }
-            
-        } else {
-            state->pos--;
-        }
-    }
-       
-    token->len = state->pos - token->ptr;
-    if(token->len > 0) {
-        token->type = TokOctnum;
-    } else {
-        token->type = TokUnknown;
-    }
-    
-    return token->len;
-}
-
-int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token) {
-    int res;
-    
-    res = SCPI_LexHexnum(state, token);
-    if(res > 0) return res;
-        
-    res = SCPI_LexBinnum(state, token);
-    if(res > 0) return res;
-
-    res = SCPI_LexOctnum(state, token);
-    if(res > 0) return res;
-    
-    return 0;
-}
-
-int SCPI_LexProgramMnemonic(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
-    if(!iseos(state) && isalpha(state->pos[0])) {
-        state->pos++;
-        while(!iseos(state) && (isalnum(state->pos[0]) || ischr(state, '_'))) {
-            state->pos++;
-        }
-    }
-       
-    token->len = state->pos - token->ptr;
-    if(token->len > 0) {
-        token->type = TokProgramMnemonic;
-    } else {
-        token->type = TokUnknown;
-    }
-    
-    return token->len;
-}
-
-int SCPI_LexMantisa(lex_state_t * state, token_t * token) {
-    int someNumbers = 0;
-    token->ptr = state->pos;
-    
-    skipPlusmn(state);
-    
-    someNumbers += skipNumbers(state);
-    
-    if(skipChr(state, '.')) {
-        someNumbers += skipNumbers(state);
-    }
-    
-    token->len = state->pos - token->ptr;
-    if((token->len > 0) && (someNumbers > 0)) {
-        token->type = TokMantisa;
-    } else {
-        token->type = TokUnknown;
-        state->pos = token->ptr;
-        token->len = 0;
-    }
-    
-    return token->len;
-}
-
-int SCPI_LexExponent(lex_state_t * state, token_t * token) {
-    int someNumbers = 0;
-    token->ptr = state->pos;
-    
-    if(!iseos(state) && isE(state->pos[0])) {
-        state->pos++;
-
-        skipWs(state);
-    
-        skipPlusmn(state);
-        
-        someNumbers += skipNumbers(state);
-    }
-    
-    token->len = state->pos - token->ptr;
-    if((token->len > 0) && (someNumbers > 0)) {
-        token->type = TokExponent;
-    } else {
-        token->type = TokUnknown;
-        state->pos = token->ptr;
-        token->len = 0;
-    }
-    
-    return token->len;
-}
-
-int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token) {
-    token_t exponent;
-    
-    if (SCPI_LexMantisa(state, token)) {
-        skipWs(state);
-        SCPI_LexExponent(state, &exponent);
-    }
-    
-    if((token->len > 0) && (exponent.len > 0)) {
-        token->type = TokDecimalNumericProgramData;
-        token->len = (exponent.ptr + exponent.len) - token->ptr;
-    } else if (token->len > 0) {
-        token->type = TokDecimalNumericProgramData;
-        state->pos = token->ptr + token->len;
-    } else {
-        token->type = TokUnknown;
-        state->pos = token->ptr;
-        token->len = 0;
-    }
-    
-    return token->len;
-}
-
-int SCPI_LexSuffixProgramData(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
-    skipChr(state, '/');
-    
-    // TODO: strict parsing  : SLASH? (ALPHA+ (MINUS? DIGIT)?) ((SLASH | DOT) (ALPHA+ (MINUS? DIGIT)?))*
-    if (skipAlpha(state)) {
-        skipChr(state, '-');
-        skipDigit(state);
-        
-        while (skipSlashDot(state)) {
-            skipAlpha(state);
-            skipChr(state, '-');
-            skipDigit(state);            
-        }
-    }
-
-    token->len = state->pos - token->ptr;
-    if((token->len > 0)) {
-        token->type = TokSuffixProgramData;
-    } else {
-        token->type = TokUnknown;
-        state->pos = token->ptr;
-        token->len = 0;
-    }
-    
-    return token->len;
-}
-
+/* 7.6.1 <COMMAND PROGRAM HEADER> */
 int SCPI_LexCommonProgramHeader(lex_state_t * state, token_t * token) {
     token->ptr = state->pos;
     
@@ -474,7 +267,7 @@ int SCPI_LexCommonProgramHeader(lex_state_t * state, token_t * token) {
         state->pos = token->ptr;
         token->len = 0;
     }
-
+    
     return token->len;
 }
 
@@ -501,7 +294,7 @@ int SCPI_LexCompoundProgramHeader(lex_state_t * state,  token_t * token) {
         state->pos = token->ptr;
         token->len = 0;
     }
-
+    
     return token->len;
 }
 
@@ -510,25 +303,11 @@ int SCPI_LexProgramHeader(lex_state_t * state,  token_t * token) {
     
     res = SCPI_LexCommonProgramHeader(state, token);
     if(res > 0) return res;
-        
+    
     res = SCPI_LexCompoundProgramHeader(state, token);
     if(res > 0) return res;
-
+    
     return 0;
-}
-
-int SCPI_LexComma(lex_state_t * state, token_t * token) {
-    token->ptr = state->pos;
-    
-    if (skipChr(state, ',')) {
-        token->len = 1;
-        token->type = TokComma;
-    } else {
-        token->len = 0;
-        token->type = TokUnknown;
-    }
-    
-    return token->len;
 }
 
 int SCPI_LexQuestion(lex_state_t * state, token_t * token) {
@@ -537,6 +316,196 @@ int SCPI_LexQuestion(lex_state_t * state, token_t * token) {
     if (skipChr(state, '?')) {
         token->len = 1;
         token->type = TokQuiestion;
+    } else {
+        token->len = 0;
+        token->type = TokUnknown;
+    }
+    
+    return token->len;
+}
+
+/* 7.7.1 <CHARACTER PROGRAM DATA> */
+int SCPI_LexCharacterProgramData(lex_state_t * state, token_t * token) {
+    token->ptr = state->pos;
+    
+    if(!iseos(state) && isalpha(state->pos[0])) {
+        state->pos++;
+        while(!iseos(state) && (isalnum(state->pos[0]) || ischr(state, '_'))) {
+            state->pos++;
+        }
+    }
+    
+    token->len = state->pos - token->ptr;
+    if(token->len > 0) {
+        token->type = TokProgramMnemonic;
+    } else {
+        token->type = TokUnknown;
+    }
+    
+    return token->len;
+}
+
+/* 7.7.2 <DECIMAL NUMERIC PROGRAM DATA> */
+static int skipMantisa(lex_state_t * state) {
+    int someNumbers = 0;
+    
+    skipPlusmn(state);
+    
+    someNumbers += skipNumbers(state);
+    
+    if(skipChr(state, '.')) {
+        someNumbers += skipNumbers(state);
+    }
+    
+    return someNumbers > 0;
+}
+
+static int skipExponent(lex_state_t * state) {
+    int someNumbers = 0;
+    
+    if(!iseos(state) && isE(state->pos[0])) {
+        state->pos++;
+        
+        skipWs(state);
+        
+        skipPlusmn(state);
+        
+        someNumbers += skipNumbers(state);
+    }
+    
+    return someNumbers > 0;
+}
+
+int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token) {
+    const char * rollback;
+    token->ptr = state->pos;
+    
+    if (skipMantisa(state)) {
+        rollback = state->pos;
+        skipWs(state);
+        if(!skipExponent(state)) {
+            state->pos = rollback;
+        }
+    }
+    
+    token->len = state->pos - token->ptr;
+    if(token->len > 0) {
+        token->type = TokDecimalNumericProgramData;
+    } else {
+        token->type = TokUnknown;
+    }
+    
+    return token->len;
+}
+
+/* 7.7.3 <SUFFIX PROGRAM DATA> */
+int SCPI_LexSuffixProgramData(lex_state_t * state, token_t * token) {
+    token->ptr = state->pos;
+    
+    skipChr(state, '/');
+    
+    // TODO: strict parsing  : SLASH? (ALPHA+ (MINUS? DIGIT)?) ((SLASH | DOT) (ALPHA+ (MINUS? DIGIT)?))*
+    if (skipAlpha(state)) {
+        skipChr(state, '-');
+        skipDigit(state);
+        
+        while (skipSlashDot(state)) {
+            skipAlpha(state);
+            skipChr(state, '-');
+            skipDigit(state);            
+        }
+    }
+    
+    token->len = state->pos - token->ptr;
+    if((token->len > 0)) {
+        token->type = TokSuffixProgramData;
+    } else {
+        token->type = TokUnknown;
+        state->pos = token->ptr;
+        token->len = 0;
+    }
+    
+    return token->len;
+}
+
+/* 7.7.4 <NONDECIMAL NUMERIC PROGRAM DATA> */
+static int skipHexNum(lex_state_t * state) {
+    int someNumbers = 0;
+    while(!iseos(state) && isxdigit(state->pos[0])) {
+        state->pos++;
+        someNumbers++;
+    }
+    return someNumbers;
+}
+
+static int skipOctNum(lex_state_t * state) {
+    int someNumbers = 0;
+    while(!iseos(state) && isqdigit(state->pos[0])) {
+        state->pos++;
+        someNumbers++;
+    }
+    return someNumbers;
+}
+
+static int skipBinNum(lex_state_t * state) {
+    int someNumbers = 0;
+    while(!iseos(state) && isbdigit(state->pos[0])) {
+        state->pos++;
+        someNumbers++;
+    }
+    return someNumbers;
+}
+
+
+int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token) {
+    token->ptr = state->pos;
+    int someNumbers = 0;
+    if(skipChr(state, '#')) {
+        if(!iseos(state)) {
+            if(isH(state->pos[0])) {
+                state->pos++;
+                someNumbers = skipHexNum(state);
+                token->type = TokHexnum;
+            } else if(isQ(state->pos[0])) {
+                state->pos++;
+                someNumbers = skipOctNum(state);
+                token->type = TokOctnum;
+            } else if(isB(state->pos[0])) {
+                state->pos++;
+                someNumbers = skipBinNum(state);
+                token->type = TokBinnum;
+            }
+        }
+    }
+    
+    if (someNumbers) {
+        token->ptr += 2; // ignore number prefix
+        token->len = state->pos - token->ptr;
+    } else {
+        token->type = TokUnknown;
+        state->pos = token->ptr;
+    }
+    return token->len;
+}
+
+
+/* 7.7.5 <STRING PROGRAM DATA> */
+// TODO: int SCPI_LexStringProgramData(lex_state_t * state,  token_t * token)
+// void SCPI_LexSingleQuoteProgramData(lex_state_t * state)
+// void SCPI_LexDoubleQuoteProgramDatalex_state_t * state)
+
+/* 7.7.6 <ARBITRARY BLOCK PROGRAM DATA> */
+// TODO: int SCPI_LexArbitraryBlockProgramData(lex_state_t * state,  token_t * token)
+
+/* 7.7.7 <EXPRESSION PROGRAM DATA> */
+// TODO: int SCPI_LexProgramExpression(lex_state_t * state,  token_t * token)
+
+int SCPI_LexComma(lex_state_t * state, token_t * token) {
+    token->ptr = state->pos;
+    
+    if (skipChr(state, ',')) {
+        token->len = 1;
+        token->type = TokComma;
     } else {
         token->len = 0;
         token->type = TokUnknown;
@@ -564,7 +533,7 @@ int SCPI_LexNewLine(lex_state_t * state,  token_t * token) {
     
     skipChr(state, '\r');
     skipChr(state, '\n');
-        
+    
     token->len = state->pos - token->ptr;
     
     if((token->len > 0)) {
@@ -574,23 +543,9 @@ int SCPI_LexNewLine(lex_state_t * state,  token_t * token) {
         state->pos = token->ptr;
         token->len = 0;
     }
-
+    
     return token->len;
 }
-
-/*
-
-int SCPI_LexProgramExpression(lex_state_t * state,  token_t * token) {
-    return 0;
-}
-
-void SCPI_LexSingleQuoteProgramData(lex_state_t * state) {
-}
-
-void SCPI_LexDoubleQuoteProgramDatalex_state_t * state) {
-}
-
-*/
 
 const char * typeToStr(token_type_t type) {
     switch(type) {
@@ -603,8 +558,6 @@ const char * typeToStr(token_type_t type) {
         case TokBinnum: return "TokBinnum";
         case TokProgramMnemonic: return "TokProgramMnemonic";
         case TokDecimalNumericProgramData: return "TokDecimalNumericProgramData";
-        case TokMantisa: return "TokMantisa";
-        case TokExponent: return "TokExponent";
         case TokSuffixProgramData: return "TokSuffixProgramData";
         case TokSingleQuoteProgramData: return "TokSingleQuoteProgramData";
         case TokDoubleQuoteProgramData: return "TokDoubleQuoteProgramData";
@@ -628,28 +581,27 @@ void printToken(token_t * token) {
     state.len = strlen((str));          \
 } while(0)
 
-
 int main(int argc, char ** argv) {
     lex_state_t state;
     token_t token;
     
     
-//    INIT_STATE("MEAS:VOLT:DC? 1, 5\r\n");
+    //    INIT_STATE("MEAS:VOLT:DC? 1, 5\r\n");
     INIT_STATE("  \t MEAS:VOLT:DC? 1.58, .125,  5V\r\n");  
     SCPI_LexWhiteSpace(&state, &token); printToken(&token);
     
     INIT_STATE("#H123fe5A , ");
     SCPI_LexNondecimalNumericData(&state, &token); printToken(&token);
-
+    
     INIT_STATE("#B0111010101 , ");
     SCPI_LexNondecimalNumericData(&state, &token); printToken(&token);
-
+    
     INIT_STATE("#Q125725433 , ");
     SCPI_LexNondecimalNumericData(&state, &token); printToken(&token);
     
     INIT_STATE("abc_213as564 , ");
-    SCPI_LexProgramMnemonic(&state, &token); printToken(&token);
-
+    SCPI_LexCharacterProgramData(&state, &token); printToken(&token);
+    
     INIT_STATE("10 , ");
     SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
     
@@ -658,16 +610,16 @@ int main(int argc, char ** argv) {
     
     INIT_STATE("+.5 , ");
     SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-
+    
     INIT_STATE("-. , ");
     SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
     
     INIT_STATE("-1 e , ");
     SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-
+    
     INIT_STATE("-1 e 3, ");
     SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-
+    
     INIT_STATE("1.5E12 , ");
     SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
     
@@ -682,13 +634,13 @@ int main(int argc, char ** argv) {
     
     INIT_STATE("*?, ");
     SCPI_LexCommonProgramHeader(&state, &token); printToken(&token);
-
+    
     INIT_STATE("MEAS:VOLT:DC?, ");
     SCPI_LexCommonProgramHeader(&state, &token); printToken(&token);
-        
+    
     INIT_STATE("MEAS:VOLT:DC?, ");
     SCPI_LexCompoundProgramHeader(&state, &token); printToken(&token);
-
+    
     INIT_STATE(":MEAS:VOLT:DC?, ");
     SCPI_LexCompoundProgramHeader(&state, &token); printToken(&token);
     
@@ -700,7 +652,7 @@ int main(int argc, char ** argv) {
     
     INIT_STATE("MEAS:VOLT:DC?, ");
     SCPI_LexProgramHeader(&state, &token); printToken(&token);
-
+    
     INIT_STATE("*IDN?, ");
     SCPI_LexProgramHeader(&state, &token); printToken(&token);
     return 0;

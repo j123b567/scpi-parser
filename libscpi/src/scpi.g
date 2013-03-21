@@ -39,7 +39,7 @@ programDataType
 	|	characterProgramData
 	|	decimalNumericProgramData
 	|	stringProgramData
-//	|	arbitraryBlockProgramData
+	|	arbitraryBlockProgramData
 	|	expressionProgramData
 //	|	suffixProgramData
 	;
@@ -69,7 +69,12 @@ stringProgramData
 
 expressionProgramData
 	: 	PROGRAM_EXPRESSION
-	;	
+	;
+
+// support only nonzero prefix
+arbitraryBlockProgramData
+	:	SHARP NONZERO_DIGIT NUMBER .*
+	;
 		
 PROGRAM_MNEMONIC	: 	ALPHA (ALPHA | DIGIT | UNDERSCORE)*;
 HEXNUM			:	SHARP H HEXDIGIT*;
@@ -108,6 +113,8 @@ fragment RBRACKET		:	')';
 
 fragment ALPHA		:	('a'..'z'|'A'..'Z');
 fragment DIGIT		:	('0'..'9');
+fragment NONZERO_DIGIT	:	('1'..'9');
+
 fragment HEXDIGIT	:	(DIGIT | 'a'..'f' | 'A'..'F');
 fragment OCTDIGIT	:	('0'..'7');
 fragment BINDIGIT	:	('0' | '1');
