@@ -23,6 +23,7 @@ SHAREDLIBVER = $(SHAREDLIB).$(VERSION)
 SRCS = $(addprefix src/, \
 	debug.c error.c fifo.c ieee488.c \
 	minimal.c parser.c units.c utils.c \
+	lexer.c \
 	)
 
 OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
@@ -30,12 +31,12 @@ OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 HDRS = $(addprefix inc/scpi/, \
 	scpi.h constants.h debug.h error.h \
 	fifo.h ieee488.h minimal.h parser.h \
-	types.h units.h \
+	types.h units.h lexer.h \
 	) src/utils.h
 
 
 TESTS = $(addprefix test/, \
-	test_fifo.c test_scpi_utils.c \
+	test_fifo.c test_scpi_utils.c test_lexer.c \
 	)
 
 TESTS_OBJS = $(TESTS:.c=.o)

@@ -38,40 +38,8 @@
 #include <stdio.h>
 #include <string.h>
 
-enum _token_type_t {
-    TokComma,
-    TokSemicolon,
-    TokQuiestion,
-    TokNewLine,
-    TokHexnum,
-    TokOctnum,
-    TokBinnum,
-    TokProgramMnemonic,
-    TokDecimalNumericProgramData,
-    TokSuffixProgramData,
-    TokSingleQuoteProgramData,
-    TokDoubleQuoteProgramData,
-    TokProgramExpression,
-    TokCompoundProgramHeader,
-    TokCommonProgramHeader,
-    TokWhiteSpace,
-    TokUnknown,
-};
-typedef enum _token_type_t token_type_t;
+#include "scpi/lexer.h"
 
-struct _token_t {
-    token_type_t type;
-    const char * ptr;
-    int len;
-};
-typedef struct _token_t token_t;
-
-struct _lex_state_t {
-    const char * buffer;
-    const char * pos;
-    int len;
-};
-typedef struct _lex_state_t lex_state_t;
 
 /* identify character */
 static int isws ( int c ) {
@@ -357,7 +325,7 @@ static int skipMantisa(lex_state_t * state) {
         someNumbers += skipNumbers(state);
     }
     
-    return someNumbers > 0;
+    return someNumbers;
 }
 
 static int skipExponent(lex_state_t * state) {
@@ -370,10 +338,10 @@ static int skipExponent(lex_state_t * state) {
         
         skipPlusmn(state);
         
-        someNumbers += skipNumbers(state);
+        someNumbers = skipNumbers(state);
     }
     
-    return someNumbers > 0;
+    return someNumbers;
 }
 
 int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token) {
@@ -386,6 +354,8 @@ int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token) {
         if(!skipExponent(state)) {
             state->pos = rollback;
         }
+    } else {
+        state->pos = token->ptr;
     }
     
     token->len = state->pos - token->ptr;
@@ -490,15 +460,178 @@ int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token) {
 
 
 /* 7.7.5 <STRING PROGRAM DATA> */
-// TODO: int SCPI_LexStringProgramData(lex_state_t * state,  token_t * token)
-// void SCPI_LexSingleQuoteProgramData(lex_state_t * state)
-// void SCPI_LexDoubleQuoteProgramDatalex_state_t * state)
+static int isascii7bit(int c) {
+    return (c >= 0) && (c <= 0x7f);
+}
+
+
+static int skipQuoteProgramData(lex_state_t * state, int quote) {
+    while(!iseos(state)) {
+        if (isascii7bit(state->pos[0]) && !ischr(state, quote)) {
+            state->pos++;
+        } else if (ischr(state, quote)) {
+            state->pos++;
+            if (!iseos(state) && ischr(state, quote)) {
+                state->pos++;
+            } else {
+                state->pos--;
+                break;
+            }
+        }
+    }
+}
+    
+static int skipDoubleQuoteProgramData(lex_state_t * state) {
+    skipQuoteProgramData(state, '"');
+}
+
+static int skipSingleQuoteProgramData(lex_state_t * state) {
+    skipQuoteProgramData(state, '\'');
+}
+
+int SCPI_LexStringProgramData(lex_state_t * state,  token_t * token) {
+    token->ptr = state->pos;
+    
+    if (!iseos(state)) {
+        if (ischr(state, '"')) {
+            state->pos++;
+            token->type = TokDoubleQuoteProgramData;
+            skipDoubleQuoteProgramData(state);
+            if (!iseos(state) && ischr(state, '"')) {
+                state->pos++;
+                token->len = state->pos - token->ptr;
+            } else {
+                state->pos = token->ptr;
+            }
+        } else if (ischr(state, '\'')) {
+            state->pos++;
+            token->type = TokSingleQuoteProgramData;
+            skipSingleQuoteProgramData(state);
+            if (!iseos(state) && ischr(state, '\'')) {
+                state->pos++;
+                token->len = state->pos - token->ptr;
+            } else {
+                state->pos = token->ptr;
+            }
+        }
+    }
+    
+    token->len = state->pos - token->ptr;
+    
+    if((token->len > 0)) {
+        token->ptr++;
+        token->len -= 2;
+    } else {
+        token->type = TokUnknown;
+        state->pos = token->ptr;
+        token->len = 0;
+    }
+    
+    return token->len;
+}
 
 /* 7.7.6 <ARBITRARY BLOCK PROGRAM DATA> */
-// TODO: int SCPI_LexArbitraryBlockProgramData(lex_state_t * state,  token_t * token)
+static int isNonzeroDigit(int c) {
+    return isdigit(c) && (c != '0');
+}
+
+int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token) {
+    int i;
+    int j = 0;
+    
+    token->ptr = state->pos;
+
+    if (skipChr(state, '#')) {
+        if (!iseos(state) && isNonzeroDigit(state->pos[0])) {
+            /* Get number of digits */
+            i = state->pos[0] - '0';
+            state->pos++;
+            
+            for(; i > 0; i--) {
+                if (!iseos(state) && isdigit(state->pos[0])) {
+                    j *= 10;
+                    j += (state->pos[0] - '0');
+                    state->pos++;
+                } else {
+                    break;
+                }
+            }
+            
+            if(i == 0) {
+                state->pos += j;
+                if (!iseos(state)) {
+                    token->ptr = state->pos - j;
+                    token->len = j;
+                } else {
+                    token->len = 0;
+                }
+            } else {
+                token->len = 0;
+            }
+        } else {
+            token->len = 0;
+        }
+    }
+
+    if((token->len > 0)) {
+        token->type = TokArbitraryBlockProgramData;
+    } else {
+        token->type = TokUnknown;
+        state->pos = token->ptr;
+        token->len = 0;
+    }
+    
+    return token->len;
+}
 
 /* 7.7.7 <EXPRESSION PROGRAM DATA> */
-// TODO: int SCPI_LexProgramExpression(lex_state_t * state,  token_t * token)
+static int isProgramExpression(int c) {
+    if ((c >= 0x20) && (c<=0x7e)) {
+        if ((c!= 0x22)
+            && (c!= 0x23) 
+            && (c!= 0x27) 
+            && (c!= 0x28) 
+            && (c!= 0x29) 
+            && (c!= 0x3B)) {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+static void skipProgramExpression(lex_state_t * state) {
+    while(!iseos(state) && isProgramExpression(state->pos[0])) {
+        state->pos++;
+    }
+}
+
+// TODO: 7.7.7.2-2 recursive - any program data
+int SCPI_LexProgramExpression(lex_state_t * state,  token_t * token) {
+    token->ptr = state->pos;
+    
+    if (!iseos(state) && ischr(state, '(')) {
+        state->pos++;
+        skipProgramExpression(state);
+        
+        if (!iseos(state) && ischr(state, ')')) {
+            state->pos++;
+            token->len = state->pos - token->ptr;
+        } else {
+            token->len = 0;
+        }
+    }
+    
+    if((token->len > 0)) {
+        token->type = TokProgramExpression;
+    } else {
+        token->type = TokUnknown;
+        state->pos = token->ptr;
+        token->len = 0;
+    }
+    
+    return token->len;
+}
 
 int SCPI_LexComma(lex_state_t * state, token_t * token) {
     token->ptr = state->pos;
@@ -547,114 +680,5 @@ int SCPI_LexNewLine(lex_state_t * state,  token_t * token) {
     return token->len;
 }
 
-const char * typeToStr(token_type_t type) {
-    switch(type) {
-        case TokComma: return "TokComma";
-        case TokSemicolon: return "TokSemicolon";
-        case TokQuiestion: return "TokQuiestion";
-        case TokNewLine: return "TokNewLine";
-        case TokHexnum: return "TokHexnum";
-        case TokOctnum: return "TokOctnum";
-        case TokBinnum: return "TokBinnum";
-        case TokProgramMnemonic: return "TokProgramMnemonic";
-        case TokDecimalNumericProgramData: return "TokDecimalNumericProgramData";
-        case TokSuffixProgramData: return "TokSuffixProgramData";
-        case TokSingleQuoteProgramData: return "TokSingleQuoteProgramData";
-        case TokDoubleQuoteProgramData: return "TokDoubleQuoteProgramData";
-        case TokProgramExpression: return "TokProgramExpression";
-        case TokCompoundProgramHeader: return "TokCompoundProgramHeader";
-        case TokCommonProgramHeader: return "TokCommonProgramHeader";
-        case TokWhiteSpace: return "TokWhiteSpace";
-        default: return "TokUnknown";
-    }
-}
 
-void printToken(token_t * token) {
-    printf("Token:\r\n");
-    printf("\t->type = %s\r\n", typeToStr(token->type));
-    printf("\t->ptr = %p (\"%.*s\")\r\n", token->ptr, token->len, token->ptr);
-    printf("\t->len = %d\r\n", token->len);
-}
-
-#define INIT_STATE(str) do {            \
-    state.buffer = state.pos = (str);   \
-    state.len = strlen((str));          \
-} while(0)
-
-int main(int argc, char ** argv) {
-    lex_state_t state;
-    token_t token;
-    
-    
-    //    INIT_STATE("MEAS:VOLT:DC? 1, 5\r\n");
-    INIT_STATE("  \t MEAS:VOLT:DC? 1.58, .125,  5V\r\n");  
-    SCPI_LexWhiteSpace(&state, &token); printToken(&token);
-    
-    INIT_STATE("#H123fe5A , ");
-    SCPI_LexNondecimalNumericData(&state, &token); printToken(&token);
-    
-    INIT_STATE("#B0111010101 , ");
-    SCPI_LexNondecimalNumericData(&state, &token); printToken(&token);
-    
-    INIT_STATE("#Q125725433 , ");
-    SCPI_LexNondecimalNumericData(&state, &token); printToken(&token);
-    
-    INIT_STATE("abc_213as564 , ");
-    SCPI_LexCharacterProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("10 , ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("-10.5 , ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("+.5 , ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("-. , ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("-1 e , ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("-1 e 3, ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("1.5E12 , ");
-    SCPI_LexDecimalNumericProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("A/V , ");
-    SCPI_LexSuffixProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("mA.h , ");
-    SCPI_LexSuffixProgramData(&state, &token); printToken(&token);
-    
-    INIT_STATE("*IDN?, ");
-    SCPI_LexCommonProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE("*?, ");
-    SCPI_LexCommonProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE("MEAS:VOLT:DC?, ");
-    SCPI_LexCommonProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE("MEAS:VOLT:DC?, ");
-    SCPI_LexCompoundProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE(":MEAS:VOLT:DC?, ");
-    SCPI_LexCompoundProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE(":MEAS::VOLT:DC?, ");
-    SCPI_LexCompoundProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE(":MEAS::VOLT:DC?, ");
-    SCPI_LexProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE("MEAS:VOLT:DC?, ");
-    SCPI_LexProgramHeader(&state, &token); printToken(&token);
-    
-    INIT_STATE("*IDN?, ");
-    SCPI_LexProgramHeader(&state, &token); printToken(&token);
-    return 0;
-}
 
