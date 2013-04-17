@@ -96,6 +96,16 @@ const scpi_unit_def_t scpi_units_def[] = {
     {/* name */ "MIN",  /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 60},
     {/* name */ "HR",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 3600},
 
+    /* distance add by richard 2013.4.3 */
+    {/* name */ "PM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-12},
+    {/* name */ "NM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-9},
+    {/* name */ "UM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-6},
+    {/* name */ "MM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-3},
+    {/* name */ "CM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-2},
+    {/* name */ "DM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-3},
+    {/* name */ "M",    /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1},
+    {/* name */ "KM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1000},
+
     SCPI_UNITS_LIST_END,
 };
 

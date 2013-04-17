@@ -42,6 +42,7 @@
 #include "utils.h"
 #include "scpi/error.h"
 
+#define MAX_CMD_LEN 100 // add by hmm
 
 static size_t patternSeparatorPos(const char * pattern, size_t len);
 static size_t cmdSeparatorPos(const char * cmd, size_t len);
@@ -82,7 +83,8 @@ int _strnicmp(const char* s1, const char* s2, size_t len) {
  */
 size_t patternSeparatorPos(const char * pattern, size_t len) {
 
-    char * separator = strnpbrk(pattern, len, "?:[]");
+    char * separator = strnpbrk(pattern, len, "?:[] "); //edit by hmm
+	//char * separator = strnpbrk(pattern, len, ":?"); //edit by hmm
     if (separator == NULL) {
         return len;
     } else {
@@ -184,12 +186,14 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
     int result = FALSE;
 
     const char * pattern_ptr = pattern;
-    int pattern_len = SCPI_strnlen(pattern, len);
+    size_t pattern_len = SCPI_strnlen(pattern, MAX_CMD_LEN); // edit by hmm, avoid len < pattern_len.
+	//size_t pattern_len = MAX; // pattern MAX character number --add by hmm
     const char * pattern_end = pattern + pattern_len;
 
     const char * cmd_ptr = cmd;
     size_t cmd_len = SCPI_strnlen(cmd, len);
     const char * cmd_end = cmd + cmd_len;
+
 
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
@@ -199,6 +203,11 @@ bool_t cmdMatch(const char * pattern, const char * cmd, size_t len) {
             pattern_ptr = pattern_ptr + pattern_sep_pos;
             cmd_ptr = cmd_ptr + cmd_sep_pos;
             result = TRUE;
+			/* command is complete NEW */
+            if (cmd_ptr >= cmd_end) {
+			    //printf("NEW cmdMatch   command is complete break\n"); // HMM
+                break;
+            }
 
             /* command is complete */
             if ((pattern_ptr == pattern_end) && (cmd_ptr >= cmd_end)) {
@@ -272,7 +281,7 @@ static size_t writeDelimiter(scpi_t * context) {
 }
 
 /**
- * Zapis nove radky na SCPI vystup
+ * Writing a new line to output SCPI
  * @param context
  * @return pocet zapsanych znaku
  */
@@ -306,7 +315,9 @@ static void processCommand(scpi_t * context) {
         }
     }
 
-    /* conditionaly write new line */
+    //printf("\nwriteNewLine in processCommand\n"); // HMM
+
+    /* conditionally write new line */
     writeNewLine(context);
 
     /* skip all whitespaces */
@@ -333,6 +344,7 @@ static bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmd
             context->paramlist.cmd = cmd;
             context->paramlist.parameters = cmdline_ptr + cmd_len;
             context->paramlist.length = cmdline_len - cmd_len;
+			//printf("findCommand  ok\n"); // HMM
             return TRUE;
         }
     }
@@ -352,6 +364,8 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
     const char * cmdline_ptr = data;
     size_t cmd_len;
     size_t cmdline_len;
+    size_t ws = 0;
+    size_t cn = 0;
 
     if (context == NULL) {
         return -1;
@@ -370,6 +384,14 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
             }
         }
         cmdline_ptr = cmdlineNext(cmdline_ptr, cmdline_end - cmdline_ptr);
+        if(cmdline_ptr < cmdline_end)
+        {
+            ws = skipWhitespace(cmdline_ptr, cmdline_end - cmdline_ptr); // add by hmm
+            cn = skipColon(cmdline_ptr + ws, cmdline_end - cmdline_ptr - ws); // add by hmm
+            cmdline_ptr = cmdline_ptr + ws + cn; // skip next cmd's white space and colon
+            //printf("cmdlineNext cmdline_ptr < cmdline_end\n"); // HMM
+        }
+        
     }
     return result;
 }
@@ -406,8 +428,10 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
     } else {
         size_t buffer_free;
         int ws;
+		int cn;
         buffer_free = context->buffer.length - context->buffer.position;
         if (len > (buffer_free - 1)) {
+            printf("error, len > (buffer_free - 1)\n"); // HMM
             return -1;
         }
         memcpy(&context->buffer.data[context->buffer.position], data, len);
@@ -415,12 +439,21 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
         context->buffer.data[context->buffer.position] = 0;
 
         ws = skipWhitespace(context->buffer.data, context->buffer.position);
+		cn = skipColon(context->buffer.data + ws, context->buffer.position - ws); // add by hmm
+		//printf("ws = %d, cn = %d\n", ws, cn); // HMM
+		ws = ws + cn;  // add by hmm
+		//printf("ws = %d\n", ws); // HMM
         cmd_term = cmdlineTerminator(context->buffer.data + ws, context->buffer.position - ws);
         if (cmd_term != NULL) {
             int curr_len = cmd_term - context->buffer.data;
             result = SCPI_Parse(context, context->buffer.data + ws, curr_len - ws);
             memmove(context->buffer.data, cmd_term, context->buffer.position - curr_len);
             context->buffer.position -= curr_len;
+        }
+        else
+        {
+            printf("error, cmd_term == NULL\n"); // HMM
+            return -1;
         }
     }
 

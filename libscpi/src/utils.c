@@ -372,6 +372,36 @@ size_t skipWhitespace(const char * cmd, size_t len) {
     return len;
 }
 
+/**
+ * is colon or not.  add by hmm 2013.4.1
+ * @param cmd - command
+ * @return
+ */
+static bool_t iscolon(const char * cmd) {
+    char* pColon = ":";
+    if(0 == SCPI_strncasecmp(cmd, pColon, 1))
+	{
+	    return TRUE;
+	}
+    return FALSE;
+}
+
+/**
+ * Count colon from the beggining  add by hmm 2013.4.1
+ * @param cmd - command
+ * @param len - max search length
+ * @return number of colon
+ */
+size_t skipColon(const char * cmd, size_t len) {
+    size_t i;
+    for (i = 0; i < len; i++) {
+        if (!iscolon(&cmd[i])) {
+            return i;
+        }
+    }
+    return len;
+}
+
 
 /**
  * Pattern is composed from upper case an lower case letters. This function
@@ -400,7 +430,9 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  */
 bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
     int pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
-    return compareStr(pattern, pattern_len, str, str_len) ||
+
+    //return compareStr(pattern, pattern_len, str, str_len) ||
+    return compareStr(pattern, str_len, str, str_len) ||   // edit by hmm 2013.4.3
             compareStr(pattern, pattern_sep_pos_short, str, str_len);
 }
 
