@@ -1,0 +1,14 @@
+#!/bin/bash 
+
+# 1. build libscpi
+cd ../../libscpi/
+make clean
+make
+
+# 2. build test-hmm
+cd ../examples/test-hmm/
+make clean
+make
+
+# 3. excute test-hmm
+./test
