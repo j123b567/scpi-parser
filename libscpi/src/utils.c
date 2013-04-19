@@ -1,5 +1,7 @@
 /*-
- * Copyright (c) 2012-2013 Jan Breuer,
+ * Copyright (c) 2013 Jan Breuer
+ *                    Richard.hmm
+ * Copyright (c) 2012 Jan Breuer
  *
  * All Rights Reserved
  * 
@@ -375,33 +377,12 @@ size_t skipWhitespace(const char * cmd, size_t len) {
 }
 
 /** 
- * is colon or not.  add by hmm 2013.4.1
+ * is colon or not
  * @param cmd - command
  * @return
  */
-static bool_t iscolon(const char * cmd) {
-    char* pColon = ":";
-    if(0 == SCPI_strncasecmp(cmd, pColon, 1))
-    {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-/**
- * Count colon from the beggining  add by hmm 2013.4.1
- * @param cmd - command
- * @param len - max search length
- * @return number of colon
- */
-size_t skipColon(const char * cmd, size_t len) {
-    size_t i;
-    for (i = 0; i < len; i++) {
-        if (!iscolon(&cmd[i])) {
-            return i;
-        }
-    }
-    return len;
+static bool_t iscolon(char ch) {
+    return (':' == ch) ? TRUE : FALSE;
 }
 
 /**
@@ -487,6 +468,12 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     const char * cmd_ptr = cmd;
     size_t cmd_len = SCPI_strnlen(cmd, len);
     const char * cmd_end = cmd + cmd_len;
+    
+    /* TODO: now it is possible to send command ":*IDN?" which is incorrect */
+    if (iscolon(cmd_ptr[0])) {
+        cmd_len --;
+        cmd_ptr ++;
+    }
     
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);

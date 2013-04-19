@@ -1,5 +1,7 @@
 /*-
- * Copyright (c) 2012-2013 Jan Breuer,
+ * Copyright (c) 2013 Jan Breuer
+ *                    Richard.hmm
+ * Copyright (c) 2012 Jan Breuer
  *
  * All Rights Reserved
  * 
@@ -135,7 +137,8 @@ extern "C" {
         SCPI_UNIT_OHM,
         SCPI_UNIT_HERTZ,
         SCPI_UNIT_CELSIUS,
-        SCPI_UNIT_SECONDS
+        SCPI_UNIT_SECONDS,
+        SCPI_UNIT_DISTANCE
     };
     typedef enum _scpi_unit_t scpi_unit_t;
 

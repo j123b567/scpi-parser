@@ -269,6 +269,11 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("ABc:AACddd", "abc:aacddd", TRUE);
     TEST_MATCH_COMMAND("ABc:AACddd", "abc:aacdd", FALSE);
     TEST_MATCH_COMMAND("ABc:AACddd", "a:aac", FALSE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":ab:aac", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aac", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacddd", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacdd", FALSE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":a:aac", FALSE);
 }
 
 int main() {
