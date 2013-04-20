@@ -126,7 +126,29 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT(":WAV:SEND:ASC?\r\n");
     TEST_SCPI_INPUT(":WAV:SEND:BIN?\r\n");
     TEST_SCPI_INPUT(":WAV:SEND:BIN?;*IDN?\r\n");
-    TEST_SCPI_INPUT(":WAV:SEND:BIN;*IDN;*CLS\r\n");
+    TEST_SCPI_INPUT(":WAV:SEND:BIN?;*IDN?;*CLS\r\n");
+
+    // test optional keyword
+    TEST_SCPI_INPUT(":MEASure:VOLTage:DC?\r\n");
+    TEST_SCPI_INPUT("VOLTage:DC?\r\n");
+    TEST_SCPI_INPUT("MEAS:VOLT:DC?  12,50\r\n");
+    TEST_SCPI_INPUT("VOLT:DC?  12,50\r\n");
+    TEST_SCPI_INPUT("ACQuire:SMPinterval:VALue?\r\n");
+    TEST_SCPI_INPUT("ACQuire:VALue?\r\n");
+    TEST_SCPI_INPUT("ACQ:SMP:VAL?\r\n");
+    TEST_SCPI_INPUT("ACQ:VAL?\r\n");
+    TEST_SCPI_INPUT("ACQuire:AVERage:TIME 50\r\n");
+    TEST_SCPI_INPUT("ACQuire:AVERage 50\r\n");
+    TEST_SCPI_INPUT(":ANALysis:FMARker:LMTechnique LSA\r\n");
+    TEST_SCPI_INPUT(":FMARker:LMTechnique LSA\r\n");
+    TEST_SCPI_INPUT(":ANAL:FMAR:LMT LSA\r\n");
+    TEST_SCPI_INPUT(":FMAR:LMT LSA\r\n");
+    TEST_SCPI_INPUT("WAVedata:SEND:ASCii?\r\n");
+    TEST_SCPI_INPUT("WAVedata:ASCii?\r\n");
+    TEST_SCPI_INPUT("WAV:SEND:ASC?\r\n");
+    TEST_SCPI_INPUT("WAV:ASC?\r\n");
+    TEST_SCPI_INPUT("WAVedata:SEND:BINary?\r\n");
+    TEST_SCPI_INPUT("WAVedata:SEND?\r\n");
 #endif
 
 #if 0 // DMM

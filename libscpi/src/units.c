@@ -96,7 +96,7 @@ const scpi_unit_def_t scpi_units_def[] = {
     {/* name */ "MIN",  /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 60},
     {/* name */ "HR",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 3600},
 
-    /* distance add by richard 2013.4.3 */
+    /* distance add by richard.hmm 2013.4.3 */
     {/* name */ "PM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-12},
     {/* name */ "NM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-9},
     {/* name */ "UM",   /* unit */ SCPI_UNIT_DISTANCE,   /* mult */ 1e-6},

@@ -291,7 +291,7 @@ static const scpi_command_t scpi_commands[] = {
 
 #if 1
     /* DMM */
-    {.pattern = "MEASure:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
+    {.pattern = "[:MEASure]:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
     {.pattern = "CONFigure:VOLTage:DC", .callback = DMM_ConfigureVoltageDc,},
     {.pattern = "MEASure:VOLTage:DC:RATio?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:VOLTage:AC?", .callback = SCPI_StubQ,},
@@ -308,11 +308,11 @@ static const scpi_command_t scpi_commands[] = {
     /* HMM */
     {.pattern = "ACQuire:WAVelength", .callback = HMM_AcquireWavelength,},
     {.pattern = "ACQuire:ATTenuation", .callback = HMM_AcquireAttenuation,},
-    {.pattern = "ACQuire:SMPinterval:VALue?", .callback = HMM_AcquireSmpintervalValueQ,},
-    {.pattern = "ACQuire:AVERage:TIME", .callback = HMM_AcquireAverageTime,},
-    {.pattern = "ANALysis:FMARker:LMTechnique", .callback = HMM_AnalysisFmarkerLmtechnique,},
-    {.pattern = "WAVedata:SEND:ASCii?", .callback = HMM_WavedataSendAsciiQ,},
-    {.pattern = "WAVedata:SEND:BINary?", .callback = HMM_WavedataSendBinaryQ,},
+    {.pattern = "ACQuire[:SMPinterval]:VALue?", .callback = HMM_AcquireSmpintervalValueQ,},
+    {.pattern = "ACQuire:AVERage[:TIME]", .callback = HMM_AcquireAverageTime,},
+    {.pattern = "[:ANALysis]:FMARker:LMTechnique", .callback = HMM_AnalysisFmarkerLmtechnique,},
+    {.pattern = "WAVedata[:SEND]:ASCii?", .callback = HMM_WavedataSendAsciiQ,},
+    {.pattern = "WAVedata:SEND[:BINary]?", .callback = HMM_WavedataSendBinaryQ,},
 
     SCPI_CMD_LIST_END
 };

@@ -58,6 +58,7 @@ extern "C" {
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
     size_t skipColon(const char * cmd, size_t len) LOCAL;
     bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
+    bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen);

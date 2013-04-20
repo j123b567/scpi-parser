@@ -1,5 +1,7 @@
 /*-
- * Copyright (c) 2012-2013 Jan Breuer,
+ * Copyright (c) 2013 Jan Breuer
+ *                    Richard.hmm
+ * Copyright (c) 2012 Jan Breuer
  *
  * All Rights Reserved
  * 
@@ -42,6 +44,8 @@
 #include "utils.h"
 
 static size_t patternSeparatorShortPos(const char * pattern, size_t len);
+static size_t patternSeparatorPos(const char * pattern, size_t len);
+static size_t cmdSeparatorPos(const char * cmd, size_t len);
 
 /**
  * Find the first occurrence in str of a character in set.
@@ -377,31 +381,18 @@ size_t skipWhitespace(const char * cmd, size_t len) {
  * @param cmd - command
  * @return
  */
-static bool_t iscolon(const char * cmd) {
-    char* pColon = ":";
-    if(0 == SCPI_strncasecmp(cmd, pColon, 1))
-	{
-	    return TRUE;
-	}
-    return FALSE;
+static bool_t iscolon(char ch) {
+    return (':' == ch) ? TRUE : FALSE;
 }
 
 /**
- * Count colon from the beggining  add by hmm 2013.4.1
- * @param cmd - command
- * @param len - max search length
- * @return number of colon
+ * is Square Bracket '[' or not.  add by hmm 2013.4.20
+ * @param ch
+ * @return
  */
-size_t skipColon(const char * cmd, size_t len) {
-    size_t i;
-    for (i = 0; i < len; i++) {
-        if (!iscolon(&cmd[i])) {
-            return i;
-        }
-    }
-    return len;
+static bool_t isSquareBracket(char ch) {
+    return ('[' == ch) ? TRUE : FALSE;
 }
-
 
 /**
  * Pattern is composed from upper case an lower case letters. This function
@@ -421,6 +412,41 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
 }
 
 /**
+ * Find pattern separator position
+ * @param pattern
+ * @param len - max search length
+ * @return position of separator or len
+ */
+size_t patternSeparatorPos(const char * pattern, size_t len) {
+    
+    char * separator = strnpbrk(pattern, len, "?:[]");
+    if (separator == NULL) {
+        return len;
+    } else {
+        return separator - pattern;
+    }
+}
+
+/**
+ * Find command separator position
+ * @param cmd - input command
+ * @param len - max search length
+ * @return position of separator or len
+ */
+size_t cmdSeparatorPos(const char * cmd, size_t len) {
+    char * separator = strnpbrk(cmd, len, ":?");
+    size_t result;
+    if (separator == NULL) {
+        result = len;
+    } else {
+        result = separator - cmd;
+    }
+    
+    return result;
+}
+
+
+/**
  * Match pattern and str. Pattern is in format UPPERCASElowercase
  * @param pattern
  * @param pattern_len
@@ -430,10 +456,151 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  */
 bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
     int pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
-
-    //return compareStr(pattern, pattern_len, str, str_len) ||
-    return compareStr(pattern, str_len, str, str_len) ||   // edit by hmm 2013.4.3
+	
+    return compareStr(pattern, pattern_len, str, str_len) ||
             compareStr(pattern, pattern_sep_pos_short, str, str_len);
+}
+
+/**
+ * Compare pattern and command
+ * @param pattern
+ * @param cmd - command
+ * @param len - max search length
+ * @return TRUE if pattern matches, FALSE otherwise
+ */
+bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
+    int result = FALSE;
+    bool_t leftFlag  = FALSE; // flag for '[' on left
+    bool_t rightFlag = FALSE; // flag for ']' on right
+
+    const char * pattern_ptr = pattern;
+    int pattern_len = strlen(pattern);
+    const char * pattern_end = pattern + pattern_len;
+    
+    const char * cmd_ptr = cmd;
+    size_t cmd_len = SCPI_strnlen(cmd, len);
+    const char * cmd_end = cmd + cmd_len;
+    
+    /* TODO: now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */
+    if (isSquareBracket(pattern_ptr[0])) { // skip first '['
+    	pattern_len --;
+    	pattern_ptr ++;
+    	leftFlag = TRUE;
+    }
+    if (iscolon(pattern_ptr[0])) { // skip first ':'
+    	pattern_len --;
+    	pattern_ptr ++;
+    }
+
+    /* TODO: now it is possible to send command ":*IDN?" which is incorrect */
+    if (iscolon(cmd_ptr[0])) {
+        cmd_len --;
+        cmd_ptr ++;
+    }
+
+    while (1) {
+        int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
+        int cmd_sep_pos; // = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
+        if((TRUE == leftFlag) && (TRUE == rightFlag)){
+        	leftFlag  = FALSE;
+        	rightFlag = FALSE;
+        }
+        else{
+        	cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
+        }
+
+        if (matchPattern(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos)) {
+            pattern_ptr = pattern_ptr + pattern_sep_pos;
+            cmd_ptr = cmd_ptr + cmd_sep_pos;
+            result = TRUE;
+            
+            /* command is complete */
+            if ((pattern_ptr == pattern_end) && (cmd_ptr >= cmd_end)) {
+                break;
+            }
+            
+            /* pattern complete, but command not */
+            if ((pattern_ptr == pattern_end) && (cmd_ptr < cmd_end)) {
+//            	printf("cmd_ptr < cmd_end in %s()\n", __func__);
+                result = FALSE;
+                break;
+            }
+            
+            /* command complete, but pattern not */
+            if (cmd_ptr >= cmd_end) {
+            	if(cmd_end == cmd_ptr){
+//            		printf("cmd_ptr[0] = '%c' in %s()\n", cmd_ptr[0], __func__);
+//            		printf("pattern_ptr[%d] = '%c' in %s()\n", pattern_end - pattern_ptr - 1, pattern_ptr[pattern_end - pattern_ptr - 1], __func__);
+            		if(cmd_ptr[0] == pattern_ptr[pattern_end - pattern_ptr - 1]){
+            			break; /* exist optional keyword, command is complete */
+            		}
+            		if(']' == pattern_ptr[pattern_end - pattern_ptr - 1]){
+            			break; /* exist optional keyword, command is complete */
+            		}
+            	}
+                result = FALSE;
+                break;
+            }
+            
+            /* both command and patter contains command separator at this position */
+            if ((pattern_ptr[0] == cmd_ptr[0]) && ((pattern_ptr[0] == ':') || (pattern_ptr[0] == '?'))) {
+                pattern_ptr = pattern_ptr + 1;
+                cmd_ptr = cmd_ptr + 1;
+            }else if((pattern_ptr[1] == cmd_ptr[0])
+            		&& (pattern_ptr[0] == '[')
+            		&& (pattern_ptr[1] == ':')){
+                pattern_ptr = pattern_ptr + 2; // for skip '[' in "[:"
+                cmd_ptr     = cmd_ptr + 1;
+                leftFlag    = TRUE;
+            }else if((pattern_ptr[1] == cmd_ptr[0])
+            		&& (pattern_ptr[0] == ']')
+            		&& (pattern_ptr[1] == ':')){
+                pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:"
+                cmd_ptr     = cmd_ptr + 1;
+            }
+            else if((pattern_ptr[0] == ']')
+            		&& (pattern_ptr[1] == '?')
+            		&& (cmd_ptr[0] == '?')){
+            	result = TRUE; // exist optional keyword, and they are end with '?'
+//            	printf("pattern_ptr[0 1] == ']?' in %s()\n", __func__);
+            	break; // command is complete  OK
+            }
+            else if((pattern_ptr[0] == '[')
+            		&& (pattern_ptr[1] == ':')
+            		&& (cmd_ptr[0] == '?')){
+            	pattern_ptr = pattern_ptr + 2; // for skip '[' in "[:"
+            	pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
+            	pattern_ptr += pattern_sep_pos;
+            	if((pattern_ptr[0] == ']') && (pattern_ptr[1] == '?')){
+                	result = TRUE; // exist optional keyword, and they are end with '?'
+                	break;
+            	}else{
+                	result = FALSE;
+                	break;
+            	}
+            }
+            else {
+                result = FALSE;
+                break;
+            }
+        }else if(leftFlag == TRUE){
+        	pattern_ptr = pattern_ptr + pattern_sep_pos;
+        	if((pattern_ptr[0] == ']') && (pattern_ptr[1] == ':')){
+                pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                rightFlag = TRUE;
+        	}
+        	else{
+                result = FALSE;
+                break;
+        	}
+        }
+        else {
+            result = FALSE;
+            break;
+        }
+    }
+    
+    return result;
 }
 
 
