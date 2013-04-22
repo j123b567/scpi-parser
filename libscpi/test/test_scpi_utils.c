@@ -63,6 +63,98 @@ void test_strnpbrk() {
     CU_ASSERT(strnpbrk(str, 4, "xo") == (str + 2));
 }
 
+void test_FindCharPosLast() {
+    char str[] = "abacad";
+
+    // test invalid param
+    CU_ASSERT(FindCharPosLast(NULL, 6, "a") == NULL);
+    CU_ASSERT(FindCharPosLast(str, 6, NULL) == NULL);
+    CU_ASSERT(FindCharPosLast(str, 0, "a") == NULL);
+    CU_ASSERT(FindCharPosLast(str, -1, "a") == NULL);
+
+    CU_ASSERT(FindCharPosLast(str, 6, "a") == (str + 4));
+    CU_ASSERT(FindCharPosLast(str, 6, "d") == (str + 5));
+    CU_ASSERT(FindCharPosLast(str, 6, "f") == NULL);
+    CU_ASSERT(FindCharPosLast(str, 2, "d") == NULL);
+    CU_ASSERT(FindCharPosLast(str, 6, "fa") == (str + 4));
+    CU_ASSERT(FindCharPosLast(str, 4, "a") == (str + 2));
+    CU_ASSERT(FindCharPosLast(str, 2, "a") == (str + 0));
+}
+
+void test_ProcessCompoundCMD() {
+    char str[10]  = "A:B;C";
+    char str1[10] = "A:B;*C";
+    char str2[10] = "A:B;:C";
+    char str3[10] = "A:B;";
+    char str4[20] = "A:B;C;D";
+    char str5[20] = "A:B;C;D\r\n";
+
+    // test invalid param
+    CU_ASSERT(ProcessCompoundCMD(NULL, 5, 5) == -1);
+    CU_ASSERT(ProcessCompoundCMD(str, 0, 5) == -1);
+    CU_ASSERT(ProcessCompoundCMD(str, -1, 5) == -1);
+    CU_ASSERT(ProcessCompoundCMD(str, 5, -1) == -1);
+    CU_ASSERT(ProcessCompoundCMD(str, 5, 1) == -1);
+    CU_ASSERT(ProcessCompoundCMD(str, 5, 0) == -1);
+
+    // test valid param and test result
+    CU_ASSERT(ProcessCompoundCMD(str, 5, 5) == 2);
+    CU_ASSERT(str[0] == 'A');
+    CU_ASSERT(str[1] == ':');
+    CU_ASSERT(str[2] == 'B');
+    CU_ASSERT(str[3] == ';');
+    CU_ASSERT(str[4] == 'A');
+    CU_ASSERT(str[5] == ':');
+    CU_ASSERT(str[6] == 'C');
+    CU_ASSERT(ProcessCompoundCMD(str1, 6, 4) == 0);
+    CU_ASSERT(str1[0] == 'A');
+    CU_ASSERT(str1[1] == ':');
+    CU_ASSERT(str1[2] == 'B');
+    CU_ASSERT(str1[3] == ';');
+    CU_ASSERT(str1[4] == '*');
+    CU_ASSERT(str1[5] == 'C');
+    CU_ASSERT(ProcessCompoundCMD(str2, 6, 4) == 0);
+    CU_ASSERT(str2[0] == 'A');
+    CU_ASSERT(str2[1] == ':');
+    CU_ASSERT(str2[2] == 'B');
+    CU_ASSERT(str2[3] == ';');
+    CU_ASSERT(str2[4] == ':');
+    CU_ASSERT(str2[5] == 'C');
+    CU_ASSERT(ProcessCompoundCMD(str3, 4, 6) == 0);
+    CU_ASSERT(str3[0] == 'A');
+    CU_ASSERT(str3[1] == ':');
+    CU_ASSERT(str3[2] == 'B');
+    CU_ASSERT(str3[3] == ';');
+    CU_ASSERT(str3[4] == '\0');
+    CU_ASSERT(ProcessCompoundCMD(str4, 7, 13) == 4);
+    CU_ASSERT(str4[0] == 'A');
+    CU_ASSERT(str4[1] == ':');
+    CU_ASSERT(str4[2] == 'B');
+    CU_ASSERT(str4[3] == ';');
+    CU_ASSERT(str4[4] == 'A');
+    CU_ASSERT(str4[5] == ':');
+    CU_ASSERT(str4[6] == 'C');
+    CU_ASSERT(str4[7] == ';');
+    CU_ASSERT(str4[8] == 'A');
+    CU_ASSERT(str4[9] == ':');
+    CU_ASSERT(str4[10] == 'D');
+
+    CU_ASSERT(ProcessCompoundCMD(str5, 9, 11) == 4);
+    CU_ASSERT(str5[0] == 'A');
+    CU_ASSERT(str5[1] == ':');
+    CU_ASSERT(str5[2] == 'B');
+    CU_ASSERT(str5[3] == ';');
+    CU_ASSERT(str5[4] == 'A');
+    CU_ASSERT(str5[5] == ':');
+    CU_ASSERT(str5[6] == 'C');
+    CU_ASSERT(str5[7] == ';');
+    CU_ASSERT(str5[8] == 'A');
+    CU_ASSERT(str5[9] == ':');
+    CU_ASSERT(str5[10] == 'D');
+    CU_ASSERT(str5[11] == '\r');
+    CU_ASSERT(str5[12] == '\n');
+}
+
 void test_longToStr() {
     char str[32];
     size_t len;
@@ -325,6 +417,61 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
     TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
     TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab?", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword
+
 }
 
 int main() {
@@ -353,6 +500,8 @@ int main() {
             || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
+            || (NULL == CU_add_test(pSuite, "FindCharPosLast", test_FindCharPosLast))
+            || (NULL == CU_add_test(pSuite, "ProcessCompoundCMD", test_ProcessCompoundCMD))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

@@ -48,6 +48,8 @@ extern "C" {
     #define LOCAL __attribute__((visibility ("hidden")))
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
+    char * FindCharPosLast(const char *str, const int size, const char *set) LOCAL;
+    int ProcessCompoundCMD(const char *str, const int size, const int freeSize) LOCAL;
     bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
     size_t longToStr(int32_t val, char * str, size_t len) LOCAL;
     size_t doubleToStr(double val, char * str, size_t len) LOCAL;

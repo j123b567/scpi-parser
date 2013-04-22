@@ -313,7 +313,9 @@ static const scpi_command_t scpi_commands[] = {
     {.pattern = "[:ANALysis]:FMARker:LMTechnique", .callback = HMM_AnalysisFmarkerLmtechnique,},
     {.pattern = "WAVedata[:SEND]:ASCii?", .callback = HMM_WavedataSendAsciiQ,},
     {.pattern = "WAVedata:SEND[:BINary]?", .callback = HMM_WavedataSendBinaryQ,},
-
+    {.pattern = "AAAAa[:BBBBb][:CCCCc][:DDDDd][:EEEEe][:FFFFf]", .callback = SCPI_Stub,},
+    {.pattern = "AAAAa[:BBBBb][:CCCCc][:DDDDd][:EEEEe][:FFFFf]?", .callback = SCPI_StubQ,},
+	
     SCPI_CMD_LIST_END
 };
 

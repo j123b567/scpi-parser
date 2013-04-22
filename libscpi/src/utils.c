@@ -68,6 +68,82 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
 }
 
 /**
+ * Find the last occurrence in str of a character in set.
+ * @param str
+ * @param size
+ * @param set
+ * @return
+ */
+char * FindCharPosLast(const char *str, const int size, const char *set) {
+	if((NULL == str)||(NULL == set))
+		return (NULL);
+	if(size <= 0)
+		return (NULL);
+
+    char *scanp;
+    long c, sc;
+    char * strend = str + size - 1;
+
+    while ((strend >= str) && ((c = *strend--) != 0)) {
+        for (scanp = set; (sc = *scanp++) != '\0';){
+            if (sc == c){
+            	return ((char *) (strend + 1));
+            }
+        }
+    }
+    return (NULL);
+}
+
+/**
+ * Process Compound Command, eg, A:B;C->A:B;A:C
+ * @param str
+ * @param size
+ * @param freeSize
+ * @return
+ */
+int ProcessCompoundCMD(const char *str, const int size, const int freeSize) {
+	if(NULL == str)
+		return -1;
+	if((size <= 0)||(freeSize < 0))
+		return -1;
+
+	char* semicolonPosition = NULL;
+	char* colonPosition = NULL;
+	int sizeTemp = size;
+	int freeSizeTemp = freeSize;
+	int addLen = 0;
+
+	for(;;){
+		semicolonPosition = FindCharPosLast(str, sizeTemp, ";");
+		if(NULL == semicolonPosition) // not compound command
+			return addLen;
+		if((*(semicolonPosition + 1) == ':')
+				|| (*(semicolonPosition + 1) == '*')
+				|| (*(semicolonPosition + 1) == '\0'))
+			return addLen;
+
+		sizeTemp = semicolonPosition - str;
+		colonPosition = FindCharPosLast(str, sizeTemp, ":");
+		if(NULL == colonPosition){
+			return addLen;
+		}else{
+			if(colonPosition - str + 1 > freeSizeTemp){
+				printf("error, %s() show out of free buffer!\n", __func__);
+				return -1;
+			}
+			memmove(semicolonPosition + (colonPosition - str + 2),
+					semicolonPosition + 1,
+					size - sizeTemp - 1 + addLen); // [A:B;C  ]->[A:B;C C]
+			memmove(semicolonPosition + 1,
+					str,
+					colonPosition - str + 1); // [A:B;C C]->[A:B;A:C]
+		}
+		addLen += colonPosition - str + 1;
+	}
+    return addLen;
+}
+
+/**
  * Converts signed 32b integer value to string
  * @param val   integer value
  * @param str   converted textual representation
@@ -469,9 +545,9 @@ bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, 
  * @return TRUE if pattern matches, FALSE otherwise
  */
 bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
-    int result = FALSE;
-    bool_t leftFlag  = FALSE; // flag for '[' on left
-    bool_t rightFlag = FALSE; // flag for ']' on right
+	bool_t result = FALSE;
+    int leftFlag  = 0; // flag for '[' on left
+    int rightFlag = 0; // flag for ']' on right
 
     const char * pattern_ptr = pattern;
     int pattern_len = strlen(pattern);
@@ -485,7 +561,7 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     if (isSquareBracket(pattern_ptr[0])) { // skip first '['
     	pattern_len --;
     	pattern_ptr ++;
-    	leftFlag = TRUE;
+    	leftFlag ++;
     }
     if (iscolon(pattern_ptr[0])) { // skip first ':'
     	pattern_len --;
@@ -501,9 +577,9 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
         int cmd_sep_pos; // = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
-        if((TRUE == leftFlag) && (TRUE == rightFlag)){
-        	leftFlag  = FALSE;
-        	rightFlag = FALSE;
+        if((leftFlag > 0) && (rightFlag > 0)){
+        	leftFlag  --;
+        	rightFlag --;
         }
         else{
         	cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
@@ -551,52 +627,48 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
             		&& (pattern_ptr[1] == ':')){
                 pattern_ptr = pattern_ptr + 2; // for skip '[' in "[:"
                 cmd_ptr     = cmd_ptr + 1;
-                leftFlag    = TRUE;
+                leftFlag ++;
             }else if((pattern_ptr[1] == cmd_ptr[0])
             		&& (pattern_ptr[0] == ']')
             		&& (pattern_ptr[1] == ':')){
                 pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:"
                 cmd_ptr     = cmd_ptr + 1;
+            }else if((pattern_ptr[2] == cmd_ptr[0])
+            		&& (pattern_ptr[0] == ']')
+            		&& (pattern_ptr[1] == '[')
+            		&& (pattern_ptr[2] == ':')){
+                pattern_ptr = pattern_ptr + 3; // for skip '][' in "][:"
+                cmd_ptr     = cmd_ptr + 1;
+                leftFlag ++;
             }
-            else if((pattern_ptr[0] == ']')
-            		&& (pattern_ptr[1] == '?')
+            else if(((pattern_ptr[0] == ']')
+            		|| (pattern_ptr[0] == '['))
+            		&& (*(pattern_end - 1) == '?') // last is '?'
             		&& (cmd_ptr[0] == '?')){
             	result = TRUE; // exist optional keyword, and they are end with '?'
 //            	printf("pattern_ptr[0 1] == ']?' in %s()\n", __func__);
             	break; // command is complete  OK
             }
-            else if((pattern_ptr[0] == '[')
-            		&& (pattern_ptr[1] == ':')
-            		&& (cmd_ptr[0] == '?')){
-            	pattern_ptr = pattern_ptr + 2; // for skip '[' in "[:"
-            	pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
-            	pattern_ptr += pattern_sep_pos;
-            	if((pattern_ptr[0] == ']') && (pattern_ptr[1] == '?')){
-                	result = TRUE; // exist optional keyword, and they are end with '?'
-                	break;
-            	}else{
-                	result = FALSE;
-                	break;
-            	}
-            }
             else {
                 result = FALSE;
                 break;
             }
-        }else if(leftFlag == TRUE){
+//        }else if(leftFlag > 0){
+        }else {
         	pattern_ptr = pattern_ptr + pattern_sep_pos;
         	if((pattern_ptr[0] == ']') && (pattern_ptr[1] == ':')){
                 pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
-                rightFlag = TRUE;
+                rightFlag ++;
+        	}else if((pattern_ptr[0] == ']')
+        			&& (pattern_ptr[1] == '[')
+        			&& (pattern_ptr[2] == ':')){
+                pattern_ptr = pattern_ptr + 3; // for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                rightFlag ++;
         	}
         	else{
                 result = FALSE;
                 break;
         	}
-        }
-        else {
-            result = FALSE;
-            break;
         }
     }
     

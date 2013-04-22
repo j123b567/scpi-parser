@@ -315,7 +315,15 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
             return -1;
         }
         memcpy(&context->buffer.data[context->buffer.position], data, len);
-        context->buffer.position += len;
+
+        // resolve bug in Compound CMD
+        int addLen = ProcessCompoundCMD(&context->buffer.data[context->buffer.position], len, buffer_free - len - 1);
+        if(addLen == -1){
+            printf("%s() error, ProcessCompoundCMD fail\n", __func__); // HMM
+            return -1;
+        }
+
+        context->buffer.position += len + addLen;
         context->buffer.data[context->buffer.position] = 0;
 
         ws = skipWhitespace(context->buffer.data, context->buffer.position);
@@ -328,7 +336,7 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
         }
         else
         {
-            printf("error, cmd_term == NULL\n"); // HMM
+            printf("%s() error, cmd_term == NULL\n", __func__); // HMM
             return -1;
         }
     }

@@ -149,6 +149,27 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("WAV:ASC?\r\n");
     TEST_SCPI_INPUT("WAVedata:SEND:BINary?\r\n");
     TEST_SCPI_INPUT("WAVedata:SEND?\r\n");
+
+	TEST_SCPI_INPUT("AAAAa:BBBBb:CCCCc:DDDDd:EEEEe:FFFFf\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:CCCCc:DDDDd:EEEEe\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:CCCCc:EEEEe:FFFFf\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:DDDDd:FFFFf\r\n");
+    TEST_SCPI_INPUT("AAAAa:CCCCc:EEEEe\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:EEEEe\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb\r\n");
+    TEST_SCPI_INPUT("AAAAa:EEEEe\r\n");
+    TEST_SCPI_INPUT("AAAAa\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:CCCCc:DDDDd:EEEEe:FFFFf?\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:CCCCc:DDDDd:EEEEe?\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:CCCCc:EEEEe:FFFFf?\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:DDDDd:FFFFf?\r\n");
+    TEST_SCPI_INPUT("AAAAa:CCCCc:EEEEe?\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb:EEEEe?\r\n");
+    TEST_SCPI_INPUT("AAAAa:BBBBb?\r\n");
+    TEST_SCPI_INPUT("AAAAa:EEEEe?\r\n");
+    TEST_SCPI_INPUT("AAAAa?\r\n");
+	
+	TEST_SCPI_INPUT("WAVedata:SEND:ASCii?;BINary?\r\n");
 #endif
 
 #if 0 // DMM

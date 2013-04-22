@@ -48,6 +48,7 @@
  */
 scpi_result_t SCPI_Stub(scpi_t * context) {
     (void) context;
+    printf("%s() is called\n", __func__);
     return SCPI_RES_OK;
 }
 
@@ -58,6 +59,7 @@ scpi_result_t SCPI_Stub(scpi_t * context) {
  */
 scpi_result_t SCPI_StubQ(scpi_t * context) {
     SCPI_ResultString(context, "");
+    printf("%s() is called\n", __func__);
     return SCPI_RES_OK;
 }
 
