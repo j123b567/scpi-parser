@@ -144,6 +144,16 @@ scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
 #define SCPI_MSG_CONTROL_IO_LISTEN      3
 #define SCPI_MSG_IO                     4
 #define SCPI_MSG_CONTROL_IO             5
+#define SCPI_MSG_SET_ESE_REQ            6
+
+static void setEseReq(void) {
+    SCPI_RegSetBits(&scpi_context, SCPI_REG_ESR, ESR_REQ);
+}
+
+void SCPI_RequestControl(void) {
+    uint32_t msg = SCPI_MSG_SET_ESE_REQ;
+    xQueueSend(user_data.evtQueue, &msg, 1000);
+}
 
 void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t len) {
     uint32_t msg;
@@ -358,6 +368,10 @@ static void scpi_server_thread(void *arg) {
         
         if ((user_data.control_io != NULL) && (rc == SCPI_MSG_CONTROL_IO)) {
             processSrqIo(&user_data);
+        }
+        
+        if (rc == SCPI_MSG_SET_ESE_REQ) {
+            setEseReq();
         }
         
     }
