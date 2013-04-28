@@ -100,11 +100,14 @@ static size_t writeControl(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
 void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
     bool_t srq = FALSE;
     scpi_reg_val_t mask;
+    scpi_reg_val_t old_val;
 
     if ((name >= SCPI_REG_COUNT) || (context->registers == NULL)) {
         return;
     }
     
+    /* store old register value */
+    old_val = context->registers[name];
 
     /* set register value */
     context->registers[name] = val;
@@ -116,7 +119,10 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
             mask &= ~STB_SRQ;
             if (val & mask) {
                 val |= STB_SRQ;
-                srq = TRUE;
+                /* avoid sending SRQ if nothing has changed */
+                if (old_val != val) {
+                    srq = TRUE;
+                }
             } else {
                 val &= ~STB_SRQ;
             }

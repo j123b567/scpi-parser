@@ -54,6 +54,13 @@
 
 #define SCPI_THREAD_PRIO (tskIDLE_PRIORITY + 2)
 
+#define SCPI_MSG_TEST                   1
+#define SCPI_MSG_IO_LISTEN              2
+#define SCPI_MSG_CONTROL_IO_LISTEN      3
+#define SCPI_MSG_IO                     4
+#define SCPI_MSG_CONTROL_IO             5
+#define SCPI_MSG_SET_ESE_REQ            6
+
 typedef struct {
     struct netconn *io_listen;
     struct netconn *control_io_listen;
@@ -66,12 +73,11 @@ typedef struct {
 
 user_data_t user_data = {
     .io_listen = NULL,
-    .io =  NULL,
+    .io = NULL,
     .control_io_listen = NULL,
     .control_io = NULL,
     .evtQueue = 0,
-};   
-
+};
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     if (context->user_context != NULL) {
@@ -83,7 +89,7 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     return 0;
 }
 
-scpi_result_t SCPI_Flush(scpi_t * context) {    
+scpi_result_t SCPI_Flush(scpi_t * context) {
     if (context->user_context != NULL) {
         user_data_t * u = (user_data_t *)(context->user_context);
         if (u->io) {
@@ -98,9 +104,16 @@ int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
     // BEEP
     iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    if (err != 0) {
+		/* New error */
+        /* Beep */
+		/* Error LED ON */
+    } else {
+		/* No more errors in the queue */
+        /* Error LED OFF */
+    }
     return 0;
 }
-
 
 scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
     char b[16];
@@ -117,7 +130,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
             snprintf(b, sizeof(b), "SRQ%d\r\n", val);
             return netconn_write(u->control_io, b, strlen(b), NETCONN_NOCOPY) == ERR_OK ? SCPI_RES_OK : SCPI_RES_ERR;
         }
-    }    
+    }
     return SCPI_RES_OK;
 }
 
@@ -139,27 +152,27 @@ scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
 }
 
 
-#define SCPI_MSG_TEST                   1
-#define SCPI_MSG_IO_LISTEN              2
-#define SCPI_MSG_CONTROL_IO_LISTEN      3
-#define SCPI_MSG_IO                     4
-#define SCPI_MSG_CONTROL_IO             5
-#define SCPI_MSG_SET_ESE_REQ            6
-
 static void setEseReq(void) {
     SCPI_RegSetBits(&scpi_context, SCPI_REG_ESR, ESR_REQ);
 }
 
 void SCPI_RequestControl(void) {
     uint32_t msg = SCPI_MSG_SET_ESE_REQ;
-    xQueueSend(user_data.evtQueue, &msg, 1000);
+
+	/* Avoid sending evtQueue message if ESR_REQ is already set 
+	if((SCPI_RegGet(&scpi_context, SCPI_REG_ESR) & ESR_REQ) == 0) {
+	    xQueueSend(user_data.evtQueue, &msg, 1000);
+	}
+	*/
+
+	xQueueSend(user_data.evtQueue, &msg, 1000);
 }
 
 void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t len) {
     uint32_t msg;
     (void) len;
-    
-    
+
+
     if (evt == NETCONN_EVT_RCVPLUS) {
         msg = SCPI_MSG_TEST;
         if (conn == user_data.io) {
@@ -178,28 +191,28 @@ void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t le
 static struct netconn * createServer(int port) {
     struct netconn * conn;
     err_t err;
-    
+
     conn = netconn_new_with_callback(NETCONN_TCP, scpi_netconn_callback);
     if (conn == NULL) {
         return NULL;
     }
-    
+
     err = netconn_bind(conn, NULL, port);
     if (err != ERR_OK) {
         netconn_delete(conn);
         return NULL;
     }
-    
+
 
     netconn_listen(conn);
-    
+
     return conn;
 }
 
 static int waitServer(user_data_t * user_data) {
 
     uint32_t rc;
-    
+
     /* 5s timeout */
     if (xQueueReceive(user_data->evtQueue, &rc, 5000 * portTICK_RATE_MS) != pdPASS) {
         rc = 0;
@@ -208,10 +221,9 @@ static int waitServer(user_data_t * user_data) {
     return rc;
 }
 
-
 static int processIoListen(user_data_t * user_data) {
     struct netconn *newconn;
-    
+
     if (netconn_accept(user_data->io_listen, &newconn) == ERR_OK) {
         if (user_data->io) {
             // Close unwanted connection
@@ -222,14 +234,14 @@ static int processIoListen(user_data_t * user_data) {
             iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
             user_data->io = newconn;
         }
-    }    
-    
+    }
+
     return 0;
 }
 
 static int processSrqIoListen(user_data_t * user_data) {
     struct netconn *newconn;
-    
+
     if (netconn_accept(user_data->control_io_listen, &newconn) == ERR_OK) {
         if (user_data->control_io) {
             netconn_close(newconn);
@@ -239,8 +251,8 @@ static int processSrqIoListen(user_data_t * user_data) {
             iprintf("***Control Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
             user_data->control_io = newconn;
         }
-    }    
-    
+    }
+
     return 0;
 }
 
@@ -257,13 +269,13 @@ static void closeSrqIo(user_data_t * user_data) {
     netconn_close(user_data->control_io);
     netconn_delete(user_data->control_io);
     user_data->control_io = NULL;
-    iprintf("***Control Connection closed\r\n");    
+    iprintf("***Control Connection closed\r\n");
 }
 
 static int processIo(user_data_t * user_data) {
     struct netbuf *inbuf;
     char* buf;
-    u16_t buflen;    
+    u16_t buflen;
 
     if (netconn_recv(user_data->io, &inbuf) != ERR_OK) {
         goto fail1;
@@ -271,7 +283,7 @@ static int processIo(user_data_t * user_data) {
     if (netconn_err(user_data->io) != ERR_OK) {
         goto fail2;
     }
-    
+
     netbuf_data(inbuf, (void**) &buf, &buflen);
 
     if (buflen > 0) {
@@ -279,23 +291,23 @@ static int processIo(user_data_t * user_data) {
     } else {
         //goto fail2;
     }
-    
+
     netbuf_delete(inbuf);
-    
+
     return 0;
-    
+
 fail2:
     netbuf_delete(inbuf);
 fail1:
     closeIo(user_data);
-    
+
     return 0;
 }
 
 static int processSrqIo(user_data_t * user_data) {
     struct netbuf *inbuf;
     char* buf;
-    u16_t buflen;    
+    u16_t buflen;
 
     if (netconn_recv(user_data->control_io, &inbuf) != ERR_OK) {
         goto fail1;
@@ -303,7 +315,7 @@ static int processSrqIo(user_data_t * user_data) {
     if (netconn_err(user_data->control_io) != ERR_OK) {
         goto fail2;
     }
-    
+
     netbuf_data(inbuf, (void**) &buf, &buflen);
 
     if (buflen > 0) {
@@ -311,16 +323,16 @@ static int processSrqIo(user_data_t * user_data) {
     } else {
         //goto fail2;
     }
-    
+
     netbuf_delete(inbuf);
 
     return 0;
-    
+
 fail2:
     netbuf_delete(inbuf);
 fail1:
     closeSrqIo(user_data);
-    
+
     return 0;
 }
 
@@ -333,18 +345,18 @@ static void scpi_server_thread(void *arg) {
     (void)arg;
 
     user_data.evtQueue = xQueueCreate(10, sizeof(uint32_t));
-    
+
     // user_context will be pointer to socket
     scpi_context.user_context = &user_data;
-    
+
     SCPI_Init(&scpi_context);
 
     user_data.io_listen = createServer(DEVICE_PORT);
     user_data.control_io_listen = createServer(CONTROL_PORT);
-    
+
     while(1) {
         rc = waitServer(&user_data);
-        
+
         if (rc < 0) { // failed
             iprintf("select failed");
             break;
@@ -352,8 +364,8 @@ static void scpi_server_thread(void *arg) {
 
         if (rc == 0) { // timeout
             SCPI_Input(&scpi_context, NULL, 0);
-        }        
-        
+        }
+
         if ((user_data.io_listen != NULL) && (rc == SCPI_MSG_IO_LISTEN)) {
             processIoListen(&user_data);
         }
@@ -361,21 +373,21 @@ static void scpi_server_thread(void *arg) {
         if ((user_data.control_io_listen != NULL) && (rc == SCPI_MSG_CONTROL_IO_LISTEN)) {
             processSrqIoListen(&user_data);
         }
-        
+
         if ((user_data.io != NULL) && (rc == SCPI_MSG_IO)) {
             processIo(&user_data);
         }
-        
+
         if ((user_data.control_io != NULL) && (rc == SCPI_MSG_CONTROL_IO)) {
             processSrqIo(&user_data);
         }
-        
+
         if (rc == SCPI_MSG_SET_ESE_REQ) {
             setEseReq();
         }
-        
+
     }
-    
+
     vTaskDelete(NULL);
 }
 
