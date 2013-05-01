@@ -45,7 +45,11 @@
 extern "C" {
 #endif
 
+#if defined(__GNUC__) && (__GNUC__ >= 4)
     #define LOCAL __attribute__((visibility ("hidden")))
+#else
+    #define LOCAL
+#endif
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;

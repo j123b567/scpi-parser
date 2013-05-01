@@ -39,6 +39,10 @@
 
 #include "scpi/types.h"
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 scpi_result_t SCPI_CoreCls(scpi_t * context);
 scpi_result_t SCPI_CoreEse(scpi_t * context);
 scpi_result_t SCPI_CoreEseQ(scpi_t * context);
@@ -79,6 +83,9 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val);
 void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
 void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
 
+#ifdef  __cplusplus
+}
+#endif
 
 #endif	/* SCPI_IEEE488_H */
 
