@@ -54,12 +54,14 @@
 
 #define SCPI_THREAD_PRIO (tskIDLE_PRIORITY + 2)
 
+#define SCPI_MSG_TIMEOUT                0
 #define SCPI_MSG_TEST                   1
 #define SCPI_MSG_IO_LISTEN              2
 #define SCPI_MSG_CONTROL_IO_LISTEN      3
 #define SCPI_MSG_IO                     4
 #define SCPI_MSG_CONTROL_IO             5
 #define SCPI_MSG_SET_ESE_REQ            6
+#define SCPI_MSG_SET_ERROR              7
 
 typedef struct {
     struct netconn *io_listen;
@@ -70,6 +72,15 @@ typedef struct {
     //FILE * fio;
     //fd_set fds;
 } user_data_t;
+
+struct _queue_event_t __attribute__ ((__packed__))
+{
+    uint8_t cmd;
+    uint8_t param1;
+    int16_t param2;
+};
+typedef struct _queue_event_t queue_event_t;
+
 
 user_data_t user_data = {
     .io_listen = NULL,
@@ -156,9 +167,14 @@ static void setEseReq(void) {
     SCPI_RegSetBits(&scpi_context, SCPI_REG_ESR, ESR_REQ);
 }
 
-void SCPI_RequestControl(void) {
-    uint32_t msg = SCPI_MSG_SET_ESE_REQ;
+static void setError(int16_t err) {
+    SCPI_ErrorPush(&scpi_context, err);
+}
 
+void SCPI_RequestControl(void) {
+    queue_event_t msg;
+    msg.cmd = SCPI_MSG_SET_ESE_REQ;
+    
 	/* Avoid sending evtQueue message if ESR_REQ is already set 
 	if((SCPI_RegGet(&scpi_context, SCPI_REG_ESR) & ESR_REQ) == 0) {
 	    xQueueSend(user_data.evtQueue, &msg, 1000);
@@ -168,21 +184,29 @@ void SCPI_RequestControl(void) {
 	xQueueSend(user_data.evtQueue, &msg, 1000);
 }
 
+void SCPI_AddError(int16_t err) {
+    queue_event_t msg;
+    msg.cmd = SCPI_MSG_SET_ERROR;
+    msg.param2 = err;
+
+    xQueueSend(user_data.evtQueue, &msg, 1000); 
+}
+
 void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t len) {
-    uint32_t msg;
+    queue_event_t msg;
     (void) len;
 
 
     if (evt == NETCONN_EVT_RCVPLUS) {
-        msg = SCPI_MSG_TEST;
+        msg.cmd = SCPI_MSG_TEST;
         if (conn == user_data.io) {
-            msg = SCPI_MSG_IO;
+            msg.cmd = SCPI_MSG_IO;
         } else if (conn == user_data.io_listen) {
-            msg = SCPI_MSG_IO_LISTEN;
+            msg.cmd = SCPI_MSG_IO_LISTEN;
         } else if (conn == user_data.control_io) {
-            msg = SCPI_MSG_CONTROL_IO;
+            msg.cmd = SCPI_MSG_CONTROL_IO;
         } else if (conn == user_data.control_io_listen) {
-            msg = SCPI_MSG_CONTROL_IO_LISTEN;
+            msg.cmd = SCPI_MSG_CONTROL_IO_LISTEN;
         }
         xQueueSend(user_data.evtQueue, &msg, 1000);
     }
@@ -209,16 +233,11 @@ static struct netconn * createServer(int port) {
     return conn;
 }
 
-static int waitServer(user_data_t * user_data) {
-
-    uint32_t rc;
-
+static void waitServer(user_data_t * user_data, queue_event_t * evt) {
     /* 5s timeout */
-    if (xQueueReceive(user_data->evtQueue, &rc, 5000 * portTICK_RATE_MS) != pdPASS) {
-        rc = 0;
+    if (xQueueReceive(user_data->evtQueue, evt, 5000 * portTICK_RATE_MS) != pdPASS) {
+        evt->cmd = SCPI_MSG_TIMEOUT;
     }
-
-    return rc;
 }
 
 static int processIoListen(user_data_t * user_data) {
@@ -340,11 +359,11 @@ fail1:
  * 
  */
 static void scpi_server_thread(void *arg) {
-    int rc;
+    queue_event_t evt;
 
     (void)arg;
 
-    user_data.evtQueue = xQueueCreate(10, sizeof(uint32_t));
+    user_data.evtQueue = xQueueCreate(10, sizeof(queue_event_t));
 
     // user_context will be pointer to socket
     scpi_context.user_context = &user_data;
@@ -355,35 +374,34 @@ static void scpi_server_thread(void *arg) {
     user_data.control_io_listen = createServer(CONTROL_PORT);
 
     while(1) {
-        rc = waitServer(&user_data);
+        waitServer(&user_data, &evt);
 
-        if (rc < 0) { // failed
-            iprintf("select failed");
-            break;
-        }
-
-        if (rc == 0) { // timeout
+        if (evt.cmd == SCPI_MSG_TIMEOUT) { // timeout
             SCPI_Input(&scpi_context, NULL, 0);
         }
 
-        if ((user_data.io_listen != NULL) && (rc == SCPI_MSG_IO_LISTEN)) {
+        if ((user_data.io_listen != NULL) && (evt.cmd == SCPI_MSG_IO_LISTEN)) {
             processIoListen(&user_data);
         }
 
-        if ((user_data.control_io_listen != NULL) && (rc == SCPI_MSG_CONTROL_IO_LISTEN)) {
+        if ((user_data.control_io_listen != NULL) && (evt.cmd == SCPI_MSG_CONTROL_IO_LISTEN)) {
             processSrqIoListen(&user_data);
         }
 
-        if ((user_data.io != NULL) && (rc == SCPI_MSG_IO)) {
+        if ((user_data.io != NULL) && (evt.cmd == SCPI_MSG_IO)) {
             processIo(&user_data);
         }
 
-        if ((user_data.control_io != NULL) && (rc == SCPI_MSG_CONTROL_IO)) {
+        if ((user_data.control_io != NULL) && (evt.cmd == SCPI_MSG_CONTROL_IO)) {
             processSrqIo(&user_data);
         }
 
-        if (rc == SCPI_MSG_SET_ESE_REQ) {
+        if (evt.cmd == SCPI_MSG_SET_ESE_REQ) {
             setEseReq();
+        }
+        
+        if (evt.cmd == SCPI_MSG_SET_ERROR) {
+            setError(evt.param2);
         }
 
     }
