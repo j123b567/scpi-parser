@@ -45,7 +45,11 @@
 extern "C" {
 #endif
 
+#if defined(__GNUC__) && (__GNUC__ >= 4)
     #define LOCAL __attribute__((visibility ("hidden")))
+#else
+    #define LOCAL
+#endif
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
@@ -56,7 +60,9 @@ extern "C" {
     bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
+    size_t skipColon(const char * cmd, size_t len) LOCAL;
     bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
+    bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen);
