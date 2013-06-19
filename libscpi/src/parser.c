@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,10 +28,10 @@
 /**
  * @file   scpi_parser.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  SCPI parser implementation
- * 
- * 
+ *
+ *
  */
 
 #include <ctype.h>
@@ -43,19 +43,12 @@
 #include "utils.h"
 #include "scpi/error.h"
 
-
-static size_t cmdTerminatorPos(const char * cmd, size_t len);
-static size_t cmdlineSeparatorPos(const char * cmd, size_t len);
-static const char * cmdlineSeparator(const char * cmd, size_t len);
-static const char * cmdlineTerminator(const char * cmd, size_t len);
-static const char * cmdlineNext(const char * cmd, size_t len);
-
 static void paramSkipBytes(scpi_t * context, size_t num);
 static void paramSkipWhitespace(scpi_t * context);
 static bool_t paramNext(scpi_t * context, bool_t mandatory);
 
 /*
-int _strnicmp(const char* s1, const char* s2, size_t len) {
+int _strnicmp(const char* s1, const char* s2, int len) {
     int result = 0;
     int i;
 
@@ -71,71 +64,6 @@ int _strnicmp(const char* s1, const char* s2, size_t len) {
     return result;
 }
  */
-
-/**
- * Find command termination character
- * @param cmd - input command
- * @param len - max search length
- * @return position of terminator or len
- */
-size_t cmdTerminatorPos(const char * cmd, size_t len) {
-    const char * terminator = strnpbrk(cmd, len, "; \r\n\t");
-    if (terminator == NULL) {
-        return len;
-    } else {
-        return terminator - cmd;
-    }
-}
-
-/**
- * Find command line separator
- * @param cmd - input command
- * @param len - max search length
- * @return pointer to line separator or NULL
- */
-const char * cmdlineSeparator(const char * cmd, size_t len) {
-    return strnpbrk(cmd, len, ";\r\n");
-}
-
-/**
- * Find command line terminator
- * @param cmd - input command
- * @param len - max search length
- * @return pointer to command line terminator or NULL
- */
-const char * cmdlineTerminator(const char * cmd, size_t len) {
-    return strnpbrk(cmd, len, "\r\n");
-}
-
-/**
- * Find command line separator position
- * @param cmd - input command
- * @param len - max search length
- * @return position of line separator or len
- */
-size_t cmdlineSeparatorPos(const char * cmd, size_t len) {
-    const char * separator = cmdlineSeparator(cmd, len);
-    if (separator == NULL) {
-        return len;
-    } else {
-        return separator - cmd;
-    }
-}
-
-/**
- * Find next part of command
- * @param cmd - input command
- * @param len - max search length
- * @return Pointer to next part of command
- */
-const char * cmdlineNext(const char * cmd, size_t len) {
-    const char * separator = cmdlineSeparator(cmd, len);
-    if (separator == NULL) {
-        return cmd + len;
-    } else {
-        return separator + 1;
-    }
-}
 
 /**
  * Write data to SCPI output
@@ -226,16 +154,14 @@ static void processCommand(scpi_t * context) {
  * @param context
  * @result TRUE if context->paramlist is filled with correct values
  */
-static bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmdline_len, size_t cmd_len) {
+static bool_t findCommandHeader(scpi_t * context, const char * header, int len) {
     int32_t i;
     const scpi_command_t * cmd;
 
     for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
         cmd = &context->cmdlist[i];
-        if (matchCommand(cmd->pattern, cmdline_ptr, cmd_len)) {
+        if (matchCommand(cmd->pattern, header, len)) {
             context->paramlist.cmd = cmd;
-            context->paramlist.parameters = cmdline_ptr + cmd_len;
-            context->paramlist.length = cmdline_len - cmd_len;
             return TRUE;
         }
     }
@@ -249,30 +175,43 @@ static bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmd
  * @param len - command line length
  * @return 1 if the last evaluated command was found
  */
-int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
+int SCPI_Parse(scpi_t * context, const char * data, int len) {
     int result = 0;
-    const char * cmdline_end = data + len;
-    const char * cmdline_ptr = data;
-    size_t cmd_len;
-    size_t cmdline_len;
+    scpi_parser_state_t * state;
+    int r;
 
     if (context == NULL) {
         return -1;
     }
 
-    while (cmdline_ptr < cmdline_end) {
+    state = &context->parser_state;
+
+    while (1) {
         result = 0;
-        cmd_len = cmdTerminatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
-        cmdline_len = cmdlineSeparatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
-        if (cmd_len > 0) {
-            if (findCommand(context, cmdline_ptr, cmdline_len, cmd_len)) {
+
+        r = SCPI_DetectProgramMessageUnit(state, data, len);
+
+        if (state->programHeader.len > 0) {
+            if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
+
+                context->paramlist.parameters = state->programData.ptr;
+                context->paramlist.length = state->programData.len;
+
                 processCommand(context);
+
                 result = 1;
             } else {
                 SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
             }
         }
-        cmdline_ptr = cmdlineNext(cmdline_ptr, cmdline_end - cmdline_ptr);
+
+        if (r < len) {
+            data += r;
+            len -= r;
+        } else {
+            break;
+        }
+
     }
     return result;
 }
@@ -293,22 +232,24 @@ void SCPI_Init(scpi_t * context) {
  * Interface to the application. Adds data to system buffer and try to search
  * command line termination. If the termination is found or if len=0, command
  * parser is called.
- * 
+ *
  * @param context
  * @param data - data to process
  * @param len - length of data
- * @return 
+ * @return
  */
-int SCPI_Input(scpi_t * context, const char * data, size_t len) {
+int SCPI_Input(scpi_t * context, const char * data, int len) {
     int result = 0;
-    const char * cmd_term;
+    size_t totcmdlen = 0;
+    int cmdlen = 0;
+
     if (len == 0) {
         context->buffer.data[context->buffer.position] = 0;
         result = SCPI_Parse(context, context->buffer.data, context->buffer.position);
         context->buffer.position = 0;
     } else {
-        size_t buffer_free;
-        int ws;
+        int buffer_free;
+
         buffer_free = context->buffer.length - context->buffer.position;
         if (len > (buffer_free - 1)) {
             return -1;
@@ -317,13 +258,19 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
         context->buffer.position += len;
         context->buffer.data[context->buffer.position] = 0;
 
-        ws = skipWhitespace(context->buffer.data, context->buffer.position);
-        cmd_term = cmdlineTerminator(context->buffer.data + ws, context->buffer.position - ws);
-        if (cmd_term != NULL) {
-            int curr_len = cmd_term - context->buffer.data;
-            result = SCPI_Parse(context, context->buffer.data + ws, curr_len - ws);
-            memmove(context->buffer.data, cmd_term, context->buffer.position - curr_len);
-            context->buffer.position -= curr_len;
+
+        while (1) {
+            cmdlen = SCPI_DetectProgramMessageUnit(&context->parser_state, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
+            totcmdlen += cmdlen;
+            if (context->parser_state.termination == PmutNewLine) break;
+            if (context->parser_state.programHeader.type == TokUnknown) break;
+            if (totcmdlen >= context->buffer.position) break;
+        }
+
+        if (context->parser_state.termination == PmutNewLine) {
+            result = SCPI_Parse(context, context->buffer.data, totcmdlen);
+            memmove(context->buffer.data, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
+            context->buffer.position -= totcmdlen;
         }
     }
 
@@ -336,7 +283,7 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
  * Write raw string result to the output
  * @param context
  * @param data
- * @return 
+ * @return
  */
 size_t SCPI_ResultString(scpi_t * context, const char * data) {
     size_t len = strlen(data);
@@ -351,7 +298,7 @@ size_t SCPI_ResultString(scpi_t * context, const char * data) {
  * Write integer value to the result
  * @param context
  * @param val
- * @return 
+ * @return
  */
 size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
     char buffer[12];
@@ -367,7 +314,7 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
  * Write double walue to the result
  * @param context
  * @param val
- * @return 
+ * @return
  */
 size_t SCPI_ResultDouble(scpi_t * context, double val) {
     char buffer[32];
@@ -384,7 +331,7 @@ size_t SCPI_ResultDouble(scpi_t * context, double val) {
  * Write string withn " to the result
  * @param context
  * @param data
- * @return 
+ * @return
  */
 size_t SCPI_ResultText(scpi_t * context, const char * data) {
     size_t result = 0;
@@ -424,7 +371,7 @@ void paramSkipWhitespace(scpi_t * context) {
  * Find next parameter
  * @param context
  * @param mandatory
- * @return 
+ * @return
  */
 bool_t paramNext(scpi_t * context, bool_t mandatory) {
     paramSkipWhitespace(context);
@@ -452,7 +399,7 @@ bool_t paramNext(scpi_t * context, bool_t mandatory) {
  * @param context
  * @param value
  * @param mandatory
- * @return 
+ * @return
  */
 bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory) {
     const char * param;
@@ -482,7 +429,7 @@ bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory) {
  * @param context
  * @param value
  * @param mandatory
- * @return 
+ * @return
  */
 bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory) {
     const char * param;
@@ -513,7 +460,7 @@ bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory) {
  * @param value
  * @param len
  * @param mandatory
- * @return 
+ * @return
  */
 bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory) {
     size_t length;
@@ -544,7 +491,7 @@ bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, boo
  * @param value
  * @param len
  * @param mandatory
- * @return 
+ * @return
  */
 bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory) {
     size_t length;
@@ -617,6 +564,7 @@ int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberO
         if (result == 0) {
             token->type = TokUnknown;
             token->len = 0;
+            paramCount = -1;
             break;
         }
 
@@ -626,6 +574,7 @@ int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberO
         } else {
             token->type = TokUnknown;
             token->len = 0;
+            paramCount = -1;
             break;
         }
         paramCount++;
@@ -641,33 +590,49 @@ int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberO
     return token->len;
 }
 
-int SCPI_DetectProgramMessageUnit(scpi_t * context) {
-    lex_state_t state;
+int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
+    lex_state_t lex_state;
     token_t tmp;
     int result = 0;
 
-    state.buffer = state.pos = context->buffer.data;
-    state.len = context->buffer.position;
+    lex_state.buffer = lex_state.pos = buffer;
+    lex_state.len = len;
 
     /* ignore whitespace at the begginig */
-    SCPI_LexWhiteSpace(&state, &tmp);
+    SCPI_LexWhiteSpace(&lex_state, &tmp);
 
-    SCPI_LexProgramHeader(&state, &context->parser_state.programHeader);
+    if (SCPI_LexProgramHeader(&lex_state, &state->programHeader) >= 0) {
+        if (SCPI_LexWhiteSpace(&lex_state, &tmp) > 0) {
+            SCPI_ParseAllProgramData(&lex_state, &state->programData, &state->numberOfParameters);
+        } else {
+            state->programData.len = 0;
+            state->programData.ptr = lex_state.pos;
+            state->programData.type = TokUnknown;
+            state->numberOfParameters = 0;
+        }
+    } else {
+        state->programHeader.len = 0;
+        state->programData.ptr = lex_state.buffer;
+        state->programHeader.type = TokUnknown;
 
-    SCPI_LexWhiteSpace(&state, &tmp);
+        state->programData.len = 0;
+        state->programData.ptr = lex_state.buffer;
+        state->programData.type = TokUnknown;
+        state->numberOfParameters = 0;
+    }
 
-    SCPI_ParseAllProgramData(&state, &context->parser_state.programData, &context->parser_state.numberOfParameters);
-
-    if (result == 0) result = SCPI_LexNewLine(&state, &tmp);
-    if (result == 0) result = SCPI_LexSemicolon(&state, &tmp);
+    if (result == 0) result = SCPI_LexNewLine(&lex_state, &tmp);
+    if (result == 0) result = SCPI_LexSemicolon(&lex_state, &tmp);
 
     if (TokSemicolon == tmp.type) {
-        context->parser_state.termination = PmutSemicolon;
+        state->termination = PmutSemicolon;
     } else if (TokNewLine == tmp.type) {
-        context->parser_state.termination = PmutNewLine;
+        state->termination = PmutNewLine;
     } else {
-        context->parser_state.termination = PmutNone;
+        state->termination = PmutNone;
     }
+
+    return lex_state.pos - lex_state.buffer;
 }
 
 

@@ -101,9 +101,9 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT(""); // emulate command timeout
 
     TEST_SCPI_INPUT("*ESE\r\n"); // cause error -109, missing parameter
-    TEST_SCPI_INPUT("*ESE 0x20\r\n");
+    TEST_SCPI_INPUT("*ESE #H20\r\n");
 
-    TEST_SCPI_INPUT("*SRE 0xFF\r\n");
+	TEST_SCPI_INPUT("*SRE #HFF\r\n");
     
     TEST_SCPI_INPUT("IDN?\r\n"); // cause error -113, undefined header
 

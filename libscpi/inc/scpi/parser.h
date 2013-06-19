@@ -46,8 +46,8 @@ extern "C" {
 #endif
     void SCPI_Init(scpi_t * context);
 
-    int SCPI_Input(scpi_t * context, const char * data, size_t len);
-    int SCPI_Parse(scpi_t * context, const char * data, size_t len);
+    int SCPI_Input(scpi_t * context, const char * data, int len);
+    int SCPI_Parse(scpi_t * context, const char * data, int len);
 
 
     size_t SCPI_ResultString(scpi_t * context, const char * data);
@@ -63,7 +63,7 @@ extern "C" {
 
     int SCPI_ParseProgramData(lex_state_t * state, token_t * token);
     int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters);
-    int SCPI_DetectProgramMessageUnit(scpi_t * context);
+    int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len);
     
 #ifdef	__cplusplus
 }

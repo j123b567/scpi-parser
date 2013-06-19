@@ -230,7 +230,7 @@ void testProgramData(void) {
 void testAllProgramData(void) {
     TEST_ALL_TOKEN("1.5E12 V", SCPI_ParseAllProgramData, 0, 8, TokAllProgramData, 1);
     TEST_ALL_TOKEN("1.5E12 V, abc_213as564, 10, #H123fe5A", SCPI_ParseAllProgramData, 0, 37, TokAllProgramData, 4);
-    TEST_ALL_TOKEN("1.5E12 V, ", SCPI_ParseAllProgramData, 0, 0, TokUnknown, 1);
+    TEST_ALL_TOKEN("1.5E12 V, ", SCPI_ParseAllProgramData, 0, 0, TokUnknown, -1);
     TEST_ALL_TOKEN("#12\r\n, 1.5E12 V", SCPI_ParseAllProgramData, 0, 15, TokAllProgramData, 2);
     TEST_ALL_TOKEN(" ( 1 + 2 ) ,#12\r\n, 1.5E12 V", SCPI_ParseAllProgramData, 0, 27, TokAllProgramData, 3);
     TEST_ALL_TOKEN("\"ahoj\" , #12AB", SCPI_ParseAllProgramData, 0, 14, TokAllProgramData, 2);
@@ -239,17 +239,14 @@ void testAllProgramData(void) {
 
 #define TEST_DETECT(s, h, ht, d, dc, t) do {                                    \
     const char * str = s;                                                       \
-    scpi_t context;                                                             \
+    scpi_parser_state_t state;                                                  \
     int result;                                                                 \
-    context.buffer.data = s;                                                    \
-    context.buffer.length = strlen(s);                                          \
-    context.buffer.position = context.buffer.length;                            \
-    result = SCPI_DetectProgramMessageUnit(&context);                           \
-    CU_ASSERT_EQUAL(context.parser_state.programHeader.ptr, str+h);             \
-    CU_ASSERT_EQUAL(context.parser_state.programHeader.type, ht);               \
-    CU_ASSERT_EQUAL(context.parser_state.programData.ptr, str+d);               \
-    CU_ASSERT_EQUAL(context.parser_state.numberOfParameters, dc);               \
-    CU_ASSERT_EQUAL(context.parser_state.termination, t);                       \
+    result = SCPI_DetectProgramMessageUnit(&state, str, strlen(str));           \
+    CU_ASSERT_EQUAL(state.programHeader.ptr, str+h);                            \
+    CU_ASSERT_EQUAL(state.programHeader.type, ht);                              \
+    CU_ASSERT_EQUAL(state.programData.ptr, str + d);                            \
+    CU_ASSERT_EQUAL(state.numberOfParameters, dc);                              \
+    CU_ASSERT_EQUAL(state.termination, t);                                      \
 } while(0)
 
 void testDetectProgramMessageUnit(void) {
@@ -258,7 +255,7 @@ void testDetectProgramMessageUnit(void) {
     TEST_DETECT(" MEAS:VOLT:DC? 1.2 V\r\n", 1, TokCompoundQueryProgramHeader, 15, 1, PmutNewLine);
     TEST_DETECT(" CONF:VOLT:DC 1.2 V, 100mv;", 1, TokCompoundProgramHeader, 14, 2, PmutSemicolon);
     TEST_DETECT(" CONF:VOLT:DC 1.2 V, 100mv", 1, TokCompoundProgramHeader, 14, 2, PmutNone);
-    TEST_DETECT(" CONF:VOLT:DC 1.2 V, \r\n", 1, TokCompoundProgramHeader, 14, 1, PmutNewLine);
+    TEST_DETECT(" CONF:VOLT:DC 1.2 V, \r\n", 1, TokCompoundProgramHeader, 14, -1, PmutNewLine);
 }
 
 int main() {
