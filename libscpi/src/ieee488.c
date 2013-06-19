@@ -210,9 +210,9 @@ scpi_result_t SCPI_CoreCls(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreEse(scpi_t * context) {
-    int32_t new_ESE;
-    if (SCPI_ParamInt(context, &new_ESE, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_ESE, new_ESE);
+    scpi_parameter_t parameter;
+    if (SCPI_Parameter(context, &parameter, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_ESE, SCPI_ParamGetIntVal(context, &parameter));
     }
     return SCPI_RES_OK;
 }
@@ -244,9 +244,9 @@ scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
-    SCPI_ResultString(context, SCPI_MANUFACTURE);
-    SCPI_ResultString(context, SCPI_DEV_NAME);
-    SCPI_ResultString(context, SCPI_DEV_VERSION);
+    SCPI_ResultText(context, SCPI_MANUFACTURE);
+    SCPI_ResultText(context, SCPI_DEV_NAME);
+    SCPI_ResultText(context, SCPI_DEV_VERSION);
     return SCPI_RES_OK;
 }
 
@@ -289,9 +289,9 @@ scpi_result_t SCPI_CoreRst(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreSre(scpi_t * context) {
-    int32_t new_SRE;
-    if (SCPI_ParamInt(context, &new_SRE, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_SRE, new_SRE);
+    scpi_parameter_t parameter;
+    if (SCPI_Parameter(context, &parameter, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_SRE, SCPI_ParamGetIntVal(context, &parameter));
     }
     return SCPI_RES_OK;
 }

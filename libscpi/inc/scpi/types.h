@@ -101,13 +101,7 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
-    struct _scpi_param_list_t {
-        const scpi_command_t * cmd;
-        const char * parameters;
-        size_t length;
-    };
 #define SCPI_CMD_LIST_END       {NULL, NULL, }
-    typedef struct _scpi_param_list_t scpi_param_list_t;
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
@@ -227,13 +221,33 @@ extern "C" {
 #define SCPI_SPECIAL_NUMBERS_LIST_END   {NULL, SCPI_NUM_NUMBER}    
     typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
 
-    struct _scpi_number_t {
+    struct _scpi_param_list_t {
+        const scpi_command_t * cmd;
+        lex_state_t lex_state;
+    };
+    typedef struct _scpi_param_list_t scpi_param_list_t;  
+    
+    struct _scpi_number_parameter_t {
         double value;
         scpi_unit_t unit;
+        int8_t base;
         scpi_special_number_t type;
     };
-    typedef struct _scpi_number_t scpi_number_t;
+    typedef struct _scpi_number_parameter_t scpi_number_parameter_t;
 
+    struct _scpi_data_parameter_t {
+        const char * ptr;
+        int32_t len;        
+    };
+    typedef struct _scpi_data_parameter_t scpi_data_parameter_t;
+    
+    struct _scpi_parameter_t {
+        token_type_t type;
+        scpi_data_parameter_t data;
+        scpi_number_parameter_t number;
+    };
+    typedef struct _scpi_parameter_t scpi_parameter_t;
+    
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
@@ -251,7 +265,7 @@ extern "C" {
     struct _scpi_t {
         const scpi_command_t * cmdlist;
         scpi_buffer_t buffer;
-        scpi_param_list_t paramlist;
+        scpi_param_list_t param_list;
         scpi_interface_t * interface;
         int_fast16_t output_count;
         int_fast16_t input_count;

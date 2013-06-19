@@ -57,7 +57,10 @@ extern "C" {
 #define SCPI_ERROR_MISSING_PARAMETER    -109
 #define SCPI_ERROR_INVALID_SUFFIX       -131
 #define SCPI_ERROR_SUFFIX_NOT_ALLOWED   -138
-
+#define SCPI_ERROR_UNKNOWN_PARAMETER    -199 // TODO: fix name and value
+#define SCPI_ERROR_INVALID_PARAMETER    -198 // TODO: fix name and value
+    
+    
 #define SCPI_ERROR_EXECUTION_ERROR      -200
     
 #ifdef	__cplusplus

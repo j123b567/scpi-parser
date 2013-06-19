@@ -44,10 +44,10 @@
  */
 bool_t SCPI_DebugCommand(scpi_t * context) {
 	size_t res;
-	printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
-	res = fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);
+	printf("**DEBUG: %s (\"", context->param_list.cmd->pattern);
+	res = fwrite(context->param_list.lex_state.buffer, 1, context->param_list.lex_state.len, stdout);
 	(void)res;
-        printf("\" - %lu\r\n", (unsigned long)context->paramlist.length);
+        printf("\" - %lu\r\n", (unsigned long)context->param_list.lex_state.len);
 	
 	return TRUE;
 }

@@ -38,7 +38,7 @@ void test_longToStr() {
     char str[32];
     size_t len;
 
-    len = longToStr(10, str, 32);
+    len = longToStr(10, str, 32, 10);
     CU_ASSERT(len == 2);
     CU_ASSERT(str[0] == '1');
     CU_ASSERT(str[1] == '0');
@@ -71,25 +71,25 @@ void test_strToLong() {
     size_t result;
     int32_t val;
 
-#define TEST_STR_TO_LONG(s, r, v)                       \
+#define TEST_STR_TO_LONG(s, r, v, b)                    \
     do {                                                \
-        result = strToLong(s, &val);                    \
+        result = strToLong(s, &val, b);                 \
         CU_ASSERT_EQUAL(val, v);                        \
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
     
-    TEST_STR_TO_LONG("", 0, 0);
-    TEST_STR_TO_LONG("1", 1, 1);
-    TEST_STR_TO_LONG("10", 2, 10);
-    TEST_STR_TO_LONG("-50", 3, -50);
-    TEST_STR_TO_LONG("100MHz", 3, 100);
-    TEST_STR_TO_LONG("MHz", 0, 0);
-    TEST_STR_TO_LONG("1.4", 1, 1);
-    TEST_STR_TO_LONG(" 1", 2, 1);
-    TEST_STR_TO_LONG(" +100", 5, 100); // space and +
-    TEST_STR_TO_LONG("0xFF", 4, 255); // hexadecimal FF
-    TEST_STR_TO_LONG("077", 3, 63); // octal 77
-    TEST_STR_TO_LONG("018", 2, 1); // octal 1, 8 is ignored
+    TEST_STR_TO_LONG("", 0, 0, 10);
+    TEST_STR_TO_LONG("1", 1, 1, 10);
+    TEST_STR_TO_LONG("10", 2, 10, 10);
+    TEST_STR_TO_LONG("-50", 3, -50, 10);
+    TEST_STR_TO_LONG("100MHz", 3, 100, 10);
+    TEST_STR_TO_LONG("MHz", 0, 0, 10);
+    TEST_STR_TO_LONG("1.4", 1, 1, 10);
+    TEST_STR_TO_LONG(" 1", 2, 1, 10);
+    TEST_STR_TO_LONG(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_LONG("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_LONG("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
 }
 
 void test_strToDouble() {

@@ -39,6 +39,7 @@
 #include "scpi/units.h"
 #include "utils.h"
 #include "scpi/error.h"
+#include "scpi/lexer.h"
 
 
 /*
@@ -62,39 +63,39 @@
  */
 const scpi_unit_def_t scpi_units_def[] = {
     /* voltage */
-    {/* name */ "UV",   /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1e-6},
-    {/* name */ "MV",   /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1e-3},
-    {/* name */ "V",    /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1},
-    {/* name */ "KV",   /* unit */ SCPI_UNIT_VOLT,      /* mult */ 1e3},
+    {/* name */ "UV", /* unit */ SCPI_UNIT_VOLT, /* mult */ 1e-6},
+    {/* name */ "MV", /* unit */ SCPI_UNIT_VOLT, /* mult */ 1e-3},
+    {/* name */ "V", /* unit */ SCPI_UNIT_VOLT, /* mult */ 1},
+    {/* name */ "KV", /* unit */ SCPI_UNIT_VOLT, /* mult */ 1e3},
 
     /* current */
-    {/* name */ "UA",   /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1e-6},
-    {/* name */ "MA",   /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1e-3},
-    {/* name */ "A",    /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1},
-    {/* name */ "KA",   /* unit */ SCPI_UNIT_AMPER,     /* mult */ 1e3},
+    {/* name */ "UA", /* unit */ SCPI_UNIT_AMPER, /* mult */ 1e-6},
+    {/* name */ "MA", /* unit */ SCPI_UNIT_AMPER, /* mult */ 1e-3},
+    {/* name */ "A", /* unit */ SCPI_UNIT_AMPER, /* mult */ 1},
+    {/* name */ "KA", /* unit */ SCPI_UNIT_AMPER, /* mult */ 1e3},
 
     /* resistance */
-    {/* name */ "OHM",  /* unit */ SCPI_UNIT_OHM,       /* mult */ 1},
-    {/* name */ "KOHM", /* unit */ SCPI_UNIT_OHM,       /* mult */ 1e3},
-    {/* name */ "MOHM", /* unit */ SCPI_UNIT_OHM,       /* mult */ 1e6},
+    {/* name */ "OHM", /* unit */ SCPI_UNIT_OHM, /* mult */ 1},
+    {/* name */ "KOHM", /* unit */ SCPI_UNIT_OHM, /* mult */ 1e3},
+    {/* name */ "MOHM", /* unit */ SCPI_UNIT_OHM, /* mult */ 1e6},
 
     /* frequency */
-    {/* name */ "HZ",   /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1},
-    {/* name */ "KHZ",  /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1e3},
-    {/* name */ "MHZ",  /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1e6},
-    {/* name */ "GHZ",  /* unit */ SCPI_UNIT_HERTZ,     /* mult */ 1e9},
+    {/* name */ "HZ", /* unit */ SCPI_UNIT_HERTZ, /* mult */ 1},
+    {/* name */ "KHZ", /* unit */ SCPI_UNIT_HERTZ, /* mult */ 1e3},
+    {/* name */ "MHZ", /* unit */ SCPI_UNIT_HERTZ, /* mult */ 1e6},
+    {/* name */ "GHZ", /* unit */ SCPI_UNIT_HERTZ, /* mult */ 1e9},
 
     /* temperature */
-    {/* name */ "CEL",  /* unit */ SCPI_UNIT_CELSIUS,   /* mult */ 1},
+    {/* name */ "CEL", /* unit */ SCPI_UNIT_CELSIUS, /* mult */ 1},
 
     /* time */
-    {/* name */ "PS",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-12},
-    {/* name */ "NS",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-9},
-    {/* name */ "US",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-6},
-    {/* name */ "MS",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1e-3},
-    {/* name */ "S",    /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 1},
-    {/* name */ "MIN",  /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 60},
-    {/* name */ "HR",   /* unit */ SCPI_UNIT_SECONDS,   /* mult */ 3600},
+    {/* name */ "PS", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 1e-12},
+    {/* name */ "NS", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 1e-9},
+    {/* name */ "US", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 1e-6},
+    {/* name */ "MS", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 1e-3},
+    {/* name */ "S", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 1},
+    {/* name */ "MIN", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 60},
+    {/* name */ "HR", /* unit */ SCPI_UNIT_SECONDS, /* mult */ 3600},
 
     SCPI_UNITS_LIST_END,
 };
@@ -103,14 +104,14 @@ const scpi_unit_def_t scpi_units_def[] = {
  * Special number values definition
  */
 const scpi_special_number_def_t scpi_special_numbers_def[] = {
-    {/* name */ "MINimum",      /* type */ SCPI_NUM_MIN},
-    {/* name */ "MAXimum",      /* type */ SCPI_NUM_MAX},
-    {/* name */ "DEFault",      /* type */ SCPI_NUM_DEF},
-    {/* name */ "UP",           /* type */ SCPI_NUM_UP},
-    {/* name */ "DOWN",         /* type */ SCPI_NUM_DOWN},
-    {/* name */ "NAN",          /* type */ SCPI_NUM_NAN},
-    {/* name */ "INF",          /* type */ SCPI_NUM_INF},
-    {/* name */ "NINF",         /* type */ SCPI_NUM_NINF},
+    {/* name */ "MINimum", /* type */ SCPI_NUM_MIN},
+    {/* name */ "MAXimum", /* type */ SCPI_NUM_MAX},
+    {/* name */ "DEFault", /* type */ SCPI_NUM_DEF},
+    {/* name */ "UP", /* type */ SCPI_NUM_UP},
+    {/* name */ "DOWN", /* type */ SCPI_NUM_DOWN},
+    {/* name */ "NAN", /* type */ SCPI_NUM_NAN},
+    {/* name */ "INF", /* type */ SCPI_NUM_INF},
+    {/* name */ "NINF", /* type */ SCPI_NUM_NINF},
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
 
@@ -122,7 +123,7 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
  * @param value resultin value
  * @return TRUE if str matches one of specs patterns
  */
-static bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_t * value) {
+static bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_parameter_t * value) {
     int i;
 
     value->value = 0.0;
@@ -155,7 +156,7 @@ static const char * translateSpecialNumberInverse(const scpi_special_number_def_
     if (specs == NULL) {
         return NULL;
     }
-    
+
     for (i = 0; specs[i].name != NULL; i++) {
         if (specs[i].type == type) {
             return specs[i].name;
@@ -174,11 +175,11 @@ static const char * translateSpecialNumberInverse(const scpi_special_number_def_
  */
 static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, const char * unit, size_t len) {
     int i;
-    
+
     if (units == NULL) {
         return NULL;
     }
-    
+
     for (i = 0; units[i].name != NULL; i++) {
         if (compareStr(unit, len, units[i].name, strlen(units[i].name))) {
             return &units[i];
@@ -196,11 +197,11 @@ static const scpi_unit_def_t * translateUnit(const scpi_unit_def_t * units, cons
  */
 static const char * translateUnitInverse(const scpi_unit_def_t * units, const scpi_unit_t unit) {
     int i;
-    
+
     if (units == NULL) {
         return NULL;
     }
-    
+
     for (i = 0; units[i].name != NULL; i++) {
         if ((units[i].unit == unit) && (units[i].mult == 1)) {
             return units[i].name;
@@ -218,7 +219,7 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
  * @param value preparsed numeric value
  * @return TRUE if value parameter was converted to base units
  */
-static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_t * value) {
+static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_parameter_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -248,43 +249,33 @@ static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, s
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory) {
-    bool_t result;
-    const char * param;
-    size_t len;
-    size_t numlen;
+bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * parameter) {
+    token_t token;
+    lex_state_t state;
 
-    /* read parameter and shift to the next one */
-    result = SCPI_ParamString(context, &param, &len, mandatory);
+    state.buffer = parameter->data.ptr;
+    state.pos = state.buffer;
+    state.len = parameter->data.len;
 
-    /* value not initializes */
-    if (!value) {
-        return FALSE;
+    if (parameter->type == TokDecimalNumericProgramDataWithSuffix) {
+        SCPI_LexDecimalNumericProgramData(&state, &token);
+        SCPI_LexWhiteSpace(&state, &token);
+        SCPI_LexSuffixProgramData(&state, &token);
+
+        return transformNumber(context, token.ptr, token.len, &parameter->number);
+
+    } else if (parameter->type == TokProgramMnemonic) {
+        SCPI_LexWhiteSpace(&state, &token);
+        SCPI_LexCharacterProgramData(&state, &token);
+
+        /* convert string to special number type */
+        if (translateSpecialNumber(context->special_numbers, token.ptr, token.len, &parameter->number)) {
+            /* found special type */
+            return TRUE;
+        }
     }
 
-    value->type = SCPI_NUM_DEF;
-
-    /* if parameter was not found, return TRUE or FALSE according
-     * to fact that parameter was mandatory or not */
-    if (!result) {
-        return mandatory ? FALSE : TRUE;
-    }
-
-    /* convert string to special number type */
-    if (translateSpecialNumber(context->special_numbers, param, len, value)) {
-        /* found special type */
-        return TRUE;
-    }
-
-    /* convert text from double - no special type */
-    numlen = strToDouble(param, &value->value);
-
-    /* transform units of value */
-    if (numlen <= len) {
-        return transformNumber(context, param + numlen, len - numlen, value);
-    }
     return FALSE;
-
 }
 
 /**
@@ -295,7 +286,7 @@ bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandator
  * @param len max length of string
  * @return number of chars written to string
  */
-size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len) {
+size_t SCPI_NumberToStr(scpi_t * context, scpi_number_parameter_t * value, char * str, size_t len) {
     const char * type;
     const char * unit;
     size_t result;

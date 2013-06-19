@@ -41,26 +41,26 @@
 #include "scpi-def.h"
 
 scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
-    scpi_number_t param1, param2;
+    scpi_parameter_t param1, param2;
     char bf[15];
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamNumber(context, &param1, false)) {
-        // do something, if parameter not present
+    if (SCPI_Parameter(context, &param1, false)) {
+        SCPI_ParamTranslateNumberVal(context, &param1);
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamNumber(context, &param2, false)) {
-        // do something, if parameter not present
+    if (SCPI_Parameter(context, &param2, false)) {
+        SCPI_ParamTranslateNumberVal(context, &param2);
     }
 
     
-    SCPI_NumberToStr(context, &param1, bf, 15);
+    SCPI_NumberToStr(context, &param1.number, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
     
-    SCPI_NumberToStr(context, &param2, bf, 15);
+    SCPI_NumberToStr(context, &param2.number, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
@@ -70,21 +70,21 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 
 
 scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
-    double param1, param2;
+    scpi_parameter_t param1, param2;
     fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamDouble(context, &param1, true)) {
+    if (!SCPI_Parameter(context, &param1, true)) {
         return SCPI_RES_ERR;
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamDouble(context, &param2, false)) {
+    if (!SCPI_Parameter(context, &param2, false)) {
         // do something, if parameter not present
     }
 
-    fprintf(stderr, "\tP1=%lf\r\n", param1);
-    fprintf(stderr, "\tP2=%lf\r\n", param2);
+    fprintf(stderr, "\tP1=%lf\r\n", SCPI_ParamGetDoubleVal(context, &param1));
+    fprintf(stderr, "\tP2=%lf\r\n", SCPI_ParamGetDoubleVal(context, &param2));
 
     return SCPI_RES_OK;
 }

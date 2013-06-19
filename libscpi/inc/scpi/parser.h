@@ -50,21 +50,27 @@ extern "C" {
     int SCPI_Parse(scpi_t * context, const char * data, int len);
 
 
-    size_t SCPI_ResultString(scpi_t * context, const char * data);
+    size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);
     size_t SCPI_ResultInt(scpi_t * context, int32_t val);
+    size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
+    size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len);
 
-    bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory);
-    bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory);
-    bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
-    bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
+    int32_t SCPI_ParamGetIntVal(scpi_t * context, scpi_parameter_t * parameter);
+    double SCPI_ParamGetDoubleVal(scpi_t * context, scpi_parameter_t * parameter);
+    void SCPI_ParamGetTextVal(scpi_t * context, scpi_parameter_t * parameter, const char ** data, int32_t * len);
+#define SCPI_ParamGetCharactersVal SCPI_ParamGetTextVal
+#define SCPI_ParamGetArbitraryBlockVal SCPI_ParamGetTextVal
+
+    bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t mandatory);
+
 
 
     int SCPI_ParseProgramData(lex_state_t * state, token_t * token);
     int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters);
     int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len);
-    
+
 #ifdef	__cplusplus
 }
 #endif

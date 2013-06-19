@@ -74,7 +74,8 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param len   string buffer length
  * @return number of bytes written to str (without '\0')
  */
-size_t longToStr(int32_t val, char * str, size_t len) {
+// TODO: add support for other bases
+size_t longToStr(int32_t val, char * str, size_t len, int8_t base) {
     uint32_t x = 1000000000L;
     int_fast8_t digit;
     size_t pos = 0;
@@ -120,9 +121,9 @@ size_t doubleToStr(double val, char * str, size_t len) {
  * @param val   32bit integer result
  * @return      number of bytes used in string
  */
-size_t strToLong(const char * str, int32_t * val) {
+size_t strToLong(const char * str, int32_t * val, int8_t base) {
     char * endptr;
-    *val = strtol(str, &endptr, 0);
+    *val = strtol(str, &endptr, base);
     return endptr - str;
 }
 

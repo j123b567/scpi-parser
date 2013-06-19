@@ -43,28 +43,6 @@
 #include "utils.h"
 #include "scpi/error.h"
 
-static void paramSkipBytes(scpi_t * context, size_t num);
-static void paramSkipWhitespace(scpi_t * context);
-static bool_t paramNext(scpi_t * context, bool_t mandatory);
-
-/*
-int _strnicmp(const char* s1, const char* s2, int len) {
-    int result = 0;
-    int i;
-
-    for (i = 0; i < len && s1[i] && s2[i]; i++) {
-        char c1 = tolower(s1[i]);
-        char c2 = tolower(s2[i]);
-        if (c1 != c2) {
-            result = (int) c1 - (int) c2;
-            break;
-        }
-    }
-
-    return result;
-}
- */
-
 /**
  * Write data to SCPI output
  * @param context
@@ -123,7 +101,8 @@ static size_t writeNewLine(scpi_t * context) {
  * @param context
  */
 static void processCommand(scpi_t * context) {
-    const scpi_command_t * cmd = context->paramlist.cmd;
+    const scpi_command_t * cmd = context->param_list.cmd;
+    lex_state_t * state = &context->param_list.lex_state;
 
     context->cmd_error = FALSE;
     context->output_count = 0;
@@ -140,11 +119,8 @@ static void processCommand(scpi_t * context) {
     /* conditionaly write new line */
     writeNewLine(context);
 
-    /* skip all whitespaces */
-    paramSkipWhitespace(context);
-
     /* set error if command callback did not read all parameters */
-    if (context->paramlist.length != 0 && !context->cmd_error) {
+    if (state->pos < (state->buffer + state->len) && !context->cmd_error) {
         SCPI_ErrorPush(context, SCPI_ERROR_PARAMETER_NOT_ALLOWED);
     }
 }
@@ -161,7 +137,7 @@ static bool_t findCommandHeader(scpi_t * context, const char * header, int len) 
     for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
         cmd = &context->cmdlist[i];
         if (matchCommand(cmd->pattern, header, len)) {
-            context->paramlist.cmd = cmd;
+            context->param_list.cmd = cmd;
             return TRUE;
         }
     }
@@ -194,8 +170,9 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
         if (state->programHeader.len > 0) {
             if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
 
-                context->paramlist.parameters = state->programData.ptr;
-                context->paramlist.length = state->programData.len;
+                context->param_list.lex_state.buffer = state->programData.ptr;
+                context->param_list.lex_state.pos = context->param_list.lex_state.buffer;
+                context->param_list.lex_state.len = state->programData.len;
 
                 processCommand(context);
 
@@ -285,8 +262,7 @@ int SCPI_Input(scpi_t * context, const char * data, int len) {
  * @param data
  * @return
  */
-size_t SCPI_ResultString(scpi_t * context, const char * data) {
-    size_t len = strlen(data);
+size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len) {
     size_t result = 0;
     result += writeDelimiter(context);
     result += writeData(context, data, len);
@@ -301,10 +277,31 @@ size_t SCPI_ResultString(scpi_t * context, const char * data) {
  * @return
  */
 size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
-    char buffer[12];
+    return SCPI_ResultIntBase(context, val, 10);
+}
+
+static const char * getBasePrefix(int8_t base) {
+    switch (base) {
+        case 2: return "#B";
+        case 8: return "#Q";
+        case 16: return "#H";
+        default: return NULL;
+    }
+}
+
+size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base) {
+    char buffer[33];
+    const char * basePrefix;
     size_t result = 0;
-    size_t len = longToStr(val, buffer, sizeof (buffer));
+    size_t len;
+
+    len = longToStr(val, buffer, sizeof (buffer), base);
+    basePrefix = getBasePrefix(base);
+
     result += writeDelimiter(context);
+    if (basePrefix != NULL) {
+        result += writeData(context, basePrefix, 2);
+    }
     result += writeData(context, buffer, len);
     context->output_count++;
     return result;
@@ -345,174 +342,110 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
 
 /* parsing parameters */
 
-/**
- * Skip num bytes from the begginig of parameters
- * @param context
- * @param num
- */
-void paramSkipBytes(scpi_t * context, size_t num) {
-    if (context->paramlist.length < num) {
-        num = context->paramlist.length;
-    }
-    context->paramlist.parameters += num;
-    context->paramlist.length -= num;
-}
+bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t mandatory) {
+    token_t token;
+    lex_state_t * state;
+    int32_t value;
 
-/**
- * Skip white spaces from the beggining of parameters
- * @param context
- */
-void paramSkipWhitespace(scpi_t * context) {
-    size_t ws = skipWhitespace(context->paramlist.parameters, context->paramlist.length);
-    paramSkipBytes(context, ws);
-}
+    parameter->data.ptr = NULL;
+    parameter->data.len = 0;
+    parameter->number.value = 0;
+    parameter->number.base = 10;
+    parameter->number.unit = SCPI_UNIT_NONE;
+    parameter->number.type = SCPI_NUM_NUMBER;
+    parameter->type = TokUnknown;
 
-/**
- * Find next parameter
- * @param context
- * @param mandatory
- * @return
- */
-bool_t paramNext(scpi_t * context, bool_t mandatory) {
-    paramSkipWhitespace(context);
-    if (context->paramlist.length == 0) {
+    state = &context->param_list.lex_state;
+
+    if (state->pos >= (state->buffer + state->len)) {
         if (mandatory) {
             SCPI_ErrorPush(context, SCPI_ERROR_MISSING_PARAMETER);
+        } else {
+            parameter->number.type = SCPI_NUM_DEF;
+            parameter->type = TokProgramMnemonic; // TODO: select something different
         }
         return FALSE;
     }
     if (context->input_count != 0) {
-        if (context->paramlist.parameters[0] == ',') {
-            paramSkipBytes(context, 1);
-            paramSkipWhitespace(context);
-        } else {
+        SCPI_LexComma(state, &token);
+        if (token.type != TokComma) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SEPARATOR);
             return FALSE;
         }
     }
+
     context->input_count++;
-    return TRUE;
+
+    SCPI_ParseProgramData(&context->param_list.lex_state, &token);
+
+    parameter->type = token.type;
+    parameter->data.ptr = token.ptr;
+    parameter->data.len = token.len;
+
+    switch (token.type) {
+        case TokHexnum:
+            parameter->number.base = 16;
+            strToLong(token.ptr, &value, 16);
+            parameter->number.value = value;
+            return TRUE;
+        case TokOctnum:
+            parameter->number.base = 8;
+            strToLong(token.ptr, &value, 8);
+            parameter->number.value = value;
+            return TRUE;
+        case TokBinnum:
+            parameter->number.base = 2;
+            strToLong(token.ptr, &value, 2);
+            parameter->number.value = value;
+            return TRUE;
+        case TokProgramMnemonic:
+            return TRUE;
+        case TokDecimalNumericProgramData:
+            strToDouble(token.ptr, &parameter->number.value);
+            return TRUE;
+        case TokDecimalNumericProgramDataWithSuffix:
+            strToDouble(token.ptr, &parameter->number.value);
+            return TRUE;
+        case TokArbitraryBlockProgramData:
+            return TRUE;
+        case TokSingleQuoteProgramData:
+            // TODO: replace double "single qoute"
+            return TRUE;
+        case TokDoubleQuoteProgramData:
+            // TODO: replace double "double qoute"
+            return TRUE;
+        case TokProgramExpression:
+            return TRUE;
+        default:
+            parameter->type = TokUnknown;
+            parameter->data.ptr = NULL;
+            parameter->data.len = 0;
+            SCPI_ErrorPush(context, SCPI_ERROR_UNKNOWN_PARAMETER);
+            return FALSE;
+    }
 }
 
-/**
- * Parse integer parameter
- * @param context
- * @param value
- * @param mandatory
- * @return
- */
-bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory) {
-    const char * param;
-    size_t param_len;
-    size_t num_len;
-
-    if (!value) {
-        return FALSE;
+int32_t SCPI_ParamGetIntVal(scpi_t * context, scpi_parameter_t * parameter) {
+    switch (parameter->type) {
+        case TokHexnum:
+        case TokOctnum:
+        case TokBinnum:
+        case TokDecimalNumericProgramData:
+        case TokDecimalNumericProgramDataWithSuffix:
+            return parameter->number.value;
+        default:
+            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_PARAMETER);
+            return 0;
     }
-
-    if (!SCPI_ParamString(context, &param, &param_len, mandatory)) {
-        return FALSE;
-    }
-
-    num_len = strToLong(param, value);
-
-    if (num_len != param_len) {
-        SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
-        return FALSE;
-    }
-
-    return TRUE;
 }
 
-/**
- * Parse double parameter
- * @param context
- * @param value
- * @param mandatory
- * @return
- */
-bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory) {
-    const char * param;
-    size_t param_len;
-    size_t num_len;
-
-    if (!value) {
-        return FALSE;
-    }
-
-    if (!SCPI_ParamString(context, &param, &param_len, mandatory)) {
-        return FALSE;
-    }
-
-    num_len = strToDouble(param, value);
-
-    if (num_len != param_len) {
-        SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
-        return FALSE;
-    }
-
-    return TRUE;
+double SCPI_ParamGetDoubleVal(scpi_t * context, scpi_parameter_t * parameter) {
+    return parameter->number.value;
 }
 
-/**
- * Parse string parameter
- * @param context
- * @param value
- * @param len
- * @param mandatory
- * @return
- */
-bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory) {
-    size_t length;
-
-    if (!value || !len) {
-        return FALSE;
-    }
-
-    if (!paramNext(context, mandatory)) {
-        return FALSE;
-    }
-
-    if (locateStr(context->paramlist.parameters, context->paramlist.length, value, &length)) {
-        paramSkipBytes(context, length);
-        paramSkipWhitespace(context);
-        if (len) {
-            *len = length;
-        }
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-/**
- * Parse text parameter (can be inside "")
- * @param context
- * @param value
- * @param len
- * @param mandatory
- * @return
- */
-bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory) {
-    size_t length;
-
-    if (!value || !len) {
-        return FALSE;
-    }
-
-    if (!paramNext(context, mandatory)) {
-        return FALSE;
-    }
-
-    if (locateText(context->paramlist.parameters, context->paramlist.length, value, &length)) {
-        paramSkipBytes(context, length);
-        if (len) {
-            *len = length;
-        }
-        return TRUE;
-    }
-
-    return FALSE;
+void SCPI_ParamGetTextVal(scpi_t * context, scpi_parameter_t * parameter, const char ** data, int32_t * len) {
+    *data = parameter->data.ptr;
+    *len = parameter->data.len;
 }
 
 int SCPI_ParseProgramData(lex_state_t * state, token_t * token) {

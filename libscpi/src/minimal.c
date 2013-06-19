@@ -57,7 +57,7 @@ scpi_result_t SCPI_Stub(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StubQ(scpi_t * context) {
-    SCPI_ResultString(context, "");
+    SCPI_ResultInt(context, 0);
     return SCPI_RES_OK;
 }
 
@@ -67,7 +67,7 @@ scpi_result_t SCPI_StubQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
-    SCPI_ResultString(context, SCPI_DEV_VERSION);
+    SCPI_ResultText(context, SCPI_DEV_VERSION);
     return SCPI_RES_OK;
 }
 
@@ -129,10 +129,11 @@ scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
-    int32_t new_QUESE;
-    if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_QUESE, new_QUESE);
+    scpi_parameter_t parameter;
+    if (SCPI_Parameter(context, &parameter, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_QUESE, SCPI_ParamGetIntVal(context, &parameter));
     }
+    
     return SCPI_RES_OK;
 }
 
