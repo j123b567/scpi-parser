@@ -43,58 +43,19 @@
 extern "C" {
 #endif
 
-enum _token_type_t {
-    TokComma,
-    TokSemicolon,
-    TokQuiestion,
-    TokNewLine,
-    TokHexnum,
-    TokOctnum,
-    TokBinnum,
-    TokProgramMnemonic,
-    TokDecimalNumericProgramData,
-    TokSuffixProgramData,
-    TokArbitraryBlockProgramData,
-    TokSingleQuoteProgramData,
-    TokDoubleQuoteProgramData,
-    TokProgramExpression,
-    TokCompoundProgramHeader,
-    TokCommonProgramHeader,
-    TokCompoundQueryProgramHeader,
-    TokCommonQueryProgramHeader,
-    TokWhiteSpace,
-    TokUnknown,
-};
-typedef enum _token_type_t token_type_t;
-
-struct _token_t {
-    token_type_t type;
-    const char * ptr;
-    int len;
-};
-typedef struct _token_t token_t;
-
-struct _lex_state_t {
-    const char * buffer;
-    const char * pos;
-    int len;
-};
-typedef struct _lex_state_t lex_state_t;
-
-
-int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token);
-int SCPI_LexProgramHeader(lex_state_t * state,  token_t * token);
-int SCPI_LexQuestion(lex_state_t * state, token_t * token);
-int SCPI_LexCharacterProgramData(lex_state_t * state, token_t * token);
-int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token);
-int SCPI_LexSuffixProgramData(lex_state_t * state, token_t * token);
-int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token);
-int SCPI_LexStringProgramData(lex_state_t * state,  token_t * token);
-int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token);
-int SCPI_LexProgramExpression(lex_state_t * state,  token_t * token);
-int SCPI_LexComma(lex_state_t * state, token_t * token);
-int SCPI_LexSemicolon(lex_state_t * state, token_t * token);
-int SCPI_LexNewLine(lex_state_t * state,  token_t * token);
+    int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token);
+    int SCPI_LexProgramHeader(lex_state_t * state, token_t * token);
+    int SCPI_LexQuestion(lex_state_t * state, token_t * token);
+    int SCPI_LexCharacterProgramData(lex_state_t * state, token_t * token);
+    int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token);
+    int SCPI_LexSuffixProgramData(lex_state_t * state, token_t * token);
+    int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token);
+    int SCPI_LexStringProgramData(lex_state_t * state, token_t * token);
+    int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token);
+    int SCPI_LexProgramExpression(lex_state_t * state, token_t * token);
+    int SCPI_LexComma(lex_state_t * state, token_t * token);
+    int SCPI_LexSemicolon(lex_state_t * state, token_t * token);
+    int SCPI_LexNewLine(lex_state_t * state, token_t * token);
 
 #ifdef	__cplusplus
 }

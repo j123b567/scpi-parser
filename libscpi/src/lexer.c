@@ -437,8 +437,9 @@ int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token) {
     } else {
         token->type = TokUnknown;
         state->pos = token->ptr;
+        token->len = 0;
     }
-    return token->len;
+    return token->len > 0 ? token->len + 2 : 0;
 }
 
 
@@ -510,7 +511,7 @@ int SCPI_LexStringProgramData(lex_state_t * state,  token_t * token) {
         token->len = 0;
     }
     
-    return token->len;
+    return token->len > 0 ? token->len + 2 : 0;
 }
 
 /* 7.7.6 <ARBITRARY BLOCK PROGRAM DATA> */
@@ -521,7 +522,7 @@ static int isNonzeroDigit(int c) {
 int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token) {
     int i;
     int j = 0;
-    
+    const char * ptr = state->pos;
     token->ptr = state->pos;
 
     if (skipChr(state, '#')) {
@@ -542,11 +543,11 @@ int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token) {
             
             if(i == 0) {
                 state->pos += j;
-                if (!iseos(state)) {
+                if ((state->buffer + state->len) < (state->pos)) {
+                    token->len = 0;
+                } else {
                     token->ptr = state->pos - j;
                     token->len = j;
-                } else {
-                    token->len = 0;
                 }
             } else {
                 token->len = 0;
@@ -564,7 +565,7 @@ int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token) {
         token->len = 0;
     }
     
-    return token->len;
+    return token->len + (token->ptr - ptr);
 }
 
 /* 7.7.7 <EXPRESSION PROGRAM DATA> */

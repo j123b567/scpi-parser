@@ -39,11 +39,11 @@
 
 #include "scpi/types.h"
 #include "scpi/debug.h"
+#include "scpi/lexer.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
     void SCPI_Init(scpi_t * context);
 
     int SCPI_Input(scpi_t * context, const char * data, size_t len);
@@ -58,9 +58,13 @@ extern "C" {
     bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory);
     bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory);
     bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
-    bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);    
+    bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
 
 
+    int SCPI_ParseProgramData(lex_state_t * state, token_t * token);
+    int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters);
+    int SCPI_DetectProgramMessageUnit(scpi_t * context);
+    
 #ifdef	__cplusplus
 }
 #endif

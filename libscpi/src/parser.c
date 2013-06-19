@@ -265,7 +265,7 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
         cmd_len = cmdTerminatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
         cmdline_len = cmdlineSeparatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
         if (cmd_len > 0) {
-            if(findCommand(context, cmdline_ptr, cmdline_len, cmd_len)) {
+            if (findCommand(context, cmdline_ptr, cmdline_len, cmd_len)) {
                 processCommand(context);
                 result = 1;
             } else {
@@ -568,39 +568,106 @@ bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_
     return FALSE;
 }
 
+int SCPI_ParseProgramData(lex_state_t * state, token_t * token) {
+    token_t tmp;
+    int result = 0;
+    int wsLen;
+    int suffixLen;
+    int realLen = 0;
+    realLen += SCPI_LexWhiteSpace(state, &tmp);
+
+    if (result == 0) result = SCPI_LexNondecimalNumericData(state, token);
+    if (result == 0) result = SCPI_LexCharacterProgramData(state, token);
+    if (result == 0) {
+        result = SCPI_LexDecimalNumericProgramData(state, token);
+        if (result != 0) {
+            wsLen = SCPI_LexWhiteSpace(state, &tmp);
+            suffixLen = SCPI_LexSuffixProgramData(state, &tmp);
+            if (suffixLen > 0) {
+                token->len += wsLen + suffixLen;
+                token->type = TokDecimalNumericProgramDataWithSuffix;
+                result = token->len;
+            }
+        }
+    }
+
+    if (result == 0) result = SCPI_LexStringProgramData(state, token);
+    if (result == 0) result = SCPI_LexArbitraryBlockProgramData(state, token);
+    if (result == 0) result = SCPI_LexProgramExpression(state, token);
+
+    realLen += SCPI_LexWhiteSpace(state, &tmp);
+
+    return result + realLen;
+}
+
+int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters) {
+
+    int result;
+    token_t tmp;
+    int paramCount = 0;
+
+    token->len = -1;
+    token->type = TokAllProgramData;
+    token->ptr = state->pos;
 
 
-void SCPI_ProgramMessageUnit(scpi_t * context) {
+    for (result = 1; result != 0; result = SCPI_LexComma(state, &tmp)) {
+        token->len += result;
+
+        if (result == 0) {
+            token->type = TokUnknown;
+            token->len = 0;
+            break;
+        }
+
+        result = SCPI_ParseProgramData(state, &tmp);
+        if (tmp.type != TokUnknown) {
+            token->len += result;
+        } else {
+            token->type = TokUnknown;
+            token->len = 0;
+            break;
+        }
+        paramCount++;
+    }
+
+    if (token->len == -1) {
+        token->len = 0;
+    }
+
+    if (numberOfParameters != NULL) {
+        *numberOfParameters = paramCount;
+    }
+    return token->len;
+}
+
+int SCPI_DetectProgramMessageUnit(scpi_t * context) {
     lex_state_t state;
     token_t tmp;
-    token_t header;
-    token_t token;
-    
+    int result = 0;
+
     state.buffer = state.pos = context->buffer.data;
     state.len = context->buffer.position;
-    
+
     /* ignore whitespace at the begginig */
     SCPI_LexWhiteSpace(&state, &tmp);
-    
-    SCPI_LexProgramHeader(&state, &header);
-    
+
+    SCPI_LexProgramHeader(&state, &context->parser_state.programHeader);
+
     SCPI_LexWhiteSpace(&state, &tmp);
-    
-    SCPI_ParseProgramDate(context, &state, &token);
-    
-    SCPI_LexWhiteSpace(&state, &tmp);
-    
-    {
-        SCPI_LexComma(&state, &token);
-        
-        SCPI_LexWhiteSpace(&state, &tmp);
-        
-        SCPI_ParseProgramDate(context, &state);
-        
-        SCPI_LexWhiteSpace(&state, &tmp);
+
+    SCPI_ParseAllProgramData(&state, &context->parser_state.programData, &context->parser_state.numberOfParameters);
+
+    if (result == 0) result = SCPI_LexNewLine(&state, &tmp);
+    if (result == 0) result = SCPI_LexSemicolon(&state, &tmp);
+
+    if (TokSemicolon == tmp.type) {
+        context->parser_state.termination = PmutSemicolon;
+    } else if (TokNewLine == tmp.type) {
+        context->parser_state.termination = PmutNewLine;
+    } else {
+        context->parser_state.termination = PmutNone;
     }
-    
-    SCPI_LexNewLine(&state, &tmp);
 }
 
 

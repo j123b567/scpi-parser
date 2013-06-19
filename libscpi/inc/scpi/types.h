@@ -57,13 +57,13 @@ extern "C" {
     /* IEEE 488.2 registers */
     enum _scpi_reg_name_t {
         SCPI_REG_STB = 0, /* Status Byte */
-        SCPI_REG_SRE,     /* Service Request Enable Register */
-        SCPI_REG_ESR,     /* Standard Event Status Register (ESR, SESR) */
-        SCPI_REG_ESE,     /* Event Status Enable Register */
-        SCPI_REG_OPER,    /* OPERation Status Register */
-        SCPI_REG_OPERE,   /* OPERation Status Enable Register */
-        SCPI_REG_QUES,    /* QUEStionable status register */
-        SCPI_REG_QUESE,   /* QUEStionable status Enable Register */
+        SCPI_REG_SRE, /* Service Request Enable Register */
+        SCPI_REG_ESR, /* Standard Event Status Register (ESR, SESR) */
+        SCPI_REG_ESE, /* Event Status Enable Register */
+        SCPI_REG_OPER, /* OPERation Status Register */
+        SCPI_REG_OPERE, /* OPERation Status Enable Register */
+        SCPI_REG_QUES, /* QUEStionable status register */
+        SCPI_REG_QUESE, /* QUEStionable status Enable Register */
 
         /* last definition - number of registers */
         SCPI_REG_COUNT
@@ -72,21 +72,21 @@ extern "C" {
 
     enum _scpi_ctrl_name_t {
         SCPI_CTRL_SRQ = 1, /* service request */
-        SCPI_CTRL_GTL,     /* Go to local */
-        SCPI_CTRL_SDC,     /* Selected device clear */
-        SCPI_CTRL_PPC,     /* Parallel poll configure */
-        SCPI_CTRL_GET,     /* Group execute trigger */
-        SCPI_CTRL_TCT,     /* Take control */
-        SCPI_CTRL_LLO,     /* Device clear */
-        SCPI_CTRL_DCL,     /* Local lockout */
-        SCPI_CTRL_PPU,     /* Parallel poll unconfigure */
-        SCPI_CTRL_SPE,     /* Serial poll enable */
-        SCPI_CTRL_SPD,     /* Serial poll disable */
-        SCPI_CTRL_MLA,     /* My local address */
-        SCPI_CTRL_UNL,     /* Unlisten */
-        SCPI_CTRL_MTA,     /* My talk address */
-        SCPI_CTRL_UNT,     /* Untalk */
-        SCPI_CTRL_MSA      /* My secondary address */
+        SCPI_CTRL_GTL, /* Go to local */
+        SCPI_CTRL_SDC, /* Selected device clear */
+        SCPI_CTRL_PPC, /* Parallel poll configure */
+        SCPI_CTRL_GET, /* Group execute trigger */
+        SCPI_CTRL_TCT, /* Take control */
+        SCPI_CTRL_LLO, /* Device clear */
+        SCPI_CTRL_DCL, /* Local lockout */
+        SCPI_CTRL_PPU, /* Parallel poll unconfigure */
+        SCPI_CTRL_SPE, /* Serial poll enable */
+        SCPI_CTRL_SPD, /* Serial poll disable */
+        SCPI_CTRL_MLA, /* My local address */
+        SCPI_CTRL_UNL, /* Unlisten */
+        SCPI_CTRL_MTA, /* My talk address */
+        SCPI_CTRL_UNT, /* Untalk */
+        SCPI_CTRL_MSA /* My secondary address */
     };
     typedef enum _scpi_ctrl_name_t scpi_ctrl_name_t;
 
@@ -106,7 +106,7 @@ extern "C" {
         const char * parameters;
         size_t length;
     };
-    #define SCPI_CMD_LIST_END       {NULL, NULL, }
+#define SCPI_CMD_LIST_END       {NULL, NULL, }
     typedef struct _scpi_param_list_t scpi_param_list_t;
 
     /* scpi interface */
@@ -123,6 +123,63 @@ extern "C" {
     typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
     typedef scpi_result_t(*scpi_write_control_t)(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val);
     typedef int (*scpi_error_callback_t)(scpi_t * context, int_fast16_t error);
+
+    /* scpi lexer */
+    enum _token_type_t {
+        TokComma,
+        TokSemicolon,
+        TokQuiestion,
+        TokNewLine,
+        TokHexnum,
+        TokOctnum,
+        TokBinnum,
+        TokProgramMnemonic,
+        TokDecimalNumericProgramData,
+        TokDecimalNumericProgramDataWithSuffix,
+        TokSuffixProgramData,
+        TokArbitraryBlockProgramData,
+        TokSingleQuoteProgramData,
+        TokDoubleQuoteProgramData,
+        TokProgramExpression,
+        TokCompoundProgramHeader,
+        TokCommonProgramHeader,
+        TokCompoundQueryProgramHeader,
+        TokCommonQueryProgramHeader,
+        TokWhiteSpace,
+        TokAllProgramData,
+        TokUnknown,
+    };
+    typedef enum _token_type_t token_type_t;
+
+    struct _token_t {
+        token_type_t type;
+        const char * ptr;
+        int len;
+    };
+    typedef struct _token_t token_t;
+
+    struct _lex_state_t {
+        const char * buffer;
+        const char * pos;
+        int len;
+    };
+    typedef struct _lex_state_t lex_state_t;
+
+    /* scpi parser */   
+    enum _message_termination_t {
+        PmutNone,
+        PmutNewLine,
+        PmutSemicolon,                
+    };
+    typedef enum _message_termination_t message_termination_t;
+    
+    struct _scpi_parser_state_t {
+        token_t programHeader;
+        token_t programData;
+        int numberOfParameters;
+        message_termination_t termination;
+    };
+    typedef struct _scpi_parser_state_t scpi_parser_state_t;
 
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
@@ -147,7 +204,7 @@ extern "C" {
         scpi_unit_t unit;
         double mult;
     };
-    #define SCPI_UNITS_LIST_END       {NULL, SCPI_UNIT_NONE, 0}
+#define SCPI_UNITS_LIST_END       {NULL, SCPI_UNIT_NONE, 0}
     typedef struct _scpi_unit_def_t scpi_unit_def_t;
 
     enum _scpi_special_number_t {
@@ -167,7 +224,7 @@ extern "C" {
         const char * name;
         scpi_special_number_t type;
     };
-    #define SCPI_SPECIAL_NUMBERS_LIST_END   {NULL, SCPI_NUM_NUMBER}    
+#define SCPI_SPECIAL_NUMBERS_LIST_END   {NULL, SCPI_NUM_NUMBER}    
     typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
 
     struct _scpi_number_t {
@@ -204,6 +261,7 @@ extern "C" {
         const scpi_unit_def_t * units;
         const scpi_special_number_def_t * special_numbers;
         void * user_context;
+        scpi_parser_state_t parser_state;
     };
 
 #ifdef  __cplusplus
