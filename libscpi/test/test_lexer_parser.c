@@ -50,6 +50,9 @@ const char * typeToStr(token_type_t type) {
         case TokCommonQueryProgramHeader: return "TokCommonQueryProgramHeader";
         case TokWhiteSpace: return "TokWhiteSpace";
         case TokAllProgramData: return "TokAllProgramData";
+        case TokIncompleteCompoundProgramHeader: return "TokIncompleteCompoundProgramHeader";
+        case TokIncompleteCommonProgramHeader: return "TokIncompleteCommonProgramHeader";
+        case TokInvalid: return "TokInvalid";
         default: return "TokUnknown";
     }
 }
@@ -133,14 +136,16 @@ void testSuffix(void) {
 void testProgramHeader(void) {
     TEST_TOKEN("*IDN? ", SCPI_LexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
     TEST_TOKEN("*RST ", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);
-    TEST_TOKEN("*?; ", SCPI_LexProgramHeader, 0, 0, TokUnknown);
-    TEST_TOKEN(":*IDN?; ", SCPI_LexProgramHeader, 0, 0, TokUnknown);
+    TEST_TOKEN("*?; ", SCPI_LexProgramHeader, 0, 1, TokIncompleteCommonProgramHeader);
+    TEST_TOKEN(":*IDN?; ", SCPI_LexProgramHeader, 0, 1, TokIncompleteCompoundProgramHeader);
     TEST_TOKEN("MEAS:VOLT:DC? ", SCPI_LexProgramHeader, 0, 13, TokCompoundQueryProgramHeader);
     TEST_TOKEN("CONF:VOLT:DC ", SCPI_LexProgramHeader, 0, 12, TokCompoundProgramHeader);
     TEST_TOKEN(":MEAS:VOLT:DC? ", SCPI_LexProgramHeader, 0, 14, TokCompoundQueryProgramHeader);
-    TEST_TOKEN(":MEAS::VOLT:DC? ", SCPI_LexProgramHeader, 0, 0, TokUnknown);
+    TEST_TOKEN(":MEAS::VOLT:DC? ", SCPI_LexProgramHeader, 0, 6, TokIncompleteCompoundProgramHeader);
     TEST_TOKEN("*IDN?", SCPI_LexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
-    TEST_TOKEN("*RST", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);
+    TEST_TOKEN("*RST", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);   
+    TEST_TOKEN("CONF:VOLT:DC", SCPI_LexProgramHeader, 0, 12, TokCompoundProgramHeader);
+    TEST_TOKEN("]]", SCPI_LexProgramHeader, 0, 0, TokUnknown);
 }
 
 void testArbitraryBlock(void) {
@@ -237,12 +242,13 @@ void testAllProgramData(void) {
 }
 
 
-#define TEST_DETECT(s, h, ht, d, dc, t) do {                                    \
+#define TEST_DETECT(s, h, hl, ht, d, dc, t) do {                                \
     const char * str = s;                                                       \
     scpi_parser_state_t state;                                                  \
     int result;                                                                 \
     result = SCPI_DetectProgramMessageUnit(&state, str, strlen(str));           \
-    CU_ASSERT_EQUAL(state.programHeader.ptr, str+h);                            \
+    CU_ASSERT_EQUAL(state.programHeader.ptr, str + h);                          \
+    CU_ASSERT_EQUAL(state.programHeader.len, hl);                               \
     CU_ASSERT_EQUAL(state.programHeader.type, ht);                              \
     CU_ASSERT_EQUAL(state.programData.ptr, str + d);                            \
     CU_ASSERT_EQUAL(state.numberOfParameters, dc);                              \
@@ -250,12 +256,13 @@ void testAllProgramData(void) {
 } while(0)
 
 void testDetectProgramMessageUnit(void) {
-    TEST_DETECT("*IDN?\r\n", 0, TokCommonQueryProgramHeader, 5, 0, PmutNewLine);
-    TEST_DETECT(" MEAS:VOLT:DC?\r\n", 1, TokCompoundQueryProgramHeader, 14, 0, PmutNewLine);
-    TEST_DETECT(" MEAS:VOLT:DC? 1.2 V\r\n", 1, TokCompoundQueryProgramHeader, 15, 1, PmutNewLine);
-    TEST_DETECT(" CONF:VOLT:DC 1.2 V, 100mv;", 1, TokCompoundProgramHeader, 14, 2, PmutSemicolon);
-    TEST_DETECT(" CONF:VOLT:DC 1.2 V, 100mv", 1, TokCompoundProgramHeader, 14, 2, PmutNone);
-    TEST_DETECT(" CONF:VOLT:DC 1.2 V, \r\n", 1, TokCompoundProgramHeader, 14, -1, PmutNewLine);
+    TEST_DETECT("*IDN?\r\n", 0, 5, TokCommonQueryProgramHeader, 5, 0, PmutNewLine);
+    TEST_DETECT(" MEAS:VOLT:DC?\r\n", 1, 13, TokCompoundQueryProgramHeader, 14, 0, PmutNewLine);
+    TEST_DETECT(" MEAS:VOLT:DC? 1.2 V\r\n", 1, 13, TokCompoundQueryProgramHeader, 15, 1, PmutNewLine);
+    TEST_DETECT(" CONF:VOLT:DC 1.2 V, 100mv;", 1, 12, TokCompoundProgramHeader, 14, 2, PmutSemicolon);
+    TEST_DETECT(" CONF:VOLT:DC 1.2 V, 100mv", 1, 12, TokCompoundProgramHeader, 14, 2, PmutNone);
+    TEST_DETECT(" CONF:VOLT:DC 1.2 V, \r\n", 1, 12, TokCompoundProgramHeader, 14, -1, PmutNewLine);
+    TEST_DETECT("[\r\n", 0, 1, TokInvalid, 0, 0, PmutNone);
 }
 
 int main() {

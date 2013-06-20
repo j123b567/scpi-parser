@@ -136,11 +136,14 @@ extern "C" {
         TokDoubleQuoteProgramData,
         TokProgramExpression,
         TokCompoundProgramHeader,
+        TokIncompleteCompoundProgramHeader,
         TokCommonProgramHeader,
+        TokIncompleteCommonProgramHeader,
         TokCompoundQueryProgramHeader,
         TokCommonQueryProgramHeader,
         TokWhiteSpace,
         TokAllProgramData,
+        TokInvalid,
         TokUnknown,
     };
     typedef enum _token_type_t token_type_t;

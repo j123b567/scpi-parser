@@ -167,7 +167,9 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
 
         r = SCPI_DetectProgramMessageUnit(state, data, len);
 
-        if (state->programHeader.len > 0) {
+        if (state->programHeader.type == TokInvalid) {
+            SCPI_ErrorPush(context, SCPI_ERROR_UNEXPECTED_CHARACTER);
+        } else if (state->programHeader.len > 0) {
             if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
 
                 context->param_list.lex_state.buffer = state->programData.ptr;
@@ -523,6 +525,12 @@ int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberO
     return token->len;
 }
 
+static void invalidateToken(token_t * token, const char * ptr) {
+    token->len = 0;
+    token->ptr = ptr;
+    token->type = TokUnknown;
+}
+
 int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
     lex_state_t lex_state;
     token_t tmp;
@@ -530,6 +538,7 @@ int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buff
 
     lex_state.buffer = lex_state.pos = buffer;
     lex_state.len = len;
+    state->numberOfParameters = 0;
 
     /* ignore whitespace at the begginig */
     SCPI_LexWhiteSpace(&lex_state, &tmp);
@@ -538,24 +547,24 @@ int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buff
         if (SCPI_LexWhiteSpace(&lex_state, &tmp) > 0) {
             SCPI_ParseAllProgramData(&lex_state, &state->programData, &state->numberOfParameters);
         } else {
-            state->programData.len = 0;
-            state->programData.ptr = lex_state.pos;
-            state->programData.type = TokUnknown;
-            state->numberOfParameters = 0;
+            invalidateToken(&state->programData, lex_state.pos);
         }
     } else {
-        state->programHeader.len = 0;
-        state->programData.ptr = lex_state.buffer;
-        state->programHeader.type = TokUnknown;
-
-        state->programData.len = 0;
-        state->programData.ptr = lex_state.buffer;
-        state->programData.type = TokUnknown;
-        state->numberOfParameters = 0;
+        invalidateToken(&state->programHeader, lex_state.buffer);
+        invalidateToken(&state->programData, lex_state.buffer);
     }
 
     if (result == 0) result = SCPI_LexNewLine(&lex_state, &tmp);
     if (result == 0) result = SCPI_LexSemicolon(&lex_state, &tmp);
+
+    if (!SCPI_LexIsEos(&lex_state) && (result == 0)) {
+        lex_state.pos++;
+
+        state->programHeader.len = 1;
+        state->programHeader.type = TokInvalid;
+
+        invalidateToken(&state->programData, lex_state.buffer);        
+    }
 
     if (TokSemicolon == tmp.type) {
         state->termination = PmutSemicolon;

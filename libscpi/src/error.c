@@ -174,13 +174,9 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 const char * SCPI_ErrorTranslate(int16_t err) {
     switch (err) {
         case 0: return "No error";
-        case SCPI_ERROR_SYNTAX: return "Syntax error";
-        case SCPI_ERROR_INVALID_SEPARATOR: return "Invalid separator";
-        case SCPI_ERROR_UNDEFINED_HEADER: return "Undefined header";
-        case SCPI_ERROR_PARAMETER_NOT_ALLOWED: return "Parameter not allowed";
-        case SCPI_ERROR_MISSING_PARAMETER: return "Missing parameter";
-        case SCPI_ERROR_INVALID_SUFFIX: return "Invalid suffix";
-        case SCPI_ERROR_SUFFIX_NOT_ALLOWED: return "Suffix not allowed";
+        #define X(def, val, str) case def: return str;
+        LIST_OF_ERRORS
+        #undef X        
         default: return "Unknown error";
     }
 }

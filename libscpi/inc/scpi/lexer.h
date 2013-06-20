@@ -43,6 +43,7 @@
 extern "C" {
 #endif
 
+    int SCPI_LexIsEos(lex_state_t * state);
     int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token);
     int SCPI_LexProgramHeader(lex_state_t * state, token_t * token);
     int SCPI_LexQuestion(lex_state_t * state, token_t * token);
