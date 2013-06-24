@@ -1,6 +1,30 @@
 SCPI parser library
 ===========
 
+[SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
+
+Source codes are published with open source Simplified BSD license.
+
+
+Usage
+---------------
+Download source package or clone repository
+ - v1.0 - https://github.com/j123b567/scpi-parser/archive/v1.0.zip
+ - git clone https://github.com/j123b567/scpi-parser.git
+
+Go to the `libscpi` directory
+
+Build library, results are in `dist` folder
+
+	make
+
+You can test library functions by
+
+	make test
+
+You can use any of the examples in the `examples` directory
+
+
 Version history
 ----------------
 Version v1.0 released 24.6.2013
@@ -13,13 +37,6 @@ Future Version v2.0 released ????????
  - support all parameter types defined in the spec - separate them and identifie them
  - support for optional command headers (Richard.hmm)
 
-
-
-
-
-[SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
-
-Source codes are published with open source Simplified BSD license.
 
 Command pattern definition
 -----------
