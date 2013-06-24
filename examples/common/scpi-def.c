@@ -106,8 +106,7 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "*WAI", .callback = SCPI_CoreWai,},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {.pattern = "SYSTem:ERRor?", .callback = SCPI_SystemErrorNextQ,},
-    {.pattern = "SYSTem:ERRor:NEXT?", .callback = SCPI_SystemErrorNextQ,},
+    {.pattern = "SYSTem:ERRor[:NEXT]?", .callback = SCPI_SystemErrorNextQ,},
     {.pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
     {.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
 
@@ -117,8 +116,7 @@ static const scpi_command_t scpi_commands[] = {
     //{.pattern = "STATus:OPERation:ENABle", .callback = scpi_stub_callback,},
     //{.pattern = "STATus:OPERation:ENABle?", .callback = scpi_stub_callback,},
 
-    {.pattern = "STATus:QUEStionable?", .callback = SCPI_StatusQuestionableEventQ,},
-    {.pattern = "STATus:QUEStionable:EVENt?", .callback = SCPI_StatusQuestionableEventQ,},
+    {.pattern = "STATus:QUEStionable[:EVENt]?", .callback = SCPI_StatusQuestionableEventQ,},
     //{.pattern = "STATus:QUEStionable:CONDition?", .callback = scpi_stub_callback,},
     {.pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
     {.pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},

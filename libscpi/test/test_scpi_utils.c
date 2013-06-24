@@ -1,3 +1,32 @@
+/*-
+ * Copyright (c) 2013 Jan Breuer
+ *                    Richard.hmm
+ * Copyright (c) 2012 Jan Breuer
+ *
+ * All Rights Reserved
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 /*
  * File:   test_scpi_utils.c
  * Author: Jan Breuer
@@ -136,107 +165,9 @@ void test_compareStr() {
     CU_ASSERT_FALSE(compareStr("ABCD", 4, "abcd", 3));
 }
 
-void test_locateText() {
-
-    const char * v;
-    const char * b;
-    size_t l;
-    int result;
-
-
-#define TEST_LOCATE_TEXT(s, ex_res, ex_off, ex_len)      \
-    do {                                                \
-        v = (s);                                        \
-        b = NULL;                                       \
-        l = 0;                                          \
-        result = locateText(v, strlen(v), &b, &l);       \
-        CU_ASSERT(result == ex_res);                    \
-        if (result == TRUE) {                           \
-                CU_ASSERT(b == (v + ex_off));           \
-                CU_ASSERT(l == ex_len);                 \
-        } else {                                        \
-                CU_ASSERT(b == NULL);                   \
-                CU_ASSERT(l == 0);                      \
-        }                                               \
-    } while(0)                                          \
-
-
-    TEST_LOCATE_TEXT("", TRUE, 0, 0);
-    TEST_LOCATE_TEXT(",", TRUE, 0, 0);
-    TEST_LOCATE_TEXT("\"\",", TRUE, 1, 0);
-    TEST_LOCATE_TEXT("   ", TRUE, 3, 0);
-    TEST_LOCATE_TEXT("a", TRUE, 0, 1);
-    TEST_LOCATE_TEXT("ab", TRUE, 0, 2);
-    TEST_LOCATE_TEXT("abc", TRUE, 0, 3);
-    TEST_LOCATE_TEXT(" abc", TRUE, 1, 3);
-    TEST_LOCATE_TEXT(" abc def", TRUE, 1, 7);
-    TEST_LOCATE_TEXT(" abc def ", TRUE, 1, 7);
-    TEST_LOCATE_TEXT("\"\"", TRUE, 1, 0);
-    TEST_LOCATE_TEXT("\"a\"", TRUE, 1, 1);
-    TEST_LOCATE_TEXT(" \"a\" ", TRUE, 2, 1);
-    TEST_LOCATE_TEXT(" \"a\"  ", TRUE, 2, 1);
-    TEST_LOCATE_TEXT(" \"a\"  ,", TRUE, 2, 1);
-    TEST_LOCATE_TEXT(" \"a,b\"", TRUE, 2, 3);
-    TEST_LOCATE_TEXT(" \"a,b\"     ,", TRUE, 2, 3);
-    TEST_LOCATE_TEXT(" a b    ", TRUE, 1, 3);
-    TEST_LOCATE_TEXT(" a b   ,", TRUE, 1, 3);
-    TEST_LOCATE_TEXT(" \"a \" ", TRUE, 2, 2);
-    TEST_LOCATE_TEXT(" \"a  ", FALSE, 0, 0);
-    TEST_LOCATE_TEXT(" \"a\" a, a ", FALSE, 0, 0);
-    TEST_LOCATE_TEXT(" \"a\" , a ", TRUE, 2, 1);
-}
-
-void test_locateStr() {
-
-    const char * v;
-    const char * b;
-    size_t l;
-    int result;
-
-
-#define TEST_LOCATE_STR(s, ex_res, ex_off, ex_len)      \
-    do {                                                \
-        v = (s);                                        \
-        b = NULL;                                       \
-        l = 0;                                          \
-        result = locateStr(v, strlen(v), &b, &l);       \
-        CU_ASSERT(result == ex_res);                    \
-        if (result == TRUE) {                           \
-                CU_ASSERT(b == (s + ex_off));           \
-                CU_ASSERT(l == ex_len);                 \
-        } else {                                        \
-                CU_ASSERT(b == NULL);                   \
-                CU_ASSERT(l == 0);                      \
-        }                                               \
-    } while(0)                                          \
-    
-    TEST_LOCATE_STR("", TRUE, 0, 0);
-    TEST_LOCATE_STR(",", TRUE, 0, 0);
-    TEST_LOCATE_STR("   ", TRUE, 3, 0);
-    TEST_LOCATE_STR("a", TRUE, 0, 1);
-    TEST_LOCATE_STR("ab", TRUE, 0, 2);
-    TEST_LOCATE_STR("abc", TRUE, 0, 3);
-    TEST_LOCATE_STR(" abc", TRUE, 1, 3);
-    TEST_LOCATE_STR(" abc def", TRUE, 1, 7);
-    TEST_LOCATE_STR(" abc def ", TRUE, 1, 7);
-    TEST_LOCATE_STR("\"\"", TRUE, 0, 2);
-    TEST_LOCATE_STR("\"a\"", TRUE, 0, 3);
-    TEST_LOCATE_STR(" \"a\" ", TRUE, 1, 3);
-    TEST_LOCATE_STR(" \"a\"  ", TRUE, 1, 3);
-    TEST_LOCATE_STR(" \"a\"  ,", TRUE, 1, 3);
-    TEST_LOCATE_STR(" \"a,b\"", TRUE, 1, 2);
-    TEST_LOCATE_STR(" \"a,b\"     ,", TRUE, 1, 2);
-    TEST_LOCATE_STR(" a b    ", TRUE, 1, 3);
-    TEST_LOCATE_STR(" a b   ,", TRUE, 1, 3);
-    TEST_LOCATE_STR(" \"a \" ", TRUE, 1, 4);
-    TEST_LOCATE_STR(" \"a  ", TRUE, 1, 2);
-    TEST_LOCATE_STR(" \"a\" a, a ", TRUE, 1, 5);
-    TEST_LOCATE_STR(" \"a\" , a ", TRUE, 1, 3);
-}
-
 void test_matchPattern() {
     bool_t result;
-    
+
 #define TEST_MATCH_PATTERN(p, s, r)                             \
     do {                                                        \
         result = matchPattern(p, strlen(p), s, strlen(s));      \
@@ -252,8 +183,8 @@ void test_matchPattern() {
 
 void test_matchCommand() {
     bool_t result;
-    
-    #define TEST_MATCH_COMMAND(p, s, r)                         \
+
+#define TEST_MATCH_COMMAND(p, s, r)                         \
     do {                                                        \
         result = matchCommand(p, s, strlen(s));                 \
         CU_ASSERT_EQUAL(result, r);                             \
@@ -274,6 +205,82 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacddd", TRUE);
     TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacdd", FALSE);
     TEST_MATCH_COMMAND("ABc:AACddd", ":a:aac", FALSE);
+    TEST_MATCH_COMMAND("?", "?", TRUE);
+    TEST_MATCH_COMMAND("A?", "A?", TRUE);
+    TEST_MATCH_COMMAND("A", "A?", FALSE);
+    TEST_MATCH_COMMAND("A?", "A", FALSE);
+    TEST_MATCH_COMMAND("[:ABc]:AACddd", ":ab:aac", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd", "aac", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd", "aac?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd?", ":ab:aac?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd?", "aac?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd?", "aac", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab?", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword   
 }
 
 int main() {
@@ -298,8 +305,6 @@ int main() {
             || (NULL == CU_add_test(pSuite, "strToLong", test_strToLong))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
-            || (NULL == CU_add_test(pSuite, "locateText", test_locateText))
-            || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
             ) {
