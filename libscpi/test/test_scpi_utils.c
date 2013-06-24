@@ -250,6 +250,32 @@ void test_matchPattern() {
     TEST_MATCH_PATTERN("AB", "a", FALSE);
 }
 
+void test_matchCommand() {
+    bool_t result;
+    
+    #define TEST_MATCH_COMMAND(p, s, r)                         \
+    do {                                                        \
+        result = matchCommand(p, s, strlen(s));                 \
+        CU_ASSERT_EQUAL(result, r);                             \
+    } while(0)                                                  \
+
+    TEST_MATCH_COMMAND("A", "a", TRUE);
+    TEST_MATCH_COMMAND("Ab", "a", TRUE);
+    TEST_MATCH_COMMAND("Ab", "ab", TRUE);
+    TEST_MATCH_COMMAND("Ab", "aB", TRUE);
+    TEST_MATCH_COMMAND("AB", "a", FALSE);
+    TEST_MATCH_COMMAND("ABc:AACddd", "ab:aac", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", "abc:aac", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", "abc:aacddd", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", "abc:aacdd", FALSE);
+    TEST_MATCH_COMMAND("ABc:AACddd", "a:aac", FALSE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":ab:aac", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aac", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacddd", TRUE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacdd", FALSE);
+    TEST_MATCH_COMMAND("ABc:AACddd", ":a:aac", FALSE);
+}
+
 int main() {
     CU_pSuite pSuite = NULL;
 
@@ -275,6 +301,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "locateText", test_locateText))
             || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
+            || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
             ) {
         CU_cleanup_registry();
         return CU_get_error();
