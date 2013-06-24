@@ -1,6 +1,22 @@
 SCPI parser library
 ===========
 
+Version history
+----------------
+Version v1.0 released 24.6.2013
+ - support basic command pattern matching (no optional keywoards)
+ - support basic data types (no expressions, no nondecimal numbers, no arbitrary program data, ...)
+ - last version before refactoring of the parser and before extending parameter handling
+
+Future Version v2.0 released ????????
+ - parsing more compliant with SCPI-1999
+ - support all parameter types defined in the spec - separate them and identifie them
+ - support for optional command headers (Richard.hmm)
+
+
+
+
+
 [SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
 
 Source codes are published with open source Simplified BSD license.
@@ -15,13 +31,9 @@ Command pattern is devided by colon ":" to show command hierarchy
 
     Pattern "SYSTem:VERsion?" mathes strings "SYST:version?", "system:ver?", "SYST:VER?", ...
 
-SCPI standard also uses brackets "[]" to define unnecesery parts of command. This behaviour is not implemented yet.
+SCPI standard also uses brackets "[]" to define unnecesery parts of command.
 
-    Pattern "SYSTem:ERRor[:NEXT]?" should match "SYST:ERR?", "system:err?" and also "system:error:next?", ...
-
-In current implementation, you should write two patterns to implement this behaviour
-
-    Pattern "SYSTem:ERRor?" and "SYSTem:ERRor:NEXT?"
+    Pattern "SYSTem:ERRor[:NEXT]?" matches strings  "SYST:ERR?", "system:err?" and also "system:error:next?", ...
 
 
 Command callback
@@ -45,14 +57,17 @@ Source code organisation
 
 Source codes are devided into few files to provide better portability to other systems.
 
-- *libscpi/parser.c* - provides the core parser library
-- *libscpi/error.c* - provides basic error handling (error queue of the instrument)
-- *libscpi/ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
-- *libscpi/minimal.c* - provides basic implementation of SCPI mandatory commands
-- *libscpi/utils.c* - provides string handling routines and conversion routines
-- *libscpi/units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
-- *libscpi/fifo.c* - provides basic implementation of error queue FIFO
-- *libscpi/debug.c* - provides debug functions
+- *libscpi/src/parser.c* - provides the core parser library
+- *libscpi/src/lexer.c* - provides identification of keywoards and data types
+- *libscpi/src/error.c* - provides basic error handling (error queue of the instrument)
+- *libscpi/src/ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
+- *libscpi/src/minimal.c* - provides basic implementation of SCPI mandatory commands
+- *libscpi/src/utils.c* - provides string handling routines and conversion routines
+- *libscpi/src/units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
+- *libscpi/src/fifo.c* - provides basic implementation of error queue FIFO
+- *libscpi/src/debug.c* - provides debug functions
+
+- *libscpi/test/* - Unit test for the library
 
 - *examples/test-parser* - is the basic non-interactive demo of the parser
 - *examples/test-interactive* - is the basic interactive demo of the parser
