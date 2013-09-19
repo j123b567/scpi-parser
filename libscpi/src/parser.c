@@ -272,6 +272,7 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
             }
         }
         cmdline_ptr = cmdlineNext(cmdline_ptr, cmdline_end - cmdline_ptr);
+        cmdline_ptr += skipWhitespace(cmdline_ptr, cmdline_end - cmdline_ptr);
     }
     return result;
 }
