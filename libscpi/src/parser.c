@@ -364,6 +364,16 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
 }
 
 /**
+ * Write boolean value to the result
+ * @param context
+ * @param val
+ * @return 
+ */
+size_t SCPI_ResultBool(scpi_t * context, bool_t val) {
+	return SCPI_ResultInt(context, val);
+}
+
+/**
  * Write double walue to the result
  * @param context
  * @param val
@@ -567,3 +577,43 @@ bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_
 
     return FALSE;
 }
+
+/**
+ * Parse boolean parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return 
+ */
+bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory) {
+    const char * param;
+    size_t param_len;
+    size_t num_len;
+    int32_t i;
+
+    if (!value) {
+        return FALSE;
+    }
+
+    if (!SCPI_ParamString(context, &param, &param_len, mandatory)) {
+        return FALSE;
+    }
+
+    if (matchPattern("ON", 2, param, param_len)) {
+        *value = TRUE;
+    } else if (matchPattern("OFF", 3, param, param_len)) {
+        *value = FALSE;
+    } else {
+        num_len = strToLong(param, &i);
+
+        if (num_len != param_len) {
+            SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+            return FALSE;
+        }
+
+        *value = i ? TRUE : FALSE;
+    }
+
+    return TRUE;
+}
+
