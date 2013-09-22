@@ -370,7 +370,7 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
  * @return 
  */
 size_t SCPI_ResultBool(scpi_t * context, bool_t val) {
-	return SCPI_ResultInt(context, val);
+	return SCPI_ResultInt(context, val ? 1 : 0);
 }
 
 /**
