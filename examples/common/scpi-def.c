@@ -89,6 +89,21 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+scpi_result_t SCPI_TestBool(scpi_t * context) {
+    scpi_parameter_t param1;
+    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (!SCPI_Parameter(context, &param1, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    fprintf(stderr, "\tP1=%d\r\n", SCPI_ParamGetBoolVal(context, &param1));
+
+    return SCPI_RES_OK;
+}
+
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -136,6 +151,8 @@ static const scpi_command_t scpi_commands[] = {
     {.pattern = "MEASure:PERiod?", .callback = SCPI_StubQ,},
     
     {.pattern = "SYSTem:COMMunication:TCPIP:CONTROL?", .callback = SCPI_SystemCommTcpipControlQ,},
+    
+    {.pattern = "TEST:BOOL", .callback = SCPI_TestBool,},
 
     SCPI_CMD_LIST_END
 };

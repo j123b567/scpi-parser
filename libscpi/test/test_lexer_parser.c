@@ -265,6 +265,17 @@ void testDetectProgramMessageUnit(void) {
     TEST_DETECT("[\r\n", 0, 1, TokInvalid, 0, 0, PmutNone);
 }
 
+void testBoolParameter(void) {
+    TEST_TOKEN(" 1", SCPI_ParseProgramData, 1, 1, TokDecimalNumericProgramData);
+    TEST_TOKEN(" 0", SCPI_ParseProgramData, 1, 1, TokDecimalNumericProgramData);
+    TEST_TOKEN(" ON", SCPI_ParseProgramData, 1, 2, TokProgramMnemonic);
+    TEST_TOKEN("OFF ", SCPI_ParseProgramData, 0, 3, TokProgramMnemonic);
+    
+    // TODO: finish bool test
+}
+
+// TODO: SCPI_Parameter test
+
 int main() {
     CU_pSuite pSuite = NULL;
 
@@ -292,6 +303,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "ProgramData", testProgramData))
             || (NULL == CU_add_test(pSuite, "AllProgramData", testAllProgramData))
             || (NULL == CU_add_test(pSuite, "DetectProgramMessageUnit", testDetectProgramMessageUnit))
+            || (NULL == CU_add_test(pSuite, "BoolParameter", testBoolParameter))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

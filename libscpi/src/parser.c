@@ -342,6 +342,17 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     return result;
 }
 
+/**
+ * Write boolean value to the result
+ * @param context
+ * @param val
+ * @return
+ */
+size_t SCPI_ResultBool(scpi_t * context, bool_t val) {
+    return SCPI_ResultIntBase(context, val ? 1 : 0, 10);
+}
+
+
 /* parsing parameters */
 
 bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t mandatory) {
@@ -448,6 +459,26 @@ double SCPI_ParamGetDoubleVal(scpi_t * context, scpi_parameter_t * parameter) {
 void SCPI_ParamGetTextVal(scpi_t * context, scpi_parameter_t * parameter, const char ** data, int32_t * len) {
     *data = parameter->data.ptr;
     *len = parameter->data.len;
+}
+
+/* SCPI-99 7.3 Boolean Program Data */
+bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter) {
+    switch (parameter->type) {
+        case TokDecimalNumericProgramData:
+            return parameter->number.value ? 1 : 0;
+        case TokProgramMnemonic:
+            if (compareStr("ON", 2, parameter->data.ptr, parameter->data.len)) {
+                return TRUE;
+            } else if (compareStr("OFF", 3, parameter->data.ptr, parameter->data.len)) {
+                return FALSE;
+            } else {
+                SCPI_ErrorPush(context, SCPI_ERROR_INVALID_PARAMETER);
+                return FALSE;
+            }
+        default:
+            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_PARAMETER);
+            return FALSE;
+    }
 }
 
 int SCPI_ParseProgramData(lex_state_t * state, token_t * token) {
