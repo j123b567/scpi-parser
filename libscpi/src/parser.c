@@ -370,7 +370,7 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
  * @return 
  */
 size_t SCPI_ResultBool(scpi_t * context, bool_t val) {
-	return SCPI_ResultInt(context, val);
+	return SCPI_ResultInt(context, val ? 1 : 0);
 }
 
 /**
@@ -579,7 +579,7 @@ bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_
 }
 
 /**
- * Parse boolean parameter
+ * Parse boolean parameter as described in the spec SCPI-99 7.3 Boolean Program Data
  * @param context
  * @param value
  * @param mandatory
