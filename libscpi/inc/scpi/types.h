@@ -47,8 +47,12 @@
 extern "C" {
 #endif
 
-#define FALSE false
-#define TRUE true
+#ifndef FALSE
+    #define FALSE 0
+#endif
+#ifndef TRUE
+    #define TRUE (!FALSE)
+#endif
 
     /* basic data types */
     typedef bool bool_t;
