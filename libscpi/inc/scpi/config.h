@@ -41,6 +41,14 @@
 extern "C" {
 #endif
 
+/* Compiler specific */
+
+/* PIC24 */
+#if defined(__C30__)
+#define HAVE_STRNLEN            0
+#define HAVE_STRNCASECMP        0
+#endif
+
 /* ======== test strnlen ======== */
 #ifndef HAVE_STRNLEN
 #define HAVE_STRNLEN            1
