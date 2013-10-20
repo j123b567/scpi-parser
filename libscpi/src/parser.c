@@ -579,7 +579,7 @@ bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_
 }
 
 /**
- * Parse boolean parameter
+ * Parse boolean parameter as described in the spec SCPI-99 7.3 Boolean Program Data
  * @param context
  * @param value
  * @param mandatory
