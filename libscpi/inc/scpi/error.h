@@ -59,6 +59,7 @@ extern "C" {
 #define SCPI_ERROR_SUFFIX_NOT_ALLOWED   -138
 
 #define SCPI_ERROR_EXECUTION_ERROR      -200
+#define SCPI_ERROR_ILLEGAL_PARAMETER_VALUE	-224
     
 #ifdef	__cplusplus
 }
