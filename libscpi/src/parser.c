@@ -625,7 +625,7 @@ bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory) {
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], size_t * value, bool_t mandatory) {
+bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, bool_t mandatory) {
     const char * param;
     size_t param_len;
     size_t res;
@@ -638,14 +638,14 @@ bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], size_t * value
         return FALSE;
     }
 
-	for (res = 0; options[res]; ++res) {
-	    if (matchPattern(options[res], strlen(options[res]), param, param_len)) {
-			*value = res;
-			return TRUE;
-		}
+    for (res = 0; options[res]; ++res) {
+        if (matchPattern(options[res], strlen(options[res]), param, param_len)) {
+            *value = res;
+            return TRUE;
+        }
     }
 
-	SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+    SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
     return FALSE;
 }
 

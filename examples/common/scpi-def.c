@@ -100,13 +100,13 @@ const char * trigger_source[] = {
 
 scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
-    size_t param;
+    int32_t param;
     
     if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
         return SCPI_RES_ERR;
     }
     
-    fprintf(stderr, "\tP1=%s (%u)\r\n", trigger_source[param], param);
+    fprintf(stderr, "\tP1=%s (%d)\r\n", trigger_source[param], param);
     
     SCPI_ResultInt(context, param);
 
