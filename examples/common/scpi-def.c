@@ -89,6 +89,30 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+
+const char * trigger_source[] = {
+    "BUS",
+    "IMMediate",
+    "EXTernal",
+    NULL /* termination of option list */
+};
+
+
+scpi_result_t TEST_ChoiceQ(scpi_t * context) {
+
+    size_t param;
+    
+    if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
+        return SCPI_RES_ERR;
+    }
+    
+    fprintf(stderr, "\tP1=%s (%u)\r\n", trigger_source[param], param);
+    
+    SCPI_ResultInt(context, param);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -138,6 +162,8 @@ static const scpi_command_t scpi_commands[] = {
     {.pattern = "MEASure:PERiod?", .callback = SCPI_StubQ,},
     
     {.pattern = "SYSTem:COMMunication:TCPIP:CONTROL?", .callback = SCPI_SystemCommTcpipControlQ,},
+
+    {.pattern = "TEST:CHOice?", .callback = TEST_ChoiceQ,},
 
     SCPI_CMD_LIST_END
 };
