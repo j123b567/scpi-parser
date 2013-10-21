@@ -172,5 +172,6 @@ scpi_t scpi_context = {
     /* units */ scpi_units_def,
     /* special_numbers */ scpi_special_numbers_def,
     /* user_context */ NULL,
+    /* idn */ {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
 

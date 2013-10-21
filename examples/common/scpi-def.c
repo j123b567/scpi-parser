@@ -193,4 +193,5 @@ scpi_t scpi_context = {
     .registers = scpi_regs,
     .units = scpi_units_def,
     .special_numbers = scpi_special_numbers_def,
+    .idn = {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
