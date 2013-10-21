@@ -63,12 +63,14 @@ extern "C" {
     size_t skipColon(const char * cmd, size_t len) LOCAL;
     bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
     bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
-
-////////////////////////////////////////////////////////////
-//! added to give strnlen & strncasecmp functionality to C30
-int strncasecmp(char const *str1, char const *str2, unsigned long len);
-int strnlen(const char *s, size_t max);
-////////////////////////////////////////////////////////////
+	
+#ifdef __C30__
+	////////////////////////////////////////////////////////////
+	//! added to give strnlen & strncasecmp functionality to C30
+	int strncasecmp(char const *str1, char const *str2, unsigned long len);
+	int strnlen(const char *s, size_t max);
+	////////////////////////////////////////////////////////////
+#endif
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen);
