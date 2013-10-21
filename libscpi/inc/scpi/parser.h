@@ -61,6 +61,7 @@ extern "C" {
     bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
     bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);    
     bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory);
+    bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], size_t * value, bool_t mandatory);
 
 
 #ifdef	__cplusplus

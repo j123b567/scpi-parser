@@ -181,6 +181,7 @@ const char * SCPI_ErrorTranslate(int16_t err) {
         case SCPI_ERROR_MISSING_PARAMETER: return "Missing parameter";
         case SCPI_ERROR_INVALID_SUFFIX: return "Invalid suffix";
         case SCPI_ERROR_SUFFIX_NOT_ALLOWED: return "Suffix not allowed";
+        case SCPI_ERROR_ILLEGAL_PARAMETER_VALUE: return "Illegal parameter value";
         default: return "Unknown error";
     }
 }
