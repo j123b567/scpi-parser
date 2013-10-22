@@ -539,3 +539,21 @@ BSD_strnlen(const char *s, size_t maxlen)
 }
 #endif
 
+#if !HAVE_STRNCASECMP && !HAVE_STRNICMP
+int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
+    unsigned char c1, c2;
+
+    for(; n != 0; n--) {
+        c1 = tolower((unsigned char)*s1++);
+        c2 = tolower((unsigned char)*s2++);
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        if (c1 = '\0') {
+            return 0;
+        }
+    }
+    return 0;
+}
+#endif
+
