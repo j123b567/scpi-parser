@@ -68,6 +68,10 @@ extern "C" {
     size_t BSD_strnlen(const char *s, size_t maxlen);
 #endif
 
+#if !HAVE_STRNCASECMP && !HAVE_STRNICMP
+    int OUR_strncasecmp(const char *s1, const char *s2, size_t n);
+#endif
+
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 
