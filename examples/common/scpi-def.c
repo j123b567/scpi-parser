@@ -89,6 +89,19 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+scpi_result_t TEST_Bool(scpi_t * context) {
+    bool_t param1;
+    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (!SCPI_ParamBool(context, &param1, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    fprintf(stderr, "\tP1=%d\r\n", param1);
+
+    return SCPI_RES_OK;
+}
 
 const char * trigger_source[] = {
     "BUS",
@@ -130,8 +143,7 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "*WAI", .callback = SCPI_CoreWai,},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {.pattern = "SYSTem:ERRor?", .callback = SCPI_SystemErrorNextQ,},
-    {.pattern = "SYSTem:ERRor:NEXT?", .callback = SCPI_SystemErrorNextQ,},
+    {.pattern = "SYSTem:ERRor[:NEXT]?", .callback = SCPI_SystemErrorNextQ,},
     {.pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
     {.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
 
@@ -141,8 +153,7 @@ static const scpi_command_t scpi_commands[] = {
     //{.pattern = "STATus:OPERation:ENABle", .callback = scpi_stub_callback,},
     //{.pattern = "STATus:OPERation:ENABle?", .callback = scpi_stub_callback,},
 
-    {.pattern = "STATus:QUEStionable?", .callback = SCPI_StatusQuestionableEventQ,},
-    {.pattern = "STATus:QUEStionable:EVENt?", .callback = SCPI_StatusQuestionableEventQ,},
+    {.pattern = "STATus:QUEStionable[:EVENt]?", .callback = SCPI_StatusQuestionableEventQ,},
     //{.pattern = "STATus:QUEStionable:CONDition?", .callback = scpi_stub_callback,},
     {.pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
     {.pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
@@ -163,6 +174,7 @@ static const scpi_command_t scpi_commands[] = {
     
     {.pattern = "SYSTem:COMMunication:TCPIP:CONTROL?", .callback = SCPI_SystemCommTcpipControlQ,},
 
+    {.pattern = "TEST:BOOL", .callback = TEST_Bool,},
     {.pattern = "TEST:CHOice?", .callback = TEST_ChoiceQ,},
 
     SCPI_CMD_LIST_END
