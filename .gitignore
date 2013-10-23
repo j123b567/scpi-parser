@@ -16,6 +16,7 @@
 *.out
 *.app
 *.test
+examples/*/test
 
 # Backup files
 *~

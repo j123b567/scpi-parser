@@ -52,17 +52,19 @@ extern "C" {
 
 /* http://en.wikipedia.org/wiki/X_Macro */
 #define LIST_OF_ERRORS \
+    X(SCPI_ERROR_INVALID_CHARACTER,    -101, "Invalid character")              \
     X(SCPI_ERROR_SYNTAX,               -102, "Syntax error")                   \
     X(SCPI_ERROR_INVALID_SEPARATOR,    -103, "Invalid separator")              \
-    X(SCPI_ERROR_UNDEFINED_HEADER,     -113, "Undefined header")               \
+    X(SCPI_ERROR_DATA_TYPE_ERROR,      -104, "Data type error")                \
     X(SCPI_ERROR_PARAMETER_NOT_ALLOWED,-108, "Parameter not allowed")          \
     X(SCPI_ERROR_MISSING_PARAMETER,    -109, "Missing parameter")              \
+    X(SCPI_ERROR_UNDEFINED_HEADER,     -113, "Undefined header")               \
     X(SCPI_ERROR_INVALID_SUFFIX,       -131, "Invalid suffix")                 \
     X(SCPI_ERROR_SUFFIX_NOT_ALLOWED,   -138, "Suffix not allowed")             \
-    X(SCPI_ERROR_UNKNOWN_PARAMETER,    -199, "Unknown parameter")              \
-    X(SCPI_ERROR_INVALID_PARAMETER,    -198, "Invalid parameter")              \
-    X(SCPI_ERROR_UNEXPECTED_CHARACTER, -197, "Unexpected character")           \
+    X(SCPI_ERROR_INVALID_STRING_DATA,  -151, "Invalid string data")            \
     X(SCPI_ERROR_EXECUTION_ERROR,      -200, "Execution error")                \
+    X(SCPI_ERROR_ILLEGAL_PARAMETER_VALUE,-224,"Illegal parameter value")       \
+    X(SCPI_ERROR_SYSTEM_ERROR,         -310, "System error")                   \
 
 
 enum {

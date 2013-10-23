@@ -283,6 +283,7 @@ extern "C" {
         const scpi_special_number_def_t * special_numbers;
         void * user_context;
         scpi_parser_state_t parser_state;
+        const char * idn[4];
     };
 
 #ifdef  __cplusplus

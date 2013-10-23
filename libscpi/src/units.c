@@ -257,25 +257,22 @@ bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * paramet
     state.pos = state.buffer;
     state.len = parameter->data.len;
 
-    if (parameter->type == TokDecimalNumericProgramDataWithSuffix) {
-        SCPI_LexDecimalNumericProgramData(&state, &token);
-        SCPI_LexWhiteSpace(&state, &token);
-        SCPI_LexSuffixProgramData(&state, &token);
+    switch(parameter->type) {
+        case TokDecimalNumericProgramDataWithSuffix:
+            SCPI_LexDecimalNumericProgramData(&state, &token);
+            SCPI_LexWhiteSpace(&state, &token);
+            SCPI_LexSuffixProgramData(&state, &token);
 
-        return transformNumber(context, token.ptr, token.len, &parameter->number);
+            return transformNumber(context, token.ptr, token.len, &parameter->number);
+        case TokProgramMnemonic:
+            SCPI_LexWhiteSpace(&state, &token);
+            SCPI_LexCharacterProgramData(&state, &token);
 
-    } else if (parameter->type == TokProgramMnemonic) {
-        SCPI_LexWhiteSpace(&state, &token);
-        SCPI_LexCharacterProgramData(&state, &token);
-
-        /* convert string to special number type */
-        if (translateSpecialNumber(context->special_numbers, token.ptr, token.len, &parameter->number)) {
-            /* found special type */
-            return TRUE;
-        }
+            /* convert string to special number type */
+            return translateSpecialNumber(context->special_numbers, token.ptr, token.len, &parameter->number);
+        default:
+            return FALSE;
     }
-
-    return FALSE;
 }
 
 /**

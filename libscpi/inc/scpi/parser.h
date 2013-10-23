@@ -37,6 +37,7 @@
 #ifndef SCPI_PARSER_H
 #define	SCPI_PARSER_H
 
+#include <string.h>
 #include "scpi/types.h"
 #include "scpi/debug.h"
 #include "scpi/lexer.h"
@@ -51,6 +52,7 @@ extern "C" {
 
 
     size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);
+#define SCPI_ResultMnemonic(context, data) SCPI_ResultCharacters((context), (data), strlen(data))
     size_t SCPI_ResultInt(scpi_t * context, int32_t val);
     size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
@@ -64,6 +66,7 @@ extern "C" {
 #define SCPI_ParamGetCharactersVal SCPI_ParamGetTextVal
 #define SCPI_ParamGetArbitraryBlockVal SCPI_ParamGetTextVal
     bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter);
+    int32_t SCPI_ParamGetChoiceVal(scpi_t * context, scpi_parameter_t * parameter, const char * options[]);
 
     bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t mandatory);
 

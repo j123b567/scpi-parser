@@ -89,7 +89,7 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t SCPI_TestBool(scpi_t * context) {
+scpi_result_t TEST_Bool(scpi_t * context) {
     scpi_parameter_t param1;
     fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
 
@@ -103,6 +103,30 @@ scpi_result_t SCPI_TestBool(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+const char * trigger_source[] = {
+    "BUS",
+    "IMMediate",
+    "EXTernal",
+    NULL /* termination of option list */
+};
+
+
+scpi_result_t TEST_ChoiceQ(scpi_t * context) {
+    scpi_parameter_t param1;
+    int32_t result;
+
+    if (!SCPI_Parameter(context, &param1, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    result = SCPI_ParamGetChoiceVal(context, &param1, trigger_source);
+
+    fprintf(stderr, "\tP1=%s (%d)\r\n", result >= 0 ? trigger_source[result] : "", result);
+
+    SCPI_ResultInt(context, result);
+
+    return SCPI_RES_OK;
+}
 
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
@@ -149,10 +173,11 @@ static const scpi_command_t scpi_commands[] = {
     {.pattern = "MEASure:FRESistance?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:FREQuency?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:PERiod?", .callback = SCPI_StubQ,},
-    
+
     {.pattern = "SYSTem:COMMunication:TCPIP:CONTROL?", .callback = SCPI_SystemCommTcpipControlQ,},
-    
-    {.pattern = "TEST:BOOL", .callback = SCPI_TestBool,},
+
+    {.pattern = "TEST:BOOL", .callback = TEST_Bool,},
+    {.pattern = "TEST:CHOice?", .callback = TEST_ChoiceQ,},
 
     SCPI_CMD_LIST_END
 };
@@ -182,4 +207,5 @@ scpi_t scpi_context = {
     .registers = scpi_regs,
     .units = scpi_units_def,
     .special_numbers = scpi_special_numbers_def,
+    .idn = {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };

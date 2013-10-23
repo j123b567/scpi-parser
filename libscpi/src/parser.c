@@ -42,6 +42,7 @@
 #include "scpi/lexer.h"
 #include "utils.h"
 #include "scpi/error.h"
+#include "scpi/constants.h"
 
 /**
  * Write data to SCPI output
@@ -74,7 +75,7 @@ static int flushData(scpi_t * context) {
  */
 static size_t writeDelimiter(scpi_t * context) {
     if (context->output_count > 0) {
-        return writeData(context, ", ", 2);
+        return writeData(context, ",", 2);
     } else {
         return 0;
     }
@@ -168,7 +169,7 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
         r = SCPI_DetectProgramMessageUnit(state, data, len);
 
         if (state->programHeader.type == TokInvalid) {
-            SCPI_ErrorPush(context, SCPI_ERROR_UNEXPECTED_CHARACTER);
+            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_CHARACTER);
         } else if (state->programHeader.len > 0) {
             if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
 
@@ -203,6 +204,19 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
  * @param interface
  */
 void SCPI_Init(scpi_t * context) {
+    if (context->idn[0] == NULL) {
+        context->idn[0] = SCPI_DEFAULT_1_MANUFACTURE;
+    }
+    if (context->idn[1] == NULL) {
+        context->idn[1] = SCPI_DEFAULT_2_MODEL;
+    }
+    if (context->idn[2] == NULL) {
+        context->idn[2] = SCPI_DEFAULT_3;
+    }
+    if (context->idn[3] == NULL) {
+        context->idn[3] = SCPI_DEFAULT_4_REVISION;
+    }
+
     context->buffer.position = 0;
     SCPI_ErrorInit(context);
 }
@@ -433,7 +447,7 @@ bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t man
             parameter->type = TokUnknown;
             parameter->data.ptr = NULL;
             parameter->data.len = 0;
-            SCPI_ErrorPush(context, SCPI_ERROR_UNKNOWN_PARAMETER);
+            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_STRING_DATA);
             return FALSE;
     }
 }
@@ -447,7 +461,7 @@ int32_t SCPI_ParamGetIntVal(scpi_t * context, scpi_parameter_t * parameter) {
         case TokDecimalNumericProgramDataWithSuffix:
             return parameter->number.value;
         default:
-            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_PARAMETER);
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
             return 0;
     }
 }
@@ -472,12 +486,38 @@ bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter) {
             } else if (compareStr("OFF", 3, parameter->data.ptr, parameter->data.len)) {
                 return FALSE;
             } else {
-                SCPI_ErrorPush(context, SCPI_ERROR_INVALID_PARAMETER);
+                SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
                 return FALSE;
             }
         default:
-            SCPI_ErrorPush(context, SCPI_ERROR_INVALID_PARAMETER);
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
             return FALSE;
+    }
+}
+
+/**
+ * Get choice parameter
+ */
+int32_t SCPI_ParamGetChoiceVal(scpi_t * context, scpi_parameter_t * parameter, const char * options[]) {
+    size_t res;
+
+    if (!options) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return -1;
+    }
+
+    switch(parameter->type) {
+        case TokProgramMnemonic:
+            for (res = 0; options[res]; ++res) {
+                if (matchPattern(options[res], strlen(options[res]), parameter->data.ptr, parameter->data.len)) {
+                    return res;
+                }
+            }
+            SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+            return -1;
+        default:
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+            return -1;
     }
 }
 
