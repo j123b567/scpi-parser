@@ -281,6 +281,14 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd", FALSE); // test optional keyword
     TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de", FALSE); // test optional keyword
     TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword   
+    TEST_MATCH_COMMAND("*IDN?", "idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", "idn?", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", "*idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", "*idn?", TRUE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":idn?", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":*idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); // common command
 }
 
 int main() {

@@ -243,7 +243,7 @@ bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, 
 
 /**
  * Compare pattern and command
- * @param pattern
+ * @param pattern eg. [:MEASure]:VOLTage:DC?
  * @param cmd - command
  * @param len - max search length
  * @return TRUE if pattern matches, FALSE otherwise
@@ -252,6 +252,7 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     bool_t result = FALSE;
     int leftFlag = 0; // flag for '[' on left
     int rightFlag = 0; // flag for ']' on right
+    int cmd_sep_pos = 0;
 
     const char * pattern_ptr = pattern;
     int pattern_len = strlen(pattern);
@@ -261,7 +262,7 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     size_t cmd_len = SCPI_strnlen(cmd, len);
     const char * cmd_end = cmd + cmd_len;
 
-    /* TODO: now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */
+    /* now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */
     if (pattern_ptr[0] == '[') { // skip first '['
         pattern_len--;
         pattern_ptr++;
@@ -272,16 +273,17 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
         pattern_ptr++;
     }
 
-    /* errornouse ":*IDN?" is handled in parser */
     if (cmd_ptr[0] == ':') {
-        cmd_len--;
-        cmd_ptr++;
+        /* handle errornouse ":*IDN?" */
+        if((cmd_len >= 2) && (cmd_ptr[1] != '*')) {
+            cmd_len--;
+            cmd_ptr++;
+        }
     }
 
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
-        int cmd_sep_pos;
-        
+
         if ((leftFlag > 0) && (rightFlag > 0)) {
             leftFlag--;
             rightFlag--;
