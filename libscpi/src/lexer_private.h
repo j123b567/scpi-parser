@@ -26,42 +26,41 @@
  */
 
 /**
- * @file   scpi_fifo.h
- * @date   Thu Nov 15 10:58:45 UTC 2012
+ * @file   lexer.h
+ * @date   Thu Mar 21 15:00:58 UTC 2013
  * 
- * @brief  basic FIFO implementation
+ * @brief  SCPI Lexer
  * 
  * 
  */
 
-#ifndef SCPI_FIFO_H
-#define	SCPI_FIFO_H
+#ifndef SCPI_LEXER_H
+#define	SCPI_LEXER_H
 
 #include "scpi/types.h"
+#include "utils_private.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-
-#define FIFO_SIZE 16
-
-    struct _fifo_t {
-        int16_t wr;
-        int16_t rd;
-        int16_t size;
-        int16_t data[FIFO_SIZE];
-    };
-    typedef struct _fifo_t fifo_t;
-
-    void fifo_init(fifo_t * fifo);
-    void fifo_clear(fifo_t * fifo);
-    bool_t fifo_add(fifo_t * fifo, int16_t value);
-    bool_t fifo_remove(fifo_t * fifo, int16_t * value);
-    bool_t fifo_count(fifo_t * fifo, int16_t * value);
+    int lexIsEos(lex_state_t * state) LOCAL;
+    int lexWhiteSpace(lex_state_t * state, token_t * token) LOCAL;
+    int lexProgramHeader(lex_state_t * state, token_t * token) LOCAL;
+    int lexCharacterProgramData(lex_state_t * state, token_t * token) LOCAL;
+    int lexDecimalNumericProgramData(lex_state_t * state, token_t * token) LOCAL;
+    int lexSuffixProgramData(lex_state_t * state, token_t * token) LOCAL;
+    int lexNondecimalNumericData(lex_state_t * state, token_t * token) LOCAL;
+    int lexStringProgramData(lex_state_t * state, token_t * token) LOCAL;
+    int lexArbitraryBlockProgramData(lex_state_t * state, token_t * token) LOCAL;
+    int lexProgramExpression(lex_state_t * state, token_t * token) LOCAL;
+    int lexComma(lex_state_t * state, token_t * token) LOCAL;
+    int lexSemicolon(lex_state_t * state, token_t * token) LOCAL;
+    int lexNewLine(lex_state_t * state, token_t * token) LOCAL;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* SCPI_FIFO_H */
+#endif	/* SCPI_LEXER_H */
+

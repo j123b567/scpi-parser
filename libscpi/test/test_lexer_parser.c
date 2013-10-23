@@ -9,8 +9,9 @@
 #include <stdlib.h>
 #include "CUnit/Basic.h"
 
-#include "scpi/lexer.h"
+#include "../src/lexer_private.h"
 #include "scpi/parser.h"
+#include "../src/parser_private.h"
 
 /*
  * CUnit Test Suite
@@ -102,110 +103,110 @@ static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, token_
 
 
 void testWhiteSpace(void) {
-    TEST_TOKEN("  \t MEAS", SCPI_LexWhiteSpace, 0, 4, TokWhiteSpace);
-    TEST_TOKEN("MEAS", SCPI_LexWhiteSpace, 0, 0, TokUnknown);
+    TEST_TOKEN("  \t MEAS", lexWhiteSpace, 0, 4, TokWhiteSpace);
+    TEST_TOKEN("MEAS", lexWhiteSpace, 0, 0, TokUnknown);
 }
 
 void testNondecimal(void) {
-    TEST_TOKEN("#H123fe5A", SCPI_LexNondecimalNumericData, 2, 7, TokHexnum);
-    TEST_TOKEN("#B0111010101", SCPI_LexNondecimalNumericData, 2, 10, TokBinnum);
-    TEST_TOKEN("#Q125725433", SCPI_LexNondecimalNumericData, 2, 9, TokOctnum);
+    TEST_TOKEN("#H123fe5A", lexNondecimalNumericData, 2, 7, TokHexnum);
+    TEST_TOKEN("#B0111010101", lexNondecimalNumericData, 2, 10, TokBinnum);
+    TEST_TOKEN("#Q125725433", lexNondecimalNumericData, 2, 9, TokOctnum);
 }
 
 void testCharacterProgramData(void) {
-    TEST_TOKEN("abc_213as564", SCPI_LexCharacterProgramData, 0, 12, TokProgramMnemonic);
-    TEST_TOKEN("abc_213as564 , ", SCPI_LexCharacterProgramData, 0, 12, TokProgramMnemonic);
+    TEST_TOKEN("abc_213as564", lexCharacterProgramData, 0, 12, TokProgramMnemonic);
+    TEST_TOKEN("abc_213as564 , ", lexCharacterProgramData, 0, 12, TokProgramMnemonic);
 }
 
 void testDecimal(void) {
-    TEST_TOKEN("10", SCPI_LexDecimalNumericProgramData, 0, 2, TokDecimalNumericProgramData);
-    TEST_TOKEN("10 , ", SCPI_LexDecimalNumericProgramData, 0, 2, TokDecimalNumericProgramData);
-    TEST_TOKEN("-10.5 , ", SCPI_LexDecimalNumericProgramData, 0, 5, TokDecimalNumericProgramData);
-    TEST_TOKEN("+.5 , ", SCPI_LexDecimalNumericProgramData, 0, 3, TokDecimalNumericProgramData);
-    TEST_TOKEN("-. , ", SCPI_LexDecimalNumericProgramData, 0, 0, TokUnknown);
-    TEST_TOKEN("-1 e , ", SCPI_LexDecimalNumericProgramData, 0, 2, TokDecimalNumericProgramData);
-    TEST_TOKEN("-1 e 3, ", SCPI_LexDecimalNumericProgramData, 0, 6, TokDecimalNumericProgramData);
-    TEST_TOKEN("1.5E12", SCPI_LexDecimalNumericProgramData, 0, 6, TokDecimalNumericProgramData);
+    TEST_TOKEN("10", lexDecimalNumericProgramData, 0, 2, TokDecimalNumericProgramData);
+    TEST_TOKEN("10 , ", lexDecimalNumericProgramData, 0, 2, TokDecimalNumericProgramData);
+    TEST_TOKEN("-10.5 , ", lexDecimalNumericProgramData, 0, 5, TokDecimalNumericProgramData);
+    TEST_TOKEN("+.5 , ", lexDecimalNumericProgramData, 0, 3, TokDecimalNumericProgramData);
+    TEST_TOKEN("-. , ", lexDecimalNumericProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("-1 e , ", lexDecimalNumericProgramData, 0, 2, TokDecimalNumericProgramData);
+    TEST_TOKEN("-1 e 3, ", lexDecimalNumericProgramData, 0, 6, TokDecimalNumericProgramData);
+    TEST_TOKEN("1.5E12", lexDecimalNumericProgramData, 0, 6, TokDecimalNumericProgramData);
 }
 
 void testSuffix(void) {
-    TEST_TOKEN("A/V , ", SCPI_LexSuffixProgramData, 0, 3, TokSuffixProgramData);
-    TEST_TOKEN("mA.h", SCPI_LexSuffixProgramData, 0, 4, TokSuffixProgramData);
+    TEST_TOKEN("A/V , ", lexSuffixProgramData, 0, 3, TokSuffixProgramData);
+    TEST_TOKEN("mA.h", lexSuffixProgramData, 0, 4, TokSuffixProgramData);
 }
 
 void testProgramHeader(void) {
-    TEST_TOKEN("*IDN? ", SCPI_LexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
-    TEST_TOKEN("*RST ", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);
-    TEST_TOKEN("*?; ", SCPI_LexProgramHeader, 0, 1, TokIncompleteCommonProgramHeader);
-    TEST_TOKEN(":*IDN?; ", SCPI_LexProgramHeader, 0, 1, TokIncompleteCompoundProgramHeader);
-    TEST_TOKEN("MEAS:VOLT:DC? ", SCPI_LexProgramHeader, 0, 13, TokCompoundQueryProgramHeader);
-    TEST_TOKEN("CONF:VOLT:DC ", SCPI_LexProgramHeader, 0, 12, TokCompoundProgramHeader);
-    TEST_TOKEN(":MEAS:VOLT:DC? ", SCPI_LexProgramHeader, 0, 14, TokCompoundQueryProgramHeader);
-    TEST_TOKEN(":MEAS::VOLT:DC? ", SCPI_LexProgramHeader, 0, 6, TokIncompleteCompoundProgramHeader);
-    TEST_TOKEN("*IDN?", SCPI_LexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
-    TEST_TOKEN("*RST", SCPI_LexProgramHeader, 0, 4, TokCommonProgramHeader);   
-    TEST_TOKEN("CONF:VOLT:DC", SCPI_LexProgramHeader, 0, 12, TokCompoundProgramHeader);
-    TEST_TOKEN("]]", SCPI_LexProgramHeader, 0, 0, TokUnknown);
+    TEST_TOKEN("*IDN? ", lexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
+    TEST_TOKEN("*RST ", lexProgramHeader, 0, 4, TokCommonProgramHeader);
+    TEST_TOKEN("*?; ", lexProgramHeader, 0, 1, TokIncompleteCommonProgramHeader);
+    TEST_TOKEN(":*IDN?; ", lexProgramHeader, 0, 1, TokIncompleteCompoundProgramHeader);
+    TEST_TOKEN("MEAS:VOLT:DC? ", lexProgramHeader, 0, 13, TokCompoundQueryProgramHeader);
+    TEST_TOKEN("CONF:VOLT:DC ", lexProgramHeader, 0, 12, TokCompoundProgramHeader);
+    TEST_TOKEN(":MEAS:VOLT:DC? ", lexProgramHeader, 0, 14, TokCompoundQueryProgramHeader);
+    TEST_TOKEN(":MEAS::VOLT:DC? ", lexProgramHeader, 0, 6, TokIncompleteCompoundProgramHeader);
+    TEST_TOKEN("*IDN?", lexProgramHeader, 0, 5, TokCommonQueryProgramHeader);
+    TEST_TOKEN("*RST", lexProgramHeader, 0, 4, TokCommonProgramHeader);   
+    TEST_TOKEN("CONF:VOLT:DC", lexProgramHeader, 0, 12, TokCompoundProgramHeader);
+    TEST_TOKEN("]]", lexProgramHeader, 0, 0, TokUnknown);
 }
 
 void testArbitraryBlock(void) {
-    TEST_TOKEN("#12AB", SCPI_LexArbitraryBlockProgramData, 3, 2, TokArbitraryBlockProgramData);
-    TEST_TOKEN("#12AB, ", SCPI_LexArbitraryBlockProgramData, 3, 2, TokArbitraryBlockProgramData);
-    TEST_TOKEN("#13AB", SCPI_LexArbitraryBlockProgramData, 0, 0, TokUnknown);
-    TEST_TOKEN("#12\r\n, ", SCPI_LexArbitraryBlockProgramData, 3, 2, TokArbitraryBlockProgramData);
-    TEST_TOKEN("#02AB, ", SCPI_LexArbitraryBlockProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("#12AB", lexArbitraryBlockProgramData, 3, 2, TokArbitraryBlockProgramData);
+    TEST_TOKEN("#12AB, ", lexArbitraryBlockProgramData, 3, 2, TokArbitraryBlockProgramData);
+    TEST_TOKEN("#13AB", lexArbitraryBlockProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("#12\r\n, ", lexArbitraryBlockProgramData, 3, 2, TokArbitraryBlockProgramData);
+    TEST_TOKEN("#02AB, ", lexArbitraryBlockProgramData, 0, 0, TokUnknown);
 }
 
 void testExpression(void) {
-    TEST_TOKEN("( 1 + 2 )", SCPI_LexProgramExpression, 0, 9, TokProgramExpression);
-    TEST_TOKEN("( 1 + 2 ) , ", SCPI_LexProgramExpression, 0, 9, TokProgramExpression);
-    TEST_TOKEN("( 1 + 2  , ", SCPI_LexProgramExpression, 0, 0, TokUnknown);
+    TEST_TOKEN("( 1 + 2 )", lexProgramExpression, 0, 9, TokProgramExpression);
+    TEST_TOKEN("( 1 + 2 ) , ", lexProgramExpression, 0, 9, TokProgramExpression);
+    TEST_TOKEN("( 1 + 2  , ", lexProgramExpression, 0, 0, TokUnknown);
 }
 
 void testString(void) {
-    TEST_TOKEN("\"ahoj\"", SCPI_LexStringProgramData, 1, 4, TokDoubleQuoteProgramData);
-    TEST_TOKEN("\"ahoj\" ", SCPI_LexStringProgramData, 1, 4, TokDoubleQuoteProgramData);
-    TEST_TOKEN("'ahoj' ", SCPI_LexStringProgramData, 1, 4, TokSingleQuoteProgramData);
-    TEST_TOKEN("'ahoj ", SCPI_LexStringProgramData, 0, 0, TokUnknown);
-    TEST_TOKEN("'ah''oj' ", SCPI_LexStringProgramData, 1, 6, TokSingleQuoteProgramData);
-    TEST_TOKEN("'ah\"oj' ", SCPI_LexStringProgramData, 1, 5, TokSingleQuoteProgramData);
-    TEST_TOKEN("\"ah\"\"oj\" ", SCPI_LexStringProgramData, 1, 6, TokDoubleQuoteProgramData);
+    TEST_TOKEN("\"ahoj\"", lexStringProgramData, 1, 4, TokDoubleQuoteProgramData);
+    TEST_TOKEN("\"ahoj\" ", lexStringProgramData, 1, 4, TokDoubleQuoteProgramData);
+    TEST_TOKEN("'ahoj' ", lexStringProgramData, 1, 4, TokSingleQuoteProgramData);
+    TEST_TOKEN("'ahoj ", lexStringProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("'ah''oj' ", lexStringProgramData, 1, 6, TokSingleQuoteProgramData);
+    TEST_TOKEN("'ah\"oj' ", lexStringProgramData, 1, 5, TokSingleQuoteProgramData);
+    TEST_TOKEN("\"ah\"\"oj\" ", lexStringProgramData, 1, 6, TokDoubleQuoteProgramData);
 }
 
 void testProgramData(void) {
-    TEST_TOKEN("#H123fe5A", SCPI_ParseProgramData, 2, 7, TokHexnum);
-    TEST_TOKEN("  #H123fe5A ", SCPI_ParseProgramData, 4, 7, TokHexnum);
-    TEST_TOKEN("#B0111010101", SCPI_ParseProgramData, 2, 10, TokBinnum);
-    TEST_TOKEN("#Q125725433", SCPI_ParseProgramData, 2, 9, TokOctnum);
+    TEST_TOKEN("#H123fe5A", parseProgramData, 2, 7, TokHexnum);
+    TEST_TOKEN("  #H123fe5A ", parseProgramData, 4, 7, TokHexnum);
+    TEST_TOKEN("#B0111010101", parseProgramData, 2, 10, TokBinnum);
+    TEST_TOKEN("#Q125725433", parseProgramData, 2, 9, TokOctnum);
 
-    TEST_TOKEN("10", SCPI_ParseProgramData, 0, 2, TokDecimalNumericProgramData);
-    TEST_TOKEN("10 , ", SCPI_ParseProgramData, 0, 2, TokDecimalNumericProgramData);
-    TEST_TOKEN("-10.5 , ", SCPI_ParseProgramData, 0, 5, TokDecimalNumericProgramData);
-    TEST_TOKEN("+.5 , ", SCPI_ParseProgramData, 0, 3, TokDecimalNumericProgramData);
-    TEST_TOKEN("-. , ", SCPI_ParseProgramData, 0, 0, TokUnknown);
-    TEST_TOKEN("-1 e , ", SCPI_ParseProgramData, 0, 4, TokDecimalNumericProgramDataWithSuffix);
-    TEST_TOKEN("-1 e 3, ", SCPI_ParseProgramData, 0, 6, TokDecimalNumericProgramData);
-    TEST_TOKEN("1.5E12", SCPI_ParseProgramData, 0, 6, TokDecimalNumericProgramData);
+    TEST_TOKEN("10", parseProgramData, 0, 2, TokDecimalNumericProgramData);
+    TEST_TOKEN("10 , ", parseProgramData, 0, 2, TokDecimalNumericProgramData);
+    TEST_TOKEN("-10.5 , ", parseProgramData, 0, 5, TokDecimalNumericProgramData);
+    TEST_TOKEN("+.5 , ", parseProgramData, 0, 3, TokDecimalNumericProgramData);
+    TEST_TOKEN("-. , ", parseProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("-1 e , ", parseProgramData, 0, 4, TokDecimalNumericProgramDataWithSuffix);
+    TEST_TOKEN("-1 e 3, ", parseProgramData, 0, 6, TokDecimalNumericProgramData);
+    TEST_TOKEN("1.5E12", parseProgramData, 0, 6, TokDecimalNumericProgramData);
 
-    TEST_TOKEN("#12AB", SCPI_ParseProgramData, 3, 2, TokArbitraryBlockProgramData);
-    TEST_TOKEN("#12AB, ", SCPI_ParseProgramData, 3, 2, TokArbitraryBlockProgramData);
-    TEST_TOKEN("#13AB", SCPI_ParseProgramData, 0, 0, TokUnknown);
-    TEST_TOKEN("#12\r\n, ", SCPI_ParseProgramData, 3, 2, TokArbitraryBlockProgramData);
-    TEST_TOKEN("#02AB, ", SCPI_ParseProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("#12AB", parseProgramData, 3, 2, TokArbitraryBlockProgramData);
+    TEST_TOKEN("#12AB, ", parseProgramData, 3, 2, TokArbitraryBlockProgramData);
+    TEST_TOKEN("#13AB", parseProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("#12\r\n, ", parseProgramData, 3, 2, TokArbitraryBlockProgramData);
+    TEST_TOKEN("#02AB, ", parseProgramData, 0, 0, TokUnknown);
 
-    TEST_TOKEN("( 1 + 2 ) , ", SCPI_ParseProgramData, 0, 9, TokProgramExpression);
-    TEST_TOKEN("( 1 + 2  , ", SCPI_ParseProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("( 1 + 2 ) , ", parseProgramData, 0, 9, TokProgramExpression);
+    TEST_TOKEN("( 1 + 2  , ", parseProgramData, 0, 0, TokUnknown);
 
-    TEST_TOKEN("\"ahoj\" ", SCPI_ParseProgramData, 1, 4, TokDoubleQuoteProgramData);
-    TEST_TOKEN("'ahoj' ", SCPI_ParseProgramData, 1, 4, TokSingleQuoteProgramData);
-    TEST_TOKEN("'ahoj ", SCPI_ParseProgramData, 0, 0, TokUnknown);
-    TEST_TOKEN("'ah''oj' ", SCPI_ParseProgramData, 1, 6, TokSingleQuoteProgramData);
-    TEST_TOKEN("'ah\"oj' ", SCPI_ParseProgramData, 1, 5, TokSingleQuoteProgramData);
-    TEST_TOKEN("\"ah\"\"oj\" ", SCPI_ParseProgramData, 1, 6, TokDoubleQuoteProgramData);
+    TEST_TOKEN("\"ahoj\" ", parseProgramData, 1, 4, TokDoubleQuoteProgramData);
+    TEST_TOKEN("'ahoj' ", parseProgramData, 1, 4, TokSingleQuoteProgramData);
+    TEST_TOKEN("'ahoj ", parseProgramData, 0, 0, TokUnknown);
+    TEST_TOKEN("'ah''oj' ", parseProgramData, 1, 6, TokSingleQuoteProgramData);
+    TEST_TOKEN("'ah\"oj' ", parseProgramData, 1, 5, TokSingleQuoteProgramData);
+    TEST_TOKEN("\"ah\"\"oj\" ", parseProgramData, 1, 6, TokDoubleQuoteProgramData);
     
-    TEST_TOKEN("abc_213as564 , ", SCPI_LexCharacterProgramData, 0, 12, TokProgramMnemonic);
+    TEST_TOKEN("abc_213as564 , ", lexCharacterProgramData, 0, 12, TokProgramMnemonic);
     
-    TEST_TOKEN("1.5E12 V", SCPI_ParseProgramData, 0, 8, TokDecimalNumericProgramDataWithSuffix);
+    TEST_TOKEN("1.5E12 V", parseProgramData, 0, 8, TokDecimalNumericProgramDataWithSuffix);
 }
 
 
@@ -233,12 +234,12 @@ void testProgramData(void) {
 
 
 void testAllProgramData(void) {
-    TEST_ALL_TOKEN("1.5E12 V", SCPI_ParseAllProgramData, 0, 8, TokAllProgramData, 1);
-    TEST_ALL_TOKEN("1.5E12 V, abc_213as564, 10, #H123fe5A", SCPI_ParseAllProgramData, 0, 37, TokAllProgramData, 4);
-    TEST_ALL_TOKEN("1.5E12 V, ", SCPI_ParseAllProgramData, 0, 0, TokUnknown, -1);
-    TEST_ALL_TOKEN("#12\r\n, 1.5E12 V", SCPI_ParseAllProgramData, 0, 15, TokAllProgramData, 2);
-    TEST_ALL_TOKEN(" ( 1 + 2 ) ,#12\r\n, 1.5E12 V", SCPI_ParseAllProgramData, 0, 27, TokAllProgramData, 3);
-    TEST_ALL_TOKEN("\"ahoj\" , #12AB", SCPI_ParseAllProgramData, 0, 14, TokAllProgramData, 2);
+    TEST_ALL_TOKEN("1.5E12 V", parseAllProgramData, 0, 8, TokAllProgramData, 1);
+    TEST_ALL_TOKEN("1.5E12 V, abc_213as564, 10, #H123fe5A", parseAllProgramData, 0, 37, TokAllProgramData, 4);
+    TEST_ALL_TOKEN("1.5E12 V, ", parseAllProgramData, 0, 0, TokUnknown, -1);
+    TEST_ALL_TOKEN("#12\r\n, 1.5E12 V", parseAllProgramData, 0, 15, TokAllProgramData, 2);
+    TEST_ALL_TOKEN(" ( 1 + 2 ) ,#12\r\n, 1.5E12 V", parseAllProgramData, 0, 27, TokAllProgramData, 3);
+    TEST_ALL_TOKEN("\"ahoj\" , #12AB", parseAllProgramData, 0, 14, TokAllProgramData, 2);
 }
 
 
@@ -246,7 +247,7 @@ void testAllProgramData(void) {
     const char * str = s;                                                       \
     scpi_parser_state_t state;                                                  \
     int result;                                                                 \
-    result = SCPI_DetectProgramMessageUnit(&state, str, strlen(str));           \
+    result = detectProgramMessageUnit(&state, str, strlen(str));           \
     CU_ASSERT_EQUAL(state.programHeader.ptr, str + h);                          \
     CU_ASSERT_EQUAL(state.programHeader.len, hl);                               \
     CU_ASSERT_EQUAL(state.programHeader.type, ht);                              \
@@ -266,10 +267,10 @@ void testDetectProgramMessageUnit(void) {
 }
 
 void testBoolParameter(void) {
-    TEST_TOKEN(" 1", SCPI_ParseProgramData, 1, 1, TokDecimalNumericProgramData);
-    TEST_TOKEN(" 0", SCPI_ParseProgramData, 1, 1, TokDecimalNumericProgramData);
-    TEST_TOKEN(" ON", SCPI_ParseProgramData, 1, 2, TokProgramMnemonic);
-    TEST_TOKEN("OFF ", SCPI_ParseProgramData, 0, 3, TokProgramMnemonic);
+    TEST_TOKEN(" 1", parseProgramData, 1, 1, TokDecimalNumericProgramData);
+    TEST_TOKEN(" 0", parseProgramData, 1, 1, TokDecimalNumericProgramData);
+    TEST_TOKEN(" ON", parseProgramData, 1, 2, TokProgramMnemonic);
+    TEST_TOKEN("OFF ", parseProgramData, 0, 3, TokProgramMnemonic);
     
     // TODO: finish bool test
 }

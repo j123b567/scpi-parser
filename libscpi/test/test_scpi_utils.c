@@ -39,7 +39,7 @@
 #include "CUnit/Basic.h"
 
 #include "scpi/scpi.h"
-#include "../src/utils.h"
+#include "../src/utils_private.h"
 
 /*
  * CUnit Test Suite

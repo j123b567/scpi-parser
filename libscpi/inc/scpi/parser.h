@@ -40,7 +40,6 @@
 #include <string.h>
 #include "scpi/types.h"
 #include "scpi/debug.h"
-#include "scpi/lexer.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -69,12 +68,6 @@ extern "C" {
     int32_t SCPI_ParamGetChoiceVal(scpi_t * context, scpi_parameter_t * parameter, const char * options[]);
 
     bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t mandatory);
-
-
-
-    int SCPI_ParseProgramData(lex_state_t * state, token_t * token);
-    int SCPI_ParseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters);
-    int SCPI_DetectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len);
 
 #ifdef	__cplusplus
 }

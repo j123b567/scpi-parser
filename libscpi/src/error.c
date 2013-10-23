@@ -39,7 +39,7 @@
 #include "scpi/parser.h"
 #include "scpi/ieee488.h"
 #include "scpi/error.h"
-#include "scpi/fifo.h"
+#include "fifo_private.h"
 
 /* basic FIFO */
 static fifo_t local_error_queue;

@@ -1,5 +1,5 @@
 
-#include "scpi/fifo.h"
+#include "fifo_private.h"
 
 void fifo_init(fifo_t * fifo) {
     fifo->wr = 0;

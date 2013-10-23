@@ -37,9 +37,9 @@
 #include <string.h>
 #include "scpi/parser.h"
 #include "scpi/units.h"
-#include "utils.h"
+#include "utils_private.h"
 #include "scpi/error.h"
-#include "scpi/lexer.h"
+#include "lexer_private.h"
 
 
 /*
@@ -259,14 +259,14 @@ bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * paramet
 
     switch(parameter->type) {
         case TokDecimalNumericProgramDataWithSuffix:
-            SCPI_LexDecimalNumericProgramData(&state, &token);
-            SCPI_LexWhiteSpace(&state, &token);
-            SCPI_LexSuffixProgramData(&state, &token);
+            lexDecimalNumericProgramData(&state, &token);
+            lexWhiteSpace(&state, &token);
+            lexSuffixProgramData(&state, &token);
 
             return transformNumber(context, token.ptr, token.len, &parameter->number);
         case TokProgramMnemonic:
-            SCPI_LexWhiteSpace(&state, &token);
-            SCPI_LexCharacterProgramData(&state, &token);
+            lexWhiteSpace(&state, &token);
+            lexCharacterProgramData(&state, &token);
 
             /* convert string to special number type */
             return translateSpecialNumber(context->special_numbers, token.ptr, token.len, &parameter->number);

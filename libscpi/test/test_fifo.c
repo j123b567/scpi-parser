@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "CUnit/Basic.h"
 
-#include "scpi/fifo.h"
+#include "../src/fifo_private.h"
 
 /*
  * CUnit Test Suite

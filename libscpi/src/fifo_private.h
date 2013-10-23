@@ -26,41 +26,43 @@
  */
 
 /**
- * @file   lexer.h
- * @date   Thu Mar 21 15:00:58 UTC 2013
+ * @file   scpi_fifo.h
+ * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
- * @brief  SCPI Lexer
+ * @brief  basic FIFO implementation
  * 
  * 
  */
 
-#ifndef SCPI_LEXER_H
-#define	SCPI_LEXER_H
+#ifndef SCPI_FIFO_H
+#define	SCPI_FIFO_H
 
 #include "scpi/types.h"
+#include "utils_private.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-    int SCPI_LexIsEos(lex_state_t * state);
-    int SCPI_LexWhiteSpace(lex_state_t * state, token_t * token);
-    int SCPI_LexProgramHeader(lex_state_t * state, token_t * token);
-    int SCPI_LexQuestion(lex_state_t * state, token_t * token);
-    int SCPI_LexCharacterProgramData(lex_state_t * state, token_t * token);
-    int SCPI_LexDecimalNumericProgramData(lex_state_t * state, token_t * token);
-    int SCPI_LexSuffixProgramData(lex_state_t * state, token_t * token);
-    int SCPI_LexNondecimalNumericData(lex_state_t * state, token_t * token);
-    int SCPI_LexStringProgramData(lex_state_t * state, token_t * token);
-    int SCPI_LexArbitraryBlockProgramData(lex_state_t * state, token_t * token);
-    int SCPI_LexProgramExpression(lex_state_t * state, token_t * token);
-    int SCPI_LexComma(lex_state_t * state, token_t * token);
-    int SCPI_LexSemicolon(lex_state_t * state, token_t * token);
-    int SCPI_LexNewLine(lex_state_t * state, token_t * token);
+
+#define FIFO_SIZE 16
+
+    struct _fifo_t {
+        int16_t wr;
+        int16_t rd;
+        int16_t size;
+        int16_t data[FIFO_SIZE];
+    };
+    typedef struct _fifo_t fifo_t;
+
+    void fifo_init(fifo_t * fifo) LOCAL;
+    void fifo_clear(fifo_t * fifo) LOCAL;
+    bool_t fifo_add(fifo_t * fifo, int16_t value) LOCAL;
+    bool_t fifo_remove(fifo_t * fifo, int16_t * value) LOCAL;
+    bool_t fifo_count(fifo_t * fifo, int16_t * value) LOCAL;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* SCPI_LEXER_H */
-
+#endif	/* SCPI_FIFO_H */

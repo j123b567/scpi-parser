@@ -60,7 +60,6 @@ extern "C" {
     bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
-    size_t skipColon(const char * cmd, size_t len) LOCAL;
     bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
     bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
 
