@@ -369,7 +369,7 @@ bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * le
 size_t skipWhitespace(const char * cmd, size_t len) {
     size_t i;
     for (i = 0; i < len; i++) {
-        if (!isspace((unsigned char)cmd[i])) {
+        if (!isspace((unsigned char) cmd[i])) {
             return i;
         }
     }
@@ -386,7 +386,7 @@ size_t skipWhitespace(const char * cmd, size_t len) {
 size_t patternSeparatorShortPos(const char * pattern, size_t len) {
     size_t i;
     for (i = 0; (i < len) && pattern[i]; i++) {
-        if (islower((unsigned char)pattern[i])) {
+        if (islower((unsigned char) pattern[i])) {
             return i;
         }
     }
@@ -400,7 +400,7 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  * @return position of separator or len
  */
 size_t patternSeparatorPos(const char * pattern, size_t len) {
-    
+
     char * separator = strnpbrk(pattern, len, "?:[]");
     if (separator == NULL) {
         return len;
@@ -423,7 +423,7 @@ size_t cmdSeparatorPos(const char * cmd, size_t len) {
     } else {
         result = separator - cmd;
     }
-    
+
     return result;
 }
 
@@ -478,7 +478,6 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
         if((cmd_len >= 2) && (cmd_ptr[1] != '*')) {
             cmd_len--;
             cmd_ptr++;
-        } else {
         }
     }
 
@@ -583,15 +582,14 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
  * All rights reserved.
  */
 size_t
-BSD_strnlen(const char *s, size_t maxlen)
-{
-	size_t len;
-	
-	for (len = 0; len < maxlen; len++, s++) {
-		if (!*s)
-			break;
-	}
-	return (len);
+BSD_strnlen(const char *s, size_t maxlen) {
+    size_t len;
+
+    for (len = 0; len < maxlen; len++, s++) {
+        if (!*s)
+            break;
+    }
+    return (len);
 }
 #endif
 
