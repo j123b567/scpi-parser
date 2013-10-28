@@ -208,6 +208,7 @@ extern "C" {
         const scpi_unit_def_t * units;
         const scpi_special_number_def_t * special_numbers;
         void * user_context;
+        const char * idn[4];
     };
 
 #ifdef  __cplusplus

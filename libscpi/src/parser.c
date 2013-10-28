@@ -41,6 +41,7 @@
 #include "scpi/parser.h"
 #include "utils.h"
 #include "scpi/error.h"
+#include "scpi/constants.h"
 
 
 static size_t cmdTerminatorPos(const char * cmd, size_t len);
@@ -285,6 +286,19 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
  * @param interface
  */
 void SCPI_Init(scpi_t * context) {
+    if (context->idn[0] == NULL) {
+        context->idn[0] = SCPI_DEFAULT_1_MANUFACTURE;
+    }
+    if (context->idn[1] == NULL) {
+        context->idn[1] = SCPI_DEFAULT_2_MODEL;
+    }
+    if (context->idn[2] == NULL) {
+        context->idn[2] = SCPI_DEFAULT_3;
+    }
+    if (context->idn[3] == NULL) {
+        context->idn[3] = SCPI_DEFAULT_4_REVISION;
+    }
+    
     context->buffer.position = 0;
     SCPI_ErrorInit(context);
 }
@@ -615,5 +629,37 @@ bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory) {
     }
 
     return TRUE;
+}
+
+/**
+ * Parse choice parameter
+ * @param context
+ * @param options
+ * @param value
+ * @param mandatory
+ * @return 
+ */
+bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, bool_t mandatory) {
+    const char * param;
+    size_t param_len;
+    size_t res;
+
+    if (!options || !value) {
+        return FALSE;
+    }
+
+    if (!SCPI_ParamString(context, &param, &param_len, mandatory)) {
+        return FALSE;
+    }
+
+    for (res = 0; options[res]; ++res) {
+        if (matchPattern(options[res], strlen(options[res]), param, param_len)) {
+            *value = res;
+            return TRUE;
+        }
+    }
+
+    SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+    return FALSE;
 }
 

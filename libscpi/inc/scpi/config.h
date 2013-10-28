@@ -41,6 +41,28 @@
 extern "C" {
 #endif
 
+/* Compiler specific */
+/* 8bit PIC - PIC16, etc */
+#if defined(_MPC_)
+#define HAVE_STRNLEN            0
+#define HAVE_STRNCASECMP        0
+#define HAVE_STRNICMP           1
+#endif
+
+/* PIC24 */
+#if defined(__C30__)
+#define HAVE_STRNLEN            0
+#define HAVE_STRNCASECMP        0
+#define HAVE_STRNICMP           0
+#endif
+
+/* PIC32mx */
+#if defined(__C32__)
+#define HAVE_STRNLEN            0
+#define HAVE_STRNCASECMP        1
+#define HAVE_STRNICMP           0
+#endif
+
 /* ======== test strnlen ======== */
 #ifndef HAVE_STRNLEN
 #define HAVE_STRNLEN            1
@@ -48,6 +70,10 @@ extern "C" {
 /* ======== test strncasecmp ======== */
 #ifndef HAVE_STRNCASECMP
 #define HAVE_STRNCASECMP        1
+#endif
+/* ======== test strnicmp ======== */
+#ifndef HAVE_STRNICMP
+#define HAVE_STRNICMP           0
 #endif
 
 /* define local macros depending on existance of strnlen */
@@ -57,11 +83,13 @@ extern "C" {
 #define SCPI_strnlen(s, l)	BSD_strnlen((s), (l))
 #endif
 
-/* define local macros depending on existance of strncasecmp */
+/* define local macros depending on existance of strncasecmp and strnicmp */
 #if HAVE_STRNCASECMP
 #define SCPI_strncasecmp(s1, s2, l)	strncasecmp((s1), (s2), (l))
+#elif HAVE_STRNICMP
+#define SCPI_strncasecmp(s1, s2, l)     strnicmp((s1), (s2), (l))
 #else
-#define SCPI_strncasecmp(s1, s2, l)	strcasecmp((s1), (s2))
+#define SCPI_strncasecmp(s1, s2, l)	OUR_strncasecmp((s1), (s2), (l))
 #endif
 
 #ifdef	__cplusplus
