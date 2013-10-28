@@ -47,6 +47,37 @@ static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 static size_t patternSeparatorPos(const char * pattern, size_t len);
 static size_t cmdSeparatorPos(const char * cmd, size_t len);
 
+
+#ifdef __C30__
+	//////////////////////////////////////////////////////////////////
+	//! added to give strnlen & strncasecmp functionality to C30
+
+	//! strncasecmp(*s1, *s2, len)
+	//! compares a portion of two strings without regard to case
+	int strncasecmp(char const *str1, char const *str2, unsigned long len) {
+	  signed int c1 = 0, c2 = 0;
+	  while (len--) {
+		c1 = tolower(*str1++);
+		c2 = tolower(*str2++);
+		if (c1 == 0 || c1 != c2)
+		  break;
+	  }
+	  return c1 - c2;
+	}
+
+	//! strnlen(*s, max)
+	//! returns the lesser of length of s & max
+	int strnlen(const char *s, size_t max) {
+		size_t len = strlen(s);
+		if (len > max){
+			return max;
+		}else{
+			return len;
+		}		
+	}
+	//////////////////////////////////////////////////////////////////
+#endif
+
 /**
  * Find the first occurrence in str of a character in set.
  * @param str
