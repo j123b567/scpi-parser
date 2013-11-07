@@ -333,11 +333,14 @@ int SCPI_Input(scpi_t * context, const char * data, size_t len) {
 
         ws = skipWhitespace(context->buffer.data, context->buffer.position);
         cmd_term = cmdlineTerminator(context->buffer.data + ws, context->buffer.position - ws);
-        if (cmd_term != NULL) {
+        while (cmd_term != NULL) {
             int curr_len = cmd_term - context->buffer.data;
             result = SCPI_Parse(context, context->buffer.data + ws, curr_len - ws);
             memmove(context->buffer.data, cmd_term, context->buffer.position - curr_len);
             context->buffer.position -= curr_len;
+    
+            ws = skipWhitespace(context->buffer.data, context->buffer.position);
+            cmd_term = cmdlineTerminator(context->buffer.data + ws, context->buffer.position - ws);
         }
     }
 
