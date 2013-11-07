@@ -48,7 +48,7 @@ static size_t cmdTerminatorPos(const char * cmd, size_t len);
 static size_t cmdlineSeparatorPos(const char * cmd, size_t len);
 static const char * cmdlineSeparator(const char * cmd, size_t len);
 static const char * cmdlineTerminator(const char * cmd, size_t len);
-static const char * cmdlineNext(const char * cmd, size_t len);
+static size_t skipCmdLine(const char * cmd, size_t len);
 
 static void paramSkipBytes(scpi_t * context, size_t num);
 static void paramSkipWhitespace(scpi_t * context);
@@ -126,14 +126,14 @@ size_t cmdlineSeparatorPos(const char * cmd, size_t len) {
  * Find next part of command
  * @param cmd - input command
  * @param len - max search length
- * @return Pointer to next part of command
+ * @return number of characters to be skipped
  */
-const char * cmdlineNext(const char * cmd, size_t len) {
+size_t skipCmdLine(const char * cmd, size_t len) {
     const char * separator = cmdlineSeparator(cmd, len);
     if (separator == NULL) {
-        return cmd + len;
+        return len;
     } else {
-        return separator + 1;
+        return separator + 1 - cmd;
     }
 }
 
@@ -249,12 +249,14 @@ static bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmd
  * @param len - command line length
  * @return 1 if the last evaluated command was found
  */
-int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
+int SCPI_Parse(scpi_t * context, char * data, size_t len) {
     int result = 0;
     const char * cmdline_end = data + len;
-    const char * cmdline_ptr = data;
+    char * cmdline_ptr = data;
     size_t cmd_len;
     size_t cmdline_len;
+    char * cmdline_ptr_prev = NULL;
+    size_t cmd_len_prev = 0;
 
     if (context == NULL) {
         return -1;
@@ -263,16 +265,20 @@ int SCPI_Parse(scpi_t * context, const char * data, size_t len) {
     while (cmdline_ptr < cmdline_end) {
         result = 0;
         cmd_len = cmdTerminatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
-        cmdline_len = cmdlineSeparatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
         if (cmd_len > 0) {
+            composeCompoundCommand(cmdline_ptr_prev, cmd_len_prev,
+                                    &cmdline_ptr, &cmd_len);
+            cmdline_len = cmdlineSeparatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
             if(findCommand(context, cmdline_ptr, cmdline_len, cmd_len)) {
                 processCommand(context);
                 result = 1;
+                cmdline_ptr_prev = cmdline_ptr;
+                cmd_len_prev = cmd_len;
             } else {
                 SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
             }
         }
-        cmdline_ptr = cmdlineNext(cmdline_ptr, cmdline_end - cmdline_ptr);
+        cmdline_ptr += skipCmdLine(cmdline_ptr, cmdline_end - cmdline_ptr);
         cmdline_ptr += skipWhitespace(cmdline_ptr, cmdline_end - cmdline_ptr);
     }
     return result;

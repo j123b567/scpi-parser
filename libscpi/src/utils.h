@@ -51,7 +51,7 @@ extern "C" {
     #define LOCAL
 #endif
 
-    char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
+    const char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
     size_t longToStr(int32_t val, char * str, size_t len) LOCAL;
     size_t doubleToStr(double val, char * str, size_t len) LOCAL;
@@ -63,6 +63,7 @@ extern "C" {
     size_t skipColon(const char * cmd, size_t len) LOCAL;
     bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
     bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
+    bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen);
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen);

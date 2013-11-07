@@ -389,6 +389,40 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); // common command
 }
 
+void test_composeCompoundCommand(void) {
+    
+#define TEST_COMPOSE_COMMAND(b, c1_len, c2_pos, c2_len, c2_final, r)    \
+    {                                                                   \
+        char buffer[100];                                               \
+        char * cmd_prev = buffer;                                       \
+        char * cmd = buffer + c2_pos;                                   \
+        size_t len_prev = c1_len;                                       \
+        size_t len = c2_len;                                            \
+        bool_t res;                                                     \
+                                                                        \
+        strcpy(buffer, b);                                              \
+        res = composeCompoundCommand(cmd_prev, len_prev, &cmd, &len);   \
+        CU_ASSERT_EQUAL(res, r);                                        \
+        CU_ASSERT_EQUAL(len, strlen(c2_final));                         \
+        CU_ASSERT_STRING_EQUAL(cmd, c2_final);                          \
+    }\
+
+    TEST_COMPOSE_COMMAND("A:B;C", 3, 4, 1, "A:C", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;DD", 3, 4, 2, "A:DD", TRUE);
+    TEST_COMPOSE_COMMAND("A:B", 0, 0, 3, "A:B", TRUE);
+    TEST_COMPOSE_COMMAND("*IDN? ; ABC", 5, 8, 3, "ABC", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;*IDN?", 3, 4, 5, "*IDN?", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;:C", 3, 4, 2, ":C", TRUE);
+    TEST_COMPOSE_COMMAND("B;C", 1, 2, 1, "C", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;C:D", 3, 4, 3, "A:C:D", TRUE);
+    TEST_COMPOSE_COMMAND(":A:B;C", 4, 5, 1, ":A:C", TRUE);
+    TEST_COMPOSE_COMMAND(":A:B;:C", 4, 5, 2, ":C", TRUE);
+    TEST_COMPOSE_COMMAND(":A;C", 2, 3, 1, ":C", TRUE);
+
+    bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen);
+
+}
+
 int main() {
     CU_pSuite pSuite = NULL;
 
@@ -415,6 +449,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
+            || (NULL == CU_add_test(pSuite, "composeCompoundCommand", test_composeCompoundCommand))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

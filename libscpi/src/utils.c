@@ -54,7 +54,7 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len);
  * @param set
  * @return 
  */
-char * strnpbrk(const char *str, size_t size, const char *set) {
+const char * strnpbrk(const char *str, size_t size, const char *set) {
     const char *scanp;
     long c, sc;
     const char * strend = str + size;
@@ -62,7 +62,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
     while ((strend != str) && ((c = *str++) != 0)) {
         for (scanp = set; (sc = *scanp++) != '\0';)
             if (sc == c)
-                return ((char *) (str - 1));
+                return str - 1;
     }
     return (NULL);
 }
@@ -401,7 +401,7 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  */
 size_t patternSeparatorPos(const char * pattern, size_t len) {
 
-    char * separator = strnpbrk(pattern, len, "?:[]");
+    const char * separator = strnpbrk(pattern, len, "?:[]");
     if (separator == NULL) {
         return len;
     } else {
@@ -416,7 +416,7 @@ size_t patternSeparatorPos(const char * pattern, size_t len) {
  * @return position of separator or len
  */
 size_t cmdSeparatorPos(const char * cmd, size_t len) {
-    char * separator = strnpbrk(cmd, len, ":?");
+    const char * separator = strnpbrk(cmd, len, ":?");
     size_t result;
     if (separator == NULL) {
         result = len;
@@ -572,6 +572,80 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
 
     return result;
 }
+
+/**
+ * Compose command from previsou command anc current command
+ * 
+ * @param ptr_prev pointer to previous command
+ * @param len_prev length of previous command
+ * @param pptr pointer to pointer of current command
+ * @param plen pointer to length of current command
+ * 
+ * ptr_prev and ptr should be in the same memory buffer
+ * 
+ * Function will add part of previous command prior to ptr_prev
+ * 
+ * char * cmd = "meas:volt:dc?;ac?"
+ * char * ptr_prev = cmd;
+ * size_t len_prev = 13;
+ * char * ptr = cmd + 14;
+ * size_t len = 3;
+ * 
+ * composeCompoundCommand(ptr_prev, len_prev, &ptr, &len);
+ * 
+ * after calling this
+ * 
+ * 
+ * 
+ */
+bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev,
+                              char ** pptr, size_t * plen) {
+    char * ptr;
+    size_t len;
+    size_t i;
+
+    /* Invalid input */
+    if (pptr == NULL || plen == NULL)
+        return FALSE;
+
+    /* no previous command - nothing to do*/
+    if (ptr_prev == NULL || len_prev == 0)
+        return TRUE;
+       
+    ptr = *pptr;
+    len = *plen;
+    
+    /* No current command */
+    if (len == 0 || ptr == NULL)
+        return FALSE;
+    
+    /* Common command or command root - nothing to do */
+    if (ptr[0] == '*' || ptr[0] == ':')
+        return TRUE;
+        
+    /* Previsou command was common command - nothing to do */
+    if (ptr_prev[0] == '*')
+        return TRUE;
+        
+    /* Find last occurence of ':' */
+    for (i = len_prev; i > 0; i--) {
+        if (ptr_prev[i-1] == ':') {
+            break;
+        }
+    }
+    
+    /* Previous command was simple command - nothing to do*/
+    if (i == 0)
+        return TRUE;
+    
+    ptr -= i;
+    len += i;
+    memmove(ptr, ptr_prev, i);
+    *plen = len;
+    *pptr = ptr;
+    return TRUE;
+}
+
 
 
 #if !HAVE_STRNLEN
