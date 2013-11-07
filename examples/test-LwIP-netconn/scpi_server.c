@@ -53,6 +53,7 @@
 #define CONTROL_PORT 5026
 
 #define SCPI_THREAD_PRIO (tskIDLE_PRIORITY + 2)
+#define SCPI_THREAD_STACKSIZE (512)
 
 #define SCPI_MSG_TIMEOUT                0
 #define SCPI_MSG_TEST                   1
@@ -410,5 +411,5 @@ static void scpi_server_thread(void *arg) {
 }
 
 void scpi_server_init(void) {
-    sys_thread_new("SCPI", scpi_server_thread, NULL, 2 * DEFAULT_THREAD_STACKSIZE, SCPI_THREAD_PRIO);
+    sys_thread_new("SCPI", scpi_server_thread, NULL, SCPI_THREAD_STACKSIZE, SCPI_THREAD_PRIO);
 }
