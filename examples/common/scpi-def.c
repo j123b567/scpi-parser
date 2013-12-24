@@ -118,7 +118,7 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
 }
 
 scpi_result_t TEST_Bool(scpi_t * context) {
-    bool_t param1;
+    scpi_bool_t param1;
     fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
 
     // read first parameter if present

@@ -55,8 +55,8 @@ extern "C" {
 #endif
 
     /* basic data types */
-    typedef bool bool_t;
-    /* typedef enum { FALSE = 0, TRUE } bool_t; */
+    typedef bool scpi_bool_t;
+    /* typedef enum { FALSE = 0, TRUE } scpi_bool_t; */
 
     /* IEEE 488.2 registers */
     enum _scpi_reg_name_t {
@@ -202,7 +202,7 @@ extern "C" {
         scpi_interface_t * interface;
         int_fast16_t output_count;
         int_fast16_t input_count;
-        bool_t cmd_error;
+        scpi_bool_t cmd_error;
         scpi_error_queue_t error_queue;
         scpi_reg_val_t * registers;
         const scpi_unit_def_t * units;

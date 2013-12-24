@@ -54,14 +54,14 @@ extern "C" {
     size_t SCPI_ResultInt(scpi_t * context, int32_t val);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
-    size_t SCPI_ResultBool(scpi_t * context, bool_t val);
+    size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
 
-    bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory);
-    bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory);
-    bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
-    bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);    
-    bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory);
-    bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, bool_t mandatory);
+    scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);    
+    scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory);
 
 
 #ifdef	__cplusplus

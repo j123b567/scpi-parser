@@ -106,8 +106,8 @@ static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_
     return SCPI_RES_OK;
 }
 
-bool_t TST_executed = FALSE;
-bool_t RST_executed = FALSE;
+scpi_bool_t TST_executed = FALSE;
+scpi_bool_t RST_executed = FALSE;
 static scpi_result_t SCPI_Test(scpi_t * context) {
     TST_executed = TRUE;
     return SCPI_RES_OK;

@@ -52,7 +52,7 @@ static size_t skipCmdLine(const char * cmd, size_t len);
 
 static void paramSkipBytes(scpi_t * context, size_t num);
 static void paramSkipWhitespace(scpi_t * context);
-static bool_t paramNext(scpi_t * context, bool_t mandatory);
+static scpi_bool_t paramNext(scpi_t * context, scpi_bool_t mandatory);
 
 /*
 int _strnicmp(const char* s1, const char* s2, size_t len) {
@@ -226,7 +226,7 @@ static void processCommand(scpi_t * context) {
  * @param context
  * @result TRUE if context->paramlist is filled with correct values
  */
-static bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmdline_len, size_t cmd_len) {
+static scpi_bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmdline_len, size_t cmd_len) {
     int32_t i;
     const scpi_command_t * cmd;
 
@@ -392,7 +392,7 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
  * @param val
  * @return 
  */
-size_t SCPI_ResultBool(scpi_t * context, bool_t val) {
+size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
 	return SCPI_ResultInt(context, val ? 1 : 0);
 }
 
@@ -459,7 +459,7 @@ void paramSkipWhitespace(scpi_t * context) {
  * @param mandatory
  * @return 
  */
-bool_t paramNext(scpi_t * context, bool_t mandatory) {
+scpi_bool_t paramNext(scpi_t * context, scpi_bool_t mandatory) {
     paramSkipWhitespace(context);
     if (context->paramlist.length == 0) {
         if (mandatory) {
@@ -487,7 +487,7 @@ bool_t paramNext(scpi_t * context, bool_t mandatory) {
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory) {
+scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory) {
     const char * param;
     size_t param_len;
     size_t num_len;
@@ -517,7 +517,7 @@ bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory) {
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory) {
+scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory) {
     const char * param;
     size_t param_len;
     size_t num_len;
@@ -548,7 +548,7 @@ bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory) {
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory) {
+scpi_bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory) {
     size_t length;
 
     if (!value || !len) {
@@ -579,7 +579,7 @@ bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, boo
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory) {
+scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory) {
     size_t length;
 
     if (!value || !len) {
@@ -608,7 +608,7 @@ bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory) {
+scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory) {
     const char * param;
     size_t param_len;
     size_t num_len;
@@ -648,7 +648,7 @@ bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory) {
  * @param mandatory
  * @return 
  */
-bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, bool_t mandatory) {
+scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory) {
     const char * param;
     size_t param_len;
     size_t res;

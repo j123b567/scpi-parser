@@ -264,7 +264,7 @@ void test_locateStr() {
 }
 
 void test_matchPattern() {
-    bool_t result;
+    scpi_bool_t result;
     
 #define TEST_MATCH_PATTERN(p, s, r)                             \
     do {                                                        \
@@ -280,7 +280,7 @@ void test_matchPattern() {
 }
 
 void test_matchCommand() {
-    bool_t result;
+    scpi_bool_t result;
     
     #define TEST_MATCH_COMMAND(p, s, r)                         \
     do {                                                        \
@@ -398,7 +398,7 @@ void test_composeCompoundCommand(void) {
         char * cmd = buffer + c2_pos;                                   \
         size_t len_prev = c1_len;                                       \
         size_t len = c2_len;                                            \
-        bool_t res;                                                     \
+        scpi_bool_t res;                                                \
                                                                         \
         strcpy(buffer, b);                                              \
         res = composeCompoundCommand(cmd_prev, len_prev, &cmd, &len);   \
@@ -419,7 +419,7 @@ void test_composeCompoundCommand(void) {
     TEST_COMPOSE_COMMAND(":A:B;:C", 4, 5, 2, ":C", TRUE);
     TEST_COMPOSE_COMMAND(":A;C", 2, 3, 1, ":C", TRUE);
 
-    bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen);
+    scpi_bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen);
 
 }
 

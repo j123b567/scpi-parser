@@ -46,7 +46,7 @@ extern "C" {
     extern const scpi_unit_def_t scpi_units_def[];
     extern const scpi_special_number_def_t scpi_special_numbers_def[];
     
-    bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory);
+    scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_t mandatory);
     size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len);
 
 #ifdef	__cplusplus
