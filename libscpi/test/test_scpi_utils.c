@@ -166,7 +166,7 @@ void test_compareStr() {
 }
 
 void test_matchPattern() {
-    bool_t result;
+    scpi_bool_t result;
 
 #define TEST_MATCH_PATTERN(p, s, r)                             \
     do {                                                        \
@@ -182,7 +182,7 @@ void test_matchPattern() {
 }
 
 void test_matchCommand() {
-    bool_t result;
+    scpi_bool_t result;
 
 #define TEST_MATCH_COMMAND(p, s, r)                         \
     do {                                                        \

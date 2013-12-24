@@ -42,7 +42,7 @@
  * @param context
  * @return 
  */
-bool_t SCPI_DebugCommand(scpi_t * context) {
+scpi_bool_t SCPI_DebugCommand(scpi_t * context) {
 	size_t res;
 	printf("**DEBUG: %s (\"", context->param_list.cmd->pattern);
 	res = fwrite(context->param_list.lex_state.buffer, 1, context->param_list.lex_state.len, stdout);

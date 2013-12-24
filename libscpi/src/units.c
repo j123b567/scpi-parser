@@ -123,7 +123,7 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
  * @param value resultin value
  * @return TRUE if str matches one of specs patterns
  */
-static bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_parameter_t * value) {
+static scpi_bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_parameter_t * value) {
     int i;
 
     value->value = 0.0;
@@ -219,7 +219,7 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
  * @param value preparsed numeric value
  * @return TRUE if value parameter was converted to base units
  */
-static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_parameter_t * value) {
+static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_parameter_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -249,7 +249,7 @@ static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, s
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * parameter) {
+scpi_bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * parameter) {
     token_t token;
     lex_state_t state;
 

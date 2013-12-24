@@ -52,16 +52,16 @@ extern "C" {
 #endif
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
-    bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
+    scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
     size_t longToStr(int32_t val, char * str, size_t len, int8_t base) LOCAL;
     size_t doubleToStr(double val, char * str, size_t len) LOCAL;
     size_t strToLong(const char * str, int32_t * val, int8_t base) LOCAL;
     size_t strToDouble(const char * str, double * val) LOCAL;
-    bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
-    bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
+    scpi_bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
+    scpi_bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
-    bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
-    bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
+    scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
+    scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen);

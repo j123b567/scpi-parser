@@ -12,7 +12,7 @@ void fifo_clear(fifo_t * fifo) {
     fifo->rd = 0;
 }
 
-bool_t fifo_add(fifo_t * fifo, int16_t value) {
+scpi_bool_t fifo_add(fifo_t * fifo, int16_t value) {
     /* FIFO full? */
     if (fifo->wr == ((fifo->rd + fifo->size) % (fifo->size + 1))) {
         fifo_remove(fifo, NULL);
@@ -24,7 +24,7 @@ bool_t fifo_add(fifo_t * fifo, int16_t value) {
     return TRUE;
 }
 
-bool_t fifo_remove(fifo_t * fifo, int16_t * value) {
+scpi_bool_t fifo_remove(fifo_t * fifo, int16_t * value) {
     /* FIFO empty? */
     if (fifo->wr == fifo->rd) {
         return FALSE;
@@ -39,7 +39,7 @@ bool_t fifo_remove(fifo_t * fifo, int16_t * value) {
     return TRUE;
 }
 
-bool_t fifo_count(fifo_t * fifo, int16_t * value) {
+scpi_bool_t fifo_count(fifo_t * fifo, int16_t * value) {
     *value = fifo->wr - fifo->rd;
     if (*value < 0) {
         *value += (fifo->size + 1);

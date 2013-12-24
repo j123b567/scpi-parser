@@ -98,7 +98,7 @@ static size_t writeControl(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
  * @param val - new value
  */
 void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
-    bool_t srq = FALSE;
+    scpi_bool_t srq = FALSE;
     scpi_reg_val_t mask;
     scpi_reg_val_t old_val;
 

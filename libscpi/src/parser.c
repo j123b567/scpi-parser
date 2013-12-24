@@ -131,7 +131,7 @@ static void processCommand(scpi_t * context) {
  * @param context
  * @result TRUE if context->paramlist is filled with correct values
  */
-static bool_t findCommandHeader(scpi_t * context, const char * header, int len) {
+static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int len) {
     int32_t i;
     const scpi_command_t * cmd;
 
@@ -362,14 +362,14 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
  * @param val
  * @return
  */
-size_t SCPI_ResultBool(scpi_t * context, bool_t val) {
+size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
     return SCPI_ResultIntBase(context, val ? 1 : 0, 10);
 }
 
 
 /* parsing parameters */
 
-bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, bool_t mandatory) {
+scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory) {
     token_t token;
     lex_state_t * state;
     int32_t value;
@@ -476,7 +476,7 @@ void SCPI_ParamGetTextVal(scpi_t * context, scpi_parameter_t * parameter, const 
 }
 
 /* SCPI-99 7.3 Boolean Program Data */
-bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter) {
+scpi_bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter) {
     switch (parameter->type) {
         case TokDecimalNumericProgramData:
             return parameter->number.value ? 1 : 0;

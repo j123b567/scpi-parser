@@ -148,7 +148,7 @@ size_t strToDouble(const char * str, double * val) {
  * @param len2
  * @return TRUE if len1==len2 and "len" characters of both strings are equal
  */
-bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) {
+scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) {
     if (len1 != len2) {
         return FALSE;
     }
@@ -235,7 +235,7 @@ size_t cmdSeparatorPos(const char * cmd, size_t len) {
  * @param str_len
  * @return 
  */
-bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
+scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
     int pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
     return compareStr(pattern, pattern_len, str, str_len) ||
             compareStr(pattern, pattern_sep_pos_short, str, str_len);
@@ -248,8 +248,8 @@ bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, 
  * @param len - max search length
  * @return TRUE if pattern matches, FALSE otherwise
  */
-bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
-    bool_t result = FALSE;
+scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
+    scpi_bool_t result = FALSE;
     int leftFlag = 0; // flag for '[' on left
     int rightFlag = 0; // flag for ']' on right
     int cmd_sep_pos = 0;
