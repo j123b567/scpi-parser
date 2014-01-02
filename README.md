@@ -3,7 +3,7 @@ SCPI parser library
 
 [SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by their patterns eg: "STATus:QUEStionable:EVENt?".
 
-Source codes are published with open source Simplified BSD license.
+Source code is published with open source Simplified BSD license.
 
 Command pattern definition
 -----------
@@ -69,7 +69,7 @@ scpi_command_t scpi_commands[] = {
 };
 ```
 
-Then you need to initialize the interface callbacks' structure. If you don't want to provide some callbacks, just initialize it as `NULL`. The write callback is mandatory and is used to output data from the library.
+Then you need to initialize the interface callbacks structure. If you don't want to provide some callbacks, just initialize it as `NULL`. The write callback is mandatory and is used to output data from the library.
 
 ```c
 scpi_interface_t scpi_interface = {
