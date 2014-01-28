@@ -41,14 +41,14 @@ Source code organisation
 
 Source codes are divided into a few files to provide better portability to other systems.
 
-- *libscpi/parser.c* - provides the core parser library
-- *libscpi/error.c* - provides basic error handling (error queue of the instrument)
-- *libscpi/ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
-- *libscpi/minimal.c* - provides basic implementation of SCPI mandatory commands
-- *libscpi/utils.c* - provides string handling routines and conversion routines
-- *libscpi/units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
-- *libscpi/fifo.c* - provides basic implementation of error queue FIFO
-- *libscpi/debug.c* - provides debug functions
+- *libscpi/src/parser.c* - provides the core parser library
+- *libscpi/src/error.c* - provides basic error handling (error queue of the instrument)
+- *libscpi/src/ieee488.c* - provides basic implementation of IEEE488.2 mandatory commands
+- *libscpi/src/minimal.c* - provides basic implementation of SCPI mandatory commands
+- *libscpi/src/utils.c* - provides string handling routines and conversion routines
+- *libscpi/src/units.c* - provides handling of special numners (DEF, MIN, MAX, ...) and units
+- *libscpi/src/fifo.c* - provides basic implementation of error queue FIFO
+- *libscpi/src/debug.c* - provides debug functions
 
 - *examples/test-parser* - is the basic non-interactive demo of the parser
 - *examples/test-interactive* - is the basic interactive demo of the parser
@@ -75,9 +75,9 @@ Then you need to initialize the interface callbacks structure. If you don't want
 scpi_interface_t scpi_interface = {
 	.write = myWrite,
 	.error = NULL,
-	.reset = NULL,
-	.test = NULL,
-	.srq = NULL,
+	.reset = NULL, /* Called from SCPI_CoreRst */
+	.test = NULL, /* Called from SCPI_CoreTstQ */
+	.control = NULL,
 };
 ```
 
@@ -116,7 +116,7 @@ SCPI_Init(&scpi_context);
 A test implementation of function myWrite, which outputs everything to stdout, could be
 
 ```c	
-size_t myWrite(scpi_context_t * context, const char * data, size_t len) {
+size_t myWrite(scpi_t * context, const char * data, size_t len) {
 	(void) context;
 	return fwrite(data, 1, len, stdout);
 }
