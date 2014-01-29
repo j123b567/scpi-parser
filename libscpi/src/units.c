@@ -109,7 +109,7 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
     {/* name */ "UP",           /* type */ SCPI_NUM_UP},
     {/* name */ "DOWN",         /* type */ SCPI_NUM_DOWN},
     {/* name */ "NAN",          /* type */ SCPI_NUM_NAN},
-    {/* name */ "INF",          /* type */ SCPI_NUM_INF},
+    {/* name */ "INFinity",     /* type */ SCPI_NUM_INF},
     {/* name */ "NINF",         /* type */ SCPI_NUM_NINF},
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
