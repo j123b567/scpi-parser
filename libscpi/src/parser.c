@@ -39,7 +39,7 @@
 
 #include "scpi/config.h"
 #include "scpi/parser.h"
-#include "utils.h"
+#include "scpi/utils_private.h"
 #include "scpi/error.h"
 #include "scpi/constants.h"
 

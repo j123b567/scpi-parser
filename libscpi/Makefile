@@ -30,8 +30,8 @@ OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 HDRS = $(addprefix inc/scpi/, \
 	scpi.h constants.h debug.h error.h \
 	fifo.h ieee488.h minimal.h parser.h \
-	types.h units.h \
-	) src/utils.h
+	types.h units.h utils_private.h \
+	)
 
 
 TESTS = $(addprefix test/, \

@@ -41,7 +41,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "utils.h"
+#include "scpi/utils_private.h"
 
 static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 static size_t patternSeparatorPos(const char * pattern, size_t len);
