@@ -36,6 +36,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "scpi/config.h"
 #include "scpi/parser.h"
@@ -429,6 +430,25 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     return result;
 }
 
+/**
+ * Write data out with a prepended IEEE488.2 packed binary header
+ * @param context
+ * @param data
+ * @param data_len
+ * @return
+ */
+size_t SCPI_ResultBinary(scpi_t * context, const char * data, const size_t data_len) {
+    size_t result = 0;
+    char len[10]; /* header length is only allowed to be 9 digits */
+    char header[12]; /* plus # and length of length field */
+    sprintf(len, "%d", data_len);
+    sprintf(header, "#%zd%d", strlen(len), data_len);
+    result += writeData(context, header, strlen(header));
+    result += writeData(context, data, data_len);
+    context->output_count++;
+    return result;
+}
+
 /* parsing parameters */
 
 /**
@@ -599,6 +619,53 @@ scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, 
     }
 
     return FALSE;
+}
+
+/**
+ * Parse an ieee488.2 packed binary parameter
+ *   #yzzzmmmmm
+ *   y is the length of field zzz
+ *   zzz is the length of mmm in bytes
+ *   mmm is the raw data
+ * Example #14ABCD = 4 bytes, 65,66,67,68
+ *
+ * @param context
+ * @param value
+ * @param len optional, will be filled in with field 'zzz' if provided
+ * @param mandatory
+ * @return
+ */
+scpi_bool_t SCPI_ParamBinary(scpi_t * context, const void **value, size_t * len, scpi_bool_t mandatory)
+{
+    if (!value || !len) {
+        return FALSE;
+    }
+
+    if (!paramNext(context, mandatory)) {
+        return FALSE;
+    }
+
+    if (context->paramlist.parameters[0] != '#') {
+        return FALSE;
+    }
+
+    int len_len = context->paramlist.parameters[1] - '0';
+    if (len_len > 10 || len_len < 1) {
+        return FALSE;
+    }
+
+    /* length can only ever be 9 digits */
+    char len_lens[10];
+    memcpy(len_lens, &context->paramlist.parameters[2], len_len);
+    len_lens[len_len] = '\0';
+    int32_t data_len;
+    strToLong(len_lens, &data_len);
+    if (len) {
+        *len = data_len;
+    }
+    *value = &context->paramlist.parameters[2 + len_len];
+    paramSkipBytes(context, 2 + len_len + data_len);
+    return TRUE;
 }
 
 /**
