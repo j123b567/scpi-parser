@@ -105,10 +105,18 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
+    struct _scpi_buffer_t {
+        size_t length;
+        size_t position;
+        char * data;
+    };
+    typedef struct _scpi_buffer_t scpi_buffer_t;
+
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
         const char * parameters;
         size_t length;
+        scpi_buffer_t cmd_raw;
     };
     #define SCPI_CMD_LIST_END       {NULL, NULL, }
     typedef struct _scpi_param_list_t scpi_param_list_t;
@@ -116,13 +124,6 @@ extern "C" {
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
     typedef struct _scpi_interface_t scpi_interface_t;
-
-    struct _scpi_buffer_t {
-        size_t length;
-        size_t position;
-        char * data;
-    };
-    typedef struct _scpi_buffer_t scpi_buffer_t;
 
     typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
     typedef scpi_result_t(*scpi_write_control_t)(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val);

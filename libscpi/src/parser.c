@@ -236,6 +236,9 @@ static scpi_bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_
             context->paramlist.cmd = cmd;
             context->paramlist.parameters = cmdline_ptr + cmd_len;
             context->paramlist.length = cmdline_len - cmd_len;
+            context->paramlist.cmd_raw.data = cmdline_ptr;
+            context->paramlist.cmd_raw.length = cmd_len;
+            context->paramlist.cmd_raw.position = 0;
             return TRUE;
         }
     }

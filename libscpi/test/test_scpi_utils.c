@@ -165,6 +165,24 @@ void test_compareStr() {
     CU_ASSERT_FALSE(compareStr("ABCD", 4, "abcd", 3));
 }
 
+void test_compareStrAndNum() {
+
+    CU_ASSERT_TRUE(compareStrAndNum("abcd", 1, "afgh", 1));
+    CU_ASSERT_TRUE(compareStrAndNum("ABCD", 4, "abcd", 4));
+    CU_ASSERT_TRUE(compareStrAndNum("AbCd", 3, "AbCE", 3));
+    CU_ASSERT_TRUE(compareStrAndNum("ABCD", 1, "a", 1));
+
+    CU_ASSERT_FALSE(compareStrAndNum("abcd", 1, "efgh", 1));
+    CU_ASSERT_FALSE(compareStrAndNum("ABCD", 4, "abcd", 3));
+
+    CU_ASSERT_TRUE(compareStrAndNum("abcd", 4, "abcd1", 5));
+    CU_ASSERT_TRUE(compareStrAndNum("abcd", 4, "abcd123", 7));
+    CU_ASSERT_FALSE(compareStrAndNum("abcd", 4, "abcd12A", 7));
+    CU_ASSERT_FALSE(compareStrAndNum("abcd", 4, "abcdB12", 7));
+    CU_ASSERT_FALSE(compareStrAndNum("abdd", 4, "abcd132", 7));
+
+}
+
 void test_locateText() {
 
     const char * v;
@@ -387,6 +405,22 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("*IDN?", ":idn?", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", ":*idn", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); // common command
+
+    TEST_MATCH_COMMAND("ABCdef#", "abc", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abc1324", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abcDef1324", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abcDef124b", FALSE); // test numeric parameter
+
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "abc", FALSE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output1:mod10:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:modulation:fm5", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10a:fm", FALSE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:mod10:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm2", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE); // test numeric parameter
 }
 
 void test_composeCompoundCommand(void) {
@@ -445,6 +479,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "strToLong", test_strToLong))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
+            || (NULL == CU_add_test(pSuite, "compareStrAndNum", test_compareStrAndNum))
             || (NULL == CU_add_test(pSuite, "locateText", test_locateText))
             || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))

@@ -154,6 +154,13 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+scpi_result_t TEST_Numbers(scpi_t * context) {
+
+    fprintf(stderr, "RAW CMD %.*s\r\n", (int)context->paramlist.cmd_raw.length, context->paramlist.cmd_raw.data);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -204,6 +211,7 @@ static const scpi_command_t scpi_commands[] = {
 
     {.pattern = "TEST:BOOL", .callback = TEST_Bool,},
     {.pattern = "TEST:CHOice?", .callback = TEST_ChoiceQ,},
+    {.pattern = "TEST#:NUMbers#", .callback = TEST_Numbers,},
 
     SCPI_CMD_LIST_END
 };
