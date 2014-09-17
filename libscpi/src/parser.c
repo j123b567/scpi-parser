@@ -546,8 +546,8 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
 /**
  * Parse string parameter
  * @param context
- * @param value
- * @param len
+ * @param value Pointer to string buffer where pointer to non-null terminated string will be returned
+ * @param len Length of returned non-null terminated string
  * @param mandatory
  * @return 
  */
@@ -577,8 +577,8 @@ scpi_bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len
 /**
  * Parse text parameter (can be inside "")
  * @param context
- * @param value
- * @param len
+ * @param value Pointer to string buffer where pointer to non-null terminated string will be returned
+ * @param len Length of returned non-null terminated string
  * @param mandatory
  * @return 
  */
