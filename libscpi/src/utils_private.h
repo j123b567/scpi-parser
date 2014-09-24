@@ -53,6 +53,7 @@ extern "C" {
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
+    scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;    
     size_t longToStr(int32_t val, char * str, size_t len, int8_t base) LOCAL;
     size_t doubleToStr(double val, char * str, size_t len) LOCAL;
     size_t strToLong(const char * str, int32_t * val, int8_t base) LOCAL;

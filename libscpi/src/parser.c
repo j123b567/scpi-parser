@@ -176,6 +176,9 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
                 context->param_list.lex_state.buffer = state->programData.ptr;
                 context->param_list.lex_state.pos = context->param_list.lex_state.buffer;
                 context->param_list.lex_state.len = state->programData.len;
+                context->param_list.cmd_raw.data = state->programHeader.ptr;
+                context->param_list.cmd_raw.position = 0;
+                context->param_list.cmd_raw.length = state->programHeader.len;
 
                 processCommand(context);
 

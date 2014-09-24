@@ -161,6 +161,36 @@ scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t
 }
 
 /**
+ * Compare two strings, one be longer but may contains only numbers in that section
+ * @param str1
+ * @param len1
+ * @param str2
+ * @param len2
+ * @return TRUE if strings match
+ */
+scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2) {
+    scpi_bool_t result = FALSE;
+    size_t i;
+
+    if (len2 < len1) {
+        return FALSE;
+    }
+
+    if (SCPI_strncasecmp(str1, str2, len1) == 0) {
+        result = TRUE;
+    }
+
+    for (i = len1; i<len2; i++) {
+        if (!isdigit(str2[i])) {
+            result = FALSE;
+            break;
+        }
+    }
+
+    return result;
+}
+
+/**
  * Count white spaces from the beggining
  * @param cmd - command
  * @param len - max search length
@@ -236,9 +266,22 @@ size_t cmdSeparatorPos(const char * cmd, size_t len) {
  * @return 
  */
 scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
-    int pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
-    return compareStr(pattern, pattern_len, str, str_len) ||
-            compareStr(pattern, pattern_sep_pos_short, str, str_len);
+    int pattern_sep_pos_short;
+
+    if (pattern[pattern_len - 1] == '#') {
+        size_t new_pattern_len = pattern_len - 1;
+
+        pattern_sep_pos_short = patternSeparatorShortPos(pattern, new_pattern_len);
+
+        return compareStrAndNum(pattern, new_pattern_len, str, str_len) ||
+                compareStrAndNum(pattern, pattern_sep_pos_short, str, str_len);
+    } else {
+
+        pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
+
+        return compareStr(pattern, pattern_len, str, str_len) ||
+                compareStr(pattern, pattern_sep_pos_short, str, str_len);
+    }
 }
 
 /**
