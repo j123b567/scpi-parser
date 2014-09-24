@@ -45,18 +45,18 @@ extern "C" {
 #endif
 
     int lexIsEos(lex_state_t * state) LOCAL;
-    int lexWhiteSpace(lex_state_t * state, token_t * token) LOCAL;
-    int lexProgramHeader(lex_state_t * state, token_t * token) LOCAL;
-    int lexCharacterProgramData(lex_state_t * state, token_t * token) LOCAL;
-    int lexDecimalNumericProgramData(lex_state_t * state, token_t * token) LOCAL;
-    int lexSuffixProgramData(lex_state_t * state, token_t * token) LOCAL;
-    int lexNondecimalNumericData(lex_state_t * state, token_t * token) LOCAL;
-    int lexStringProgramData(lex_state_t * state, token_t * token) LOCAL;
-    int lexArbitraryBlockProgramData(lex_state_t * state, token_t * token) LOCAL;
-    int lexProgramExpression(lex_state_t * state, token_t * token) LOCAL;
-    int lexComma(lex_state_t * state, token_t * token) LOCAL;
-    int lexSemicolon(lex_state_t * state, token_t * token) LOCAL;
-    int lexNewLine(lex_state_t * state, token_t * token) LOCAL;
+    int lexWhiteSpace(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexProgramHeader(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexCharacterProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexDecimalNumericProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexSuffixProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexNondecimalNumericData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexStringProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexProgramExpression(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexComma(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexSemicolon(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int lexNewLine(lex_state_t * state, scpi_token_t * token) LOCAL;
 
 #ifdef	__cplusplus
 }

@@ -212,7 +212,7 @@ static int skipProgramMnemonic(lex_state_t * state) {
 }
 
 /* tokens */
-int lexWhiteSpace(lex_state_t * state, token_t * token) {
+int lexWhiteSpace(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     skipWs(state);
@@ -270,7 +270,7 @@ static int skipCompoundProgramHeader(lex_state_t * state) {
     }
 }
 
-int lexProgramHeader(lex_state_t * state, token_t * token) {
+int lexProgramHeader(lex_state_t * state, scpi_token_t * token) {
     int res;
     token->ptr = state->pos;
     token->type = TokUnknown;
@@ -309,7 +309,7 @@ int lexProgramHeader(lex_state_t * state, token_t * token) {
 }
 
 /* 7.7.1 <CHARACTER PROGRAM DATA> */
-int lexCharacterProgramData(lex_state_t * state, token_t * token) {
+int lexCharacterProgramData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     if (!iseos(state) && isalpha(state->pos[0])) {
@@ -360,7 +360,7 @@ static int skipExponent(lex_state_t * state) {
     return someNumbers;
 }
 
-int lexDecimalNumericProgramData(lex_state_t * state, token_t * token) {
+int lexDecimalNumericProgramData(lex_state_t * state, scpi_token_t * token) {
     const char * rollback;
     token->ptr = state->pos;
 
@@ -385,7 +385,7 @@ int lexDecimalNumericProgramData(lex_state_t * state, token_t * token) {
 }
 
 /* 7.7.3 <SUFFIX PROGRAM DATA> */
-int lexSuffixProgramData(lex_state_t * state, token_t * token) {
+int lexSuffixProgramData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     skipChr(state, '/');
@@ -442,7 +442,7 @@ static int skipBinNum(lex_state_t * state) {
     return someNumbers;
 }
 
-int lexNondecimalNumericData(lex_state_t * state, token_t * token) {
+int lexNondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
     int someNumbers = 0;
     if (skipChr(state, '#')) {
@@ -503,7 +503,7 @@ static int skipSingleQuoteProgramData(lex_state_t * state) {
     skipQuoteProgramData(state, '\'');
 }
 
-int lexStringProgramData(lex_state_t * state, token_t * token) {
+int lexStringProgramData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     if (!iseos(state)) {
@@ -549,7 +549,7 @@ static int isNonzeroDigit(int c) {
     return isdigit(c) && (c != '0');
 }
 
-int lexArbitraryBlockProgramData(lex_state_t * state, token_t * token) {
+int lexArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token) {
     int i;
     int j = 0;
     const char * ptr = state->pos;
@@ -622,7 +622,7 @@ static void skipProgramExpression(lex_state_t * state) {
 
 // TODO: 7.7.7.2-2 recursive - any program data
 
-int lexProgramExpression(lex_state_t * state, token_t * token) {
+int lexProgramExpression(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     if (!iseos(state) && ischr(state, '(')) {
@@ -648,7 +648,7 @@ int lexProgramExpression(lex_state_t * state, token_t * token) {
     return token->len;
 }
 
-int lexComma(lex_state_t * state, token_t * token) {
+int lexComma(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     if (skipChr(state, ',')) {
@@ -662,7 +662,7 @@ int lexComma(lex_state_t * state, token_t * token) {
     return token->len;
 }
 
-int lexSemicolon(lex_state_t * state, token_t * token) {
+int lexSemicolon(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     if (skipChr(state, ';')) {
@@ -676,7 +676,7 @@ int lexSemicolon(lex_state_t * state, token_t * token) {
     return token->len;
 }
 
-int lexNewLine(lex_state_t * state, token_t * token) {
+int lexNewLine(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
     skipChr(state, '\r');

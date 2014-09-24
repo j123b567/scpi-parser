@@ -373,7 +373,7 @@ size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
 /* parsing parameters */
 
 scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory) {
-    token_t token;
+    scpi_token_t token;
     lex_state_t * state;
     int32_t value;
 
@@ -524,8 +524,8 @@ int32_t SCPI_ParamGetChoiceVal(scpi_t * context, scpi_parameter_t * parameter, c
     }
 }
 
-int parseProgramData(lex_state_t * state, token_t * token) {
-    token_t tmp;
+int parseProgramData(lex_state_t * state, scpi_token_t * token) {
+    scpi_token_t tmp;
     int result = 0;
     int wsLen;
     int suffixLen;
@@ -556,10 +556,10 @@ int parseProgramData(lex_state_t * state, token_t * token) {
     return result + realLen;
 }
 
-int parseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters) {
+int parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) {
 
     int result;
-    token_t tmp;
+    scpi_token_t tmp;
     int paramCount = 0;
 
     token->len = -1;
@@ -599,7 +599,7 @@ int parseAllProgramData(lex_state_t * state, token_t * token, int * numberOfPara
     return token->len;
 }
 
-static void invalidateToken(token_t * token, const char * ptr) {
+static void invalidateToken(scpi_token_t * token, const char * ptr) {
     token->len = 0;
     token->ptr = ptr;
     token->type = TokUnknown;
@@ -607,7 +607,7 @@ static void invalidateToken(token_t * token, const char * ptr) {
 
 int detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
     lex_state_t lex_state;
-    token_t tmp;
+    scpi_token_t tmp;
     int result = 0;
 
     lex_state.buffer = lex_state.pos = buffer;

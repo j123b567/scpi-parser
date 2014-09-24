@@ -25,10 +25,10 @@ int clean_suite(void) {
     return 0;
 }
 
-typedef int (*lexfn_t)(lex_state_t * state, token_t * token);
-typedef int (*lexfn2_t)(lex_state_t * state, token_t * token, int * cnt);
+typedef int (*lexfn_t)(lex_state_t * state, scpi_token_t * token);
+typedef int (*lexfn2_t)(lex_state_t * state, scpi_token_t * token, int * cnt);
 
-const char * typeToStr(token_type_t type) {
+const char * typeToStr(scpi_token_type_t type) {
     switch (type) {
         case TokComma: return "TokComma";
         case TokSemicolon: return "TokSemicolon";
@@ -58,7 +58,7 @@ const char * typeToStr(token_type_t type) {
     }
 }
 
-void printToken(token_t * token) {
+void printToken(scpi_token_t * token) {
     printf("Token:\r\n");
     printf("\t->type = %s\r\n", typeToStr(token->type));
     printf("\t->ptr = %p (\"%.*s\")\r\n", token->ptr, token->len, token->ptr);
@@ -68,9 +68,9 @@ void printToken(token_t * token) {
 
 #if 0
 
-static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, token_type_t tp) {
+static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, scpi_token_type_t tp) {
     lex_state_t state;
-    token_t token;
+    scpi_token_t token;
 
     state.buffer = state.pos = str;
     state.len = strlen(str);
@@ -86,9 +86,9 @@ static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, token_
     lexfn_t fn = f;                             \
     int offset = o;                             \
     int len = l;                                \
-    token_type_t tp = t;                        \
+    scpi_token_type_t tp = t;                        \
     lex_state_t state;                          \
-    token_t token;                              \
+    scpi_token_t token;                              \
                                                 \
     state.buffer = state.pos = str;             \
     state.len = strlen(str);                    \
@@ -215,9 +215,9 @@ void testProgramData(void) {
     lexfn2_t fn = f;                            \
     int offset = o;                             \
     int len = l;                                \
-    token_type_t tp = t;                        \
+    scpi_token_type_t tp = t;                        \
     lex_state_t state;                          \
-    token_t token;                              \
+    scpi_token_t token;                              \
     int count;                                  \
                                                 \
     state.buffer = state.pos = str;             \

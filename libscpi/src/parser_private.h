@@ -43,8 +43,8 @@
 extern "C" {
 #endif
 
-    int parseProgramData(lex_state_t * state, token_t * token) LOCAL;
-    int parseAllProgramData(lex_state_t * state, token_t * token, int * numberOfParameters) LOCAL;
+    int parseProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) LOCAL;
     int detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) LOCAL;
 
 #ifdef	__cplusplus

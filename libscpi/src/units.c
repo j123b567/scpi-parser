@@ -250,7 +250,7 @@ static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t l
  * @return 
  */
 scpi_bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * parameter) {
-    token_t token;
+    scpi_token_t token;
     lex_state_t state;
 
     state.buffer = parameter->data.ptr;

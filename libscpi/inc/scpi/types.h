@@ -123,7 +123,7 @@ extern "C" {
     typedef int (*scpi_error_callback_t)(scpi_t * context, int_fast16_t error);
 
     /* scpi lexer */
-    enum _token_type_t {
+    enum _scpi_token_type_t {
         TokComma,
         TokSemicolon,
         TokQuiestion,
@@ -150,14 +150,14 @@ extern "C" {
         TokInvalid,
         TokUnknown,
     };
-    typedef enum _token_type_t token_type_t;
+    typedef enum _scpi_token_type_t scpi_token_type_t;
 
-    struct _token_t {
-        token_type_t type;
+    struct _scpi_token_t {
+        scpi_token_type_t type;
         const char * ptr;
         int len;
     };
-    typedef struct _token_t token_t;
+    typedef struct _scpi_token_t scpi_token_t;
 
     struct _lex_state_t {
         const char * buffer;
@@ -175,8 +175,8 @@ extern "C" {
     typedef enum _message_termination_t message_termination_t;
     
     struct _scpi_parser_state_t {
-        token_t programHeader;
-        token_t programData;
+        scpi_token_t programHeader;
+        scpi_token_t programData;
         int numberOfParameters;
         message_termination_t termination;
     };
@@ -250,7 +250,7 @@ extern "C" {
     typedef struct _scpi_data_parameter_t scpi_data_parameter_t;
     
     struct _scpi_parameter_t {
-        token_type_t type;
+        scpi_token_type_t type;
         scpi_data_parameter_t data;
         scpi_number_parameter_t number;
     };
