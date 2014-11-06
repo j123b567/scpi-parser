@@ -59,16 +59,21 @@ extern "C" {
     size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len);
     size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
 
-    int32_t SCPI_ParamGetIntVal(scpi_t * context, scpi_parameter_t * parameter);
-    double SCPI_ParamGetDoubleVal(scpi_t * context, scpi_parameter_t * parameter);
-    void SCPI_ParamGetTextVal(scpi_t * context, scpi_parameter_t * parameter, const char ** data, int32_t * len);
-#define SCPI_ParamGetCharactersVal SCPI_ParamGetTextVal
-#define SCPI_ParamGetArbitraryBlockVal SCPI_ParamGetTextVal
-    scpi_bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter);
-    int32_t SCPI_ParamGetChoiceVal(scpi_t * context, scpi_parameter_t * parameter, const char * options[]);
-
+   
     scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed);
 
+    scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory);
+//    scpi_bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
+#define SCPI_ParamArbitraryBlock SCPI_ParamCharacters
+    scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, int * type, scpi_bool_t mandatory);
+
+    scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory);
+
+    
 #ifdef	__cplusplus
 }
 #endif

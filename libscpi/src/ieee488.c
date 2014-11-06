@@ -210,9 +210,9 @@ scpi_result_t SCPI_CoreCls(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreEse(scpi_t * context) {
-    scpi_parameter_t parameter;
-    if (SCPI_Parameter(context, &parameter, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_ESE, SCPI_ParamGetIntVal(context, &parameter));
+    int32_t new_ESE;
+    if (SCPI_ParamInt(context, &new_ESE, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_ESE, new_ESE);
     }
     return SCPI_RES_OK;
 }
@@ -296,9 +296,9 @@ scpi_result_t SCPI_CoreRst(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreSre(scpi_t * context) {
-    scpi_parameter_t parameter;
-    if (SCPI_Parameter(context, &parameter, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_SRE, SCPI_ParamGetIntVal(context, &parameter));
+    int32_t new_SRE;
+    if (SCPI_ParamInt(context, &new_SRE, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_SRE, new_SRE);
     }
     return SCPI_RES_OK;
 }

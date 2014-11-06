@@ -129,11 +129,10 @@ scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
-    scpi_parameter_t parameter;
-    if (SCPI_Parameter(context, &parameter, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_QUESE, SCPI_ParamGetIntVal(context, &parameter));
+    int32_t new_QUESE;
+    if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_QUESE, new_QUESE);
     }
-    
     return SCPI_RES_OK;
 }
 

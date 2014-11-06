@@ -123,7 +123,7 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
  * @param value resultin value
  * @return TRUE if str matches one of specs patterns
  */
-static scpi_bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_parameter_t * value) {
+static scpi_bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_t * value) {
     int i;
 
     value->value = 0.0;
@@ -219,7 +219,7 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
  * @param value preparsed numeric value
  * @return TRUE if value parameter was converted to base units
  */
-static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_parameter_t * value) {
+static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -249,30 +249,50 @@ static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t l
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * parameter) {
+scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_t mandatory)
+{
     scpi_token_t token;
     lex_state_t state;
+    scpi_parameter_t param;
+    scpi_bool_t result;
+    
+    result = SCPI_Parameter(context, &param, mandatory);
+    
 
-    state.buffer = parameter->data.ptr;
+    state.buffer = param.data.ptr;
     state.pos = state.buffer;
-    state.len = parameter->data.len;
+    state.len = param.data.len;
 
-    switch(parameter->type) {
+    switch(param.type) {
+        case TokDecimalNumericProgramData:
+        case TokHexnum:
+        case TokOctnum:
+        case TokBinnum:
+            result = TRUE;
+            break;
         case TokDecimalNumericProgramDataWithSuffix:
             lexDecimalNumericProgramData(&state, &token);
             lexWhiteSpace(&state, &token);
             lexSuffixProgramData(&state, &token);
 
-            return transformNumber(context, token.ptr, token.len, &parameter->number);
+            result = transformNumber(context, token.ptr, token.len, &param.number);
+            break;
         case TokProgramMnemonic:
             lexWhiteSpace(&state, &token);
             lexCharacterProgramData(&state, &token);
 
             /* convert string to special number type */
-            return translateSpecialNumber(context->special_numbers, token.ptr, token.len, &parameter->number);
+            result = translateSpecialNumber(context->special_numbers, token.ptr, token.len, &param.number);
+            break;
         default:
-            return FALSE;
+            result = FALSE;
     }
+
+    if (result) {
+        memcpy(value, &param.number, sizeof(scpi_number_t));
+    }
+
+    return result;
 }
 
 /**
@@ -283,7 +303,7 @@ scpi_bool_t SCPI_ParamTranslateNumberVal(scpi_t * context, scpi_parameter_t * pa
  * @param len max length of string
  * @return number of chars written to string
  */
-size_t SCPI_NumberToStr(scpi_t * context, scpi_number_parameter_t * value, char * str, size_t len) {
+size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len) {
     const char * type;
     const char * unit;
     size_t result;

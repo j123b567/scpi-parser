@@ -41,26 +41,26 @@
 #include "scpi-def.h"
 
 scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
-    scpi_parameter_t param1, param2;
+    scpi_number_t param1, param2;
     char bf[15];
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (SCPI_Parameter(context, &param1, false)) {
-        SCPI_ParamTranslateNumberVal(context, &param1);
+    if (!SCPI_ParamNumber(context, &param1, false)) {
+        // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (SCPI_Parameter(context, &param2, false)) {
-        SCPI_ParamTranslateNumberVal(context, &param2);
+    if (!SCPI_ParamNumber(context, &param2, false)) {
+        // do something, if parameter not present
     }
 
     
-    SCPI_NumberToStr(context, &param1.number, bf, 15);
+    SCPI_NumberToStr(context, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
     
-    SCPI_NumberToStr(context, &param2.number, bf, 15);
+    SCPI_NumberToStr(context, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
@@ -69,36 +69,64 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 }
 
 
+scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
+    scpi_number_t param1, param2;
+    char bf[15];
+    fprintf(stderr, "meas:volt:ac\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (!SCPI_ParamNumber(context, &param1, false)) {
+        // do something, if parameter not present
+    }
+
+    // read second paraeter if present
+    if (!SCPI_ParamNumber(context, &param2, false)) {
+        // do something, if parameter not present
+    }
+
+    
+    SCPI_NumberToStr(context, &param1, bf, 15);
+    fprintf(stderr, "\tP1=%s\r\n", bf);
+
+    
+    SCPI_NumberToStr(context, &param2, bf, 15);
+    fprintf(stderr, "\tP2=%s\r\n", bf);
+
+    SCPI_ResultDouble(context, 0);
+    
+    return SCPI_RES_OK;
+}
+
 scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
-    scpi_parameter_t param1, param2;
+    double param1, param2;
     fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_Parameter(context, &param1, true)) {
+    if (!SCPI_ParamDouble(context, &param1, true)) {
         return SCPI_RES_ERR;
     }
 
     // read second paraeter if present
-    if (!SCPI_Parameter(context, &param2, false)) {
+    if (!SCPI_ParamDouble(context, &param2, false)) {
         // do something, if parameter not present
     }
 
-    fprintf(stderr, "\tP1=%lf\r\n", SCPI_ParamGetDoubleVal(context, &param1));
-    fprintf(stderr, "\tP2=%lf\r\n", SCPI_ParamGetDoubleVal(context, &param2));
+    fprintf(stderr, "\tP1=%lf\r\n", param1);
+    fprintf(stderr, "\tP2=%lf\r\n", param2);
 
     return SCPI_RES_OK;
 }
 
 scpi_result_t TEST_Bool(scpi_t * context) {
-    scpi_parameter_t param1;
+    scpi_bool_t param1;
     fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_Parameter(context, &param1, true)) {
+    if (!SCPI_ParamBool(context, &param1, true)) {
         return SCPI_RES_ERR;
     }
 
-    fprintf(stderr, "\tP1=%d\r\n", SCPI_ParamGetBoolVal(context, &param1));
+    fprintf(stderr, "\tP1=%d\r\n", param1);
 
     return SCPI_RES_OK;
 }
@@ -112,18 +140,16 @@ const char * trigger_source[] = {
 
 
 scpi_result_t TEST_ChoiceQ(scpi_t * context) {
-    scpi_parameter_t param1;
-    int32_t result;
 
-    if (!SCPI_Parameter(context, &param1, true)) {
+    int32_t param;
+    
+    if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
         return SCPI_RES_ERR;
     }
-
-    result = SCPI_ParamGetChoiceVal(context, &param1, trigger_source);
-
-    fprintf(stderr, "\tP1=%s (%d)\r\n", result >= 0 ? trigger_source[result] : "", result);
-
-    SCPI_ResultInt(context, result);
+    
+    fprintf(stderr, "\tP1=%s (%d)\r\n", trigger_source[param], param);
+    
+    SCPI_ResultInt(context, param);
 
     return SCPI_RES_OK;
 }
@@ -173,7 +199,7 @@ static const scpi_command_t scpi_commands[] = {
     {.pattern = "MEASure:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
     {.pattern = "CONFigure:VOLTage:DC", .callback = DMM_ConfigureVoltageDc,},
     {.pattern = "MEASure:VOLTage:DC:RATio?", .callback = SCPI_StubQ,},
-    {.pattern = "MEASure:VOLTage:AC?", .callback = SCPI_StubQ,},
+    {.pattern = "MEASure:VOLTage:AC?", .callback = DMM_MeasureVoltageAcQ,},
     {.pattern = "MEASure:CURRent:DC?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:CURRent:AC?", .callback = SCPI_StubQ,},
     {.pattern = "MEASure:RESistance?", .callback = SCPI_StubQ,},

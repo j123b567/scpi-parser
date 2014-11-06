@@ -241,7 +241,7 @@ extern "C" {
         int8_t base;
         scpi_special_number_t type;
     };
-    typedef struct _scpi_number_parameter_t scpi_number_parameter_t;
+    typedef struct _scpi_number_parameter_t scpi_number_t;
 
     struct _scpi_data_parameter_t {
         const char * ptr;
@@ -252,7 +252,7 @@ extern "C" {
     struct _scpi_parameter_t {
         scpi_token_type_t type;
         scpi_data_parameter_t data;
-        scpi_number_parameter_t number;
+        scpi_number_t number;
     };
     typedef struct _scpi_parameter_t scpi_parameter_t;
     

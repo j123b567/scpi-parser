@@ -455,73 +455,153 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
     }
 }
 
-int32_t SCPI_ParamGetIntVal(scpi_t * context, scpi_parameter_t * parameter) {
+scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed) {
     switch (parameter->type) {
         case TokHexnum:
         case TokOctnum:
         case TokBinnum:
         case TokDecimalNumericProgramData:
+            return TRUE;
         case TokDecimalNumericProgramDataWithSuffix:
-            return parameter->number.value;
+            return suffixAllowed;
         default:
-            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
-            return 0;
-    }
-}
-
-double SCPI_ParamGetDoubleVal(scpi_t * context, scpi_parameter_t * parameter) {
-    return parameter->number.value;
-}
-
-void SCPI_ParamGetTextVal(scpi_t * context, scpi_parameter_t * parameter, const char ** data, int32_t * len) {
-    *data = parameter->data.ptr;
-    *len = parameter->data.len;
-}
-
-/* SCPI-99 7.3 Boolean Program Data */
-scpi_bool_t SCPI_ParamGetBoolVal(scpi_t * context, scpi_parameter_t * parameter) {
-    switch (parameter->type) {
-        case TokDecimalNumericProgramData:
-            return parameter->number.value ? 1 : 0;
-        case TokProgramMnemonic:
-            if (compareStr("ON", 2, parameter->data.ptr, parameter->data.len)) {
-                return TRUE;
-            } else if (compareStr("OFF", 3, parameter->data.ptr, parameter->data.len)) {
-                return FALSE;
-            } else {
-                SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
-                return FALSE;
-            }
-        default:
-            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
             return FALSE;
-    }
+    }   
 }
 
-/**
- * Get choice parameter
- */
-int32_t SCPI_ParamGetChoiceVal(scpi_t * context, scpi_parameter_t * parameter, const char * options[]) {
-    size_t res;
-
-    if (!options) {
-        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
-        return -1;
+scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory)
+{
+    scpi_bool_t result;
+    scpi_parameter_t param;
+    
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);        
+        return FALSE;
     }
+    
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {
+        if (SCPI_ParamIsNumber(&param, FALSE)) {
+           *value = param.number.value;
+        } else if (SCPI_ParamIsNumber(&param, TRUE)) {
+            SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+            result = FALSE;
+        } else {
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+            result = FALSE;
+        }
+    }
+    return result;  
+}
 
-    switch(parameter->type) {
-        case TokProgramMnemonic:
+scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory)
+{
+    // TODO: remove dependency on double
+    double tmpVal;
+    scpi_bool_t result;
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+    
+    result = SCPI_ParamDouble(context, &tmpVal, mandatory);
+    if (result) {
+        *value = tmpVal;
+    }
+    
+    return result;
+}
+
+scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory)   
+{
+    scpi_bool_t result;
+    scpi_parameter_t param;
+    
+    if (!value || !len) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+    
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {      
+        *value = param.data.ptr;
+        *len = param.data.len;
+
+        // TODO: return also parameter type (ProgramMnemonic, ArbitraryBlockProgramData, SingleQuoteProgramData, DoubleQuoteProgramData
+    }
+    
+    return result;
+}
+
+scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory)
+{
+    scpi_bool_t result;
+    scpi_parameter_t param;
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+    
+    result = SCPI_Parameter(context, &param, mandatory);
+    
+    if (result) {
+        switch (param.type) {
+            case TokDecimalNumericProgramData:
+                *value = param.number.value ? 1 : 0;
+                break;
+            case TokProgramMnemonic:
+                if (compareStr("ON", 2, param.data.ptr, param.data.len)) {
+                    *value = TRUE;
+                } else if (compareStr("OFF", 3, param.data.ptr, param.data.len)) {
+                    *value = FALSE;
+                } else {
+                    SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+                    result = FALSE;
+                }
+                break;
+            default:
+                SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+                result = FALSE;
+        }    
+    }
+    
+    return result;
+}
+
+scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory)
+{
+    size_t res;
+    scpi_bool_t result;
+    scpi_parameter_t param;
+       
+    if (!options || !value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+    
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {
+        if (param.type == TokProgramMnemonic) {
             for (res = 0; options[res]; ++res) {
-                if (matchPattern(options[res], strlen(options[res]), parameter->data.ptr, parameter->data.len)) {
-                    return res;
+                if (matchPattern(options[res], strlen(options[res]), param.data.ptr, param.data.len)) {
+                    *value = res;
+                    break;
                 }
             }
-            SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
-            return -1;
-        default:
+            
+            if (!options[res]) {
+                SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+                result = FALSE;
+            }
+        } else {
             SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
-            return -1;
+            result = FALSE;
+        }
     }
+
+    return result;
 }
 
 int parseProgramData(lex_state_t * state, scpi_token_t * token) {
