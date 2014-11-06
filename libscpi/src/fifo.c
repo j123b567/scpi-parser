@@ -1,18 +1,18 @@
 
 #include "fifo_private.h"
 
-void fifo_init(fifo_t * fifo) {
+void fifo_init(scpi_fifo_t * fifo) {
     fifo->wr = 0;
     fifo->rd = 0;
     fifo->size = FIFO_SIZE;
 }
 
-void fifo_clear(fifo_t * fifo) {
+void fifo_clear(scpi_fifo_t * fifo) {
     fifo->wr = 0;
     fifo->rd = 0;
 }
 
-scpi_bool_t fifo_add(fifo_t * fifo, int16_t value) {
+scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t value) {
     /* FIFO full? */
     if (fifo->wr == ((fifo->rd + fifo->size) % (fifo->size + 1))) {
         fifo_remove(fifo, NULL);
@@ -24,7 +24,7 @@ scpi_bool_t fifo_add(fifo_t * fifo, int16_t value) {
     return TRUE;
 }
 
-scpi_bool_t fifo_remove(fifo_t * fifo, int16_t * value) {
+scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) {
     /* FIFO empty? */
     if (fifo->wr == fifo->rd) {
         return FALSE;
@@ -39,7 +39,7 @@ scpi_bool_t fifo_remove(fifo_t * fifo, int16_t * value) {
     return TRUE;
 }
 
-scpi_bool_t fifo_count(fifo_t * fifo, int16_t * value) {
+scpi_bool_t fifo_count(scpi_fifo_t * fifo, int16_t * value) {
     *value = fifo->wr - fifo->rd;
     if (*value < 0) {
         *value += (fifo->size + 1);

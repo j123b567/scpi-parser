@@ -24,7 +24,7 @@ int clean_suite(void) {
 }
 
 void testFifo() {
-    fifo_t fifo;
+    scpi_fifo_t fifo;
     fifo_init(&fifo);
     int16_t value;
 

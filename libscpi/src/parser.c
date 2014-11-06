@@ -166,7 +166,7 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
     while (1) {
         result = 0;
 
-        r = detectProgramMessageUnit(state, data, len);
+        r = scpiParser_detectProgramMessageUnit(state, data, len);
 
         if (state->programHeader.type == TokInvalid) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_CHARACTER);
@@ -256,7 +256,7 @@ int SCPI_Input(scpi_t * context, const char * data, int len) {
 
 
         while (1) {
-            cmdlen = detectProgramMessageUnit(&context->parser_state, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
+            cmdlen = scpiParser_detectProgramMessageUnit(&context->parser_state, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
             totcmdlen += cmdlen;
             if (context->parser_state.termination == PmutNewLine) break;
             if (context->parser_state.programHeader.type == TokUnknown) break;
@@ -397,7 +397,7 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
         return FALSE;
     }
     if (context->input_count != 0) {
-        lexComma(state, &token);
+        scpiLex_Comma(state, &token);
         if (token.type != TokComma) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SEPARATOR);
             return FALSE;
@@ -406,7 +406,7 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
 
     context->input_count++;
 
-    parseProgramData(&context->param_list.lex_state, &token);
+    scpiParser_parseProgramData(&context->param_list.lex_state, &token);
 
     parameter->type = token.type;
     parameter->data.ptr = token.ptr;
@@ -604,21 +604,21 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t *
     return result;
 }
 
-int parseProgramData(lex_state_t * state, scpi_token_t * token) {
+int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) {
     scpi_token_t tmp;
     int result = 0;
     int wsLen;
     int suffixLen;
     int realLen = 0;
-    realLen += lexWhiteSpace(state, &tmp);
+    realLen += scpiLex_WhiteSpace(state, &tmp);
 
-    if (result == 0) result = lexNondecimalNumericData(state, token);
-    if (result == 0) result = lexCharacterProgramData(state, token);
+    if (result == 0) result = scpiLex_NondecimalNumericData(state, token);
+    if (result == 0) result = scpiLex_CharacterProgramData(state, token);
     if (result == 0) {
-        result = lexDecimalNumericProgramData(state, token);
+        result = scpiLex_DecimalNumericProgramData(state, token);
         if (result != 0) {
-            wsLen = lexWhiteSpace(state, &tmp);
-            suffixLen = lexSuffixProgramData(state, &tmp);
+            wsLen = scpiLex_WhiteSpace(state, &tmp);
+            suffixLen = scpiLex_SuffixProgramData(state, &tmp);
             if (suffixLen > 0) {
                 token->len += wsLen + suffixLen;
                 token->type = TokDecimalNumericProgramDataWithSuffix;
@@ -627,16 +627,16 @@ int parseProgramData(lex_state_t * state, scpi_token_t * token) {
         }
     }
 
-    if (result == 0) result = lexStringProgramData(state, token);
-    if (result == 0) result = lexArbitraryBlockProgramData(state, token);
-    if (result == 0) result = lexProgramExpression(state, token);
+    if (result == 0) result = scpiLex_StringProgramData(state, token);
+    if (result == 0) result = scpiLex_ArbitraryBlockProgramData(state, token);
+    if (result == 0) result = scpiLex_ProgramExpression(state, token);
 
-    realLen += lexWhiteSpace(state, &tmp);
+    realLen += scpiLex_WhiteSpace(state, &tmp);
 
     return result + realLen;
 }
 
-int parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) {
+int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) {
 
     int result;
     scpi_token_t tmp;
@@ -647,7 +647,7 @@ int parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberO
     token->ptr = state->pos;
 
 
-    for (result = 1; result != 0; result = lexComma(state, &tmp)) {
+    for (result = 1; result != 0; result = scpiLex_Comma(state, &tmp)) {
         token->len += result;
 
         if (result == 0) {
@@ -657,7 +657,7 @@ int parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberO
             break;
         }
 
-        result = parseProgramData(state, &tmp);
+        result = scpiParser_parseProgramData(state, &tmp);
         if (tmp.type != TokUnknown) {
             token->len += result;
         } else {
@@ -685,7 +685,7 @@ static void invalidateToken(scpi_token_t * token, const char * ptr) {
     token->type = TokUnknown;
 }
 
-int detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
+int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
     lex_state_t lex_state;
     scpi_token_t tmp;
     int result = 0;
@@ -695,11 +695,11 @@ int detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, i
     state->numberOfParameters = 0;
 
     /* ignore whitespace at the begginig */
-    lexWhiteSpace(&lex_state, &tmp);
+    scpiLex_WhiteSpace(&lex_state, &tmp);
 
-    if (lexProgramHeader(&lex_state, &state->programHeader) >= 0) {
-        if (lexWhiteSpace(&lex_state, &tmp) > 0) {
-            parseAllProgramData(&lex_state, &state->programData, &state->numberOfParameters);
+    if (scpiLex_ProgramHeader(&lex_state, &state->programHeader) >= 0) {
+        if (scpiLex_WhiteSpace(&lex_state, &tmp) > 0) {
+            scpiParser_parseAllProgramData(&lex_state, &state->programData, &state->numberOfParameters);
         } else {
             invalidateToken(&state->programData, lex_state.pos);
         }
@@ -708,10 +708,10 @@ int detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, i
         invalidateToken(&state->programData, lex_state.buffer);
     }
 
-    if (result == 0) result = lexNewLine(&lex_state, &tmp);
-    if (result == 0) result = lexSemicolon(&lex_state, &tmp);
+    if (result == 0) result = scpiLex_NewLine(&lex_state, &tmp);
+    if (result == 0) result = scpiLex_Semicolon(&lex_state, &tmp);
 
-    if (!lexIsEos(&lex_state) && (result == 0)) {
+    if (!scpiLex_IsEos(&lex_state) && (result == 0)) {
         lex_state.pos++;
 
         state->programHeader.len = 1;

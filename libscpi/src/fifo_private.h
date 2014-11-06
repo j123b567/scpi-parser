@@ -47,19 +47,19 @@ extern "C" {
 
 #define FIFO_SIZE 16
 
-    struct _fifo_t {
+    struct _scpi_fifo_t {
         int16_t wr;
         int16_t rd;
         int16_t size;
         int16_t data[FIFO_SIZE];
     };
-    typedef struct _fifo_t fifo_t;
+    typedef struct _scpi_fifo_t scpi_fifo_t;
 
-    void fifo_init(fifo_t * fifo) LOCAL;
-    void fifo_clear(fifo_t * fifo) LOCAL;
-    scpi_bool_t fifo_add(fifo_t * fifo, int16_t value) LOCAL;
-    scpi_bool_t fifo_remove(fifo_t * fifo, int16_t * value) LOCAL;
-    scpi_bool_t fifo_count(fifo_t * fifo, int16_t * value) LOCAL;
+    void fifo_init(scpi_fifo_t * fifo) LOCAL;
+    void fifo_clear(scpi_fifo_t * fifo) LOCAL;
+    scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t value) LOCAL;
+    scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) LOCAL;
+    scpi_bool_t fifo_count(scpi_fifo_t * fifo, int16_t * value) LOCAL;
 
 #ifdef	__cplusplus
 }

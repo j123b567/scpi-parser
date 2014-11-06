@@ -271,15 +271,15 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_
             result = TRUE;
             break;
         case TokDecimalNumericProgramDataWithSuffix:
-            lexDecimalNumericProgramData(&state, &token);
-            lexWhiteSpace(&state, &token);
-            lexSuffixProgramData(&state, &token);
+            scpiLex_DecimalNumericProgramData(&state, &token);
+            scpiLex_WhiteSpace(&state, &token);
+            scpiLex_SuffixProgramData(&state, &token);
 
             result = transformNumber(context, token.ptr, token.len, &param.number);
             break;
         case TokProgramMnemonic:
-            lexWhiteSpace(&state, &token);
-            lexCharacterProgramData(&state, &token);
+            scpiLex_WhiteSpace(&state, &token);
+            scpiLex_CharacterProgramData(&state, &token);
 
             /* convert string to special number type */
             result = translateSpecialNumber(context->special_numbers, token.ptr, token.len, &param.number);
