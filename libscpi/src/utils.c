@@ -179,7 +179,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
     }
 
     for (i = len1; i<len2; i++) {
-        if (!isdigit(str2[i])) {
+        if (!isdigit((int) str2[i])) {
             result = FALSE;
             break;
         }
