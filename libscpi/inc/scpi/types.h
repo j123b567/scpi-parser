@@ -118,7 +118,7 @@ extern "C" {
         size_t length;
         scpi_buffer_t cmd_raw;
     };
-    #define SCPI_CMD_LIST_END       {NULL, NULL, }
+    #define SCPI_CMD_LIST_END       {NULL, NULL, 0}
     typedef struct _scpi_param_list_t scpi_param_list_t;
 
     /* scpi interface */
@@ -185,6 +185,7 @@ extern "C" {
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
+        int cmd_id;
     };
 
     struct _scpi_interface_t {

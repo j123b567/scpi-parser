@@ -675,3 +675,15 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t *
     return FALSE;
 }
 
+/**
+ * Return the .cmd_id field of the matching scpi_command_t
+ * @param context
+ * @return
+ */
+int SCPI_CmdId(scpi_t * context) {
+    if (context->paramlist.cmd) {
+        return context->paramlist.cmd->cmd_id;
+    } else {
+        return 0;
+    }
+}
