@@ -675,3 +675,11 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t *
     return FALSE;
 }
 
+scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
+    if (! context->paramlist.cmd) {
+        return FALSE;
+    }
+
+    const char * pattern = context->paramlist.cmd->pattern;
+    return matchCommand (pattern, cmd, strlen (cmd));
+}
