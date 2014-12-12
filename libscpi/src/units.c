@@ -202,7 +202,7 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
     }
     
     for (i = 0; units[i].name != NULL; i++) {
-        if ((units[i].unit == unit) && (units[i].mult == 1)) {
+        if ((units[i].unit == unit) && (units[i].mult > 0.9999) && (units[i].mult < 1.0001)) {
             return units[i].name;
         }
     }

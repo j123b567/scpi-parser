@@ -226,7 +226,7 @@ static void processCommand(scpi_t * context) {
  * @param context
  * @result TRUE if context->paramlist is filled with correct values
  */
-static scpi_bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_t cmdline_len, size_t cmd_len) {
+static scpi_bool_t findCommand(scpi_t * context, char * cmdline_ptr, size_t cmdline_len, size_t cmd_len) {
     int32_t i;
     const scpi_command_t * cmd;
 
