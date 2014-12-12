@@ -45,7 +45,10 @@
 static scpi_fifo_t local_error_queue;
 
 
-
+/**
+ * Initialize error queue
+ * @param context - scpi context
+ */
 void SCPI_ErrorInit(scpi_t * context) {
     /*
      * // FreeRTOS

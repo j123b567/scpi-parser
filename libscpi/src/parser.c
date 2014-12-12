@@ -299,6 +299,11 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
     return SCPI_ResultIntBase(context, val, 10);
 }
 
+/**
+ * Return prefix of nondecimal base
+ * @param base
+ * @return 
+ */
 static const char * getBasePrefix(int8_t base) {
     switch (base) {
         case 2: return "#B";
@@ -308,6 +313,13 @@ static const char * getBasePrefix(int8_t base) {
     }
 }
 
+/**
+ * Write integer value in specific base to the result
+ * @param context
+ * @param val
+ * @param base
+ * @return 
+ */
 size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base) {
     char buffer[33];
     const char * basePrefix;
@@ -353,6 +365,7 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     size_t result = 0;
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
+    // TODO: convert " to ""
     result += writeData(context, data, strlen(data));
     result += writeData(context, "\"", 1);
     context->output_count++;
@@ -371,7 +384,13 @@ size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
 
 
 /* parsing parameters */
-
+/**
+ * Get one parameter from command line
+ * @param context
+ * @param parameter
+ * @param mandatory
+ * @return 
+ */
 scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory) {
     scpi_token_t token;
     lex_state_t * state;
@@ -455,6 +474,12 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
     }
 }
 
+/**
+ * Detect if parameter is number
+ * @param parameter
+ * @param suffixAllowed
+ * @return 
+ */
 scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed) {
     switch (parameter->type) {
         case TokHexnum:
@@ -469,6 +494,13 @@ scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixA
     }   
 }
 
+/**
+ * Read floating point parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return 
+ */
 scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory)
 {
     scpi_bool_t result;
@@ -494,6 +526,13 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
     return result;  
 }
 
+/**
+ * Read integer parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return 
+ */
 scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory)
 {
     // TODO: remove dependency on double
@@ -513,6 +552,14 @@ scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandato
     return result;
 }
 
+/**
+ * Read character parameter
+ * @param context
+ * @param value
+ * @param len
+ * @param mandatory
+ * @return 
+ */
 scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory)   
 {
     scpi_bool_t result;
@@ -534,6 +581,13 @@ scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t *
     return result;
 }
 
+/**
+ * Read BOOL parameter (0,1,ON,OFF)
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return 
+ */
 scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory)
 {
     scpi_bool_t result;
@@ -570,6 +624,14 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
     return result;
 }
 
+/**
+ * Read value from list of options
+ * @param context
+ * @param options
+ * @param value
+ * @param mandatory
+ * @return 
+ */
 scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory)
 {
     size_t res;
@@ -604,6 +666,12 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t *
     return result;
 }
 
+/**
+ * Parse one parameter and detect type
+ * @param state
+ * @param token
+ * @return 
+ */
 int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) {
     scpi_token_t tmp;
     int result = 0;
@@ -636,6 +704,13 @@ int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) {
     return result + realLen;
 }
 
+/**
+ * Skip all parameters to correctly detect end of command line.
+ * @param state
+ * @param token
+ * @param numberOfParameters
+ * @return 
+ */
 int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) {
 
     int result;
@@ -685,6 +760,13 @@ static void invalidateToken(scpi_token_t * token, const char * ptr) {
     token->type = TokUnknown;
 }
 
+/**
+ * Skip complete command line - program header and parameters
+ * @param state
+ * @param buffer
+ * @param len
+ * @return 
+ */
 int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
     lex_state_t lex_state;
     scpi_token_t tmp;

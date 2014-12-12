@@ -271,11 +271,7 @@ void testBoolParameter(void) {
     TEST_TOKEN(" 0", scpiParser_parseProgramData, 1, 1, TokDecimalNumericProgramData);
     TEST_TOKEN(" ON", scpiParser_parseProgramData, 1, 2, TokProgramMnemonic);
     TEST_TOKEN("OFF ", scpiParser_parseProgramData, 0, 3, TokProgramMnemonic);
-    
-    // TODO: finish bool test
 }
-
-// TODO: SCPI_Parameter test
 
 int main() {
     CU_pSuite pSuite = NULL;

@@ -117,6 +117,13 @@ extern "C" {
         char * data;
     };
     typedef struct _scpi_buffer_t scpi_buffer_t;
+    
+    struct _scpi_const_buffer_t {
+        size_t length;
+        size_t position;
+        const char * data;
+    };
+    typedef struct _scpi_const_buffer_t scpi_const_buffer_t;
 
     typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
     typedef scpi_result_t(*scpi_write_control_t)(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val);
@@ -231,7 +238,7 @@ extern "C" {
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
         lex_state_t lex_state;
-        scpi_buffer_t cmd_raw;
+        scpi_const_buffer_t cmd_raw;
     };
     typedef struct _scpi_param_list_t scpi_param_list_t;  
     

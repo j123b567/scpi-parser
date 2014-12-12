@@ -39,7 +39,7 @@ HDRS = $(addprefix inc/scpi/, \
 
 
 TESTS = $(addprefix test/, \
-	test_fifo.c test_scpi_utils.c test_lexer_parser.c\
+	test_fifo.c test_scpi_utils.c test_lexer_parser.c test_parser.c\
 	)
 
 TESTS_OBJS = $(TESTS:.c=.o)

@@ -68,7 +68,7 @@ extern "C" {
 //    scpi_bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
 #define SCPI_ParamArbitraryBlock SCPI_ParamCharacters
-    scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, int * type, scpi_bool_t mandatory);
+//    scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, int * type, scpi_bool_t mandatory);
 
     scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory);

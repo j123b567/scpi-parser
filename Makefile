@@ -5,3 +5,6 @@ all:
 clean:
 	$(MAKE) clean -C libscpi
 	$(MAKE) clean -C examples
+
+build-tests:
+	$(MAKE) test -C libscpi

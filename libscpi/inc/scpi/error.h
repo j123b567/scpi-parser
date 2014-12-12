@@ -62,6 +62,7 @@ extern "C" {
     X(SCPI_ERROR_INVALID_SUFFIX,       -131, "Invalid suffix")                 \
     X(SCPI_ERROR_SUFFIX_NOT_ALLOWED,   -138, "Suffix not allowed")             \
     X(SCPI_ERROR_INVALID_STRING_DATA,  -151, "Invalid string data")            \
+    X(SCPI_ERROR_INVALID_BLOCK_DATA,   -161, "Invalid block data")             \
     X(SCPI_ERROR_EXECUTION_ERROR,      -200, "Execution error")                \
     X(SCPI_ERROR_ILLEGAL_PARAMETER_VALUE,-224,"Illegal parameter value")       \
     X(SCPI_ERROR_SYSTEM_ERROR,         -310, "System error")                   \

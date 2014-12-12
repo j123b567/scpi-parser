@@ -63,15 +63,25 @@ void test_strnpbrk() {
     CU_ASSERT(strnpbrk(str, 4, "xo") == (str + 2));
 }
 
+
+
 void test_longToStr() {
     char str[32];
     size_t len;
 
     len = longToStr(10, str, 32, 10);
     CU_ASSERT(len == 2);
+    CU_ASSERT_STRING_EQUAL(str, "10");
+    CU_ASSERT(str[len] == '\0');
+
+    len = longToStr(10, str, 32, 2);
+    CU_ASSERT(len == 4);
     CU_ASSERT(str[0] == '1');
     CU_ASSERT(str[1] == '0');
-    CU_ASSERT(str[2] == '\0');
+    CU_ASSERT(str[2] == '1');
+    CU_ASSERT(str[3] == '0');
+    CU_ASSERT(str[4] == '\0');
+
 }
 
 void test_doubleToStr() {
