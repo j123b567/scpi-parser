@@ -264,20 +264,20 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_
     state.len = param.data.len;
 
     switch(param.type) {
-        case TokDecimalNumericProgramData:
-        case TokHexnum:
-        case TokOctnum:
-        case TokBinnum:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+        case SCPI_TOKEN_HEXNUM:
+        case SCPI_TOKEN_OCTNUM:
+        case SCPI_TOKEN_BINNUM:
             result = TRUE;
             break;
-        case TokDecimalNumericProgramDataWithSuffix:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             scpiLex_DecimalNumericProgramData(&state, &token);
             scpiLex_WhiteSpace(&state, &token);
             scpiLex_SuffixProgramData(&state, &token);
 
             result = transformNumber(context, token.ptr, token.len, &param.number);
             break;
-        case TokProgramMnemonic:
+        case SCPI_TOKEN_PROGRAM_MNEMONIC:
             scpiLex_WhiteSpace(&state, &token);
             scpiLex_CharacterProgramData(&state, &token);
 

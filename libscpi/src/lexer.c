@@ -333,9 +333,9 @@ int scpiLex_WhiteSpace(lex_state_t * state, scpi_token_t * token) {
     token->len = state->pos - token->ptr;
 
     if (token->len > 0) {
-        token->type = TokWhiteSpace;
+        token->type = SCPI_TOKEN_WS;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
     }
 
     return token->len;
@@ -402,32 +402,32 @@ static int skipCompoundProgramHeader(lex_state_t * state) {
 int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
     int res;
     token->ptr = state->pos;
-    token->type = TokUnknown;
+    token->type = SCPI_TOKEN_UNKNOWN;
 
     res = skipCommonProgramHeader(state);
     if (res >= SKIP_OK) {
         if (skipChr(state, '?') >= SKIP_OK) {
-            token->type = TokCommonQueryProgramHeader;
+            token->type = SCPI_TOKEN_COMMON_QUERY_PROGRAM_HEADER;
         } else {
-            token->type = TokCommonProgramHeader;
+            token->type = SCPI_TOKEN_COMMON_PROGRAM_HEADER;
         }
     } else if (res <= SKIP_INCOMPLETE) {
-        token->type = TokIncompleteCommonProgramHeader;
+        token->type = SCPI_TOKEN_INCOMPLETE_COMMON_PROGRAM_HEADER;
     } else if (res == SKIP_NONE) {
         res = skipCompoundProgramHeader(state);
 
         if (res >= SKIP_OK) {
             if (skipChr(state, '?') >= SKIP_OK) {
-                token->type = TokCompoundQueryProgramHeader;
+                token->type = SCPI_TOKEN_COMPOUND_QUERY_PROGRAM_HEADER;
             } else {
-                token->type = TokCompoundProgramHeader;
+                token->type = SCPI_TOKEN_COMPOUND_PROGRAM_HEADER;
             }
         } else if (res <= SKIP_INCOMPLETE) {
-            token->type = TokIncompleteCompoundProgramHeader;
+            token->type = SCPI_TOKEN_INCOMPLETE_COMPOUND_PROGRAM_HEADER;
         } 
     }
 
-    if (token->type != TokUnknown) {
+    if (token->type != SCPI_TOKEN_UNKNOWN) {
         token->len = state->pos - token->ptr;
     } else {
         token->len = 0;
@@ -456,9 +456,9 @@ int scpiLex_CharacterProgramData(lex_state_t * state, scpi_token_t * token) {
 
     token->len = state->pos - token->ptr;
     if (token->len > 0) {
-        token->type = TokProgramMnemonic;
+        token->type = SCPI_TOKEN_PROGRAM_MNEMONIC;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
     }
 
     return token->len;
@@ -517,9 +517,9 @@ int scpiLex_DecimalNumericProgramData(lex_state_t * state, scpi_token_t * token)
 
     token->len = state->pos - token->ptr;
     if (token->len > 0) {
-        token->type = TokDecimalNumericProgramData;
+        token->type = SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
     }
 
     return token->len;
@@ -545,9 +545,9 @@ int scpiLex_SuffixProgramData(lex_state_t * state, scpi_token_t * token) {
 
     token->len = state->pos - token->ptr;
     if ((token->len > 0)) {
-        token->type = TokSuffixProgramData;
+        token->type = SCPI_TOKEN_SUFFIX_PROGRAM_DATA;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }
@@ -597,15 +597,15 @@ int scpiLex_NondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
             if (isH(state->pos[0])) {
                 state->pos++;
                 someNumbers = skipHexNum(state);
-                token->type = TokHexnum;
+                token->type = SCPI_TOKEN_HEXNUM;
             } else if (isQ(state->pos[0])) {
                 state->pos++;
                 someNumbers = skipOctNum(state);
-                token->type = TokOctnum;
+                token->type = SCPI_TOKEN_OCTNUM;
             } else if (isB(state->pos[0])) {
                 state->pos++;
                 someNumbers = skipBinNum(state);
-                token->type = TokBinnum;
+                token->type = SCPI_TOKEN_BINNUM;
             }
         }
     }
@@ -614,7 +614,7 @@ int scpiLex_NondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
         token->ptr += 2; // ignore number prefix
         token->len = state->pos - token->ptr;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }
@@ -662,7 +662,7 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
     if (!iseos(state)) {
         if (ischr(state, '"')) {
             state->pos++;
-            token->type = TokDoubleQuoteProgramData;
+            token->type = SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA;
             skipDoubleQuoteProgramData(state);
             if (!iseos(state) && ischr(state, '"')) {
                 state->pos++;
@@ -672,7 +672,7 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
             }
         } else if (ischr(state, '\'')) {
             state->pos++;
-            token->type = TokSingleQuoteProgramData;
+            token->type = SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA;
             skipSingleQuoteProgramData(state);
             if (!iseos(state) && ischr(state, '\'')) {
                 state->pos++;
@@ -689,7 +689,7 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
         token->ptr++;
         token->len -= 2;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }
@@ -747,9 +747,9 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
     }
 
     if ((token->len > 0)) {
-        token->type = TokArbitraryBlockProgramData;
+        token->type = SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }
@@ -802,9 +802,9 @@ int scpiLex_ProgramExpression(lex_state_t * state, scpi_token_t * token) {
     }
 
     if ((token->len > 0)) {
-        token->type = TokProgramExpression;
+        token->type = SCPI_TOKEN_PROGRAM_EXPRESSION;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }
@@ -823,10 +823,10 @@ int scpiLex_Comma(lex_state_t * state, scpi_token_t * token) {
 
     if (skipChr(state, ',')) {
         token->len = 1;
-        token->type = TokComma;
+        token->type = SCPI_TOKEN_COMMA;
     } else {
         token->len = 0;
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
     }
 
     return token->len;
@@ -843,10 +843,10 @@ int scpiLex_Semicolon(lex_state_t * state, scpi_token_t * token) {
 
     if (skipChr(state, ';')) {
         token->len = 1;
-        token->type = TokSemicolon;
+        token->type = SCPI_TOKEN_SEMICOLON;
     } else {
         token->len = 0;
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
     }
 
     return token->len;
@@ -867,9 +867,9 @@ int scpiLex_NewLine(lex_state_t * state, scpi_token_t * token) {
     token->len = state->pos - token->ptr;
 
     if ((token->len > 0)) {
-        token->type = TokNewLine;
+        token->type = SCPI_TOKEN_NL;
     } else {
-        token->type = TokUnknown;
+        token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }

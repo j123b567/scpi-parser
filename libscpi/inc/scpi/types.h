@@ -131,31 +131,31 @@ extern "C" {
 
     /* scpi lexer */
     enum _scpi_token_type_t {
-        TokComma,
-        TokSemicolon,
-        TokQuiestion,
-        TokNewLine,
-        TokHexnum,
-        TokOctnum,
-        TokBinnum,
-        TokProgramMnemonic,
-        TokDecimalNumericProgramData,
-        TokDecimalNumericProgramDataWithSuffix,
-        TokSuffixProgramData,
-        TokArbitraryBlockProgramData,
-        TokSingleQuoteProgramData,
-        TokDoubleQuoteProgramData,
-        TokProgramExpression,
-        TokCompoundProgramHeader,
-        TokIncompleteCompoundProgramHeader,
-        TokCommonProgramHeader,
-        TokIncompleteCommonProgramHeader,
-        TokCompoundQueryProgramHeader,
-        TokCommonQueryProgramHeader,
-        TokWhiteSpace,
-        TokAllProgramData,
-        TokInvalid,
-        TokUnknown,
+        SCPI_TOKEN_COMMA,
+        SCPI_TOKEN_SEMICOLON,
+        SCPI_TOKEN_QUESTION,
+        SCPI_TOKEN_NL,
+        SCPI_TOKEN_HEXNUM,
+        SCPI_TOKEN_OCTNUM,
+        SCPI_TOKEN_BINNUM,
+        SCPI_TOKEN_PROGRAM_MNEMONIC,
+        SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA,
+        SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX,
+        SCPI_TOKEN_SUFFIX_PROGRAM_DATA,
+        SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA,
+        SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA,
+        SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA,
+        SCPI_TOKEN_PROGRAM_EXPRESSION,
+        SCPI_TOKEN_COMPOUND_PROGRAM_HEADER,
+        SCPI_TOKEN_INCOMPLETE_COMPOUND_PROGRAM_HEADER,
+        SCPI_TOKEN_COMMON_PROGRAM_HEADER,
+        SCPI_TOKEN_INCOMPLETE_COMMON_PROGRAM_HEADER,
+        SCPI_TOKEN_COMPOUND_QUERY_PROGRAM_HEADER,
+        SCPI_TOKEN_COMMON_QUERY_PROGRAM_HEADER,
+        SCPI_TOKEN_WS,
+        SCPI_TOKEN_ALL_PROGRAM_DATA,
+        SCPI_TOKEN_INVALID,
+        SCPI_TOKEN_UNKNOWN,
     };
     typedef enum _scpi_token_type_t scpi_token_type_t;
 
@@ -175,9 +175,9 @@ extern "C" {
 
     /* scpi parser */   
     enum _message_termination_t {
-        PmutNone,
-        PmutNewLine,
-        PmutSemicolon,                
+        SCPI_MESSAGE_TERMINATION_NONE,
+        SCPI_MESSAGE_TERMINATION_NL,
+        SCPI_MESSAGE_TERMINATION_SEMICOLON,                
     };
     typedef enum _message_termination_t message_termination_t;
     

@@ -168,7 +168,7 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
 
         r = scpiParser_detectProgramMessageUnit(state, data, len);
 
-        if (state->programHeader.type == TokInvalid) {
+        if (state->programHeader.type == SCPI_TOKEN_INVALID) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_CHARACTER);
         } else if (state->programHeader.len > 0) {
             if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
@@ -258,12 +258,12 @@ int SCPI_Input(scpi_t * context, const char * data, int len) {
         while (1) {
             cmdlen = scpiParser_detectProgramMessageUnit(&context->parser_state, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
             totcmdlen += cmdlen;
-            if (context->parser_state.termination == PmutNewLine) break;
-            if (context->parser_state.programHeader.type == TokUnknown) break;
+            if (context->parser_state.termination == SCPI_MESSAGE_TERMINATION_NL) break;
+            if (context->parser_state.programHeader.type == SCPI_TOKEN_UNKNOWN) break;
             if (totcmdlen >= context->buffer.position) break;
         }
 
-        if (context->parser_state.termination == PmutNewLine) {
+        if (context->parser_state.termination == SCPI_MESSAGE_TERMINATION_NL) {
             result = SCPI_Parse(context, context->buffer.data, totcmdlen);
             memmove(context->buffer.data, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
             context->buffer.position -= totcmdlen;
@@ -402,7 +402,7 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
     parameter->number.base = 10;
     parameter->number.unit = SCPI_UNIT_NONE;
     parameter->number.type = SCPI_NUM_NUMBER;
-    parameter->type = TokUnknown;
+    parameter->type = SCPI_TOKEN_UNKNOWN;
 
     state = &context->param_list.lex_state;
 
@@ -411,13 +411,13 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
             SCPI_ErrorPush(context, SCPI_ERROR_MISSING_PARAMETER);
         } else {
             parameter->number.type = SCPI_NUM_DEF;
-            parameter->type = TokProgramMnemonic; // TODO: select something different
+            parameter->type = SCPI_TOKEN_PROGRAM_MNEMONIC; // TODO: select something different
         }
         return FALSE;
     }
     if (context->input_count != 0) {
         scpiLex_Comma(state, &token);
-        if (token.type != TokComma) {
+        if (token.type != SCPI_TOKEN_COMMA) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SEPARATOR);
             return FALSE;
         }
@@ -432,41 +432,41 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
     parameter->data.len = token.len;
 
     switch (token.type) {
-        case TokHexnum:
+        case SCPI_TOKEN_HEXNUM:
             parameter->number.base = 16;
             strToLong(token.ptr, &value, 16);
             parameter->number.value = value;
             return TRUE;
-        case TokOctnum:
+        case SCPI_TOKEN_OCTNUM:
             parameter->number.base = 8;
             strToLong(token.ptr, &value, 8);
             parameter->number.value = value;
             return TRUE;
-        case TokBinnum:
+        case SCPI_TOKEN_BINNUM:
             parameter->number.base = 2;
             strToLong(token.ptr, &value, 2);
             parameter->number.value = value;
             return TRUE;
-        case TokProgramMnemonic:
+        case SCPI_TOKEN_PROGRAM_MNEMONIC:
             return TRUE;
-        case TokDecimalNumericProgramData:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
             strToDouble(token.ptr, &parameter->number.value);
             return TRUE;
-        case TokDecimalNumericProgramDataWithSuffix:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             strToDouble(token.ptr, &parameter->number.value);
             return TRUE;
-        case TokArbitraryBlockProgramData:
+        case SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA:
             return TRUE;
-        case TokSingleQuoteProgramData:
+        case SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA:
             // TODO: replace double "single qoute"
             return TRUE;
-        case TokDoubleQuoteProgramData:
+        case SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA:
             // TODO: replace double "double qoute"
             return TRUE;
-        case TokProgramExpression:
+        case SCPI_TOKEN_PROGRAM_EXPRESSION:
             return TRUE;
         default:
-            parameter->type = TokUnknown;
+            parameter->type = SCPI_TOKEN_UNKNOWN;
             parameter->data.ptr = NULL;
             parameter->data.len = 0;
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_STRING_DATA);
@@ -482,12 +482,12 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
  */
 scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed) {
     switch (parameter->type) {
-        case TokHexnum:
-        case TokOctnum:
-        case TokBinnum:
-        case TokDecimalNumericProgramData:
+        case SCPI_TOKEN_HEXNUM:
+        case SCPI_TOKEN_OCTNUM:
+        case SCPI_TOKEN_BINNUM:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
             return TRUE;
-        case TokDecimalNumericProgramDataWithSuffix:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             return suffixAllowed;
         default:
             return FALSE;
@@ -602,10 +602,10 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
     
     if (result) {
         switch (param.type) {
-            case TokDecimalNumericProgramData:
+            case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
                 *value = param.number.value ? 1 : 0;
                 break;
-            case TokProgramMnemonic:
+            case SCPI_TOKEN_PROGRAM_MNEMONIC:
                 if (compareStr("ON", 2, param.data.ptr, param.data.len)) {
                     *value = TRUE;
                 } else if (compareStr("OFF", 3, param.data.ptr, param.data.len)) {
@@ -645,7 +645,7 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t *
     
     result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
-        if (param.type == TokProgramMnemonic) {
+        if (param.type == SCPI_TOKEN_PROGRAM_MNEMONIC) {
             for (res = 0; options[res]; ++res) {
                 if (matchPattern(options[res], strlen(options[res]), param.data.ptr, param.data.len)) {
                     *value = res;
@@ -689,7 +689,7 @@ int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) {
             suffixLen = scpiLex_SuffixProgramData(state, &tmp);
             if (suffixLen > 0) {
                 token->len += wsLen + suffixLen;
-                token->type = TokDecimalNumericProgramDataWithSuffix;
+                token->type = SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX;
                 result = token->len;
             }
         }
@@ -718,7 +718,7 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
     int paramCount = 0;
 
     token->len = -1;
-    token->type = TokAllProgramData;
+    token->type = SCPI_TOKEN_ALL_PROGRAM_DATA;
     token->ptr = state->pos;
 
 
@@ -726,17 +726,17 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
         token->len += result;
 
         if (result == 0) {
-            token->type = TokUnknown;
+            token->type = SCPI_TOKEN_UNKNOWN;
             token->len = 0;
             paramCount = -1;
             break;
         }
 
         result = scpiParser_parseProgramData(state, &tmp);
-        if (tmp.type != TokUnknown) {
+        if (tmp.type != SCPI_TOKEN_UNKNOWN) {
             token->len += result;
         } else {
-            token->type = TokUnknown;
+            token->type = SCPI_TOKEN_UNKNOWN;
             token->len = 0;
             paramCount = -1;
             break;
@@ -757,7 +757,7 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
 static void invalidateToken(scpi_token_t * token, const char * ptr) {
     token->len = 0;
     token->ptr = ptr;
-    token->type = TokUnknown;
+    token->type = SCPI_TOKEN_UNKNOWN;
 }
 
 /**
@@ -797,17 +797,17 @@ int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char 
         lex_state.pos++;
 
         state->programHeader.len = 1;
-        state->programHeader.type = TokInvalid;
+        state->programHeader.type = SCPI_TOKEN_INVALID;
 
         invalidateToken(&state->programData, lex_state.buffer);        
     }
 
-    if (TokSemicolon == tmp.type) {
-        state->termination = PmutSemicolon;
-    } else if (TokNewLine == tmp.type) {
-        state->termination = PmutNewLine;
+    if (SCPI_TOKEN_SEMICOLON == tmp.type) {
+        state->termination = SCPI_MESSAGE_TERMINATION_SEMICOLON;
+    } else if (SCPI_TOKEN_NL == tmp.type) {
+        state->termination = SCPI_MESSAGE_TERMINATION_NL;
     } else {
-        state->termination = PmutNone;
+        state->termination = SCPI_MESSAGE_TERMINATION_NONE;
     }
 
     return lex_state.pos - lex_state.buffer;
