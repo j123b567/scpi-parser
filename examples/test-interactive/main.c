@@ -65,9 +65,12 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
+/**
+ * Return 0 as OK and other number as error
+ */
 scpi_result_t SCPI_Test(scpi_t * context) {
     fprintf(stderr, "**Test\r\n");
-    return SCPI_RES_OK;
+    return 0;
 }
 
 scpi_result_t SCPI_Reset(scpi_t * context) {
