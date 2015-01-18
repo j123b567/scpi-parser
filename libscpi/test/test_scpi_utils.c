@@ -82,6 +82,16 @@ void test_longToStr() {
     CU_ASSERT(str[3] == '0');
     CU_ASSERT(str[4] == '\0');
 
+    len = longToStr(10, str, 32, 16);
+    CU_ASSERT(len == 1);
+    CU_ASSERT(str[0] == 'A');
+    CU_ASSERT(str[1] == '\0');
+    
+    len = longToStr(10, str, 32, 8);
+    CU_ASSERT(len == 2);
+    CU_ASSERT(str[0] == '1');
+    CU_ASSERT(str[1] == '2');    
+    CU_ASSERT(str[2] == '\0');    
 }
 
 void test_doubleToStr() {

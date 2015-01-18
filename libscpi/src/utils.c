@@ -75,32 +75,59 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @return number of bytes written to str (without '\0')
  */
 size_t longToStr(int32_t val, char * str, size_t len, int8_t base) {
-    uint32_t x = 1000000000L;
+    const char digits[] = "0123456789ABCDEF";
+
+#define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
+    uint32_t x = 0;
     int_fast8_t digit;
     size_t pos = 0;
+    uint32_t uval = val;
 
-    if (val == 0) {
-        if (pos < len) str[pos++] = '0';
+    if (uval == 0) {
+        ADD_CHAR('0');
     } else {
-        if (val < 0) {
-            val = -val;
-            if (pos < len) str[pos++] = '-';
+
+        switch (base) {
+            case 2: 
+                x = 0x80000000L;
+                break;
+            case 8:
+                x = 0x40000000L;
+                break;
+            case 10:
+                x = 1000000000L;
+                break;
+            case 0x10:
+                x = 0x10000000L;
+                break;
+            default:
+                x = 1000000000L;
+                base = 10;
+                break;
         }
 
-        while ((val / x) == 0) {
+        // add sign for numbers in base 10
+        if ((val < 0) && (base == 10)) {
+            uval = -val;
+            ADD_CHAR('-');
+        }
+
+        // remove leading zeros
+        while ((uval / x) == 0) {
             x /= base;
         }
 
         do {
-            digit = (uint8_t) (val / x);
-            if (pos < len) str[pos++] = digit + '0';
-            val -= digit * x;
+            digit = (uint8_t) (uval / x);
+            ADD_CHAR(digits[digit]);
+            uval -= digit * x;
             x /= base;
         } while (x && (pos < len));
     }
 
     if (pos < len) str[pos] = 0;
     return pos;
+#undef ADD_CHAR
 }
 
 /**
@@ -178,7 +205,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
         result = TRUE;
     }
 
-    for (i = len1; i<len2; i++) {
+    for (i = len1; i < len2; i++) {
         if (!isdigit(str2[i])) {
             result = FALSE;
             break;
@@ -316,7 +343,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
 
     if (cmd_ptr[0] == ':') {
         /* handle errornouse ":*IDN?" */
-        if((cmd_len >= 2) && (cmd_ptr[1] != '*')) {
+        if ((cmd_len >= 2) && (cmd_ptr[1] != '*')) {
             cmd_len--;
             cmd_ptr++;
         }
@@ -435,12 +462,13 @@ BSD_strnlen(const char *s, size_t maxlen) {
 #endif
 
 #if !HAVE_STRNCASECMP && !HAVE_STRNICMP
+
 int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
     unsigned char c1, c2;
 
-    for(; n != 0; n--) {
-        c1 = tolower((unsigned char)*s1++);
-        c2 = tolower((unsigned char)*s2++);
+    for (; n != 0; n--) {
+        c1 = tolower((unsigned char) *s1++);
+        c2 = tolower((unsigned char) *s2++);
         if (c1 != c2) {
             return c1 - c2;
         }

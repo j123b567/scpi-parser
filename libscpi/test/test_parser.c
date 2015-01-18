@@ -68,9 +68,10 @@ scpi_result_t SCPI_Reset(scpi_t * context)
     (void)context;
 }
 
-scpi_result_t SCPI_Test(scpi_t * context)
+int32_t SCPI_Test(scpi_t * context)
 {
-    (void)context;   
+    (void)context;
+    return 0;
 }
 
 scpi_result_t SCPI_Flush(scpi_t * context)
