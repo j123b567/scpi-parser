@@ -190,6 +190,7 @@ extern "C" {
     typedef struct _scpi_parser_state_t scpi_parser_state_t;
 
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
+    typedef int32_t(*scpi_test_command_callback_t)(scpi_t *);
 
     /* scpi error queue */
     typedef void * scpi_error_queue_t;
@@ -274,7 +275,7 @@ extern "C" {
         scpi_write_control_t control;
         scpi_command_callback_t flush;
         scpi_command_callback_t reset;
-        scpi_command_callback_t test;
+        scpi_test_command_callback_t test;
     };
 
     struct _scpi_t {
