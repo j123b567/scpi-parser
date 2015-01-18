@@ -46,21 +46,21 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamNumber(context, &param1, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
         // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamNumber(context, &param2, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, false)) {
         // do something, if parameter not present
     }
 
     
-    SCPI_NumberToStr(context, &param1, bf, 15);
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
     
-    SCPI_NumberToStr(context, &param2, bf, 15);
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
@@ -75,21 +75,21 @@ scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     fprintf(stderr, "meas:volt:ac\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamNumber(context, &param1, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
         // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamNumber(context, &param2, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, false)) {
         // do something, if parameter not present
     }
 
     
-    SCPI_NumberToStr(context, &param1, bf, 15);
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
     
-    SCPI_NumberToStr(context, &param2, bf, 15);
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
@@ -131,23 +131,25 @@ scpi_result_t TEST_Bool(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-const char * trigger_source[] = {
-    "BUS",
-    "IMMediate",
-    "EXTernal",
-    NULL /* termination of option list */
+scpi_choice_def_t trigger_source[] = {
+    {"BUS", 5},
+    {"IMMediate", 6},
+    {"EXTernal", 7},
+    SCPI_CHOICE_LIST_END /* termination of option list */
 };
 
 
 scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
     int32_t param;
+    const char * name;
     
     if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
         return SCPI_RES_ERR;
     }
     
-    fprintf(stderr, "\tP1=%s (%d)\r\n", trigger_source[param], param);
+    SCPI_ChoiceToName(trigger_source, param, &name);
+    fprintf(stderr, "\tP1=%s (%d)\r\n", name, param);
     
     SCPI_ResultInt(context, param);
 
@@ -157,6 +159,29 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 scpi_result_t TEST_Numbers(scpi_t * context) {
 
     fprintf(stderr, "RAW CMD %.*s\r\n", (int)context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t TEST_Text(scpi_t * context) {
+    char buffer[100];
+    size_t copy_len;
+
+    buffer[0] = 0;
+    SCPI_ParamCopyText(context, buffer, 100, &copy_len, false);
+
+    fprintf(stderr, "TEXT: ***%s***\r\n", buffer);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t TEST_ArbQ(scpi_t * context) {
+    const char * data;
+    size_t len;
+
+    SCPI_ParamArbitraryBlock(context, &data, &len, false);
+
+    SCPI_ResultArbitraryBlock(context, data, len);
 
     return SCPI_RES_OK;
 }
@@ -212,6 +237,8 @@ static const scpi_command_t scpi_commands[] = {
     {.pattern = "TEST:BOOL", .callback = TEST_Bool,},
     {.pattern = "TEST:CHOice?", .callback = TEST_ChoiceQ,},
     {.pattern = "TEST#:NUMbers#", .callback = TEST_Numbers,},
+    {.pattern = "TEST:TEXT", .callback = TEST_Text,},
+    {.pattern = "TEST:ARBitrary?", .callback = TEST_ArbQ,},
 
     SCPI_CMD_LIST_END
 };
@@ -240,6 +267,5 @@ scpi_t scpi_context = {
     .interface = &scpi_interface,
     .registers = scpi_regs,
     .units = scpi_units_def,
-    .special_numbers = scpi_special_numbers_def,
     .idn = {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };

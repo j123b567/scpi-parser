@@ -103,7 +103,7 @@ const scpi_unit_def_t scpi_units_def[] = {
 /*
  * Special number values definition
  */
-const scpi_special_number_def_t scpi_special_numbers_def[] = {
+const scpi_choice_def_t scpi_special_numbers_def[] = {
     {/* name */ "MINimum", /* type */ SCPI_NUM_MIN},
     {/* name */ "MAXimum", /* type */ SCPI_NUM_MAX},
     {/* name */ "DEFault", /* type */ SCPI_NUM_DEF},
@@ -112,59 +112,8 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
     {/* name */ "NAN", /* type */ SCPI_NUM_NAN},
     {/* name */ "INFinity", /* type */ SCPI_NUM_INF},
     {/* name */ "NINF", /* type */ SCPI_NUM_NINF},
-    SCPI_SPECIAL_NUMBERS_LIST_END,
+    SCPI_CHOICE_LIST_END,
 };
-
-/**
- * Match string constant to one of special number values
- * @param specs specifications of special numbers (patterns)
- * @param str string to be recognised
- * @param len length of string
- * @param value resultin value
- * @return TRUE if str matches one of specs patterns
- */
-static scpi_bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_t * value) {
-    int i;
-
-    value->value = 0.0;
-    value->unit = SCPI_UNIT_NONE;
-    value->type = SCPI_NUM_NUMBER;
-
-    if (specs == NULL) {
-        return FALSE;
-    }
-
-    for (i = 0; specs[i].name != NULL; i++) {
-        if (matchPattern(specs[i].name, strlen(specs[i].name), str, len)) {
-            value->type = specs[i].type;
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-/**
- * Convert special number type to its string representation
- * @param specs specifications of special numbers (patterns)
- * @param type type of special number
- * @return String representing special number or NULL
- */
-static const char * translateSpecialNumberInverse(const scpi_special_number_def_t * specs, scpi_special_number_t type) {
-    int i;
-
-    if (specs == NULL) {
-        return NULL;
-    }
-
-    for (i = 0; specs[i].name != NULL; i++) {
-        if (specs[i].type == type) {
-            return specs[i].name;
-        }
-    }
-
-    return NULL;
-}
 
 /**
  * Convert string describing unit to its representation
@@ -249,47 +198,94 @@ static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t l
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_t mandatory)
+scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, scpi_bool_t mandatory)
 {
     scpi_token_t token;
     lex_state_t state;
     scpi_parameter_t param;
     scpi_bool_t result;
-    
-    result = SCPI_Parameter(context, &param, mandatory);
-    
+    int32_t intval;
 
-    state.buffer = param.data.ptr;
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    result = SCPI_Parameter(context, &param, mandatory);
+
+    if (!result) {
+        return result;
+    }
+
+    state.buffer = param.ptr;
     state.pos = state.buffer;
-    state.len = param.data.len;
+    state.len = param.len;
 
     switch(param.type) {
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_HEXNUM:
         case SCPI_TOKEN_OCTNUM:
         case SCPI_TOKEN_BINNUM:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
+        case SCPI_TOKEN_PROGRAM_MNEMONIC:
+            value->unit = SCPI_UNIT_NONE;
+            value->type = SCPI_NUM_NUMBER;
             result = TRUE;
+            break;
+    }
+
+    switch(param.type) {
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
+        case SCPI_TOKEN_PROGRAM_MNEMONIC:
+            value->base = 10;
+            break;
+        case SCPI_TOKEN_BINNUM:
+            value->base = 2;
+            break;
+        case SCPI_TOKEN_HEXNUM:
+            value->base = 16;
+            break;
+        case SCPI_TOKEN_OCTNUM:
+            value->base = 8;
+            break;
+    }
+
+    switch(param.type) {
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+            SCPI_ParamToDouble(context, &param, &(value->value));
+            break;
+        case SCPI_TOKEN_HEXNUM:
+            SCPI_ParamToDouble(context, &param, &(value->value));
+            break;
+        case SCPI_TOKEN_OCTNUM:
+            SCPI_ParamToDouble(context, &param, &(value->value));
+            break;
+        case SCPI_TOKEN_BINNUM:
+            SCPI_ParamToDouble(context, &param, &(value->value));
             break;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             scpiLex_DecimalNumericProgramData(&state, &token);
             scpiLex_WhiteSpace(&state, &token);
             scpiLex_SuffixProgramData(&state, &token);
 
-            result = transformNumber(context, token.ptr, token.len, &param.number);
+            SCPI_ParamToDouble(context, &param, &(value->value));
+
+            result = transformNumber(context, token.ptr, token.len, value);
             break;
         case SCPI_TOKEN_PROGRAM_MNEMONIC:
             scpiLex_WhiteSpace(&state, &token);
             scpiLex_CharacterProgramData(&state, &token);
 
             /* convert string to special number type */
-            result = translateSpecialNumber(context->special_numbers, token.ptr, token.len, &param.number);
+            SCPI_ParamToChoice(context, &token, special, &intval);
+
+            value->type = intval;
+            value->value = 0;
+
             break;
         default:
             result = FALSE;
-    }
-
-    if (result) {
-        memcpy(value, &param.number, sizeof(scpi_number_t));
     }
 
     return result;
@@ -303,7 +299,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_
  * @param len max length of string
  * @return number of chars written to string
  */
-size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, size_t len) {
+size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, char * str, size_t len) {
     const char * type;
     const char * unit;
     size_t result;
@@ -312,9 +308,7 @@ size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, siz
         return 0;
     }
 
-    type = translateSpecialNumberInverse(context->special_numbers, value->type);
-
-    if (type) {
+    if (SCPI_ChoiceToName(special, value->type, &type)) {
         strncpy(str, type, len);
         return min(strlen(type), len);
     }

@@ -105,7 +105,7 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
-#define SCPI_CMD_LIST_END       {NULL, NULL, }
+#define SCPI_CMD_LIST_END       {NULL, NULL, 0}
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
@@ -229,12 +229,12 @@ extern "C" {
     };
     typedef enum _scpi_special_number_t scpi_special_number_t;
 
-    struct _scpi_special_number_def_t {
+    struct _scpi_choice_def_t {
         const char * name;
-        scpi_special_number_t type;
+        int32_t tag;
     };
-#define SCPI_SPECIAL_NUMBERS_LIST_END   {NULL, SCPI_NUM_NUMBER}    
-    typedef struct _scpi_special_number_def_t scpi_special_number_def_t;
+#define SCPI_CHOICE_LIST_END   {NULL, -1}
+    typedef struct _scpi_choice_def_t scpi_choice_def_t;
 
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
@@ -257,16 +257,12 @@ extern "C" {
     };
     typedef struct _scpi_data_parameter_t scpi_data_parameter_t;
     
-    struct _scpi_parameter_t {
-        scpi_token_type_t type;
-        scpi_data_parameter_t data;
-        scpi_number_t number;
-    };
-    typedef struct _scpi_parameter_t scpi_parameter_t;
+    typedef scpi_token_t scpi_parameter_t;
     
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
+        int32_t tag;
     };
 
     struct _scpi_interface_t {
@@ -289,7 +285,6 @@ extern "C" {
         scpi_error_queue_t error_queue;
         scpi_reg_val_t * registers;
         const scpi_unit_def_t * units;
-        const scpi_special_number_def_t * special_numbers;
         void * user_context;
         scpi_parser_state_t parser_state;
         const char * idn[4];

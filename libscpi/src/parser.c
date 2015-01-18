@@ -373,6 +373,30 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
 }
 
 /**
+ * Write arbitrary block program data to the result
+ * @param context
+ * @param data
+ * @param len
+ * @return 
+ */
+size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len) {
+    size_t result = 0;
+    char block_header[12];
+    size_t header_len;
+    block_header[0] = '#';
+    longToStr(len, block_header + 2, 10, 10);
+
+    header_len = strlen(block_header + 2);
+    block_header[1] = header_len + '0';
+
+    result += writeData(context, block_header, header_len + 2);
+    result += writeData(context, data, len);
+
+    context->output_count++;
+    return result;
+}
+
+/**
  * Write boolean value to the result
  * @param context
  * @param val
@@ -382,8 +406,19 @@ size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
     return SCPI_ResultIntBase(context, val ? 1 : 0, 10);
 }
 
-
 /* parsing parameters */
+
+/**
+ * Invalidate token
+ * @param token
+ * @param ptr
+ */
+static void invalidateToken(scpi_token_t * token, const char * ptr) {
+    token->len = 0;
+    token->ptr = ptr;
+    token->type = SCPI_TOKEN_UNKNOWN;
+}
+
 /**
  * Get one parameter from command line
  * @param context
@@ -392,17 +427,14 @@ size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
  * @return 
  */
 scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory) {
-    scpi_token_t token;
     lex_state_t * state;
-    int32_t value;
 
-    parameter->data.ptr = NULL;
-    parameter->data.len = 0;
-    parameter->number.value = 0;
-    parameter->number.base = 10;
-    parameter->number.unit = SCPI_UNIT_NONE;
-    parameter->number.type = SCPI_NUM_NUMBER;
-    parameter->type = SCPI_TOKEN_UNKNOWN;
+    if (!parameter) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    invalidateToken(parameter, NULL);
 
     state = &context->param_list.lex_state;
 
@@ -410,14 +442,14 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
         if (mandatory) {
             SCPI_ErrorPush(context, SCPI_ERROR_MISSING_PARAMETER);
         } else {
-            parameter->number.type = SCPI_NUM_DEF;
             parameter->type = SCPI_TOKEN_PROGRAM_MNEMONIC; // TODO: select something different
         }
         return FALSE;
     }
     if (context->input_count != 0) {
-        scpiLex_Comma(state, &token);
-        if (token.type != SCPI_TOKEN_COMMA) {
+        scpiLex_Comma(state, parameter);
+        if (parameter->type != SCPI_TOKEN_COMMA) {
+            invalidateToken(parameter, NULL);
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_SEPARATOR);
             return FALSE;
         }
@@ -425,50 +457,22 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
 
     context->input_count++;
 
-    scpiParser_parseProgramData(&context->param_list.lex_state, &token);
+    scpiParser_parseProgramData(&context->param_list.lex_state, parameter);
 
-    parameter->type = token.type;
-    parameter->data.ptr = token.ptr;
-    parameter->data.len = token.len;
-
-    switch (token.type) {
+    switch (parameter->type) {
         case SCPI_TOKEN_HEXNUM:
-            parameter->number.base = 16;
-            strToLong(token.ptr, &value, 16);
-            parameter->number.value = value;
-            return TRUE;
         case SCPI_TOKEN_OCTNUM:
-            parameter->number.base = 8;
-            strToLong(token.ptr, &value, 8);
-            parameter->number.value = value;
-            return TRUE;
         case SCPI_TOKEN_BINNUM:
-            parameter->number.base = 2;
-            strToLong(token.ptr, &value, 2);
-            parameter->number.value = value;
-            return TRUE;
         case SCPI_TOKEN_PROGRAM_MNEMONIC:
-            return TRUE;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
-            strToDouble(token.ptr, &parameter->number.value);
-            return TRUE;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
-            strToDouble(token.ptr, &parameter->number.value);
-            return TRUE;
         case SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA:
-            return TRUE;
         case SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA:
-            // TODO: replace double "single qoute"
-            return TRUE;
         case SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA:
-            // TODO: replace double "double qoute"
-            return TRUE;
         case SCPI_TOKEN_PROGRAM_EXPRESSION:
             return TRUE;
         default:
-            parameter->type = SCPI_TOKEN_UNKNOWN;
-            parameter->data.ptr = NULL;
-            parameter->data.len = 0;
+            invalidateToken(parameter, NULL);
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_STRING_DATA);
             return FALSE;
     }
@@ -491,7 +495,66 @@ scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixA
             return suffixAllowed;
         default:
             return FALSE;
-    }   
+    }
+}
+
+/**
+ * Convert parameter to integer
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return true if succesful
+ */
+scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value) {
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    switch (parameter->type) {
+        case SCPI_TOKEN_HEXNUM:
+            return strToLong(parameter->ptr, value, 16) > 0 ? TRUE : FALSE;
+        case SCPI_TOKEN_OCTNUM:
+            return strToLong(parameter->ptr, value, 8) > 0 ? TRUE : FALSE;
+        case SCPI_TOKEN_BINNUM:
+            return strToLong(parameter->ptr, value, 2) > 0 ? TRUE : FALSE;
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
+            return strToLong(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
+    }
+    return FALSE;
+}
+
+/**
+ * Convert parameter to double
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return true if succesful
+ */
+scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
+    scpi_bool_t result = FALSE;
+    int32_t valint;
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    switch (parameter->type) {
+        case SCPI_TOKEN_HEXNUM:
+        case SCPI_TOKEN_OCTNUM:
+        case SCPI_TOKEN_BINNUM:
+            result = SCPI_ParamToInt(context, parameter, &valint);
+            *value = valint;
+            break;
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
+            result = strToDouble(parameter->ptr, value) > 0 ? TRUE : FALSE;
+            break;
+    }
+    return result;
 }
 
 /**
@@ -501,20 +564,19 @@ scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixA
  * @param mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory)
-{
+scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
     scpi_parameter_t param;
-    
+
     if (!value) {
-        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);        
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
         return FALSE;
     }
-    
+
     result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
         if (SCPI_ParamIsNumber(&param, FALSE)) {
-           *value = param.number.value;
+            SCPI_ParamToDouble(context, &param, value);
         } else if (SCPI_ParamIsNumber(&param, TRUE)) {
             SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
             result = FALSE;
@@ -523,7 +585,7 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
             result = FALSE;
         }
     }
-    return result;  
+    return result;
 }
 
 /**
@@ -533,22 +595,27 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
  * @param mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory)
-{
-    // TODO: remove dependency on double
-    double tmpVal;
+scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
+    scpi_parameter_t param;
 
     if (!value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
         return FALSE;
     }
-    
-    result = SCPI_ParamDouble(context, &tmpVal, mandatory);
+
+    result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
-        *value = tmpVal;
+        if (SCPI_ParamIsNumber(&param, FALSE)) {
+            SCPI_ParamToInt(context, &param, value);
+        } else if (SCPI_ParamIsNumber(&param, TRUE)) {
+            SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+            result = FALSE;
+        } else {
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+            result = FALSE;
+        }
     }
-    
     return result;
 }
 
@@ -560,25 +627,150 @@ scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandato
  * @param mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory)   
-{
+scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory) {
     scpi_bool_t result;
     scpi_parameter_t param;
-    
+
     if (!value || !len) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
         return FALSE;
     }
-    
+
     result = SCPI_Parameter(context, &param, mandatory);
-    if (result) {      
-        *value = param.data.ptr;
-        *len = param.data.len;
+    if (result) {
+        *value = param.ptr;
+        *len = param.len;
 
         // TODO: return also parameter type (ProgramMnemonic, ArbitraryBlockProgramData, SingleQuoteProgramData, DoubleQuoteProgramData
     }
-    
+
     return result;
+}
+
+/**
+ * Get arbitrary block program data and returns pointer to data
+ * @param context
+ * @param value result pointer to data
+ * @param len result length of data
+ * @param mandatory
+ * @return 
+ */
+scpi_bool_t SCPI_ParamArbitraryBlock(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory) {
+    scpi_bool_t result;
+    scpi_parameter_t param;
+
+    if (!value || !len) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {
+        if (param.type == SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA) {
+            *value = param.ptr;
+            *len = param.len;
+        } else {
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+            result = FALSE;
+        }
+    }
+
+    return result;
+}
+
+scpi_bool_t SCPI_ParamCopyText(scpi_t * context, char * buffer, size_t buffer_len, size_t * copy_len, scpi_bool_t mandatory) {
+    scpi_bool_t result;
+    scpi_parameter_t param;
+    size_t i_from;
+    size_t i_to;
+    char quote;
+
+    if (!buffer || !copy_len) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {
+
+        switch (param.type) {
+            case SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA:
+            case SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA:
+                quote = param.type == SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA ? '\'' : '"';
+                for (i_from = 0, i_to = 0; i_from < (size_t) param.len; i_from++) {
+                    if (i_from >= buffer_len) {
+                        break;
+                    }
+                    buffer[i_to] = param.ptr[i_from];
+                    i_to++;
+                    if (param.ptr[i_from] == quote) {
+                        i_from++;
+                    }
+                }
+                break;
+            default:
+                SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+                result = FALSE;
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Convert parameter to choice
+ * @param context
+ * @param parameter - should be PROGRAM_MNEMONIC
+ * @param options - NULL terminated list of choices
+ * @param value - index to options
+ * @return 
+ */
+scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, const scpi_choice_def_t * options, int32_t * value) {
+    size_t res;
+    scpi_bool_t result = FALSE;
+
+    if (!options || !value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    if (parameter->type == SCPI_TOKEN_PROGRAM_MNEMONIC) {
+        for (res = 0; options[res].name; ++res) {
+            if (matchPattern(options[res].name, strlen(options[res].name), parameter->ptr, parameter->len)) {
+                *value = options[res].tag;
+                result = TRUE;
+                break;
+            }
+        }
+
+        if (!result) {
+            SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+        }
+    } else {
+        SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+    }
+
+    return result;
+}
+
+/**
+ * Find tag in choices and returns its first textual representation
+ * @param options specifications of choices numbers (patterns)
+ * @param tag numerical representatio of choice
+ * @param text result text
+ * @return true if succesfule, else false
+ */
+scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, const char ** text) {
+    int i;
+
+    for (i = 0; options[i].name != NULL; i++) {
+        if (options[i].tag == tag) {
+            *text = options[i].name;
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 /**
@@ -588,39 +780,36 @@ scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t *
  * @param mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory)
-{
+scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
     scpi_parameter_t param;
+    int32_t intval;
+
+    scpi_choice_def_t bool_options[] = {
+        {"OFF", 0},
+        {"ON", 1},
+        SCPI_CHOICE_LIST_END /* termination of option list */
+    };
 
     if (!value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
         return FALSE;
     }
-    
+
     result = SCPI_Parameter(context, &param, mandatory);
-    
+
     if (result) {
-        switch (param.type) {
-            case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
-                *value = param.number.value ? 1 : 0;
-                break;
-            case SCPI_TOKEN_PROGRAM_MNEMONIC:
-                if (compareStr("ON", 2, param.data.ptr, param.data.len)) {
-                    *value = TRUE;
-                } else if (compareStr("OFF", 3, param.data.ptr, param.data.len)) {
-                    *value = FALSE;
-                } else {
-                    SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
-                    result = FALSE;
-                }
-                break;
-            default:
-                SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
-                result = FALSE;
-        }    
+        if (param.type == SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA) {
+            SCPI_ParamToInt(context, &param, &intval);
+            *value = intval ? TRUE : FALSE;
+        } else {
+            result = SCPI_ParamToChoice(context, &param, bool_options, &intval);
+            if (result) {
+                *value = intval ? TRUE : FALSE;
+            }
+        }
     }
-    
+
     return result;
 }
 
@@ -632,35 +821,18 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
  * @param mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory)
-{
-    size_t res;
+scpi_bool_t SCPI_ParamChoice(scpi_t * context, const scpi_choice_def_t * options, int32_t * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
     scpi_parameter_t param;
-       
+
     if (!options || !value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
         return FALSE;
     }
-    
+
     result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
-        if (param.type == SCPI_TOKEN_PROGRAM_MNEMONIC) {
-            for (res = 0; options[res]; ++res) {
-                if (matchPattern(options[res], strlen(options[res]), param.data.ptr, param.data.len)) {
-                    *value = res;
-                    break;
-                }
-            }
-            
-            if (!options[res]) {
-                SCPI_ErrorPush(context, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
-                result = FALSE;
-            }
-        } else {
-            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
-            result = FALSE;
-        }
+        result = SCPI_ParamToChoice(context, &param, options, value);
     }
 
     return result;
@@ -754,12 +926,6 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
     return token->len;
 }
 
-static void invalidateToken(scpi_token_t * token, const char * ptr) {
-    token->len = 0;
-    token->ptr = ptr;
-    token->type = SCPI_TOKEN_UNKNOWN;
-}
-
 /**
  * Skip complete command line - program header and parameters
  * @param state
@@ -799,7 +965,7 @@ int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char 
         state->programHeader.len = 1;
         state->programHeader.type = SCPI_TOKEN_INVALID;
 
-        invalidateToken(&state->programData, lex_state.buffer);        
+        invalidateToken(&state->programData, lex_state.buffer);
     }
 
     if (SCPI_TOKEN_SEMICOLON == tmp.type) {
@@ -813,7 +979,34 @@ int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char 
     return lex_state.pos - lex_state.buffer;
 }
 
+/**
+ * Check current command
+ *  - suitable for one handle to multiple commands
+ * @param context
+ * @param cmd
+ * @return 
+ */
+scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
+    if (!context->param_list.cmd) {
+        return FALSE;
+    }
 
+    const char * pattern = context->param_list.cmd->pattern;
+    return matchCommand(pattern, cmd, strlen(cmd));
+}
+
+/**
+ * Return the .tag field of the matching scpi_command_t
+ * @param context
+ * @return
+ */
+int32_t SCPI_CmdTag(scpi_t * context) {
+    if (context->param_list.cmd) {
+        return context->param_list.cmd->tag;
+    } else {
+        return 0;
+    }
+}
 
 
 

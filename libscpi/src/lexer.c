@@ -297,6 +297,7 @@ static int skipColon(lex_state_t * state) {
 }
 
 /* 7.6.1.2 <COMMAND PROGRAM HEADER> */
+
 /**
  * Skip program mnemonic [a-z][a-z0-9_]*
  * @param state
@@ -319,6 +320,7 @@ static int skipProgramMnemonic(lex_state_t * state) {
 }
 
 /* tokens */
+
 /**
  * Detect token white space
  * @param state
@@ -342,6 +344,7 @@ int scpiLex_WhiteSpace(lex_state_t * state, scpi_token_t * token) {
 }
 
 /* 7.6.1 <COMMAND PROGRAM HEADER> */
+
 /**
  * Skip command program header \*<PROGRAM MNEMONIC>
  * @param state
@@ -424,7 +427,7 @@ int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
             }
         } else if (res <= SKIP_INCOMPLETE) {
             token->type = SCPI_TOKEN_INCOMPLETE_COMPOUND_PROGRAM_HEADER;
-        } 
+        }
     }
 
     if (token->type != SCPI_TOKEN_UNKNOWN) {
@@ -438,6 +441,7 @@ int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
 }
 
 /* 7.7.1 <CHARACTER PROGRAM DATA> */
+
 /**
  * Detect token "Character program data"
  * @param state
@@ -713,6 +717,7 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
     int arbitraryBlockLength = 0;
     const char * ptr = state->pos;
     token->ptr = state->pos;
+    int validData = -1;
 
     if (skipChr(state, '#')) {
         if (!iseos(state) && isNonzeroDigit(state->pos[0])) {
@@ -732,23 +737,29 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
 
             if (i == 0) {
                 state->pos += arbitraryBlockLength;
-                if ((state->buffer + state->len) < (state->pos)) {
-                    token->len = 0;
-                } else {
+                if ((state->buffer + state->len) >= (state->pos)) {
                     token->ptr = state->pos - arbitraryBlockLength;
                     token->len = arbitraryBlockLength;
+                    validData = 1;
                 }
-            } else {
-                token->len = 0;
+            } else if (iseos(state)) {
+                validData = 0;
             }
-        } else {
-            token->len = 0;
+        } else if (iseos(state)) {
+            validData = 0;
         }
     }
 
-    if ((token->len > 0)) {
+    if (validData == 1) {
+        // valid
         token->type = SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA;
+    } else if (validData == 0) {
+        // incomplete
+        token->type = SCPI_TOKEN_UNKNOWN;
+        token->len = 0;
+        state->pos = state->buffer + state->len;
     } else {
+        // invalid
         token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
@@ -780,6 +791,7 @@ static void skipProgramExpression(lex_state_t * state) {
 }
 
 // TODO: 7.7.7.2-2 recursive - any program data
+
 /**
  * Detect token Expression
  * @param state

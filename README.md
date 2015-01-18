@@ -9,6 +9,9 @@ Source codes are published with open source Simplified BSD license.
 Usage
 ---------------
 Download source package or clone repository
+ - v2.0_beta1 - https://github.com/j123b567/scpi-parser/archive/v2.0_beta1.zip
+ - v1.2 - https://github.com/j123b567/scpi-parser/archive/v1.2.zip
+ - v1.1 - https://github.com/j123b567/scpi-parser/archive/v1.1.zip
  - v1.0 - https://github.com/j123b567/scpi-parser/archive/v1.0.zip
  - git clone https://github.com/j123b567/scpi-parser.git
 
@@ -27,15 +30,20 @@ You can use any of the examples in the `examples` directory
 
 Version history
 ----------------
-Version v1.0 released 24.6.2013
+Version v2.0_beta1 2015-01-18
+ - parsing more compliant with SCPI-1999
+ - support all parameter types defined in the spec - separate them and identifie them
+ - support for Arbitrary program data
+ - support for tagging command patterns (useful for common handler)
+ - support for extending any parameter type using SCPI_Parameter
+ - general support for number or text value (e.g. 1, 6, DEF, INF) not limited to one array of special numbers
+ - support for optional command headers (Richard.hmm)
+
+
+Version v1.0 released 2013-06-24
  - support basic command pattern matching (no optional keywoards)
  - support basic data types (no expressions, no nondecimal numbers, no arbitrary program data, ...)
  - last version before refactoring of the parser and before extending parameter handling
-
-Future Version v2.0 released ????????
- - parsing more compliant with SCPI-1999
- - support all parameter types defined in the spec - separate them and identifie them
- - support for optional command headers (Richard.hmm)
 
 
 Command pattern definition
@@ -65,7 +73,7 @@ The "Q" at the end of the function name indicates, that this function is Query f
 
 The command callback can use predefined function to parse input parameters and to write output.
 
-Reading input parameter is done by functions `SCPI_ParamInt`, `SCPI_ParamDouble`, `SCPI_ParamString` adn `SCPI_ParamNumber`.
+Reading input parameter is done by functions `SCPI_ParamInt`, `SCPI_ParamDouble`, `SCPI_ParamString`, `SCPI_ParamNumber`, `SCPI_ParamArbitraryBlock`, `SCPI_ParamCopyText`, `SCPI_ParamBool` and `SCPI_ParamChoice`
 
 Writing output is done by functions `SCPI_ResultInt`, `SCPI_ResultDouble`, `SCPI_ResultString`, `SCPI_ResultText`. You can write multiple output variables. They are automaticcaly separated by coma ",".
 
@@ -136,7 +144,6 @@ scpi_t scpi_context = {
 	.interface = &scpi_interface,
 	.registers = scpi_regs,
 	.units = scpi_units_def,
-	.special_numbers = scpi_special_numbers_def,
 };
 ```
 
@@ -196,17 +203,29 @@ Every time, you call function to read parameter, it shifts pointers to the next 
 
 If you discard some parameters, there is no way to recover them.
 
+Specifying `mandatory` parameter will introduce SCPI Error -109 "Missing parameter"
+
 These are the functions, you can use to read parameters
+ - `SCPI_Parameter` - read parameter to scpi_parameter_t. This structure contains pointer to buffer and type of the parameter (program mnemonic, hex number, ....)
  - `SCPI_ParamInt` - read signed 32bit integer value (dec or hex with 0x prefix)
  - `SCPI_ParamDouble` - read double value
  - `SCPI_ParamNumber` - read double value with or without units or represented by special number (DEF, MIN, MAX, ...). This function is more universal then SCPI_ParamDouble.
- - `SCPI_ParamText` - read text value - may be encapsuled in ""
- - `SCPI_ParamString` - read unspecified parameter not encapsulated in ""
+ - `SCPI_ParamCopyText` - read text value - must be encapsuled in ""
+ - `SCPI_ParamBool` - read boolean value (0, 1, on, off)
+ - `SCPI_ParamChoice` - read value from predefined constants
+ 
 
 These are the functions, you can use to write results
  - `SCPI_ResultInt` - write integer value
  - `SCPI_ResultDouble` - write double value
  - `SCPI_ResultText` - write text value encapsulated in ""
- - `SCPI_ResultString` - directly write string value
+ - `SCPI_ResultMnemonic` - directly write string value
+ - `SCPI_ResultArbitraryBlock` - result arbitrary data
+ - `SCPI_ResultIntBase` - write integer in special base
+ - `SCPI_ResultBool` - write boolean value
 
-You can use function `SCPI_NumberToStr` to convert number with units to textual representation and then use `SCPI_ResultString` to write this to the user.
+You can use function `SCPI_NumberToStr` to convert number with units to textual representation and then use `SCPI_ResultMnemonic` to write this to the user.
+
+You can use `SCPI_Parameter` in conjuction with `SCPI_ParamIsNumber`, `SCPI_ParamToInt`, `SCPI_ParamToDouble`, `SCPI_ParamToChoice` in your own parameter type handlers.
+
+`SCPI_ParamNumber` is now more universal. It can handle number with units, it can handle special numbers like `DEF`, `INF`, ... These special numbers are now defined in parameter and not in context. It is possible to define more general usage with different special numbers for different commands,
