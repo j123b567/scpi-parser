@@ -331,7 +331,7 @@ scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
 scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
     int result = 0;
     if (context && context->interface && context->interface->test) {
-        result = context->interface->test(context);
+        result = context->interface->test(context)==SCPI_RES_ERR;
     }
     SCPI_ResultInt(context, result);
     return SCPI_RES_OK;
