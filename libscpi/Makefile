@@ -1,9 +1,9 @@
 
-VERSION = 0.3.0
+VERSION = 2.0.0
 LIBNAME = scpi
 
 
-CFLAGS += -Wextra -O1 -g -fPIC -Iinc
+CFLAGS += -Wextra -g -fPIC -Iinc
 LDFLAGS += -Wl,--as-needed
 TESTFLAGS += -lcunit
 
@@ -11,14 +11,13 @@ OBJDIR=obj
 DISTDIR=dist
 TESTDIR=test
 
-STATICLIBFLAGS = rcs
-SHAREDLIBFLAGS = $(LDFLAGS) -shared -Wl,-soname
-
-
 STATICLIB = lib$(LIBNAME).a
 SHAREDLIB = lib$(LIBNAME).so
 
 SHAREDLIBVER = $(SHAREDLIB).$(VERSION)
+
+STATICLIBFLAGS = rcs
+SHAREDLIBFLAGS = $(LDFLAGS) -shared -Wl,-soname,$(SHAREDLIB)
 
 SRCS = $(addprefix src/, \
 	debug.c error.c fifo.c ieee488.c \
@@ -63,7 +62,7 @@ $(DISTDIR)/$(STATICLIB): $(OBJS)
 	$(AR) $(STATICLIBFLAGS) $(DISTDIR)/$(STATICLIB) $(OBJS)
 
 $(DISTDIR)/$(SHAREDLIBVER): $(OBJS)
-	$(CC) $(SHAREDLIBFLAGS),$(SHAREDLIB) -o $(DISTDIR)/$(SHAREDLIBVER) $(OBJS)
+	$(CC) $(SHAREDLIBFLAGS) -o $(DISTDIR)/$(SHAREDLIBVER) $(OBJS)
 
 $(DISTDIR)/$(SHAREDLIB): $(DISTDIR)/$(SHAREDLIBVER)
 	$(RM) $(DISTDIR)/$(SHAREDLIB)
