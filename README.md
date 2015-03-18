@@ -1,11 +1,25 @@
 SCPI parser library
 ===========
 
-[SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on instrument side. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
+[SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on **instrument side**. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
 
 Source codes are published with open source Simplified BSD license.
 
+SCPI parser library is based on these standards
+ - [SCPI-99](http://www.ivifoundation.org/docs/scpi-99.pdf)
+ - [IEEE 488.2-2004](http://dx.doi.org/10.1109/IEEESTD.2004.95390)
 
+
+Migration from v1 to v2
+-----------------------
+Functions `SCPI_ParamNumber` and `SCPI_NumberToStr` has one more parameter - array of special values. It is still possible to use provided `scpi_special_numbers_def`, but you are free to use different deffinition per parameter.
+
+Function `SCPI_ParamChoice` has different type of choice list. It is now array of `scpi_choice_def_t` and not array of `const char *`. It is now possible to define `tag`. `SCPI_ParamChoice` will now return value of this tag and not index to array. If you want print the name of the choice value, you should now use `SCPI_ChoiceToName` instead of direct indexing of the array.
+
+Reading strings is now more correct but it needs secondary copy buffer. You can use function `SCPI_ParamCopyText` to correctly handle strings like `"normal ""quoted"" normal"` will be converted to `normal "quoted" normal`.
+
+It is now possible to use `SCPI_ParamArbitraryBlock` and `SCPI_ResultArbitraryBlock` to work with binary data input and output.
+ 
 Usage
 ---------------
 Download source package or clone repository
@@ -15,17 +29,11 @@ Download source package or clone repository
  - v1.0 - https://github.com/j123b567/scpi-parser/archive/v1.0.zip
  - git clone https://github.com/j123b567/scpi-parser.git
 
-Go to the `libscpi` directory
+Library is in folder `libscpi` and you can use it directly in your embedded project.
 
-Build library, results are in `dist` folder
+You can try to make examples so just run `make`.
 
-	make
-
-You can test library functions by
-
-	make test
-
-You can use any of the examples in the `examples` directory
+In folder `examples` there are several examples using console or TCP connection to emulate SCPI instrument.
 
 
 Version history
@@ -102,6 +110,9 @@ Source codes are devided into few files to provide better portability to other s
 
 Implementation to your instrument
 -------------
+
+Look inside `examples/common/scpi-def.c`. Here is basic instrument implementation. You can take it as a template for future development.
+
 First of all you need to fill structure of SCPI command definitions
 
 ```c	
@@ -113,7 +124,7 @@ scpi_command_t scpi_commands[] = {
 };
 ```
 
-Than you need to initialize interface callbacks structure. If you don't want to provide some callbacks, just initialize it as `NULL`. write callback is mandatory and is used to output data from the library.
+Than you need to initialize interface callbacks structure. If you don't want to provide some callbacks, just initialize them as `NULL`. write callback is mandatory and is used to output data from the library.
 
 ```c
 scpi_interface_t scpi_interface = {
@@ -125,7 +136,7 @@ scpi_interface_t scpi_interface = {
 };
 ```
 
-Important thing is command buffer. Maximum size is up to you and it should be larger than any possible largest command. 
+Important thing is command buffer. Maximum size is up to you and it should be larger than any possible largest command.
 
 ```c
 #define SCPI_INPUT_BUFFER_LENGTH 256
@@ -168,7 +179,7 @@ size_t myWrite(scpi_context_t * context, const char * data, size_t len) {
 Interactive demo can beimplemented using this loop
 
 ```c
-#define SMALL_BUFFER_LEN
+#define SMALL_BUFFER_LEN 10
 char smbuffer[SMALL_BUFFER_LEN];
 while(1) {
 	fgets(smbuffer, SMALL_BUFFER_LEN, stdin);
@@ -228,4 +239,4 @@ You can use function `SCPI_NumberToStr` to convert number with units to textual 
 
 You can use `SCPI_Parameter` in conjuction with `SCPI_ParamIsNumber`, `SCPI_ParamToInt`, `SCPI_ParamToDouble`, `SCPI_ParamToChoice` in your own parameter type handlers.
 
-`SCPI_ParamNumber` is now more universal. It can handle number with units, it can handle special numbers like `DEF`, `INF`, ... These special numbers are now defined in parameter and not in context. It is possible to define more general usage with different special numbers for different commands,
+`SCPI_ParamNumber` is now more universal. It can handle number with units, it can handle special numbers like `DEF`, `INF`, ... These special numbers are now defined in parameter and not in context. It is possible to define more general usage with different special numbers for different commands.
