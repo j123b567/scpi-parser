@@ -61,6 +61,9 @@ void test_strnpbrk() {
     CU_ASSERT(strnpbrk(str, 4, "b") == NULL);
     CU_ASSERT(strnpbrk(str, 1, "h") == NULL);
     CU_ASSERT(strnpbrk(str, 4, "xo") == (str + 2));
+
+    CU_ASSERT(strnpbrk(str, 4, "j") == (str + 3));
+
 }
 
 
