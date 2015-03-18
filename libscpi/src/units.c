@@ -111,6 +111,7 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
     {/* name */ "NAN",          /* type */ SCPI_NUM_NAN},
     {/* name */ "INFinity",     /* type */ SCPI_NUM_INF},
     {/* name */ "NINF",         /* type */ SCPI_NUM_NINF},
+    {/* name */ "AUTO",         /* type */ SCPI_NUM_AUTO},
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
 

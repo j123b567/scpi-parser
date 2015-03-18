@@ -171,7 +171,8 @@ extern "C" {
         SCPI_NUM_DOWN,
         SCPI_NUM_NAN,
         SCPI_NUM_INF,
-        SCPI_NUM_NINF
+        SCPI_NUM_NINF,
+        SCPI_NUM_AUTO
     };
     typedef enum _scpi_special_number_t scpi_special_number_t;
 
