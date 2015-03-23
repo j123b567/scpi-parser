@@ -41,7 +41,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "utils.h"
+#include "scpi/utils_private.h"
 
 static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 static size_t patternSeparatorPos(const char * pattern, size_t len);
@@ -54,7 +54,7 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len);
  * @param set
  * @return 
  */
-char * strnpbrk(const char *str, size_t size, const char *set) {
+const char * strnpbrk(const char *str, size_t size, const char *set) {
     const char *scanp;
     long c, sc;
     const char * strend = str + size;
@@ -62,7 +62,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
     while ((strend != str) && ((c = *str++) != 0)) {
         for (scanp = set; (sc = *scanp++) != '\0';)
             if (sc == c)
-                return ((char *) (str - 1));
+                return str - 1;
     }
     return (NULL);
 }
@@ -146,7 +146,7 @@ size_t strToDouble(const char * str, double * val) {
  * @param len2
  * @return TRUE if len1==len2 and "len" characters of both strings are equal
  */
-bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) {
+scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) {
     if (len1 != len2) {
         return FALSE;
     }
@@ -156,6 +156,36 @@ bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2
     }
 
     return FALSE;
+}
+
+/**
+ * Compare two strings, one be longer but may contains only numbers in that section
+ * @param str1
+ * @param len1
+ * @param str2
+ * @param len2
+ * @return TRUE if strings match
+ */
+scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2) {
+    scpi_bool_t result = FALSE;
+    size_t i;
+
+    if (len2 < len1) {
+        return FALSE;
+    }
+
+    if (SCPI_strncasecmp(str1, str2, len1) == 0) {
+        result = TRUE;
+    }
+
+    for (i = len1; i<len2; i++) {
+        if (!isdigit((int) str2[i])) {
+            result = FALSE;
+            break;
+        }
+    }
+
+    return result;
 }
 
 enum _locate_text_states {
@@ -179,7 +209,7 @@ typedef struct _locate_text_nfa locate_text_nfa;
 /**
  * Test locate text state, if it is correct final state
  */
-static bool_t isFinalState(locate_text_states state) {
+static scpi_bool_t isFinalState(locate_text_states state) {
     return (
         ((state) == STATE_COMMA)
         || ((state) == STATE_LAST_WHITESPACE)
@@ -193,7 +223,7 @@ static bool_t isFinalState(locate_text_states state) {
  * @param nfa stores automaton state
  * @param c current char processed
  */
-static bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c) {
+static scpi_bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c) {
     switch(nfa->state) {
         /* first state locating only white spaces */
         case STATE_FIRST_WHITESPACE:
@@ -257,7 +287,7 @@ static bool_t locateTextAutomaton(locate_text_nfa * nfa, unsigned char c) {
  * @param len2 length of result
  * @return string str1 contains text and str2 was set
  */
-bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) {
+scpi_bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) {
     locate_text_nfa nfa;
     nfa.state = STATE_FIRST_WHITESPACE;
     nfa.startIdx = 0;
@@ -288,7 +318,7 @@ bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * l
  * @param nfa stores automaton state
  * @param c current char processed
  */
-static bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) {
+static scpi_bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) {
     switch(nfa->state) {
         /* first state locating only white spaces */
         case STATE_FIRST_WHITESPACE:
@@ -332,7 +362,7 @@ static bool_t locateStrAutomaton(locate_text_nfa * nfa, unsigned char c) {
  * @param len2 length of result
  * @return string str1 contains text and str2 was set
  */
-bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) {
+scpi_bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) {
     locate_text_nfa nfa;
     nfa.state = STATE_FIRST_WHITESPACE;
     nfa.startIdx = 0;
@@ -369,20 +399,11 @@ bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * le
 size_t skipWhitespace(const char * cmd, size_t len) {
     size_t i;
     for (i = 0; i < len; i++) {
-        if (!isspace((unsigned char)cmd[i])) {
+        if (!isspace((unsigned char) cmd[i])) {
             return i;
         }
     }
     return len;
-}
-
-/** 
- * is colon or not
- * @param cmd - command
- * @return
- */
-static bool_t iscolon(char ch) {
-    return (':' == ch) ? TRUE : FALSE;
 }
 
 /**
@@ -395,7 +416,7 @@ static bool_t iscolon(char ch) {
 size_t patternSeparatorShortPos(const char * pattern, size_t len) {
     size_t i;
     for (i = 0; (i < len) && pattern[i]; i++) {
-        if (islower((unsigned char)pattern[i])) {
+        if (islower((unsigned char) pattern[i])) {
             return i;
         }
     }
@@ -409,8 +430,8 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  * @return position of separator or len
  */
 size_t patternSeparatorPos(const char * pattern, size_t len) {
-    
-    char * separator = strnpbrk(pattern, len, "?:[]");
+
+    const char * separator = strnpbrk(pattern, len, "?:[]");
     if (separator == NULL) {
         return len;
     } else {
@@ -425,17 +446,16 @@ size_t patternSeparatorPos(const char * pattern, size_t len) {
  * @return position of separator or len
  */
 size_t cmdSeparatorPos(const char * cmd, size_t len) {
-    char * separator = strnpbrk(cmd, len, ":?");
+    const char * separator = strnpbrk(cmd, len, ":?");
     size_t result;
     if (separator == NULL) {
         result = len;
     } else {
         result = separator - cmd;
     }
-    
+
     return result;
 }
-
 
 /**
  * Match pattern and str. Pattern is in format UPPERCASElowercase
@@ -445,78 +465,230 @@ size_t cmdSeparatorPos(const char * cmd, size_t len) {
  * @param str_len
  * @return 
  */
-bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
-    int pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
-    return compareStr(pattern, pattern_len, str, str_len) ||
-            compareStr(pattern, pattern_sep_pos_short, str, str_len);
+scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
+    int pattern_sep_pos_short;
+
+    if (pattern[pattern_len - 1] == '#') {
+        size_t new_pattern_len = pattern_len - 1;
+
+        pattern_sep_pos_short = patternSeparatorShortPos(pattern, new_pattern_len);
+
+        return compareStrAndNum(pattern, new_pattern_len, str, str_len) ||
+                compareStrAndNum(pattern, pattern_sep_pos_short, str, str_len);
+    } else {
+
+        pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
+
+        return compareStr(pattern, pattern_len, str, str_len) ||
+                compareStr(pattern, pattern_sep_pos_short, str, str_len);
+    }
 }
 
 /**
  * Compare pattern and command
- * @param pattern
+ * @param pattern eg. [:MEASure]:VOLTage:DC?
  * @param cmd - command
  * @param len - max search length
  * @return TRUE if pattern matches, FALSE otherwise
  */
-bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
-    int result = FALSE;
-    
+scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
+    scpi_bool_t result = FALSE;
+    int leftFlag = 0; // flag for '[' on left
+    int rightFlag = 0; // flag for ']' on right
+    int cmd_sep_pos = 0;
+
     const char * pattern_ptr = pattern;
     int pattern_len = strlen(pattern);
     const char * pattern_end = pattern + pattern_len;
-    
+
     const char * cmd_ptr = cmd;
     size_t cmd_len = SCPI_strnlen(cmd, len);
     const char * cmd_end = cmd + cmd_len;
-    
-    /* TODO: now it is possible to send command ":*IDN?" which is incorrect */
-    if (iscolon(cmd_ptr[0])) {
-        cmd_len --;
-        cmd_ptr ++;
+
+    /* now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */
+    if (pattern_ptr[0] == '[') { // skip first '['
+        pattern_len--;
+        pattern_ptr++;
+        leftFlag++;
     }
-    
+    if (pattern_ptr[0] == ':') { // skip first ':'
+        pattern_len--;
+        pattern_ptr++;
+    }
+
+    if (cmd_ptr[0] == ':') {
+        /* handle errornouse ":*IDN?" */
+        if((cmd_len >= 2) && (cmd_ptr[1] != '*')) {
+            cmd_len--;
+            cmd_ptr++;
+        }
+    }
+
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_end - pattern_ptr);
-        int cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
-        
+
+        if ((leftFlag > 0) && (rightFlag > 0)) {
+            leftFlag--;
+            rightFlag--;
+        } else {
+            cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
+        }
+
         if (matchPattern(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos)) {
             pattern_ptr = pattern_ptr + pattern_sep_pos;
             cmd_ptr = cmd_ptr + cmd_sep_pos;
             result = TRUE;
-            
+
             /* command is complete */
             if ((pattern_ptr == pattern_end) && (cmd_ptr >= cmd_end)) {
                 break;
             }
-            
+
             /* pattern complete, but command not */
             if ((pattern_ptr == pattern_end) && (cmd_ptr < cmd_end)) {
                 result = FALSE;
                 break;
             }
-            
+
             /* command complete, but pattern not */
             if (cmd_ptr >= cmd_end) {
+                if (cmd_end == cmd_ptr) {
+                    if (cmd_ptr[0] == pattern_ptr[pattern_end - pattern_ptr - 1]) {
+                        break; /* exist optional keyword, command is complete */
+                    }
+                    if (']' == pattern_ptr[pattern_end - pattern_ptr - 1]) {
+                        break; /* exist optional keyword, command is complete */
+                    }
+                }
                 result = FALSE;
                 break;
             }
-            
+
             /* both command and patter contains command separator at this position */
             if ((pattern_ptr[0] == cmd_ptr[0]) && ((pattern_ptr[0] == ':') || (pattern_ptr[0] == '?'))) {
                 pattern_ptr = pattern_ptr + 1;
                 cmd_ptr = cmd_ptr + 1;
+            } else if ((pattern_ptr[1] == cmd_ptr[0])
+                    && (pattern_ptr[0] == '[')
+                    && (pattern_ptr[1] == ':')) {
+                pattern_ptr = pattern_ptr + 2; // for skip '[' in "[:"
+                cmd_ptr = cmd_ptr + 1;
+                leftFlag++;
+            } else if ((pattern_ptr[1] == cmd_ptr[0])
+                    && (pattern_ptr[0] == ']')
+                    && (pattern_ptr[1] == ':')) {
+                pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:"
+                cmd_ptr = cmd_ptr + 1;
+            } else if ((pattern_ptr[2] == cmd_ptr[0])
+                    && (pattern_ptr[0] == ']')
+                    && (pattern_ptr[1] == '[')
+                    && (pattern_ptr[2] == ':')) {
+                pattern_ptr = pattern_ptr + 3; // for skip '][' in "][:"
+                cmd_ptr = cmd_ptr + 1;
+                leftFlag++;
+            } else if (((pattern_ptr[0] == ']')
+                    || (pattern_ptr[0] == '['))
+                    && (*(pattern_end - 1) == '?') // last is '?'
+                    && (cmd_ptr[0] == '?')) {
+                result = TRUE; // exist optional keyword, and they are end with '?'
+                break; // command is complete  OK
             } else {
                 result = FALSE;
                 break;
             }
         } else {
-            result = FALSE;
+            pattern_ptr = pattern_ptr + pattern_sep_pos;
+            if ((pattern_ptr[0] == ']') && (pattern_ptr[1] == ':')) {
+                pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                rightFlag++;
+            } else if ((pattern_ptr[0] == ']')
+                    && (pattern_ptr[1] == '[')
+                    && (pattern_ptr[2] == ':')) {
+                pattern_ptr = pattern_ptr + 3; // for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                rightFlag++;
+            } else {
+                result = FALSE;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Compose command from previsou command anc current command
+ * 
+ * @param ptr_prev pointer to previous command
+ * @param len_prev length of previous command
+ * @param pptr pointer to pointer of current command
+ * @param plen pointer to length of current command
+ * 
+ * ptr_prev and ptr should be in the same memory buffer
+ * 
+ * Function will add part of previous command prior to ptr_prev
+ * 
+ * char * cmd = "meas:volt:dc?;ac?"
+ * char * ptr_prev = cmd;
+ * size_t len_prev = 13;
+ * char * ptr = cmd + 14;
+ * size_t len = 3;
+ * 
+ * composeCompoundCommand(ptr_prev, len_prev, &ptr, &len);
+ * 
+ * after calling this
+ * 
+ * 
+ * 
+ */
+scpi_bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev,
+                              char ** pptr, size_t * plen) {
+    char * ptr;
+    size_t len;
+    size_t i;
+
+    /* Invalid input */
+    if (pptr == NULL || plen == NULL)
+        return FALSE;
+
+    /* no previous command - nothing to do*/
+    if (ptr_prev == NULL || len_prev == 0)
+        return TRUE;
+       
+    ptr = *pptr;
+    len = *plen;
+    
+    /* No current command */
+    if (len == 0 || ptr == NULL)
+        return FALSE;
+    
+    /* Common command or command root - nothing to do */
+    if (ptr[0] == '*' || ptr[0] == ':')
+        return TRUE;
+        
+    /* Previsou command was common command - nothing to do */
+    if (ptr_prev[0] == '*')
+        return TRUE;
+        
+    /* Find last occurence of ':' */
+    for (i = len_prev; i > 0; i--) {
+        if (ptr_prev[i-1] == ':') {
             break;
         }
     }
     
-    return result;
+    /* Previous command was simple command - nothing to do*/
+    if (i == 0)
+        return TRUE;
+    
+    ptr -= i;
+    len += i;
+    memmove(ptr, ptr_prev, i);
+    *plen = len;
+    *pptr = ptr;
+    return TRUE;
 }
+
 
 
 #if !HAVE_STRNLEN
@@ -527,15 +699,32 @@ bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
  * All rights reserved.
  */
 size_t
-BSD_strnlen(const char *s, size_t maxlen)
-{
-	size_t len;
-	
-	for (len = 0; len < maxlen; len++, s++) {
-		if (!*s)
-			break;
-	}
-	return (len);
+BSD_strnlen(const char *s, size_t maxlen) {
+    size_t len;
+
+    for (len = 0; len < maxlen; len++, s++) {
+        if (!*s)
+            break;
+    }
+    return (len);
+}
+#endif
+
+#if !HAVE_STRNCASECMP && !HAVE_STRNICMP
+int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
+    unsigned char c1, c2;
+
+    for(; n != 0; n--) {
+        c1 = tolower((unsigned char)*s1++);
+        c2 = tolower((unsigned char)*s2++);
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        if (c1 = '\0') {
+            return 0;
+        }
+    }
+    return 0;
 }
 #endif
 

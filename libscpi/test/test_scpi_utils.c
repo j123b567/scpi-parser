@@ -1,3 +1,32 @@
+/*-
+ * Copyright (c) 2013 Jan Breuer
+ *                    Richard.hmm
+ * Copyright (c) 2012 Jan Breuer
+ *
+ * All Rights Reserved
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 /*
  * File:   test_scpi_utils.c
  * Author: Jan Breuer
@@ -10,7 +39,7 @@
 #include "CUnit/Basic.h"
 
 #include "scpi/scpi.h"
-#include "../src/utils.h"
+#include "scpi/utils_private.h"
 
 /*
  * CUnit Test Suite
@@ -136,6 +165,24 @@ void test_compareStr() {
     CU_ASSERT_FALSE(compareStr("ABCD", 4, "abcd", 3));
 }
 
+void test_compareStrAndNum() {
+
+    CU_ASSERT_TRUE(compareStrAndNum("abcd", 1, "afgh", 1));
+    CU_ASSERT_TRUE(compareStrAndNum("ABCD", 4, "abcd", 4));
+    CU_ASSERT_TRUE(compareStrAndNum("AbCd", 3, "AbCE", 3));
+    CU_ASSERT_TRUE(compareStrAndNum("ABCD", 1, "a", 1));
+
+    CU_ASSERT_FALSE(compareStrAndNum("abcd", 1, "efgh", 1));
+    CU_ASSERT_FALSE(compareStrAndNum("ABCD", 4, "abcd", 3));
+
+    CU_ASSERT_TRUE(compareStrAndNum("abcd", 4, "abcd1", 5));
+    CU_ASSERT_TRUE(compareStrAndNum("abcd", 4, "abcd123", 7));
+    CU_ASSERT_FALSE(compareStrAndNum("abcd", 4, "abcd12A", 7));
+    CU_ASSERT_FALSE(compareStrAndNum("abcd", 4, "abcdB12", 7));
+    CU_ASSERT_FALSE(compareStrAndNum("abdd", 4, "abcd132", 7));
+
+}
+
 void test_locateText() {
 
     const char * v;
@@ -235,7 +282,7 @@ void test_locateStr() {
 }
 
 void test_matchPattern() {
-    bool_t result;
+    scpi_bool_t result;
     
 #define TEST_MATCH_PATTERN(p, s, r)                             \
     do {                                                        \
@@ -251,7 +298,7 @@ void test_matchPattern() {
 }
 
 void test_matchCommand() {
-    bool_t result;
+    scpi_bool_t result;
     
     #define TEST_MATCH_COMMAND(p, s, r)                         \
     do {                                                        \
@@ -274,6 +321,140 @@ void test_matchCommand() {
     TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacddd", TRUE);
     TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacdd", FALSE);
     TEST_MATCH_COMMAND("ABc:AACddd", ":a:aac", FALSE);
+    TEST_MATCH_COMMAND("?", "?", TRUE);
+    TEST_MATCH_COMMAND("A?", "A?", TRUE);
+    TEST_MATCH_COMMAND("A", "A?", FALSE);
+    TEST_MATCH_COMMAND("A?", "A", FALSE);
+    TEST_MATCH_COMMAND("[:ABc]:AACddd", ":ab:aac", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd", "aac", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd", "aac?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd?", ":ab:aac?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd?", "aac?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:AACddd?", "aac", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab?", FALSE); // test optional keyword
+
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword   
+    TEST_MATCH_COMMAND("*IDN?", "idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", "idn?", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", "*idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", "*idn?", TRUE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":idn?", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":*idn", FALSE); // common command
+    TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); // common command
+
+    TEST_MATCH_COMMAND("ABCdef#", "abc", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abc1324", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abcDef1324", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abcDef124b", FALSE); // test numeric parameter
+
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "abc", FALSE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output1:mod10:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:modulation:fm5", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10a:fm", FALSE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:mod10:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm2", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE); // test numeric parameter
+}
+
+void test_composeCompoundCommand(void) {
+    
+#define TEST_COMPOSE_COMMAND(b, c1_len, c2_pos, c2_len, c2_final, r)    \
+    {                                                                   \
+        char buffer[100];                                               \
+        char * cmd_prev = buffer;                                       \
+        char * cmd = buffer + c2_pos;                                   \
+        size_t len_prev = c1_len;                                       \
+        size_t len = c2_len;                                            \
+        scpi_bool_t res;                                                \
+                                                                        \
+        strcpy(buffer, b);                                              \
+        res = composeCompoundCommand(cmd_prev, len_prev, &cmd, &len);   \
+        CU_ASSERT_EQUAL(res, r);                                        \
+        CU_ASSERT_EQUAL(len, strlen(c2_final));                         \
+        CU_ASSERT_STRING_EQUAL(cmd, c2_final);                          \
+    }\
+
+    TEST_COMPOSE_COMMAND("A:B;C", 3, 4, 1, "A:C", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;DD", 3, 4, 2, "A:DD", TRUE);
+    TEST_COMPOSE_COMMAND("A:B", 0, 0, 3, "A:B", TRUE);
+    TEST_COMPOSE_COMMAND("*IDN? ; ABC", 5, 8, 3, "ABC", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;*IDN?", 3, 4, 5, "*IDN?", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;:C", 3, 4, 2, ":C", TRUE);
+    TEST_COMPOSE_COMMAND("B;C", 1, 2, 1, "C", TRUE);
+    TEST_COMPOSE_COMMAND("A:B;C:D", 3, 4, 3, "A:C:D", TRUE);
+    TEST_COMPOSE_COMMAND(":A:B;C", 4, 5, 1, ":A:C", TRUE);
+    TEST_COMPOSE_COMMAND(":A:B;:C", 4, 5, 2, ":C", TRUE);
+    TEST_COMPOSE_COMMAND(":A;C", 2, 3, 1, ":C", TRUE);
+
+    scpi_bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen);
+
 }
 
 int main() {
@@ -298,10 +479,12 @@ int main() {
             || (NULL == CU_add_test(pSuite, "strToLong", test_strToLong))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
+            || (NULL == CU_add_test(pSuite, "compareStrAndNum", test_compareStrAndNum))
             || (NULL == CU_add_test(pSuite, "locateText", test_locateText))
             || (NULL == CU_add_test(pSuite, "locateStr", test_locateStr))
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
+            || (NULL == CU_add_test(pSuite, "composeCompoundCommand", test_composeCompoundCommand))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

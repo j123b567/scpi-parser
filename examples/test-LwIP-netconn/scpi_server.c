@@ -53,6 +53,7 @@
 #define CONTROL_PORT 5026
 
 #define SCPI_THREAD_PRIO (tskIDLE_PRIORITY + 2)
+#define SCPI_THREAD_STACKSIZE (512)
 
 #define SCPI_MSG_TIMEOUT                0
 #define SCPI_MSG_TEST                   1
@@ -145,10 +146,13 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
+/**
+ * Return 0 as OK and other number as error
+ */
 scpi_result_t SCPI_Test(scpi_t * context) {
     (void) context;
     iprintf("**Test\r\n");
-    return SCPI_RES_OK;
+    return 0;
 }
 
 scpi_result_t SCPI_Reset(scpi_t * context) {
@@ -410,5 +414,5 @@ static void scpi_server_thread(void *arg) {
 }
 
 void scpi_server_init(void) {
-    sys_thread_new("SCPI", scpi_server_thread, NULL, 2 * DEFAULT_THREAD_STACKSIZE, SCPI_THREAD_PRIO);
+    sys_thread_new("SCPI", scpi_server_thread, NULL, SCPI_THREAD_STACKSIZE, SCPI_THREAD_PRIO);
 }

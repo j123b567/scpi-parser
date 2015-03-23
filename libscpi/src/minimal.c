@@ -67,7 +67,7 @@ scpi_result_t SCPI_StubQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
-    SCPI_ResultString(context, SCPI_DEV_VERSION);
+    SCPI_ResultString(context, SCPI_STD_VERSION_REVISION);
     return SCPI_RES_OK;
 }
 

@@ -56,9 +56,9 @@ extern "C" {
 
     void fifo_init(fifo_t * fifo);
     void fifo_clear(fifo_t * fifo);
-    bool_t fifo_add(fifo_t * fifo, int16_t value);
-    bool_t fifo_remove(fifo_t * fifo, int16_t * value);
-    bool_t fifo_count(fifo_t * fifo, int16_t * value);
+    scpi_bool_t fifo_add(fifo_t * fifo, int16_t value);
+    scpi_bool_t fifo_remove(fifo_t * fifo, int16_t * value);
+    scpi_bool_t fifo_count(fifo_t * fifo, int16_t * value);
 
 #ifdef	__cplusplus
 }

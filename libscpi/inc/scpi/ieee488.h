@@ -82,6 +82,7 @@ scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name);
 void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val);
 void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
 void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
+void SCPI_EventClear(scpi_t * context);
 
 #ifdef  __cplusplus
 }

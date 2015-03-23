@@ -55,8 +55,8 @@ extern "C" {
 #endif
 
     /* basic data types */
-    typedef bool bool_t;
-    /* typedef enum { FALSE = 0, TRUE } bool_t; */
+    typedef bool scpi_bool_t;
+    /* typedef enum { FALSE = 0, TRUE } scpi_bool_t; */
 
     /* IEEE 488.2 registers */
     enum _scpi_reg_name_t {
@@ -105,10 +105,25 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
+    struct _scpi_buffer_t {
+        size_t length;
+        size_t position;
+        char * data;
+    };
+    typedef struct _scpi_buffer_t scpi_buffer_t;
+    
+    struct _scpi_const_buffer_t {
+        size_t length;
+        size_t position;
+        const char * data;
+    };
+    typedef struct _scpi_const_buffer_t scpi_const_buffer_t;    
+
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
         const char * parameters;
         size_t length;
+        scpi_const_buffer_t cmd_raw;
     };
     #define SCPI_CMD_LIST_END       {NULL, NULL, }
     typedef struct _scpi_param_list_t scpi_param_list_t;
@@ -116,13 +131,6 @@ extern "C" {
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
     typedef struct _scpi_interface_t scpi_interface_t;
-
-    struct _scpi_buffer_t {
-        size_t length;
-        size_t position;
-        char * data;
-    };
-    typedef struct _scpi_buffer_t scpi_buffer_t;
 
     typedef size_t(*scpi_write_t)(scpi_t * context, const char * data, size_t len);
     typedef scpi_result_t(*scpi_write_control_t)(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val);
@@ -163,7 +171,8 @@ extern "C" {
         SCPI_NUM_DOWN,
         SCPI_NUM_NAN,
         SCPI_NUM_INF,
-        SCPI_NUM_NINF
+        SCPI_NUM_NINF,
+        SCPI_NUM_AUTO
     };
     typedef enum _scpi_special_number_t scpi_special_number_t;
 
@@ -202,12 +211,13 @@ extern "C" {
         scpi_interface_t * interface;
         int_fast16_t output_count;
         int_fast16_t input_count;
-        bool_t cmd_error;
+        scpi_bool_t cmd_error;
         scpi_error_queue_t error_queue;
         scpi_reg_val_t * registers;
         const scpi_unit_def_t * units;
         const scpi_special_number_def_t * special_numbers;
         void * user_context;
+        const char * idn[4];
     };
 
 #ifdef  __cplusplus

@@ -42,7 +42,7 @@
  * @param context
  * @return 
  */
-bool_t SCPI_DebugCommand(scpi_t * context) {
+scpi_bool_t SCPI_DebugCommand(scpi_t * context) {
 	size_t res;
 	printf("**DEBUG: %s (\"", context->paramlist.cmd->pattern);
 	res = fwrite(context->paramlist.parameters, 1, context->paramlist.length, stdout);

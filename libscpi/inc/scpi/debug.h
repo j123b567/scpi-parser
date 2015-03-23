@@ -48,7 +48,7 @@ extern "C" {
     #define SCPI_DEBUG_COMMAND(a)
 
 
-    bool_t SCPI_DebugCommand(scpi_t * context);
+    scpi_bool_t SCPI_DebugCommand(scpi_t * context);
 
 
 #ifdef	__cplusplus

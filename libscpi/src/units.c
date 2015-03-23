@@ -37,7 +37,7 @@
 #include <string.h>
 #include "scpi/parser.h"
 #include "scpi/units.h"
-#include "utils.h"
+#include "scpi/utils_private.h"
 #include "scpi/error.h"
 
 
@@ -109,8 +109,9 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
     {/* name */ "UP",           /* type */ SCPI_NUM_UP},
     {/* name */ "DOWN",         /* type */ SCPI_NUM_DOWN},
     {/* name */ "NAN",          /* type */ SCPI_NUM_NAN},
-    {/* name */ "INF",          /* type */ SCPI_NUM_INF},
+    {/* name */ "INFinity",     /* type */ SCPI_NUM_INF},
     {/* name */ "NINF",         /* type */ SCPI_NUM_NINF},
+    {/* name */ "AUTO",         /* type */ SCPI_NUM_AUTO},
     SCPI_SPECIAL_NUMBERS_LIST_END,
 };
 
@@ -122,7 +123,7 @@ const scpi_special_number_def_t scpi_special_numbers_def[] = {
  * @param value resultin value
  * @return TRUE if str matches one of specs patterns
  */
-static bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_t * value) {
+static scpi_bool_t translateSpecialNumber(const scpi_special_number_def_t * specs, const char * str, size_t len, scpi_number_t * value) {
     int i;
 
     value->value = 0.0;
@@ -218,7 +219,7 @@ static const char * translateUnitInverse(const scpi_unit_def_t * units, const sc
  * @param value preparsed numeric value
  * @return TRUE if value parameter was converted to base units
  */
-static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_t * value) {
+static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t len, scpi_number_t * value) {
     size_t s;
     const scpi_unit_def_t * unitDef;
     s = skipWhitespace(unit, len);
@@ -248,8 +249,8 @@ static bool_t transformNumber(scpi_t * context, const char * unit, size_t len, s
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, bool_t mandatory) {
-    bool_t result;
+scpi_bool_t SCPI_ParamNumber(scpi_t * context, scpi_number_t * value, scpi_bool_t mandatory) {
+    scpi_bool_t result;
     const char * param;
     size_t len;
     size_t numlen;

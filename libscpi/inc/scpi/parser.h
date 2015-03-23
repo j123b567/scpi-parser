@@ -47,21 +47,22 @@ extern "C" {
     void SCPI_Init(scpi_t * context);
 
     int SCPI_Input(scpi_t * context, const char * data, size_t len);
-    int SCPI_Parse(scpi_t * context, const char * data, size_t len);
+    int SCPI_Parse(scpi_t * context, char * data, size_t len);
 
+    scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd);
 
     size_t SCPI_ResultString(scpi_t * context, const char * data);
     size_t SCPI_ResultInt(scpi_t * context, int32_t val);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
-    size_t SCPI_ResultBool(scpi_t * context, bool_t val);
+    size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
 
-    bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, bool_t mandatory);
-    bool_t SCPI_ParamDouble(scpi_t * context, double * value, bool_t mandatory);
-    bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);
-    bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, bool_t mandatory);    
-    bool_t SCPI_ParamBool(scpi_t * context, bool_t * value, bool_t mandatory);
-    bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], size_t * value, bool_t mandatory);
+    scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamString(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);    
+    scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t * value, scpi_bool_t mandatory);
 
 
 #ifdef	__cplusplus
