@@ -150,7 +150,6 @@ static scpi_interface_t scpi_interface = {
     /* control */ SCPI_Control,
     /* flush */ SCPI_Flush,
     /* reset */ SCPI_Reset,
-    /* test */ SCPI_Test,
 };
 
 #define SCPI_INPUT_BUFFER_LENGTH 256

@@ -145,19 +145,6 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
-/**
- * Callback for *TST? command
- * 
- * It returns directly the result of the test
- * @param context
- * @return 0 means "test was OK", other values means, that some error bits are set
- */
-int32_t SCPI_Test(scpi_t * context) {
-    (void) context;
-    iprintf("**Test\r\n");
-    return 0;
-}
-
 scpi_result_t SCPI_Reset(scpi_t * context) {
     (void) context;
     iprintf("**Reset\r\n");

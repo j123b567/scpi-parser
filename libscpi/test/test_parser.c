@@ -68,17 +68,10 @@ scpi_result_t SCPI_Reset(scpi_t * context)
     (void)context;
 }
 
-int32_t SCPI_Test(scpi_t * context)
-{
-    (void)context;
-    return 0;
-}
-
 scpi_result_t SCPI_Flush(scpi_t * context)
 {
     (void)context;
 }
-
 
 static scpi_interface_t scpi_interface = {
     .error = SCPI_Error,
@@ -86,7 +79,6 @@ static scpi_interface_t scpi_interface = {
     .control = SCPI_Control,
     .flush = SCPI_Flush,
     .reset = SCPI_Reset,
-    .test = SCPI_Test,
 };
 
 #define SCPI_INPUT_BUFFER_LENGTH 256

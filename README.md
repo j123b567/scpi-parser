@@ -19,6 +19,8 @@ Function `SCPI_ParamChoice` has different type of choice list. It is now array o
 Reading strings is now more correct but it needs secondary copy buffer. You can use function `SCPI_ParamCopyText` to correctly handle strings like `"normal ""quoted"" normal"` will be converted to `normal "quoted" normal`.
 
 It is now possible to use `SCPI_ParamArbitraryBlock` and `SCPI_ResultArbitraryBlock` to work with binary data input and output.
+
+Test callback is removed from context. You should now reimplement whole `*TST?` command callback.
  
 Usage
 ---------------
@@ -131,7 +133,6 @@ scpi_interface_t scpi_interface = {
 	.write = myWrite,
 	.error = NULL,
 	.reset = NULL,
-	.test = NULL,
 	.srq = NULL,
 };
 ```

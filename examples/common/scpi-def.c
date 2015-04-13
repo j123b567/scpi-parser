@@ -186,6 +186,21 @@ scpi_result_t TEST_ArbQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+/**
+ * Reimplement IEEE488.2 *TST?
+ *
+ * Result should be 0 if everything is ok
+ * Result should be 1 if something goes wrong
+ *
+ * Return SCPI_RES_OK
+ */
+scpi_result_t My_CoreTstQ(scpi_t * context) {
+
+    SCPI_ResultInt(context, 0);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -199,7 +214,7 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "*SRE", .callback = SCPI_CoreSre,},
     { .pattern = "*SRE?", .callback = SCPI_CoreSreQ,},
     { .pattern = "*STB?", .callback = SCPI_CoreStbQ,},
-    { .pattern = "*TST?", .callback = SCPI_CoreTstQ,},
+    { .pattern = "*TST?", .callback = My_CoreTstQ,},
     { .pattern = "*WAI", .callback = SCPI_CoreWai,},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
@@ -249,7 +264,6 @@ static scpi_interface_t scpi_interface = {
     .control = SCPI_Control,
     .flush = SCPI_Flush,
     .reset = SCPI_Reset,
-    .test = SCPI_Test,
 };
 
 #define SCPI_INPUT_BUFFER_LENGTH 256

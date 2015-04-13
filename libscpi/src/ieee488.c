@@ -329,11 +329,8 @@ scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
-    int result = 0;
-    if (context && context->interface && context->interface->test) {
-        result = context->interface->test(context);
-    }
-    SCPI_ResultInt(context, result);
+    (void) context;
+    SCPI_ResultInt(context, 0);
     return SCPI_RES_OK;
 }
 
