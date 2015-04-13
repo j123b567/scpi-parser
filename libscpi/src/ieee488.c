@@ -250,10 +250,14 @@ scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
-    SCPI_ResultString(context, context->idn[0]);
-    SCPI_ResultString(context, context->idn[1]);
-    SCPI_ResultString(context, context->idn[2]);
-    SCPI_ResultString(context, context->idn[3]);
+    int i;
+    for (i = 0; i<4; i++) {
+        if (context->idn[i]) {
+            SCPI_ResultString(context, context->idn[i]);
+        } else {
+            SCPI_ResultString(context, "0");
+        }
+    }
     return SCPI_RES_OK;
 }
 
