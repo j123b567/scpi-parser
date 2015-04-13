@@ -75,7 +75,7 @@ static int flushData(scpi_t * context) {
  */
 static size_t writeDelimiter(scpi_t * context) {
     if (context->output_count > 0) {
-        return writeData(context, ",", 2);
+        return writeData(context, ",", 1);
     } else {
         return 0;
     }
@@ -258,15 +258,16 @@ int SCPI_Input(scpi_t * context, const char * data, int len) {
         while (1) {
             cmdlen = scpiParser_detectProgramMessageUnit(&context->parser_state, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
             totcmdlen += cmdlen;
-            if (context->parser_state.termination == SCPI_MESSAGE_TERMINATION_NL) break;
-            if (context->parser_state.programHeader.type == SCPI_TOKEN_UNKNOWN) break;
-            if (totcmdlen >= context->buffer.position) break;
-        }
 
-        if (context->parser_state.termination == SCPI_MESSAGE_TERMINATION_NL) {
-            result = SCPI_Parse(context, context->buffer.data, totcmdlen);
-            memmove(context->buffer.data, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
-            context->buffer.position -= totcmdlen;
+            if (context->parser_state.termination == SCPI_MESSAGE_TERMINATION_NL) {
+                result = SCPI_Parse(context, context->buffer.data, totcmdlen);
+                memmove(context->buffer.data, context->buffer.data + totcmdlen, context->buffer.position - totcmdlen);
+                context->buffer.position -= totcmdlen;
+                totcmdlen = 0;
+            } else {
+                if (context->parser_state.programHeader.type == SCPI_TOKEN_UNKNOWN) break;
+                if (totcmdlen >= context->buffer.position) break;
+            }
         }
     }
 
