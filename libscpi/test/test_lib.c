@@ -252,7 +252,7 @@ void testIEEE4882(void) {
     CU_ASSERT_EQUAL(RST_executed, TRUE);
 
     TST_executed = FALSE;
-    TEST_IEEE4882("*TST?\r\n", "1\r\n");
+    TEST_IEEE4882("*TST?\r\n", "0\r\n");
     CU_ASSERT_EQUAL(TST_executed, TRUE);
     
     TEST_IEEE4882("*WAI\r\n", "");
