@@ -32,15 +32,15 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "*WAI", .callback = SCPI_CoreWai,},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {.pattern = "SYSTem:ERRor[:NEXT]?", .callback = SCPI_SystemErrorNextQ,},
-    {.pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
-    {.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
+    { .pattern = "SYSTem:ERRor[:NEXT]?", .callback = SCPI_SystemErrorNextQ,},
+    { .pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
+    { .pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
 
-    {.pattern = "STATus:QUEStionable[:EVENt]?", .callback = SCPI_StatusQuestionableEventQ,},
-    {.pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
-    {.pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
+    { .pattern = "STATus:QUEStionable[:EVENt]?", .callback = SCPI_StatusQuestionableEventQ,},
+    { .pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
+    { .pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
 
-    {.pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
+    { .pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
     
     SCPI_CMD_LIST_END
 };
@@ -163,6 +163,7 @@ void testCommandsHandling(void) {
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
 }
     output_buffer_clear();
+    error_buffer_clear();
 
     /* Test single command */
     TEST_INPUT("*IDN?\r\n", "MA, IN, 0, VER\r\n");
@@ -252,7 +253,7 @@ void testIEEE4882(void) {
     CU_ASSERT_EQUAL(RST_executed, TRUE);
 
     TST_executed = FALSE;
-    TEST_IEEE4882("*TST?\r\n", "1\r\n");
+    TEST_IEEE4882("*TST?\r\n", "0\r\n");
     CU_ASSERT_EQUAL(TST_executed, TRUE);
     
     TEST_IEEE4882("*WAI\r\n", "");
@@ -312,3 +313,4 @@ int main() {
     CU_cleanup_registry();
     return CU_get_error();
 }
+
