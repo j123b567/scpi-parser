@@ -593,8 +593,10 @@ scpi_bool_t SCPI_ParamText(scpi_t * context, const char ** value, size_t * len, 
         return FALSE;
     }
 
+    paramSkipWhitespace(context);
     if (locateText(context->paramlist.parameters, context->paramlist.length, value, &length)) {
-        paramSkipBytes(context, length);
+        paramSkipBytes(context, length + 2);
+        paramSkipWhitespace(context);
         if (len) {
             *len = length;
         }
