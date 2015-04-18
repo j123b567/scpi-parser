@@ -147,7 +147,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
         return SCPI_RES_ERR;
     }
     
-    fprintf(stderr, "\tP1=%s (%d)\r\n", trigger_source[param], param);
+    fprintf(stderr, "\tP1=%s (%ld)\r\n", trigger_source[param], (long int)param);
     
     SCPI_ResultInt(context, param);
 

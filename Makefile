@@ -1,3 +1,4 @@
+.PHONY: clean all test
 
 all:
 	$(MAKE) -C libscpi
@@ -6,3 +7,6 @@ all:
 clean:
 	$(MAKE) clean -C libscpi
 	$(MAKE) clean -C examples
+
+test:
+	$(MAKE) test -C libscpi
