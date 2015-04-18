@@ -63,6 +63,7 @@ extern "C" {
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
     scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
     scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
+    scpi_bool_t composeCompoundCommand(const scpi_token_t * prev, scpi_token_t * current);
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen);

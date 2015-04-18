@@ -82,7 +82,7 @@ static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, scpi_t
 #endif
 
 #define TEST_TOKEN(s, f, o, l, t) do {          \
-    const char * str = s;                       \
+    char * str = s;                             \
     lexfn_t fn = f;                             \
     int offset = o;                             \
     int len = l;                                \
@@ -211,7 +211,7 @@ void testProgramData(void) {
 
 
 #define TEST_ALL_TOKEN(s, f, o, l, t, c) do {   \
-    const char * str = s;                       \
+    char * str = s;                             \
     lexfn2_t fn = f;                            \
     int offset = o;                             \
     int len = l;                                \
@@ -244,10 +244,10 @@ void testAllProgramData(void) {
 
 
 #define TEST_DETECT(s, h, hl, ht, d, dc, t) do {                                \
-    const char * str = s;                                                       \
+    char * str = s;                                                             \
     scpi_parser_state_t state;                                                  \
     int result;                                                                 \
-    result = scpiParser_detectProgramMessageUnit(&state, str, strlen(str));           \
+    result = scpiParser_detectProgramMessageUnit(&state, str, strlen(str));     \
     CU_ASSERT_EQUAL(state.programHeader.ptr, str + h);                          \
     CU_ASSERT_EQUAL(state.programHeader.len, hl);                               \
     CU_ASSERT_EQUAL(state.programHeader.type, ht);                              \

@@ -161,14 +161,14 @@ extern "C" {
 
     struct _scpi_token_t {
         scpi_token_type_t type;
-        const char * ptr;
+        char * ptr;
         int len;
     };
     typedef struct _scpi_token_t scpi_token_t;
 
     struct _lex_state_t {
-        const char * buffer;
-        const char * pos;
+        char * buffer;
+        char * pos;
         int len;
     };
     typedef struct _lex_state_t lex_state_t;

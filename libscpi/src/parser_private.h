@@ -45,7 +45,7 @@ extern "C" {
 
     int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) LOCAL;
     int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) LOCAL;
-    int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) LOCAL;
+    int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, char * buffer, int len) LOCAL;
 
 #ifdef	__cplusplus
 }

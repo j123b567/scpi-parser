@@ -47,7 +47,7 @@ extern "C" {
     void SCPI_Init(scpi_t * context);
 
     int SCPI_Input(scpi_t * context, const char * data, int len);
-    int SCPI_Parse(scpi_t * context, const char * data, int len);
+    int SCPI_Parse(scpi_t * context, char * data, int len);
 
 
     size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);

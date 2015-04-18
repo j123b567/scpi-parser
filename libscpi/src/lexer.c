@@ -506,7 +506,7 @@ static int skipExponent(lex_state_t * state) {
  * @return 
  */
 int scpiLex_DecimalNumericProgramData(lex_state_t * state, scpi_token_t * token) {
-    const char * rollback;
+    char * rollback;
     token->ptr = state->pos;
 
     if (skipMantisa(state)) {

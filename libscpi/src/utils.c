@@ -441,6 +441,51 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     return result;
 }
 
+/**
+ * Compose command from previsou command anc current command
+ *
+ * @param prev pointer to previous command
+ * @param current pointer of current command
+ *
+ * prev and current should be in the same memory buffer
+ */
+scpi_bool_t composeCompoundCommand(const scpi_token_t * prev, scpi_token_t * current) {
+    size_t i;
+
+    /* Invalid input */
+    if (current == NULL || current->ptr == NULL || current->len == 0)
+        return FALSE;
+
+    /* no previous command - nothing to do*/
+    if (prev->ptr == NULL || prev->len == 0)
+        return TRUE;
+
+    /* Common command or command root - nothing to do */
+    if (current->ptr[0] == '*' || current->ptr[0] == ':')
+        return TRUE;
+
+    /* Previsou command was common command - nothing to do */
+    if (prev->ptr[0] == '*')
+        return TRUE;
+
+    /* Find last occurence of ':' */
+    for (i = prev->len; i > 0; i--) {
+        if (prev->ptr[i - 1] == ':') {
+            break;
+        }
+    }
+
+    /* Previous command was simple command - nothing to do*/
+    if (i == 0)
+        return TRUE;
+
+    current->ptr -= i;
+    current->len += i;
+    memmove(current->ptr, prev->ptr, i);
+    return TRUE;
+}
+
+
 
 #if !HAVE_STRNLEN
 /* use FreeBSD strnlen */

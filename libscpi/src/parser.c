@@ -152,10 +152,11 @@ static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int 
  * @param len - command line length
  * @return 1 if the last evaluated command was found
  */
-int SCPI_Parse(scpi_t * context, const char * data, int len) {
+int SCPI_Parse(scpi_t * context, char * data, int len) {
     int result = 0;
     scpi_parser_state_t * state;
     int r;
+    scpi_token_t cmd_prev = {SCPI_TOKEN_UNKNOWN, NULL, 0};
 
     if (context == NULL) {
         return -1;
@@ -171,6 +172,9 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
         if (state->programHeader.type == SCPI_TOKEN_INVALID) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_CHARACTER);
         } else if (state->programHeader.len > 0) {
+
+            composeCompoundCommand(&cmd_prev, &state->programHeader);
+
             if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
 
                 context->param_list.lex_state.buffer = state->programData.ptr;
@@ -183,6 +187,7 @@ int SCPI_Parse(scpi_t * context, const char * data, int len) {
                 processCommand(context);
 
                 result = 1;
+                cmd_prev = state->programHeader;
             } else {
                 SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
             }
@@ -414,7 +419,7 @@ size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
  * @param token
  * @param ptr
  */
-static void invalidateToken(scpi_token_t * token, const char * ptr) {
+static void invalidateToken(scpi_token_t * token, char * ptr) {
     token->len = 0;
     token->ptr = ptr;
     token->type = SCPI_TOKEN_UNKNOWN;
@@ -934,7 +939,7 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
  * @param len
  * @return 
  */
-int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, const char * buffer, int len) {
+int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, char * buffer, int len) {
     lex_state_t lex_state;
     scpi_token_t tmp;
     int result = 0;
