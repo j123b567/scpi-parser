@@ -36,6 +36,20 @@ scpi_result_t text_function(scpi_t* context) {
     return SCPI_RES_OK;
 }
 
+scpi_result_t test_treeA(scpi_t* context) {
+
+    SCPI_ResultInt(context, 10);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t test_treeB(scpi_t* context) {
+
+    SCPI_ResultInt(context, 20);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -63,7 +77,10 @@ static const scpi_command_t scpi_commands[] = {
 
     { .pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
     
-    { .pattern = "TEXTfunction", .callback = text_function,},
+    { .pattern = "TEXTfunction?", .callback = text_function,},
+
+    { .pattern = "TEST:TREEA?", .callback = test_treeA,},
+    { .pattern = "TEST:TREEB?", .callback = test_treeB,},
 
     SCPI_CMD_LIST_END
 };
@@ -206,10 +223,12 @@ void testCommandsHandling(void) {
     TEST_INPUT("", "MA, IN, 0, VER\r\n");
     output_buffer_clear();
     
+    /* Test ctree traversal */
+    TEST_INPUT("TEST:TREEA?;TREEB?\r\n", "10\r\n20\r\n");
+    output_buffer_clear();
+
     CU_ASSERT_EQUAL(err_buffer_pos, 0);
     error_buffer_clear();
-    
-    // TODO: Compound commands A:B;C -> A:B; A:C
 }
 
 void testErrorHandling(void) {
@@ -228,7 +247,7 @@ void testErrorHandling(void) {
     TEST_ERROR("IDN?\r\n", "", SCPI_ERROR_UNDEFINED_HEADER);
     TEST_ERROR("*ESE\r\n", "", SCPI_ERROR_MISSING_PARAMETER);
     TEST_ERROR("*IDN? 12\r\n", "MA, IN, 0, VER\r\n", SCPI_ERROR_PARAMETER_NOT_ALLOWED);
-    TEST_ERROR("TEXT \"PARAM1\", \"PARAM2\"\r\n", "\"PARAM2\"\r\n", 0);
+    TEST_ERROR("TEXT? \"PARAM1\", \"PARAM2\"\r\n", "\"PARAM2\"\r\n", 0);
 
     // TODO: SCPI_ERROR_INVALID_SEPARATOR
     // TODO: SCPI_ERROR_INVALID_SUFFIX
