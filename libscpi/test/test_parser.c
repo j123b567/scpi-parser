@@ -13,6 +13,23 @@
  * CUnit Test Suite
  */
 
+scpi_result_t text_function(scpi_t* context) {
+    char param[100];
+    size_t param_len;
+
+    if (!SCPI_ParamCopyText(context, param, 100, &param_len, TRUE)) {
+        return SCPI_RES_ERR;
+    }
+
+    if (!SCPI_ParamCopyText(context, param, 100, &param_len, TRUE)) {
+        return SCPI_RES_ERR;
+    }
+
+    SCPI_ResultText(context, param);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -40,6 +57,8 @@ static const scpi_command_t scpi_commands[] = {
 
     { .pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
     
+    { .pattern = "TEXTfunction", .callback = text_function,},
+
     SCPI_CMD_LIST_END
 };
 
@@ -63,7 +82,7 @@ static size_t output_buffer_write(const char * data, size_t len) {
 
 scpi_t scpi_context;
 static void error_buffer_clear(void) {
-    err_buffer[0] = '\0';
+    err_buffer[0] = 0;
     err_buffer_pos = 0;
 
     SCPI_EventClear(&scpi_context);
@@ -78,6 +97,7 @@ static void error_buffer_add(int_fast16_t err) {
 
 static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     (void) context;
+
     return output_buffer_write(data, len);
 }
 
@@ -136,6 +156,7 @@ scpi_t scpi_context = {
     .idn = {"MA", "IN", NULL, "VER"},
 };
 
+
 int init_suite(void) {
     SCPI_Init(&scpi_context);
 
@@ -183,23 +204,27 @@ void testErrorHandling(void) {
     error_buffer_clear();
 
 #define TEST_ERROR(data, output, err_num) {                     \
+    output_buffer_clear();                                      \
+    error_buffer_clear();                                       \
     SCPI_Input(&scpi_context, data, strlen(data));              \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
-    error_buffer_clear();                                       \
+    CU_ASSERT_EQUAL(err_buffer[0], err_num)                     \
 }
 
     TEST_ERROR("*IDN?\r\n", "MA,IN,0,VER\r\n", 0);
-    output_buffer_clear();
     TEST_ERROR("IDN?\r\n", "", SCPI_ERROR_UNDEFINED_HEADER);
     TEST_ERROR("*ESE\r\n", "", SCPI_ERROR_MISSING_PARAMETER);
     TEST_ERROR("*IDN? 12\r\n", "MA,IN,0,VER\r\n", SCPI_ERROR_PARAMETER_NOT_ALLOWED);
-    output_buffer_clear();
+    TEST_ERROR("TEXT \"PARAM1\", \"PARAM2\"\r\n", "\"PARAM2\"\r\n", 0);
 
     // TODO: SCPI_ERROR_INVALID_SEPARATOR
     // TODO: SCPI_ERROR_INVALID_SUFFIX
     // TODO: SCPI_ERROR_SUFFIX_NOT_ALLOWED
     // TODO: SCPI_ERROR_EXECUTION_ERROR
     // TODO: SCPI_ERROR_ILLEGAL_PARAMETER_VALUE
+
+    output_buffer_clear();
+    error_buffer_clear();
 }
 
 void testIEEE4882(void) {
