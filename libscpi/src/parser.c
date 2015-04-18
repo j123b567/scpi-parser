@@ -685,3 +685,7 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     const char * pattern = context->paramlist.cmd->pattern;
     return matchCommand (pattern, cmd, strlen (cmd));
 }
+
+scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
+    return matchCommand (pattern, value, len);
+}
