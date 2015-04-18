@@ -65,7 +65,7 @@ extern "C" {
 
 /* AVR libc */
 #if defined(__AVR_LIBC_VERSION__)
-#define HAVE_DTOSTRE
+#define HAVE_DTOSTRE            1
 #endif
 
 /* ======== test strnlen ======== */
