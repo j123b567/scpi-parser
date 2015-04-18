@@ -63,6 +63,11 @@ extern "C" {
 #define HAVE_STRNICMP           0
 #endif
 
+/* AVR libc */
+#if defined(__AVR_LIBC_VERSION__)
+#define HAVE_DTOSTRE
+#endif
+
 /* ======== test strnlen ======== */
 #ifndef HAVE_STRNLEN
 #define HAVE_STRNLEN            1
@@ -91,6 +96,13 @@ extern "C" {
 #else
 #define SCPI_strncasecmp(s1, s2, l)	OUR_strncasecmp((s1), (s2), (l))
 #endif
+
+#if HAVE_DTOSTRE
+#define SCPI_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTRE_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#else
+#define SCPI_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))
+#endif
+
 
 #ifdef	__cplusplus
 }
