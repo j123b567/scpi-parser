@@ -64,7 +64,8 @@ extern "C" {
 #endif
 
 /* AVR libc */
-#if defined(__AVR_LIBC_VERSION__)
+#if defined(__AVR__)
+#include <stdlib.h>
 #define HAVE_DTOSTRE            1
 #endif
 
@@ -98,7 +99,7 @@ extern "C" {
 #endif
 
 #if HAVE_DTOSTRE
-#define SCPI_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTRE_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#define SCPI_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
 #else
 #define SCPI_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))
 #endif
