@@ -138,7 +138,7 @@ size_t longToStr(int32_t val, char * str, size_t len, int8_t base) {
  * @return number of bytes written to str (without '\0')
  */
 size_t doubleToStr(double val, char * str, size_t len) {
-    return snprintf(str, len, "%lg", val);
+    return SCPI_doubleToStr(val, str, len);
 }
 
 /**
