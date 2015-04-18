@@ -149,7 +149,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     }
     
     SCPI_ChoiceToName(trigger_source, param, &name);
-    fprintf(stderr, "\tP1=%s (%d)\r\n", name, param);
+    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int)param);
     
     SCPI_ResultInt(context, param);
 

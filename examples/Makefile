@@ -1,10 +1,14 @@
+.PHONY: clean all cli tcp
 
-all:
+all: cli tcp
+
+cli:
 	$(MAKE) -C test-interactive
 	$(MAKE) -C test-parser
+
+tcp:
 	$(MAKE) -C test-tcp
 	$(MAKE) -C test-tcp-srq
-
 
 clean:
 	$(MAKE) clean -C test-interactive

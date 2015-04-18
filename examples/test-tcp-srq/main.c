@@ -84,7 +84,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
     // BEEP
-    fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
 

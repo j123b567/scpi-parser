@@ -52,7 +52,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
 
-    fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
 
@@ -87,7 +87,9 @@ int main(int argc, char** argv) {
     printf("SCPI Interactive demo\r\n");
     char smbuffer[10];
     while (1) {
-         fgets(smbuffer, 10, stdin);
+         if (NULL == fgets(smbuffer, 10, stdin)) {
+             break;
+         }
          SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
     }
 
