@@ -99,6 +99,24 @@ extern "C" {
 #endif
 
 #if HAVE_DTOSTRE
+char * dtostre(
+	double __val,
+	char * __s,
+	unsigned char __prec,
+	unsigned char __flags);
+
+#ifndef DTOSTR_ALWAYS_SIGN
+#define	DTOSTR_ALWAYS_SIGN 0x01
+#endif
+
+#ifndef DTOSTR_PLUS_SIGN
+#define	DTOSTR_PLUS_SIGN 0x02
+#endif
+
+#ifndef DTOSTR_UPPERCASE
+#define	DTOSTR_UPPERCASE 0x04
+#endif
+
 #define SCPI_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
 #else
 #define SCPI_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))
