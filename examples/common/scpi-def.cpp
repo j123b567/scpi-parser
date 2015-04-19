@@ -46,21 +46,21 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamNumber(context, &param1, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
         // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamNumber(context, &param2, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, false)) {
         // do something, if parameter not present
     }
 
     
-    SCPI_NumberToStr(context, &param1, bf, 15);
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
     
-    SCPI_NumberToStr(context, &param2, bf, 15);
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
@@ -69,9 +69,37 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 }
 
 
+scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
+    scpi_number_t param1, param2;
+    char bf[15];
+    fprintf(stderr, "meas:volt:ac\r\n"); // debug command name
+
+    // read first parameter if present
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
+        // do something, if parameter not present
+    }
+
+    // read second paraeter if present
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, false)) {
+        // do something, if parameter not present
+    }
+
+
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
+    fprintf(stderr, "\tP1=%s\r\n", bf);
+
+
+    SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
+    fprintf(stderr, "\tP2=%s\r\n", bf);
+
+    SCPI_ResultDouble(context, 0);
+
+    return SCPI_RES_OK;
+}
+
 scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     double param1, param2;
-    fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
+    fprintf(stderr, "conf:volt:dc\r\n"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamDouble(context, &param1, true)) {
@@ -89,57 +117,145 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+scpi_result_t TEST_Bool(scpi_t * context) {
+    scpi_bool_t param1;
+    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name
+
+    // read first parameter if present
+    if (!SCPI_ParamBool(context, &param1, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    fprintf(stderr, "\tP1=%d\r\n", param1);
+
+    return SCPI_RES_OK;
+}
+
+scpi_choice_def_t trigger_source[] = {
+    {"BUS", 5},
+    {"IMMediate", 6},
+    {"EXTernal", 7},
+    SCPI_CHOICE_LIST_END /* termination of option list */
+};
+
+
+scpi_result_t TEST_ChoiceQ(scpi_t * context) {
+
+    int32_t param;
+    const char * name;
+
+    if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    SCPI_ChoiceToName(trigger_source, param, &name);
+    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int)param);
+
+    SCPI_ResultInt(context, param);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t TEST_Numbers(scpi_t * context) {
+
+    fprintf(stderr, "RAW CMD %.*s\r\n", (int)context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t TEST_Text(scpi_t * context) {
+    char buffer[100];
+    size_t copy_len;
+
+    buffer[0] = 0;
+    SCPI_ParamCopyText(context, buffer, 100, &copy_len, false);
+
+    fprintf(stderr, "TEXT: ***%s***\r\n", buffer);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t TEST_ArbQ(scpi_t * context) {
+    const char * data;
+    size_t len;
+
+    SCPI_ParamArbitraryBlock(context, &data, &len, false);
+
+    SCPI_ResultArbitraryBlock(context, data, len);
+
+    return SCPI_RES_OK;
+}
+
+/**
+ * Reimplement IEEE488.2 *TST?
+ *
+ * Result should be 0 if everything is ok
+ * Result should be 1 if something goes wrong
+ *
+ * Return SCPI_RES_OK
+ */
+scpi_result_t My_CoreTstQ(scpi_t * context) {
+
+    SCPI_ResultInt(context, 0);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* {"pattern", callback} *
     
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
-    {"*CLS", SCPI_CoreCls,},
-    {"*ESE", SCPI_CoreEse,},
-    {"*ESE?", SCPI_CoreEseQ,},
-    {"*ESR?", SCPI_CoreEsrQ,},
-    {"*IDN?", SCPI_CoreIdnQ,},
-    {"*OPC", SCPI_CoreOpc,},
-    {"*OPC?", SCPI_CoreOpcQ,},
-    {"*RST", SCPI_CoreRst,},
-    {"*SRE", SCPI_CoreSre,},
-    {"*SRE?", SCPI_CoreSreQ,},
-    {"*STB?", SCPI_CoreStbQ,},
-    {"*TST?", SCPI_CoreTstQ,},
-    {"*WAI", SCPI_CoreWai,},
+    {"*CLS", SCPI_CoreCls, 0},
+    {"*ESE", SCPI_CoreEse, 0},
+    {"*ESE?", SCPI_CoreEseQ, 0},
+    {"*ESR?", SCPI_CoreEsrQ, 0},
+    {"*IDN?", SCPI_CoreIdnQ, 0},
+    {"*OPC", SCPI_CoreOpc, 0},
+    {"*OPC?", SCPI_CoreOpcQ, 0},
+    {"*RST", SCPI_CoreRst, 0},
+    {"*SRE", SCPI_CoreSre, 0},
+    {"*SRE?", SCPI_CoreSreQ, 0},
+    {"*STB?", SCPI_CoreStbQ, 0},
+    {"*TST?", My_CoreTstQ, 0},
+    {"*WAI", SCPI_CoreWai, 0},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {"SYSTem:ERRor?", SCPI_SystemErrorNextQ,},
-    {"SYSTem:ERRor:NEXT?", SCPI_SystemErrorNextQ,},
-    {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ,},
-    {"SYSTem:VERSion?", SCPI_SystemVersionQ,},
+    {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ, 0},
+    {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ, 0},
+    {"SYSTem:VERSion?", SCPI_SystemVersionQ, 0},
 
-    //{"STATus:OPERation?", scpi_stub_callback,},
-    //{"STATus:OPERation:EVENt?", scpi_stub_callback,},
-    //{"STATus:OPERation:CONDition?", scpi_stub_callback,},
-    //{"STATus:OPERation:ENABle", scpi_stub_callback,},
-    //{"STATus:OPERation:ENABle?", scpi_stub_callback,},
+    //{"STATus:OPERation?", scpi_stub_callback, 0},
+    //{"STATus:OPERation:EVENt?", scpi_stub_callback, 0},
+    //{"STATus:OPERation:CONDition?", scpi_stub_callback, 0},
+    //{"STATus:OPERation:ENABle", scpi_stub_callback, 0},
+    //{"STATus:OPERation:ENABle?", scpi_stub_callback, 0},
 
-    {"STATus:QUEStionable?", SCPI_StatusQuestionableEventQ,},
-    {"STATus:QUEStionable:EVENt?", SCPI_StatusQuestionableEventQ,},
-    //{"STATus:QUEStionable:CONDition?", scpi_stub_callback,},
-    {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable,},
-    {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ,},
+    {"STATus:QUEStionable[:EVENt]?", SCPI_StatusQuestionableEventQ, 0},
+    //{"STATus:QUEStionable:CONDition?", scpi_stub_callback, 0},
+    {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable, 0},
+    {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ, 0},
 
-    {"STATus:PRESet", SCPI_StatusPreset,},
+    {"STATus:PRESet", SCPI_StatusPreset, 0},
 
     /* DMM */
-    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ,},
-    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc,},
-    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ,},
-    {"MEASure:VOLTage:AC?", SCPI_StubQ,},
-    {"MEASure:CURRent:DC?", SCPI_StubQ,},
-    {"MEASure:CURRent:AC?", SCPI_StubQ,},
-    {"MEASure:RESistance?", SCPI_StubQ,},
-    {"MEASure:FRESistance?", SCPI_StubQ,},
-    {"MEASure:FREQuency?", SCPI_StubQ,},
-    {"MEASure:PERiod?", SCPI_StubQ,},
-    
-    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ,},
+    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ, 0},
+    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc, 0},
+    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ, 0},
+    {"MEASure:VOLTage:AC?", DMM_MeasureVoltageAcQ, 0},
+    {"MEASure:CURRent:DC?", SCPI_StubQ, 0},
+    {"MEASure:CURRent:AC?", SCPI_StubQ, 0},
+    {"MEASure:RESistance?", SCPI_StubQ, 0},
+    {"MEASure:FRESistance?", SCPI_StubQ, 0},
+    {"MEASure:FREQuency?", SCPI_StubQ, 0},
+    {"MEASure:PERiod?", SCPI_StubQ, 0},
+
+    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ, 0},
+
+    {"TEST:BOOL", TEST_Bool, 0},
+    {"TEST:CHOice?", TEST_ChoiceQ, 0},
+    {"TEST#:NUMbers#", TEST_Numbers, 0},
+    {"TEST:TEXT", TEST_Text, 0},
+    {"TEST:ARBitrary?", TEST_ArbQ, 0},
 
     SCPI_CMD_LIST_END
 };
@@ -160,8 +276,8 @@ static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 
 scpi_t scpi_context = {
     /* cmdlist */ scpi_commands,
-    /* buffer */ { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0,  /* data */ scpi_input_buffer, },
-    /* paramlist */ { /* cmd */ NULL, /* parameters */ NULL, /* length */ 0, },
+    /* buffer */ { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0, /* data */ scpi_input_buffer},
+    /* param_list */ { /* cmd */ NULL, /* lex_state */ {NULL, NULL, 0}, /* cmd_raw */ {0, 0, NULL}},
     /* interface */ &scpi_interface,
     /* output_count */ 0,
     /* input_count */ 0,
@@ -169,7 +285,8 @@ scpi_t scpi_context = {
     /* error_queue */ NULL,
     /* registers */ scpi_regs,
     /* units */ scpi_units_def,
-    /* special_numbers */ scpi_special_numbers_def,
     /* user_context */ NULL,
+    /* parser_state */ { /* programHeader */ {SCPI_TOKEN_UNKNOWN, NULL, 0}, /* programData */ {SCPI_TOKEN_UNKNOWN, NULL, 0}, /* numberOfParameters */ 0, /* termination */ SCPI_MESSAGE_TERMINATION_NONE},
+    /* idn */ {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
 

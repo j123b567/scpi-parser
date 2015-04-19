@@ -205,7 +205,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
     lex_state_t state;
     scpi_parameter_t param;
     scpi_bool_t result;
-    int32_t intval;
+    int32_t tag;
 
     if (!value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
@@ -230,7 +230,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
         case SCPI_TOKEN_PROGRAM_MNEMONIC:
             value->unit = SCPI_UNIT_NONE;
-            value->type = SCPI_NUM_NUMBER;
+            value->special = FALSE;
             result = TRUE;
             break;
     }
@@ -279,10 +279,10 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             scpiLex_CharacterProgramData(&state, &token);
 
             /* convert string to special number type */
-            SCPI_ParamToChoice(context, &token, special, &intval);
+            SCPI_ParamToChoice(context, &token, special, &tag);
 
-            value->type = intval;
-            value->value = 0;
+            value->special = TRUE;
+            value->tag = tag;
 
             break;
         default:
@@ -309,9 +309,14 @@ size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scp
         return 0;
     }
 
-    if (SCPI_ChoiceToName(special, value->type, &type)) {
-        strncpy(str, type, len);
-        return min(strlen(type), len);
+    if (value->special) {
+        if (SCPI_ChoiceToName(special, value->tag, &type)) {
+            strncpy(str, type, len);
+            return min(strlen(type), len);
+        } else {
+            str[0] = 0;
+            return 0;
+        }
     }
 
     result = doubleToStr(value->value, str, len);

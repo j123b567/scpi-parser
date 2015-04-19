@@ -283,3 +283,4 @@ scpi_t scpi_context = {
     .units = scpi_units_def,
     .idn = {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
+

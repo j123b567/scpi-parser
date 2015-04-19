@@ -244,10 +244,13 @@ extern "C" {
     typedef struct _scpi_param_list_t scpi_param_list_t;  
     
     struct _scpi_number_parameter_t {
-        double value;
+        scpi_bool_t special;
+        union {
+            double value;
+            int32_t tag;
+        };
         scpi_unit_t unit;
         int8_t base;
-        scpi_special_number_t type;
     };
     typedef struct _scpi_number_parameter_t scpi_number_t;
 
