@@ -69,6 +69,34 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 }
 
 
+scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
+    scpi_number_t param1, param2;
+    char bf[15];
+    fprintf(stderr, "meas:volt:ac\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (!SCPI_ParamNumber(context, &param1, false)) {
+        // do something, if parameter not present
+    }
+
+    // read second paraeter if present
+    if (!SCPI_ParamNumber(context, &param2, false)) {
+        // do something, if parameter not present
+    }
+
+    
+    SCPI_NumberToStr(context, &param1, bf, 15);
+    fprintf(stderr, "\tP1=%s\r\n", bf);
+
+    
+    SCPI_NumberToStr(context, &param2, bf, 15);
+    fprintf(stderr, "\tP2=%s\r\n", bf);
+
+    SCPI_ResultDouble(context, 0);
+    
+    return SCPI_RES_OK;
+}
+
 scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     double param1, param2;
     fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
@@ -89,8 +117,52 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+scpi_result_t TEST_Bool(scpi_t * context) {
+    scpi_bool_t param1;
+    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
+
+    // read first parameter if present
+    if (!SCPI_ParamBool(context, &param1, true)) {
+        return SCPI_RES_ERR;
+    }
+
+    fprintf(stderr, "\tP1=%d\r\n", param1);
+
+    return SCPI_RES_OK;
+}
+
+const char * trigger_source[] = {
+    "BUS",
+    "IMMediate",
+    "EXTernal",
+    NULL /* termination of option list */
+};
+
+
+scpi_result_t TEST_ChoiceQ(scpi_t * context) {
+
+    int32_t param;
+    
+    if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
+        return SCPI_RES_ERR;
+    }
+    
+    fprintf(stderr, "\tP1=%s (%ld)\r\n", trigger_source[param], (long int)param);
+    
+    SCPI_ResultInt(context, param);
+
+    return SCPI_RES_OK;
+}
+
+scpi_result_t TEST_Numbers(scpi_t * context) {
+
+    fprintf(stderr, "RAW CMD %.*s\r\n", (int)context->paramlist.cmd_raw.length, context->paramlist.cmd_raw.data);
+
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
-    /* {"pattern", callback} *
+    /* {"pattern", callback}, */
     
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     {"*CLS", SCPI_CoreCls,},
@@ -108,8 +180,7 @@ static const scpi_command_t scpi_commands[] = {
     {"*WAI", SCPI_CoreWai,},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {"SYSTem:ERRor?", SCPI_SystemErrorNextQ,},
-    {"SYSTem:ERRor:NEXT?", SCPI_SystemErrorNextQ,},
+    {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ,},
     {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ,},
     {"SYSTem:VERSion?", SCPI_SystemVersionQ,},
 
@@ -119,8 +190,7 @@ static const scpi_command_t scpi_commands[] = {
     //{"STATus:OPERation:ENABle", scpi_stub_callback,},
     //{"STATus:OPERation:ENABle?", scpi_stub_callback,},
 
-    {"STATus:QUEStionable?", SCPI_StatusQuestionableEventQ,},
-    {"STATus:QUEStionable:EVENt?", SCPI_StatusQuestionableEventQ,},
+    {"STATus:QUEStionable[:EVENt]?", SCPI_StatusQuestionableEventQ,},
     //{"STATus:QUEStionable:CONDition?", scpi_stub_callback,},
     {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable,},
     {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ,},
@@ -131,7 +201,7 @@ static const scpi_command_t scpi_commands[] = {
     {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ,},
     {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc,},
     {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ,},
-    {"MEASure:VOLTage:AC?", SCPI_StubQ,},
+    {"MEASure:VOLTage:AC?", DMM_MeasureVoltageAcQ,},
     {"MEASure:CURRent:DC?", SCPI_StubQ,},
     {"MEASure:CURRent:AC?", SCPI_StubQ,},
     {"MEASure:RESistance?", SCPI_StubQ,},
@@ -140,6 +210,10 @@ static const scpi_command_t scpi_commands[] = {
     {"MEASure:PERiod?", SCPI_StubQ,},
     
     {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ,},
+
+    {"TEST:BOOL", TEST_Bool,},
+    {"TEST:CHOice?", TEST_ChoiceQ,},
+    {"TEST#:NUMbers#", TEST_Numbers,},
 
     SCPI_CMD_LIST_END
 };
@@ -162,7 +236,7 @@ static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 scpi_t scpi_context = {
     /* cmdlist */ scpi_commands,
     /* buffer */ { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0,  /* data */ scpi_input_buffer, },
-    /* paramlist */ { /* cmd */ NULL, /* parameters */ NULL, /* length */ 0, },
+    /* paramlist */ { /* cmd */ NULL, /* parameters */ NULL, /* length */ 0, /* cmd_raw */ {0, 0, NULL}},
     /* interface */ &scpi_interface,
     /* output_count */ 0,
     /* input_count */ 0,

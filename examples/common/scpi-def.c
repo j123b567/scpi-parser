@@ -162,6 +162,8 @@ scpi_result_t TEST_Numbers(scpi_t * context) {
 }
 
 static const scpi_command_t scpi_commands[] = {
+    /* { .pattern = "pattern", .callback = callback}, */
+    
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
     { .pattern = "*ESE", .callback = SCPI_CoreEse,},
@@ -243,3 +245,4 @@ scpi_t scpi_context = {
     .special_numbers = scpi_special_numbers_def,
     .idn = {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
+
