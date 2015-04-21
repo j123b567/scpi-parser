@@ -40,6 +40,7 @@
 
 #include "scpi/scpi.h"
 #include "scpi/utils_private.h"
+#include "scpi/utils.h"
 
 /*
  * CUnit Test Suite
@@ -67,7 +68,7 @@ void test_longToStr() {
     char str[32];
     size_t len;
 
-    len = longToStr(10, str, 32);
+    len = SCPI_LongToStr(10, str, 32, 10);
     CU_ASSERT(len == 2);
     CU_ASSERT(str[0] == '1');
     CU_ASSERT(str[1] == '0');
@@ -80,7 +81,7 @@ void test_doubleToStr() {
 
 #define TEST_DOUBLE_TO_STR(v, r, s)                     \
     do {                                                \
-        result = doubleToStr(v, str, sizeof(str));      \
+        result = SCPI_DoubleToStr(v, str, sizeof(str)); \
         CU_ASSERT_EQUAL(result, r);                     \
         CU_ASSERT_STRING_EQUAL(str, s);                 \
     } while(0)                                          \

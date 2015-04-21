@@ -38,6 +38,7 @@
 #include "scpi/parser.h"
 #include "scpi/units.h"
 #include "scpi/utils_private.h"
+#include "scpi/utils.h"
 #include "scpi/error.h"
 
 
@@ -312,7 +313,7 @@ size_t SCPI_NumberToStr(scpi_t * context, scpi_number_t * value, char * str, siz
         return min(strlen(type), len);
     }
 
-    result = doubleToStr(value->value, str, len);
+    result = SCPI_DoubleToStr(value->value, str, len);
 
     unit = translateUnitInverse(context->units, value->unit);
 

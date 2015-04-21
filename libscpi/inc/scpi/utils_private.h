@@ -26,7 +26,7 @@
  */
 
 /**
- * @file   scpi_utils.h
+ * @file   utils_private.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  Conversion routines and string manipulation routines
@@ -34,8 +34,8 @@
  * 
  */
 
-#ifndef SCPI_UTILS_H
-#define	SCPI_UTILS_H
+#ifndef SCPI_UTILS_PRIVATE_H
+#define	SCPI_UTILS_PRIVATE_H
 
 #include <stdint.h>
 #include "scpi/config.h"
@@ -54,8 +54,6 @@ extern "C" {
     const char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
     scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
-    size_t longToStr(int32_t val, char * str, size_t len) LOCAL;
-    size_t doubleToStr(double val, char * str, size_t len) LOCAL;
     size_t strToLong(const char * str, int32_t * val) LOCAL;
     size_t strToDouble(const char * str, double * val) LOCAL;
     scpi_bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
@@ -64,18 +62,23 @@ extern "C" {
     size_t skipColon(const char * cmd, size_t len) LOCAL;
     scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
     scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
-    scpi_bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen);
+    scpi_bool_t composeCompoundCommand(char * ptr_prev, size_t len_prev, char ** pptr, size_t * plen)  LOCAL;
 
 #if !HAVE_STRNLEN
-    size_t BSD_strnlen(const char *s, size_t maxlen);
+    size_t BSD_strnlen(const char *s, size_t maxlen) LOCAL;
 #endif
 
 #if !HAVE_STRNCASECMP && !HAVE_STRNICMP
-    int OUR_strncasecmp(const char *s1, const char *s2, size_t n);
+    int OUR_strncasecmp(const char *s1, const char *s2, size_t n) LOCAL;
 #endif
 
-#define min(a, b)  (((a) < (b)) ? (a) : (b))
-#define max(a, b)  (((a) > (b)) ? (a) : (b))
+#ifndef min
+    #define min(a, b)  (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef max
+    #define max(a, b)  (((a) > (b)) ? (a) : (b))
+#endif
 
 #if 0
 #define max(a,b) \
@@ -94,5 +97,5 @@ extern "C" {
 }
 #endif
 
-#endif	/* SCPI_UTILS_H */
+#endif	/* SCPI_UTILS_PRIVATE_H */
 

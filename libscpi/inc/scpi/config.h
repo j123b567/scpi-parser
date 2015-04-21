@@ -84,24 +84,24 @@ extern "C" {
 
 /* define local macros depending on existance of strnlen */
 #if HAVE_STRNLEN
-#define SCPI_strnlen(s, l)	strnlen((s), (l))
+#define SCPIDEFINE_strnlen(s, l)	strnlen((s), (l))
 #else
-#define SCPI_strnlen(s, l)	BSD_strnlen((s), (l))
+#define SCPIDEFINE_strnlen(s, l)	BSD_strnlen((s), (l))
 #endif
 
 /* define local macros depending on existance of strncasecmp and strnicmp */
 #if HAVE_STRNCASECMP
-#define SCPI_strncasecmp(s1, s2, l)	strncasecmp((s1), (s2), (l))
+#define SCPIDEFINE_strncasecmp(s1, s2, l) strncasecmp((s1), (s2), (l))
 #elif HAVE_STRNICMP
-#define SCPI_strncasecmp(s1, s2, l)     strnicmp((s1), (s2), (l))
+#define SCPIDEFINE_strncasecmp(s1, s2, l) strnicmp((s1), (s2), (l))
 #else
-#define SCPI_strncasecmp(s1, s2, l)	OUR_strncasecmp((s1), (s2), (l))
+#define SCPIDEFINE_strncasecmp(s1, s2, l) OUR_strncasecmp((s1), (s2), (l))
 #endif
 
 #if HAVE_DTOSTRE
-#define SCPI_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#define SCPIDEFINE_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
 #else
-#define SCPI_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))
+#define SCPIDEFINE_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))
 #endif
 
 

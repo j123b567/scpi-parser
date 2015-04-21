@@ -42,6 +42,7 @@
 #include <ctype.h>
 
 #include "scpi/utils_private.h"
+#include "scpi/utils.h"
 
 static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 static size_t patternSeparatorPos(const char * pattern, size_t len);
@@ -72,12 +73,15 @@ const char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
+ * @param base  output base
  * @return number of bytes written to str (without '\0')
  */
-size_t longToStr(int32_t val, char * str, size_t len) {
+size_t SCPI_LongToStr(int32_t val, char * str, size_t len, int8_t base) {
     uint32_t x = 1000000000L;
     int_fast8_t digit;
     size_t pos = 0;
+    
+    (void) base; // currently not supported
 
     if (val == 0) {
         if (pos < len) str[pos++] = '0';
@@ -110,8 +114,8 @@ size_t longToStr(int32_t val, char * str, size_t len) {
  * @param len   string buffer length
  * @return number of bytes written to str (without '\0')
  */
-size_t doubleToStr(double val, char * str, size_t len) {
-    return SCPI_doubleToStr(val, str, len);
+size_t SCPI_DoubleToStr(double val, char * str, size_t len) {
+    return SCPIDEFINE_doubleToStr(val, str, len);
 }
 
 /**
@@ -151,7 +155,7 @@ scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t
         return FALSE;
     }
 
-    if (SCPI_strncasecmp(str1, str2, len2) == 0) {
+    if (SCPIDEFINE_strncasecmp(str1, str2, len2) == 0) {
         return TRUE;
     }
 
@@ -174,7 +178,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
         return FALSE;
     }
 
-    if (SCPI_strncasecmp(str1, str2, len1) == 0) {
+    if (SCPIDEFINE_strncasecmp(str1, str2, len1) == 0) {
         result = TRUE;
     }
 
@@ -502,7 +506,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
     const char * pattern_end = pattern + pattern_len;
 
     const char * cmd_ptr = cmd;
-    size_t cmd_len = SCPI_strnlen(cmd, len);
+    size_t cmd_len = SCPIDEFINE_strnlen(cmd, len);
     const char * cmd_end = cmd + cmd_len;
 
     /* now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */

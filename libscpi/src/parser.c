@@ -40,6 +40,7 @@
 #include "scpi/config.h"
 #include "scpi/parser.h"
 #include "scpi/utils_private.h"
+#include "scpi/utils.h"
 #include "scpi/error.h"
 #include "scpi/constants.h"
 
@@ -382,7 +383,7 @@ size_t SCPI_ResultString(scpi_t * context, const char * data) {
 size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
     char buffer[12];
     size_t result = 0;
-    size_t len = longToStr(val, buffer, sizeof (buffer));
+    size_t len = SCPI_LongToStr(val, buffer, sizeof (buffer), 10);
     result += writeDelimiter(context);
     result += writeData(context, buffer, len);
     context->output_count++;
@@ -408,7 +409,7 @@ size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
 size_t SCPI_ResultDouble(scpi_t * context, double val) {
     char buffer[32];
     size_t result = 0;
-    size_t len = doubleToStr(val, buffer, sizeof (buffer));
+    size_t len = SCPI_DoubleToStr(val, buffer, sizeof (buffer));
     result += writeDelimiter(context);
     result += writeData(context, buffer, len);
     context->output_count++;

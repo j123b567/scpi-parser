@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012-2013 Jan Breuer,
+ * Copyright (c) 2012-2015 Jan Breuer,
  *
  * All Rights Reserved
  * 
@@ -26,26 +26,29 @@
  */
 
 /**
- * @file   scpi.h
- * @date   Thu Nov 15 10:58:45 UTC 2012
+ * @file   utils.h
  * 
- * @brief  SCPI library include file
+ * @brief  Conversion routines and string manipulation routines
  * 
  * 
  */
 
-#ifndef SCPI_H
-#define	SCPI_H
+#ifndef SCPI_UTILS_H
+#define	SCPI_UTILS_H
 
-#include "scpi/parser.h"
-#include "scpi/ieee488.h"
-#include "scpi/error.h"
-#include "scpi/constants.h"
-#include "scpi/minimal.h"
-#include "scpi/units.h"
-#include "scpi/utils.h"
+#include <stdint.h>
+#include "scpi/types.h"
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
+    size_t SCPI_LongToStr(int32_t val, char * str, size_t len, int8_t base);
+    size_t SCPI_DoubleToStr(double val, char * str, size_t len);
 
-#endif	/* SCPI_H */
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* SCPI_UTILS_H */
 
