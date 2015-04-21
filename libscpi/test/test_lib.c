@@ -15,7 +15,7 @@
  * CUnit Test Suite
  */
 
-scpi_result_t text_function(scpi_t* context) {
+static scpi_result_t text_function(scpi_t* context) {
     const char* param;
     size_t param_len;
 
@@ -36,14 +36,14 @@ scpi_result_t text_function(scpi_t* context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t test_treeA(scpi_t* context) {
+static scpi_result_t test_treeA(scpi_t* context) {
 
     SCPI_ResultInt(context, 10);
 
     return SCPI_RES_OK;
 }
 
-scpi_result_t test_treeB(scpi_t* context) {
+static scpi_result_t test_treeB(scpi_t* context) {
 
     SCPI_ResultInt(context, 20);
 
@@ -187,17 +187,17 @@ scpi_t scpi_context = {
 };
 
 
-int init_suite(void) {
+static int init_suite(void) {
     SCPI_Init(&scpi_context);
 
     return 0;
 }
 
-int clean_suite(void) {
+static int clean_suite(void) {
     return 0;
 }
 
-void testCommandsHandling(void) {
+static void testCommandsHandling(void) {
 #define TEST_INPUT(data, output) {                              \
     SCPI_Input(&scpi_context, data, strlen(data));              \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
@@ -231,7 +231,7 @@ void testCommandsHandling(void) {
     error_buffer_clear();
 }
 
-void testErrorHandling(void) {
+static void testErrorHandling(void) {
     output_buffer_clear();
     error_buffer_clear();
 
@@ -259,7 +259,7 @@ void testErrorHandling(void) {
     error_buffer_clear();
 }
 
-void testIEEE4882(void) {
+static void testIEEE4882(void) {
 #define TEST_IEEE4882(data, output) {                           \
     SCPI_Input(&scpi_context, data, strlen(data));              \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
@@ -307,7 +307,7 @@ void testIEEE4882(void) {
     TEST_IEEE4882("SYSTem:VERSion?\r\n", "1999.0\r\n");
 }
 
-void testParameters(void) {
+static void testParameters(void) {
     // TODO: test parsin parameters
     
     // TODO: Int
@@ -318,7 +318,7 @@ void testParameters(void) {
     // TODO: Choice
 }
 
-void testResults(void) {
+static void testResults(void) {
     // TODO: test producing results
     
     // TODO: String

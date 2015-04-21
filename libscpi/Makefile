@@ -1,6 +1,6 @@
 LIBNAME = scpi
 
-CFLAGS += -Wextra -g -Iinc
+CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -g -Iinc
 LDFLAGS += -Wl,--as-needed
 TESTFLAGS += -lcunit $(CFLAGS)
 

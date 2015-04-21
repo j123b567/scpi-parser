@@ -15,15 +15,15 @@
  * CUnit Test Suite
  */
 
-int init_suite(void) {
+static int init_suite(void) {
     return 0;
 }
 
-int clean_suite(void) {
+static int clean_suite(void) {
     return 0;
 }
 
-void testFifo() {
+static void testFifo() {
     fifo_t fifo;
     fifo_init(&fifo);
     int16_t value;
