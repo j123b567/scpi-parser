@@ -319,7 +319,7 @@ size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scp
         }
     }
 
-    result = doubleToStr(value->value, str, len);
+    result = SCPI_DoubleToStr(value->value, str, len);
 
     unit = translateUnitInverse(context->units, value->unit);
 

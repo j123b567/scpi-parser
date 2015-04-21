@@ -72,12 +72,12 @@ void test_longToStr() {
     char str[32];
     size_t len;
 
-    len = longToStr(10, str, 32, 10);
+    len = SCPI_LongToStr(10, str, 32, 10);
     CU_ASSERT(len == 2);
     CU_ASSERT_STRING_EQUAL(str, "10");
     CU_ASSERT(str[len] == '\0');
 
-    len = longToStr(10, str, 32, 2);
+    len = SCPI_LongToStr(10, str, 32, 2);
     CU_ASSERT(len == 4);
     CU_ASSERT(str[0] == '1');
     CU_ASSERT(str[1] == '0');
@@ -85,12 +85,12 @@ void test_longToStr() {
     CU_ASSERT(str[3] == '0');
     CU_ASSERT(str[4] == '\0');
 
-    len = longToStr(10, str, 32, 16);
+    len = SCPI_LongToStr(10, str, 32, 16);
     CU_ASSERT(len == 1);
     CU_ASSERT(str[0] == 'A');
     CU_ASSERT(str[1] == '\0');
     
-    len = longToStr(10, str, 32, 8);
+    len = SCPI_LongToStr(10, str, 32, 8);
     CU_ASSERT(len == 2);
     CU_ASSERT(str[0] == '1');
     CU_ASSERT(str[1] == '2');    
@@ -103,7 +103,7 @@ void test_doubleToStr() {
 
 #define TEST_DOUBLE_TO_STR(v, r, s)                     \
     do {                                                \
-        result = doubleToStr(v, str, sizeof(str));      \
+        result = SCPI_DoubleToStr(v, str, sizeof(str));      \
         CU_ASSERT_EQUAL(result, r);                     \
         CU_ASSERT_STRING_EQUAL(str, s);                 \
     } while(0)                                          \

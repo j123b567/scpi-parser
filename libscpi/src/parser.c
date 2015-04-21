@@ -43,6 +43,7 @@
 #include "lexer_private.h"
 #include "scpi/error.h"
 #include "scpi/constants.h"
+#include "scpi/utils.h"
 
 /**
  * Write data to SCPI output
@@ -332,7 +333,7 @@ size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base) {
     size_t result = 0;
     size_t len;
 
-    len = longToStr(val, buffer, sizeof (buffer), base);
+    len = SCPI_LongToStr(val, buffer, sizeof (buffer), base);
     basePrefix = getBasePrefix(base);
 
     result += writeDelimiter(context);
@@ -353,7 +354,7 @@ size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base) {
 size_t SCPI_ResultDouble(scpi_t * context, double val) {
     char buffer[32];
     size_t result = 0;
-    size_t len = doubleToStr(val, buffer, sizeof (buffer));
+    size_t len = SCPI_DoubleToStr(val, buffer, sizeof (buffer));
     result += writeDelimiter(context);
     result += writeData(context, buffer, len);
     context->output_count++;
@@ -390,7 +391,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
     char block_header[12];
     size_t header_len;
     block_header[0] = '#';
-    longToStr(len, block_header + 2, 10, 10);
+    SCPI_LongToStr(len, block_header + 2, 10, 10);
 
     header_len = strlen(block_header + 2);
     block_header[1] = header_len + '0';
