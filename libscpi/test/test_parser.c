@@ -200,6 +200,12 @@ static void testCommandsHandling(void) {
     TEST_INPUT("*IDN?\r\n*IDN?\r\n*IDN?\r\n*IDN?\r\n", "MA,IN,0,VER\r\nMA,IN,0,VER\r\nMA,IN,0,VER\r\nMA,IN,0,VER\r\n");
     output_buffer_clear();
 
+    TEST_INPUT("*IDN?;*IDN?;*IDN?;*IDN?\r\n", "MA,IN,0,VER;MA,IN,0,VER;MA,IN,0,VER;MA,IN,0,VER\r\n");
+    output_buffer_clear();
+
+    TEST_INPUT("*IDN?;*OPC;*IDN?\r\n", "MA,IN,0,VER;MA,IN,0,VER\r\n");
+    output_buffer_clear();
+
     /* Test one command in multiple buffers */
     TEST_INPUT("*IDN?", "");
     TEST_INPUT("\r\n", "MA,IN,0,VER\r\n");
@@ -211,10 +217,10 @@ static void testCommandsHandling(void) {
     output_buffer_clear();
     
     /* Test ctree traversal */
-    TEST_INPUT("TEST:TREEA?;TREEB?\r\n", "10\r\n20\r\n");
+    TEST_INPUT("TEST:TREEA?;TREEB?\r\n", "10;20\r\n");
     output_buffer_clear();
 
-    TEST_INPUT("TEST:TREEA?;:TEXT? \"PARAM1\", \"PARAM2\"\r\n", "10\r\n\"PARAM2\"\r\n");
+    TEST_INPUT("TEST:TREEA?;:TEXT? \"PARAM1\", \"PARAM2\"\r\n", "10;\"PARAM2\"\r\n");
     output_buffer_clear();
 
     CU_ASSERT_EQUAL(err_buffer_pos, 0);

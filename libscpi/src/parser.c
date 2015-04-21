@@ -99,12 +99,28 @@ static size_t writeNewLine(scpi_t * context) {
 }
 
 /**
+ * Conditionaly write ";"
+ * @param context
+ * @return number of characters written
+ */
+static size_t writeSemicolon(scpi_t * context) {
+    if (context->output_count > 0) {
+        return writeData(context, ";", 1);
+    } else {
+        return 0;
+    }
+}
+
+/**
  * Process command
  * @param context
  */
 static void processCommand(scpi_t * context) {
     const scpi_command_t * cmd = context->param_list.cmd;
     lex_state_t * state = &context->param_list.lex_state;
+
+    /* conditionaly write ; */
+    writeSemicolon(context);
 
     context->cmd_error = FALSE;
     context->output_count = 0;
@@ -117,9 +133,6 @@ static void processCommand(scpi_t * context) {
             SCPI_ErrorPush(context, SCPI_ERROR_EXECUTION_ERROR);
         }
     }
-
-    /* conditionaly write new line */
-    writeNewLine(context);
 
     /* set error if command callback did not read all parameters */
     if (state->pos < (state->buffer + state->len) && !context->cmd_error) {
@@ -164,6 +177,7 @@ int SCPI_Parse(scpi_t * context, char * data, int len) {
     }
 
     state = &context->parser_state;
+    context->output_count = 0;
 
     while (1) {
         result = 0;
@@ -202,6 +216,10 @@ int SCPI_Parse(scpi_t * context, char * data, int len) {
         }
 
     }
+
+    /* conditionaly write new line */
+    writeNewLine(context);
+
     return result;
 }
 
