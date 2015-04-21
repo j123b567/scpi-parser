@@ -2,7 +2,7 @@
 PROG = test
 
 SRCS = main.c ../common/scpi-def.c
-CFLAGS += -Wextra -I ../../libscpi/inc/
+CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -I ../../libscpi/inc/
 LDFLAGS += ../../libscpi/dist/libscpi.a -Wl,--as-needed
 
 .PHONY: clean all

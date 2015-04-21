@@ -1,6 +1,6 @@
 LIBNAME = scpi
 
-CFLAGS += -Wextra -g -Iinc
+CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -g -Iinc
 LDFLAGS += -Wl,--as-needed
 TESTFLAGS += -lcunit $(CFLAGS)
 
@@ -30,7 +30,7 @@ HDRS = $(addprefix inc/scpi/, \
 	) \
 
 
-TESTS = $(addprefix test/, \
+TESTS = $(addprefix $(TESTDIR)/, \
 	test_fifo.c test_scpi_utils.c test_lexer_parser.c test_parser.c\
 	)
 
@@ -41,6 +41,13 @@ TESTS_BINS = $(TESTS_OBJS:.o=.test)
 
 all: static
 
+static: $(DISTDIR)/$(STATICLIB)
+
+clean:
+	$(RM) -r $(OBJDIR) $(DISTDIR) $(TESTS_BINS) $(TESTS_OBJS)
+
+test: $(TESTS_BINS)
+	for t in $(TESTS_BINS); do ./$$t; done
 
 $(OBJDIR):
 	mkdir -p $@
@@ -54,21 +61,14 @@ $(OBJDIR)/%.o: src/%.c
 $(DISTDIR)/$(STATICLIB): $(OBJS)
 	$(AR) $(STATICLIBFLAGS) $(DISTDIR)/$(STATICLIB) $(OBJS)
 
-static: $(DISTDIR)/$(STATICLIB)
 
-$(OBJS): $(HDRS) $(DISTDIR) $(OBJDIR)
-
-clean:
-	$(RM) -r $(OBJDIR) $(DISTDIR) $(TESTS_BINS) $(TESTS_OBJS)
-
-test: static $(TESTS_BINS)
-	for t in $(TESTS_BINS); do ./$$t; done
+$(OBJS): $(HDRS) $(DISTDIR) $(OBJDIR) $(SRCS)
 
 
 $(TESTDIR)/%.o: $(TESTDIR)/%.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-$(TESTDIR)/%.test: $(TESTDIR)/%.o
+$(TESTDIR)/%.test: $(TESTDIR)/%.o $(DISTDIR)/$(STATICLIB)
 	$(CC) $(TESTFLAGS) $< $(DISTDIR)/$(STATICLIB) -o $@ $(LDFLAGS)
 
 

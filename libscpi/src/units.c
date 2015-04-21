@@ -38,6 +38,7 @@
 #include "scpi/parser.h"
 #include "scpi/units.h"
 #include "utils_private.h"
+#include "scpi/utils.h"
 #include "scpi/error.h"
 #include "lexer_private.h"
 

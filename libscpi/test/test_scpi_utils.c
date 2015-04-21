@@ -45,15 +45,15 @@
  * CUnit Test Suite
  */
 
-int init_suite(void) {
+static int init_suite(void) {
     return 0;
 }
 
-int clean_suite(void) {
+static int clean_suite(void) {
     return 0;
 }
 
-void test_strnpbrk() {
+static void test_strnpbrk() {
     char str[] = "ahoj";
 
     CU_ASSERT(strnpbrk(str, 4, "a") == (str + 0));
@@ -68,7 +68,7 @@ void test_strnpbrk() {
 
 
 
-void test_longToStr() {
+static void test_longToStr() {
     char str[32];
     size_t len;
 
@@ -97,7 +97,7 @@ void test_longToStr() {
     CU_ASSERT(str[2] == '\0');    
 }
 
-void test_doubleToStr() {
+static void test_doubleToStr() {
     size_t result;
     char str[50];
 
@@ -119,7 +119,7 @@ void test_doubleToStr() {
     TEST_DOUBLE_TO_STR(-1.3e-30, 8, "-1.3e-30");
 }
 
-void test_strToLong() {
+static void test_strToLong() {
     size_t result;
     int32_t val;
 
@@ -144,7 +144,7 @@ void test_strToLong() {
     TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
 }
 
-void test_strToDouble() {
+static void test_strToDouble() {
     double val;
     size_t result;
 
@@ -177,7 +177,7 @@ void test_strToDouble() {
 
 }
 
-void test_compareStr() {
+static void test_compareStr() {
 
     CU_ASSERT_TRUE(compareStr("abcd", 1, "afgh", 1));
     CU_ASSERT_TRUE(compareStr("ABCD", 4, "abcd", 4));
@@ -188,7 +188,7 @@ void test_compareStr() {
     CU_ASSERT_FALSE(compareStr("ABCD", 4, "abcd", 3));
 }
 
-void test_compareStrAndNum() {
+static void test_compareStrAndNum() {
 
     CU_ASSERT_TRUE(compareStrAndNum("abcd", 1, "afgh", 1));
     CU_ASSERT_TRUE(compareStrAndNum("ABCD", 4, "abcd", 4));
@@ -206,7 +206,7 @@ void test_compareStrAndNum() {
 
 }
 
-void test_matchPattern() {
+static void test_matchPattern() {
     scpi_bool_t result;
 
 #define TEST_MATCH_PATTERN(p, s, r)                             \
@@ -222,7 +222,7 @@ void test_matchPattern() {
     TEST_MATCH_PATTERN("AB", "a", FALSE);
 }
 
-void test_matchCommand() {
+static void test_matchCommand() {
     scpi_bool_t result;
 
 #define TEST_MATCH_COMMAND(p, s, r)                         \

@@ -40,7 +40,7 @@
 #include "scpi/scpi.h"
 #include "scpi-def.h"
 
-scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
+static scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
@@ -69,7 +69,7 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 }
 
 
-scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
+static scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
     fprintf(stderr, "meas:volt:ac\r\n"); // debug command name   
@@ -97,7 +97,7 @@ scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
+static scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     double param1, param2;
     fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
 
@@ -117,7 +117,7 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t TEST_Bool(scpi_t * context) {
+static scpi_result_t TEST_Bool(scpi_t * context) {
     scpi_bool_t param1;
     fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
 
@@ -139,7 +139,7 @@ scpi_choice_def_t trigger_source[] = {
 };
 
 
-scpi_result_t TEST_ChoiceQ(scpi_t * context) {
+static scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
     int32_t param;
     const char * name;
@@ -156,14 +156,14 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t TEST_Numbers(scpi_t * context) {
+static scpi_result_t TEST_Numbers(scpi_t * context) {
 
     fprintf(stderr, "RAW CMD %.*s\r\n", (int)context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
 
     return SCPI_RES_OK;
 }
 
-scpi_result_t TEST_Text(scpi_t * context) {
+static scpi_result_t TEST_Text(scpi_t * context) {
     char buffer[100];
     size_t copy_len;
 
@@ -175,7 +175,7 @@ scpi_result_t TEST_Text(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t TEST_ArbQ(scpi_t * context) {
+static scpi_result_t TEST_ArbQ(scpi_t * context) {
     const char * data;
     size_t len;
 
@@ -194,7 +194,7 @@ scpi_result_t TEST_ArbQ(scpi_t * context) {
  *
  * Return SCPI_RES_OK
  */
-scpi_result_t My_CoreTstQ(scpi_t * context) {
+static scpi_result_t My_CoreTstQ(scpi_t * context) {
 
     SCPI_ResultInt(context, 0);
 

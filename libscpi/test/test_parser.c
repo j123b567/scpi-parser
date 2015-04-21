@@ -13,7 +13,7 @@
  * CUnit Test Suite
  */
 
-scpi_result_t text_function(scpi_t* context) {
+static scpi_result_t text_function(scpi_t* context) {
     char param[100];
     size_t param_len;
 
@@ -30,14 +30,14 @@ scpi_result_t text_function(scpi_t* context) {
     return SCPI_RES_OK;
 }
 
-scpi_result_t test_treeA(scpi_t* context) {
+static scpi_result_t test_treeA(scpi_t* context) {
 
     SCPI_ResultInt(context, 10);
 
     return SCPI_RES_OK;
 }
 
-scpi_result_t test_treeB(scpi_t* context) {
+static scpi_result_t test_treeB(scpi_t* context) {
 
     SCPI_ResultInt(context, 20);
 
@@ -174,17 +174,17 @@ scpi_t scpi_context = {
 };
 
 
-int init_suite(void) {
+static int init_suite(void) {
     SCPI_Init(&scpi_context);
 
     return 0;
 }
 
-int clean_suite(void) {
+static int clean_suite(void) {
     return 0;
 }
 
-void testCommandsHandling(void) {
+static void testCommandsHandling(void) {
 #define TEST_INPUT(data, output) {                              \
     SCPI_Input(&scpi_context, data, strlen(data));              \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
@@ -221,7 +221,7 @@ void testCommandsHandling(void) {
     error_buffer_clear();
 }
 
-void testErrorHandling(void) {
+static void testErrorHandling(void) {
     output_buffer_clear();
     error_buffer_clear();
 
@@ -249,7 +249,7 @@ void testErrorHandling(void) {
     error_buffer_clear();
 }
 
-void testIEEE4882(void) {
+static void testIEEE4882(void) {
 #define TEST_IEEE4882(data, output) {                           \
     SCPI_Input(&scpi_context, data, strlen(data));              \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
@@ -316,7 +316,7 @@ void testIEEE4882(void) {
     CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
 }
 
-void testSCPI_ParamInt(void) {
+static void testSCPI_ParamInt(void) {
     TEST_ParamInt("10", TRUE, 10, TRUE, 0);
     TEST_ParamInt("", FALSE, 0, FALSE, 0);
     TEST_ParamInt("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
@@ -351,7 +351,7 @@ void testSCPI_ParamInt(void) {
     CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
 }
 
-void testSCPI_ParamDouble(void) {
+static void testSCPI_ParamDouble(void) {
     TEST_ParamDouble("10", TRUE, 10, TRUE, 0);
     TEST_ParamDouble("", FALSE, 0, FALSE, 0);
     TEST_ParamDouble("10.5", TRUE, 10.5, TRUE, 0);
@@ -387,7 +387,7 @@ void testSCPI_ParamDouble(void) {
     CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
 }
 
-void testSCPI_ParamCharacters(void) {
+static void testSCPI_ParamCharacters(void) {
     TEST_ParamCharacters("10", TRUE, "10", TRUE, 0);
     TEST_ParamCharacters(" ABCD", TRUE, "ABCD", TRUE, 0); // TokProgramMnemonic
     TEST_ParamCharacters("\"ABCD\"", TRUE, "ABCD", TRUE, 0); // TokDoubleQuoteProgramData

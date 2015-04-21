@@ -44,6 +44,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 #include "scpi/scpi.h"
 #include "../common/scpi-def.h"
