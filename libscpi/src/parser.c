@@ -192,6 +192,19 @@ static size_t writeNewLine(scpi_t * context) {
 }
 
 /**
+ * Conditionaly write ";"
+ * @param context
+ * @return number of characters written
+ */
+static size_t writeSemicolon(scpi_t * context) {
+    if (context->output_count > 0) {
+        return writeData(context, ";", 1);
+    } else {
+        return 0;
+    }
+}
+
+/**
  * Process command
  * @param context
  */
@@ -199,6 +212,10 @@ static void processCommand(scpi_t * context) {
     const scpi_command_t * cmd = context->paramlist.cmd;
 
     context->cmd_error = FALSE;
+
+    /* conditionaly write ; */
+    writeSemicolon(context);
+
     context->output_count = 0;
     context->input_count = 0;
 
@@ -209,9 +226,6 @@ static void processCommand(scpi_t * context) {
             SCPI_ErrorPush(context, SCPI_ERROR_EXECUTION_ERROR);
         }
     }
-
-    /* conditionaly write new line */
-    writeNewLine(context);
 
     /* skip all whitespaces */
     paramSkipWhitespace(context);
@@ -266,6 +280,8 @@ int SCPI_Parse(scpi_t * context, char * data, size_t len) {
         return -1;
     }
 
+    context->output_count = 0;
+
     while (cmdline_ptr < cmdline_end) {
         result = 0;
         cmd_len = cmdTerminatorPos(cmdline_ptr, cmdline_end - cmdline_ptr);
@@ -285,6 +301,10 @@ int SCPI_Parse(scpi_t * context, char * data, size_t len) {
         cmdline_ptr += skipCmdLine(cmdline_ptr, cmdline_end - cmdline_ptr);
         cmdline_ptr += skipWhitespace(cmdline_ptr, cmdline_end - cmdline_ptr);
     }
+
+    /* conditionaly write new line */
+    writeNewLine(context);
+
     return result;
 }
 
