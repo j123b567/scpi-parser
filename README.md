@@ -13,12 +13,17 @@ A command pattern is defined using the well known command representation from SC
 
 A command pattern is divided by colon ":" to show command hierarchy
 
-    Pattern "SYSTem:VERsion?" mathes strings "SYST:version?", "system:ver?", "SYST:VER?", ...
+    Pattern "SYSTem:VERsion?" matches strings "SYST:version?", "system:ver?", "SYST:VER?", ...
 
 The SCPI standard also uses brackets "[]" to define optional parts of a command.
 
-    Pattern "SYSTem:ERRor[:NEXT]?" mathes "SYST:ERR?", "system:err?" and also "system:error:next?", ...
+    Pattern "SYSTem:ERRor[:NEXT]?" matches "SYST:ERR?", "system:err?" and also "system:error:next?", ...
 
+Special character `#` represents number so it is possible to define pattern according to SCPI-99:6.2.5.2 Multiple Identical Capabilities
+
+    Pattern "OUTput#:FREQuency" matches "OUT:FREQ" as well as "OUT3:FREQ" and "output10:frequency".
+
+Appropriate numbers are available using function `SCPI_CommandNumbers`
 
 Command callback
 -----------
