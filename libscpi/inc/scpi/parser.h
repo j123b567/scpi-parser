@@ -51,6 +51,7 @@ extern "C" {
 
     scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd);
     scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len);
+    scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len);
 
     size_t SCPI_ResultString(scpi_t * context, const char * data);
     size_t SCPI_ResultInt(scpi_t * context, int32_t val);

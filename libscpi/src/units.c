@@ -136,7 +136,7 @@ static scpi_bool_t translateSpecialNumber(const scpi_special_number_def_t * spec
     }
 
     for (i = 0; specs[i].name != NULL; i++) {
-        if (matchPattern(specs[i].name, strlen(specs[i].name), str, len)) {
+        if (matchPattern(specs[i].name, strlen(specs[i].name), str, len, NULL)) {
             value->type = specs[i].type;
             return TRUE;
         }

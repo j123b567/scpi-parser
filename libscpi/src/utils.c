@@ -170,7 +170,7 @@ scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t
  * @param len2
  * @return TRUE if strings match
  */
-scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2) {
+scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2, int32_t * num) {
     scpi_bool_t result = FALSE;
     size_t i;
 
@@ -180,12 +180,26 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
 
     if (SCPIDEFINE_strncasecmp(str1, str2, len1) == 0) {
         result = TRUE;
-    }
 
-    for (i = len1; i<len2; i++) {
-        if (!isdigit((int) str2[i])) {
-            result = FALSE;
-            break;
+        if (num) {
+            if (len1 == len2) {
+                *num = 1;
+            } else {
+                int32_t tmpNum;
+                i = len1 + strToLong(str2 + len1, &tmpNum);
+                if (i != len2) {
+                    result = FALSE;
+                } else {
+                    *num = tmpNum;
+                }
+            }
+        } else {
+            for (i = len1; i<len2; i++) {
+                if (!isdigit((int) str2[i])) {
+                    result = FALSE;
+                    break;
+                }
+            }
         }
     }
 
@@ -469,7 +483,7 @@ size_t cmdSeparatorPos(const char * cmd, size_t len) {
  * @param str_len
  * @return 
  */
-scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) {
+scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len, int32_t * num) {
     int pattern_sep_pos_short;
 
     if (pattern[pattern_len - 1] == '#') {
@@ -477,8 +491,8 @@ scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * 
 
         pattern_sep_pos_short = patternSeparatorShortPos(pattern, new_pattern_len);
 
-        return compareStrAndNum(pattern, new_pattern_len, str, str_len) ||
-                compareStrAndNum(pattern, pattern_sep_pos_short, str, str_len);
+        return compareStrAndNum(pattern, new_pattern_len, str, str_len, num) ||
+                compareStrAndNum(pattern, pattern_sep_pos_short, str, str_len, num);
     } else {
 
         pattern_sep_pos_short = patternSeparatorShortPos(pattern, pattern_len);
@@ -495,11 +509,14 @@ scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * 
  * @param len - max search length
  * @return TRUE if pattern matches, FALSE otherwise
  */
-scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
+scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len) {
     scpi_bool_t result = FALSE;
     int leftFlag = 0; // flag for '[' on left
     int rightFlag = 0; // flag for ']' on right
     int cmd_sep_pos = 0;
+
+    size_t numbers_idx = -1;
+    int32_t *number_ptr = NULL;
 
     const char * pattern_ptr = pattern;
     int pattern_len = strlen(pattern);
@@ -538,7 +555,19 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) {
             cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
         }
 
-        if (matchPattern(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos)) {
+        if (pattern_ptr[pattern_sep_pos - 1] == '#') {
+            numbers_idx++;
+            if (numbers && (numbers_idx < numbers_len)) {
+                number_ptr = numbers + numbers_idx;
+                *number_ptr = 1; // default value
+            } else {
+                number_ptr = NULL;
+            }
+        } else {
+            number_ptr = NULL;
+        }
+
+        if (matchPattern(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos, number_ptr)) {
             pattern_ptr = pattern_ptr + pattern_sep_pos;
             cmd_ptr = cmd_ptr + cmd_sep_pos;
             result = TRUE;

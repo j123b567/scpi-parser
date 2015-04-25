@@ -247,7 +247,7 @@ static scpi_bool_t findCommand(scpi_t * context, const char * cmdline_ptr, size_
 
     for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
         cmd = &context->cmdlist[i];
-        if (matchCommand(cmd->pattern, cmdline_ptr, cmd_len)) {
+        if (matchCommand(cmd->pattern, cmdline_ptr, cmd_len, NULL, 0)) {
             context->paramlist.cmd = cmd;
             context->paramlist.parameters = cmdline_ptr + cmd_len;
             context->paramlist.length = cmdline_len - cmd_len;
@@ -648,9 +648,9 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
         return FALSE;
     }
 
-    if (matchPattern("ON", 2, param, param_len)) {
+    if (matchPattern("ON", 2, param, param_len, NULL)) {
         *value = TRUE;
-    } else if (matchPattern("OFF", 3, param, param_len)) {
+    } else if (matchPattern("OFF", 3, param, param_len, NULL)) {
         *value = FALSE;
     } else {
         num_len = strToLong(param, &i);
@@ -688,7 +688,7 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const char * options[], int32_t *
     }
 
     for (res = 0; options[res]; ++res) {
-        if (matchPattern(options[res], strlen(options[res]), param, param_len)) {
+        if (matchPattern(options[res], strlen(options[res]), param, param_len, NULL)) {
             *value = res;
             return TRUE;
         }
@@ -704,9 +704,13 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     }
 
     const char * pattern = context->paramlist.cmd->pattern;
-    return matchCommand (pattern, cmd, strlen (cmd));
+    return matchCommand (pattern, cmd, strlen (cmd), NULL, 0);
 }
 
 scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
-    return matchCommand (pattern, value, len);
+    return matchCommand (pattern, value, len, NULL, 0);
+}
+
+scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len) {
+    return matchCommand (context->paramlist.cmd->pattern,  context->paramlist.cmd_raw.data, context->paramlist.cmd_raw.length, numbers, len);
 }
