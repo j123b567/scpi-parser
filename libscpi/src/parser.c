@@ -151,7 +151,7 @@ static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int 
 
     for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
         cmd = &context->cmdlist[i];
-        if (matchCommand(cmd->pattern, header, len)) {
+        if (matchCommand(cmd->pattern, header, len, NULL, 0)) {
             context->param_list.cmd = cmd;
             return TRUE;
         }
@@ -761,7 +761,7 @@ scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, c
 
     if (parameter->type == SCPI_TOKEN_PROGRAM_MNEMONIC) {
         for (res = 0; options[res].name; ++res) {
-            if (matchPattern(options[res].name, strlen(options[res].name), parameter->ptr, parameter->len)) {
+            if (matchPattern(options[res].name, strlen(options[res].name), parameter->ptr, parameter->len, NULL)) {
                 *value = options[res].tag;
                 result = TRUE;
                 break;
@@ -1017,7 +1017,7 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     }
 
     const char * pattern = context->param_list.cmd->pattern;
-    return matchCommand(pattern, cmd, strlen(cmd));
+    return matchCommand (pattern, cmd, strlen (cmd), NULL, 0);
 }
 
 /**
@@ -1034,11 +1034,9 @@ int32_t SCPI_CmdTag(scpi_t * context) {
 }
 
 scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
-    return matchCommand (pattern, value, len);
+    return matchCommand (pattern, value, len, NULL, 0);
 }
 
-
-
-
-
-
+scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len) {
+    return matchCommand (context->param_list.cmd->pattern,  context->param_list.cmd_raw.data, context->param_list.cmd_raw.length, numbers, len);
+}

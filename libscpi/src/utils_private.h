@@ -53,14 +53,14 @@ extern "C" {
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
-    scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;    
+    scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2, int32_t * num) LOCAL;
     size_t strToLong(const char * str, int32_t * val, int8_t base) LOCAL;
     size_t strToDouble(const char * str, double * val) LOCAL;
     scpi_bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     scpi_bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
-    scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len) LOCAL;
-    scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len) LOCAL;
+    scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len, int32_t * num) LOCAL;
+    scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len) LOCAL;
     scpi_bool_t composeCompoundCommand(const scpi_token_t * prev, scpi_token_t * current) LOCAL;
 
 #if !HAVE_STRNLEN

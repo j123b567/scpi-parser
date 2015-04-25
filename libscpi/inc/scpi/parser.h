@@ -79,7 +79,8 @@ extern "C" {
     scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd);
     int32_t SCPI_CmdTag(scpi_t * context);
     scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len);
-    
+    scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len);
+
 #ifdef	__cplusplus
 }
 #endif
