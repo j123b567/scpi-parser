@@ -171,6 +171,7 @@ These are the functions, you can use to read command parameters
  - `SCPI_ParamNumber` - read double value with or without units or represented by special number (DEF, MIN, MAX, ...). This function is more universal then SCPI_ParamDouble.
  - `SCPI_ParamText` - read text value - may be encapsuled in ""
  - `SCPI_ParamString` - read unspecified parameter not encapsulated in ""
+ - `SCPI_ParamBinary` - read IEEE488.2 packed binary value - eg #14ABCD
  - `SCPI_ParamBool` - read boolean value (ON, OFF, 0, 1)
  - `SCPI_ParamChoice` - read enumeration value eg. (BUS, IMMediate, EXTernal) defined by parameter
 
@@ -179,6 +180,7 @@ These are the functions, you can use to write command results
  - `SCPI_ResultDouble` - write double value
  - `SCPI_ResultText` - write text value encapsulated in ""
  - `SCPI_ResultString` - directly write string value
+ - `SCPI_ResultBinary` - write data with IEEE488.2 packed binary header prepended
  - `SCPI_ResultBool` - write boolean value
 
 You can use the function `SCPI_NumberToStr` to convert number with units to textual representation and then use `SCPI_ResultString` to write this to the user.
