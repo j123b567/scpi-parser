@@ -1,4 +1,4 @@
-SCPI parser library
+SCPI parser library v2
 ===========
 
 [SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on **instrument side**. All commands are defined by its patterns eg: "STATus:QUEStionable:EVENt?".
@@ -25,10 +25,9 @@ Test callback is removed from context. You should now reimplement whole `*TST?` 
 Usage
 ---------------
 Download source package or clone repository
- - v2.0_beta1 - https://github.com/j123b567/scpi-parser/archive/v2.0_beta1.zip
+ - v2.0 - https://github.com/j123b567/scpi-parser/archive/v2.0.zip
  - v1.2 - https://github.com/j123b567/scpi-parser/archive/v1.2.zip
- - v1.1 - https://github.com/j123b567/scpi-parser/archive/v1.1.zip
- - v1.0 - https://github.com/j123b567/scpi-parser/archive/v1.0.zip
+ - latest - https://github.com/j123b567/scpi-parser/archive/master.zip
  - git clone https://github.com/j123b567/scpi-parser.git
 
 Library is in folder `libscpi` and you can use it directly in your embedded project.
@@ -40,6 +39,12 @@ In folder `examples` there are several examples using console or TCP connection 
 
 Version history
 ----------------
+Version v2.0 2015-01-18
+ - better AVR support
+ - implementation of traversal of header tree - it is possible to write `CONF:VOLT:DC 1; AC 2` instead of `CONF:VOLT:DC 1; CONF:VOLT:AC 2`
+ - resolve issue with multiple commands with result separated by `;`
+ - add support for Multiple Identical Capabilities - e.g. `OUT:FREQ`, `OUT2:FREQ` by pattern `OUTput#:FREQuency`
+
 Version v2.0_beta1 2015-01-18
  - parsing more compliant with SCPI-1999
  - support all parameter types defined in the spec - separate them and identifie them
