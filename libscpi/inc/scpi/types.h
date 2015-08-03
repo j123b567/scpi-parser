@@ -41,7 +41,12 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
+#if defined(_CVI_)
+   typedef unsigned char bool;
+#else
 #include <stdbool.h>
+#endif
 
 #ifdef  __cplusplus
 extern "C" {

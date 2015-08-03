@@ -594,8 +594,8 @@ static int skipBinNum(lex_state_t * state) {
  * @return 
  */
 int scpiLex_NondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
-    token->ptr = state->pos;
     int someNumbers = 0;
+    token->ptr = state->pos;
     if (skipChr(state, '#')) {
         if (!iseos(state)) {
             if (isH(state->pos[0])) {
@@ -630,7 +630,7 @@ static int isascii7bit(int c) {
     return (c >= 0) && (c <= 0x7f);
 }
 
-static int skipQuoteProgramData(lex_state_t * state, int quote) {
+static void skipQuoteProgramData(lex_state_t * state, int quote) {
     while (!iseos(state)) {
         if (isascii7bit(state->pos[0]) && !ischr(state, quote)) {
             state->pos++;
@@ -646,11 +646,11 @@ static int skipQuoteProgramData(lex_state_t * state, int quote) {
     }
 }
 
-static int skipDoubleQuoteProgramData(lex_state_t * state) {
+static void skipDoubleQuoteProgramData(lex_state_t * state) {
     skipQuoteProgramData(state, '"');
 }
 
-static int skipSingleQuoteProgramData(lex_state_t * state) {
+static void skipSingleQuoteProgramData(lex_state_t * state) {
     skipQuoteProgramData(state, '\'');
 }
 
@@ -716,8 +716,8 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
     int i;
     int arbitraryBlockLength = 0;
     const char * ptr = state->pos;
-    token->ptr = state->pos;
     int validData = -1;
+    token->ptr = state->pos;
 
     if (skipChr(state, '#')) {
         if (!iseos(state) && isNonzeroDigit(state->pos[0])) {

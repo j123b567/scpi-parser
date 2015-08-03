@@ -44,6 +44,7 @@
 #include "scpi/error.h"
 #include "scpi/constants.h"
 #include "scpi/utils.h"
+#include "scpi/scpi_debug.h"
 
 /**
  * Write data to SCPI output
@@ -90,7 +91,15 @@ static size_t writeDelimiter(scpi_t * context) {
 static size_t writeNewLine(scpi_t * context) {
     if (context->output_count > 0) {
         size_t len;
+#if   (USED_ENDCODE == ENDCODE_CR)
+         len = writeData(context, "\r", 1);
+#elif (USED_ENDCODE == ENDCODE_LF)
+         len = writeData(context, "\n", 1);
+#elif (USED_ENDCODE == ENDCODE_CRLF)
         len = writeData(context, "\r\n", 2);
+#else
+#error no termination character defined
+#endif
         flushData(context);
         return len;
     } else {
@@ -528,7 +537,7 @@ scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixA
  * @param context
  * @param parameter
  * @param value result
- * @return true if succesful
+ * @return TRUE if succesful
  */
 scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value) {
 
@@ -556,7 +565,7 @@ scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int3
  * @param context
  * @param parameter
  * @param value result
- * @return true if succesful
+ * @return TRUE if succesful
  */
 scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
     scpi_bool_t result = FALSE;
@@ -783,7 +792,7 @@ scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, c
  * @param options specifications of choices numbers (patterns)
  * @param tag numerical representatio of choice
  * @param text result text
- * @return true if succesfule, else false
+ * @return TRUE if succesfule, else false
  */
 scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, const char ** text) {
     int i;
@@ -1012,11 +1021,13 @@ int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, char * buff
  * @return 
  */
 scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
+    const char * pattern;
+
     if (!context->param_list.cmd) {
         return FALSE;
     }
 
-    const char * pattern = context->param_list.cmd->pattern;
+    pattern = context->param_list.cmd->pattern;
     return matchCommand (pattern, cmd, strlen (cmd), NULL, 0);
 }
 

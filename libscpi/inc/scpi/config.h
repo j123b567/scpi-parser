@@ -41,7 +41,36 @@
 extern "C" {
 #endif
 
+/* set the termination character(s)   */
+#define ENDCODE_CR              1      /*   use a <CR> carriage return aka '\r' as termination charcter */
+#define ENDCODE_LF              2      /*   use a <LF> line feed aka       '\n' as termination charcter */
+#define ENDCODE_CRLF            3      /*   use <CR><LF> carriage return + line feed aka "\r\n" as termination charcters */
+   
+#define USED_ENDCODE            ENDCODE_LF
+   
+/* select the error list(s) */
+#define ERR_SCPI_MINIMUM        1
+#define ERR_SCPI_FULL           2
+#define ERR_SCPI_MIN_PLUS_USER  3
+#define ERR_SCPI_FULL_PLUS_USER 4
+
+#define USED_SCPI_ERROR_LIST    ERR_SCPI_MIN_PLUS_USER
+   
 /* Compiler specific */
+/* ARM, e.g. Cortex-M CPUs */
+#if defined(__arm__)
+#define HAVE_STRNLEN            0
+#define HAVE_STRNCASECMP        1
+#define HAVE_STRNICMP           0
+#endif
+
+/* National Instruments (R) CVI x86/x64 PC platform */
+#if defined(_CVI_)
+#define HAVE_STRNLEN            0
+#define HAVE_STRNCASECMP        0
+#define HAVE_STRNICMP           0
+#endif
+
 /* 8bit PIC - PIC16, etc */
 #if defined(_MPC_)
 #define HAVE_STRNLEN            0
