@@ -39,7 +39,6 @@
 
 #include <string.h>
 #include "scpi/types.h"
-#include "scpi/scpi_debug.h"
 
 #ifdef	__cplusplus
 extern "C" {

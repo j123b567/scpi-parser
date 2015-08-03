@@ -44,7 +44,7 @@
 #include "scpi/error.h"
 #include "scpi/constants.h"
 #include "scpi/utils.h"
-#include "scpi/scpi_debug.h"
+#include "scpi/debug.h"
 
 /**
  * Write data to SCPI output
@@ -91,15 +91,10 @@ static size_t writeDelimiter(scpi_t * context) {
 static size_t writeNewLine(scpi_t * context) {
     if (context->output_count > 0) {
         size_t len;
-#if   (USED_ENDCODE == ENDCODE_CR)
-         len = writeData(context, "\r", 1);
-#elif (USED_ENDCODE == ENDCODE_LF)
-         len = writeData(context, "\n", 1);
-#elif (USED_ENDCODE == ENDCODE_CRLF)
-        len = writeData(context, "\r\n", 2);
-#else
+#ifndef SCPI_LINE_ENDING
 #error no termination character defined
 #endif
+        len = writeData(context, SCPI_LINE_ENDING, strlen(SCPI_LINE_ENDING));
         flushData(context);
         return len;
     } else {
@@ -336,7 +331,7 @@ size_t SCPI_ResultInt(scpi_t * context, int32_t val) {
 /**
  * Return prefix of nondecimal base
  * @param base
- * @return 
+ * @return
  */
 static const char * getBasePrefix(int8_t base) {
     switch (base) {
@@ -352,7 +347,7 @@ static const char * getBasePrefix(int8_t base) {
  * @param context
  * @param val
  * @param base
- * @return 
+ * @return
  */
 size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base) {
     char buffer[33];
@@ -411,7 +406,7 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
  * @param context
  * @param data
  * @param len
- * @return 
+ * @return
  */
 size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len) {
     size_t result = 0;
@@ -458,7 +453,7 @@ static void invalidateToken(scpi_token_t * token, char * ptr) {
  * @param context
  * @param parameter
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory) {
     lex_state_t * state;
@@ -516,7 +511,7 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
  * Detect if parameter is number
  * @param parameter
  * @param suffixAllowed
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed) {
     switch (parameter->type) {
@@ -596,7 +591,7 @@ scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, d
  * @param context
  * @param value
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
@@ -627,7 +622,7 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
  * @param context
  * @param value
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
@@ -659,7 +654,7 @@ scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandato
  * @param value
  * @param len
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory) {
     scpi_bool_t result;
@@ -687,7 +682,7 @@ scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t *
  * @param value result pointer to data
  * @param len result length of data
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamArbitraryBlock(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory) {
     scpi_bool_t result;
@@ -757,7 +752,7 @@ scpi_bool_t SCPI_ParamCopyText(scpi_t * context, char * buffer, size_t buffer_le
  * @param parameter - should be PROGRAM_MNEMONIC
  * @param options - NULL terminated list of choices
  * @param value - index to options
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, const scpi_choice_def_t * options, int32_t * value) {
     size_t res;
@@ -812,7 +807,7 @@ scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, co
  * @param context
  * @param value
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
@@ -853,7 +848,7 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
  * @param options
  * @param value
  * @param mandatory
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ParamChoice(scpi_t * context, const scpi_choice_def_t * options, int32_t * value, scpi_bool_t mandatory) {
     scpi_bool_t result;
@@ -876,7 +871,7 @@ scpi_bool_t SCPI_ParamChoice(scpi_t * context, const scpi_choice_def_t * options
  * Parse one parameter and detect type
  * @param state
  * @param token
- * @return 
+ * @return
  */
 int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) {
     scpi_token_t tmp;
@@ -915,7 +910,7 @@ int scpiParser_parseProgramData(lex_state_t * state, scpi_token_t * token) {
  * @param state
  * @param token
  * @param numberOfParameters
- * @return 
+ * @return
  */
 int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, int * numberOfParameters) {
 
@@ -965,7 +960,7 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
  * @param state
  * @param buffer
  * @param len
- * @return 
+ * @return
  */
 int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, char * buffer, int len) {
     lex_state_t lex_state;
@@ -1018,7 +1013,7 @@ int scpiParser_detectProgramMessageUnit(scpi_parser_state_t * state, char * buff
  *  - suitable for one handle to multiple commands
  * @param context
  * @param cmd
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     const char * pattern;

@@ -39,7 +39,6 @@
 #include "scpi/parser.h"
 #include "scpi/ieee488.h"
 #include "scpi/error.h"
-#include "scpi-def.h"            /* this file is needed for the user provided SCPI errors */
 #include "fifo_private.h"
 
 /* basic FIFO */
@@ -179,18 +178,19 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 const char * SCPI_ErrorTranslate(int16_t err) {
     switch (err) {
         case 0: return "No error";
-#if ((USED_SCPI_ERROR_LIST == ERR_SCPI_MINIMUM) || (USED_SCPI_ERROR_LIST == ERR_SCPI_FULL))
-        #define X(def, val, str) case def: return str;
-        LIST_OF_ERRORS
-        #undef X
-#elif ((USED_SCPI_ERROR_LIST == ERR_SCPI_MIN_PLUS_USER) || (USED_SCPI_ERROR_LIST == ERR_SCPI_FULL_PLUS_USER))
-        #define X(def, val, str) case def: return str;
-        LIST_OF_ERRORS
-        LIST_OF_USER_ERRORS
-        #undef X        
+#define X(def, val, str) case def: return str;
+#if USE_FULL_ERROR_LIST
+#define XE X
 #else
-#error no SCPI error list defined!
+#define XE(def, val, str)
 #endif
+LIST_OF_ERRORS
+
+#if USE_USER_ERROR_LIST
+LIST_OF_USER_ERRORS
+#endif
+#undef X
+#undef XE
         default: return "Unknown error";
     }
 }

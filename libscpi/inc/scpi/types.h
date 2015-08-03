@@ -4,7 +4,7 @@
  * Copyright (c) 2012 Jan Breuer
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -13,7 +13,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,10 +30,10 @@
 /**
  * @file   scpi_types.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  SCPI data types
- * 
- * 
+ *
+ *
  */
 
 #ifndef SCPI_TYPES_H
@@ -41,15 +41,18 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "scpi/config.h"
 
-#if defined(_CVI_)
-   typedef unsigned char bool;
-#else
+#if HAVE_STDBOOL
 #include <stdbool.h>
 #endif
 
 #ifdef  __cplusplus
 extern "C" {
+#endif
+
+#if !HAVE_STDBOOL
+   typedef unsigned char bool;
 #endif
 
 #ifndef FALSE
@@ -122,7 +125,7 @@ extern "C" {
         char * data;
     };
     typedef struct _scpi_buffer_t scpi_buffer_t;
-    
+
     struct _scpi_const_buffer_t {
         size_t length;
         size_t position;
@@ -178,14 +181,14 @@ extern "C" {
     };
     typedef struct _lex_state_t lex_state_t;
 
-    /* scpi parser */   
+    /* scpi parser */
     enum _message_termination_t {
         SCPI_MESSAGE_TERMINATION_NONE,
         SCPI_MESSAGE_TERMINATION_NL,
-        SCPI_MESSAGE_TERMINATION_SEMICOLON,                
+        SCPI_MESSAGE_TERMINATION_SEMICOLON,
     };
     typedef enum _message_termination_t message_termination_t;
-    
+
     struct _scpi_parser_state_t {
         scpi_token_t programHeader;
         scpi_token_t programData;
@@ -246,8 +249,8 @@ extern "C" {
         lex_state_t lex_state;
         scpi_const_buffer_t cmd_raw;
     };
-    typedef struct _scpi_param_list_t scpi_param_list_t;  
-    
+    typedef struct _scpi_param_list_t scpi_param_list_t;
+
     struct _scpi_number_parameter_t {
         scpi_bool_t special;
         union {
@@ -261,12 +264,12 @@ extern "C" {
 
     struct _scpi_data_parameter_t {
         const char * ptr;
-        int32_t len;        
+        int32_t len;
     };
     typedef struct _scpi_data_parameter_t scpi_data_parameter_t;
-    
+
     typedef scpi_token_t scpi_parameter_t;
-    
+
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
