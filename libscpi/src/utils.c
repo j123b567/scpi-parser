@@ -254,7 +254,7 @@ size_t skipWhitespace(const char * cmd, size_t len) {
  * @param len - max search length
  * @return position of separator or len
  */
-size_t patternSeparatorShortPos(const char * pattern, size_t len) {
+static size_t patternSeparatorShortPos(const char * pattern, size_t len) {
     size_t i;
     for (i = 0; (i < len) && pattern[i]; i++) {
         if (islower((unsigned char) pattern[i])) {
@@ -270,7 +270,7 @@ size_t patternSeparatorShortPos(const char * pattern, size_t len) {
  * @param len - max search length
  * @return position of separator or len
  */
-size_t patternSeparatorPos(const char * pattern, size_t len) {
+static size_t patternSeparatorPos(const char * pattern, size_t len) {
 
     char * separator = strnpbrk(pattern, len, "?:[]");
     if (separator == NULL) {
@@ -286,7 +286,7 @@ size_t patternSeparatorPos(const char * pattern, size_t len) {
  * @param len - max search length
  * @return position of separator or len
  */
-size_t cmdSeparatorPos(const char * cmd, size_t len) {
+static size_t cmdSeparatorPos(const char * cmd, size_t len) {
     char * separator = strnpbrk(cmd, len, ":?");
     size_t result;
     if (separator == NULL) {

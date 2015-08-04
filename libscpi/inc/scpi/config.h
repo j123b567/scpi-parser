@@ -37,7 +37,7 @@
 #ifndef __SCPI_CONFIG_H_
 #define __SCPI_CONFIG_H_
 
-#ifdef	__cplusplus
+#ifdef   __cplusplus
 extern "C" {
 #endif
 
@@ -46,7 +46,7 @@ extern "C" {
 #define ENDCODE_LF              2      /*   use a <LF> line feed aka       '\n' as termination charcter */
 #define ENDCODE_CRLF            3      /*   use <CR><LF> carriage return + line feed aka "\r\n" as termination charcters */
    
-#define USED_ENDCODE            ENDCODE_LF
+#define USED_ENDCODE            ENDCODE_CRLF
    
 /* select the error list(s) */
 #define ERR_SCPI_MINIMUM        1
@@ -54,7 +54,7 @@ extern "C" {
 #define ERR_SCPI_MIN_PLUS_USER  3
 #define ERR_SCPI_FULL_PLUS_USER 4
 
-#define USED_SCPI_ERROR_LIST    ERR_SCPI_MIN_PLUS_USER
+#define USED_SCPI_ERROR_LIST    ERR_SCPI_MINIMUM
    
 /* Compiler specific */
 /* ARM, e.g. Cortex-M CPUs */
@@ -68,7 +68,7 @@ extern "C" {
 #if defined(_CVI_)
 #define HAVE_STRNLEN            0
 #define HAVE_STRNCASECMP        0
-#define HAVE_STRNICMP           0
+#define HAVE_STRNICMP           1
 #endif
 
 /* 8bit PIC - PIC16, etc */
@@ -113,9 +113,9 @@ extern "C" {
 
 /* define local macros depending on existance of strnlen */
 #if HAVE_STRNLEN
-#define SCPIDEFINE_strnlen(s, l)	strnlen((s), (l))
+#define SCPIDEFINE_strnlen(s, l) strnlen((s), (l))
 #else
-#define SCPIDEFINE_strnlen(s, l)	BSD_strnlen((s), (l))
+#define SCPIDEFINE_strnlen(s, l) BSD_strnlen((s), (l))
 #endif
 
 /* define local macros depending on existance of strncasecmp and strnicmp */
@@ -134,7 +134,7 @@ extern "C" {
 #endif
 
 
-#ifdef	__cplusplus
+#ifdef   __cplusplus
 }
 #endif
 
