@@ -26,7 +26,7 @@
  */
 
 /**
- * @file   scpi_debug.h
+ * @file   debug.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  SCPI debug function
@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 
-    /* #define SCPI_DEBUG_COMMAND(a)   scpi_debug_command(a) */
+    /* #define SCPI_DEBUG_COMMAND(a)   SCPI_DebugCommand(a) */
     #define SCPI_DEBUG_COMMAND(a)
 
 
