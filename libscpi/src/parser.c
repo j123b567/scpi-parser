@@ -44,7 +44,6 @@
 #include "scpi/error.h"
 #include "scpi/constants.h"
 #include "scpi/utils.h"
-#include "scpi/debug.h"
 
 /**
  * Write data to SCPI output
@@ -130,7 +129,6 @@ static void processCommand(scpi_t * context) {
     context->output_count = 0;
     context->input_count = 0;
 
-    SCPI_DEBUG_COMMAND(context);
     /* if callback exists - call command callback */
     if (cmd->callback != NULL) {
         if ((cmd->callback(context) != SCPI_RES_OK) && !context->cmd_error) {
