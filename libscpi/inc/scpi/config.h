@@ -58,7 +58,7 @@ extern "C" {
    
 /* Compiler specific */
 /* ARM, e.g. Cortex-M CPUs */
-#if defined(__arm__)
+#if defined(__CC_ARM)
 #define HAVE_STRNLEN            0
 #define HAVE_STRNCASECMP        1
 #define HAVE_STRNICMP           0
