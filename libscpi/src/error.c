@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,10 +28,10 @@
 /**
  * @file   scpi_error.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  Error handling and storing routines
- * 
- * 
+ *
+ *
  */
 
 #include <stdint.h>
@@ -39,6 +39,7 @@
 #include "scpi/parser.h"
 #include "scpi/ieee488.h"
 #include "scpi/error.h"
+#include "scpi-def.h"            /* this file is needed for the user provided SCPI errors */
 #include "fifo_private.h"
 
 /* basic FIFO */
@@ -98,7 +99,7 @@ int16_t SCPI_ErrorPop(scpi_t * context) {
 /**
  * Return number of errors/events in the queue
  * @param context
- * @return 
+ * @return
  */
 int32_t SCPI_ErrorCount(scpi_t * context) {
     int16_t result = 0;
@@ -130,12 +131,13 @@ struct error_reg {
     scpi_reg_val_t bit;
 };
 
-#define ERROR_DEFS_N	8
+#define ERROR_DEFS_N	9
 
 static const struct error_reg errs[ERROR_DEFS_N] = {
     {-100, -199, ESR_CER}, /* Command error (e.g. syntax error) ch 21.8.9    */
     {-200, -299, ESR_EER}, /* Execution Error (e.g. range error) ch 21.8.10  */
     {-300, -399, ESR_DER}, /* Device specific error -300, -399 ch 21.8.11    */
+    {   1,32767, ESR_DER}, /* Device designer provided specific error 1, 32767 ch 21.8.11    */
     {-400, -499, ESR_QER}, /* Query error -400, -499 ch 21.8.12              */
     {-500, -599, ESR_PON}, /* Power on event -500, -599 ch 21.8.13           */
     {-600, -699, ESR_URQ}, /* User Request Event -600, -699 ch 21.8.14       */
@@ -177,9 +179,18 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 const char * SCPI_ErrorTranslate(int16_t err) {
     switch (err) {
         case 0: return "No error";
+#if ((USED_SCPI_ERROR_LIST == ERR_SCPI_MINIMUM) || (USED_SCPI_ERROR_LIST == ERR_SCPI_FULL))
         #define X(def, val, str) case def: return str;
         LIST_OF_ERRORS
+        #undef X
+#elif ((USED_SCPI_ERROR_LIST == ERR_SCPI_MIN_PLUS_USER) || (USED_SCPI_ERROR_LIST == ERR_SCPI_FULL_PLUS_USER))
+        #define X(def, val, str) case def: return str;
+        LIST_OF_ERRORS
+        LIST_OF_USER_ERRORS
         #undef X        
+#else
+#error no SCPI error list defined!
+#endif
         default: return "Unknown error";
     }
 }
