@@ -46,17 +46,17 @@
  */
 scpi_bool_t SCPI_DebugCommand(scpi_t * context)
 {
-/*	size_t res;
-	printf("**DEBUG: %s (\"", context->param_list.cmd->pattern);
-	res =	fwrite(context->param_list.lex_state.buffer, 1, context->param_list.lex_state.len, stdout);
-	(void)res;
+/* size_t res;
+   printf("**DEBUG: %s (\"", context->param_list.cmd->pattern);
+   res = fwrite(context->param_list.lex_state.buffer, 1, context->param_list.lex_state.len, stdout);
+   (void)res;
         printf("\" - %lu\r\n", (unsigned long)context->param_list.lex_state.len);
 */
 
    /* The PRINT_DEBUG and PRINT_BUFFER macros are defined in debug.h and are platform specific */
-	PRINT_DEBUG("SCPI: %s (\"", context->param_list.cmd->pattern);
-	PRINT_BUFFER((uint8_t *)context->param_list.lex_state.buffer, context->param_list.lex_state.len);
-	PRINT_DEBUG("\" - %lu\r\n", (unsigned long)context->param_list.lex_state.len);
-	
-	return TRUE;
+   PRINT_DEBUG("SCPI: %s (\"", context->param_list.cmd->pattern);
+   PRINT_BUFFER((uint8_t *)context->param_list.lex_state.buffer, context->param_list.lex_state.len);
+   PRINT_DEBUG("\" - %lu\n", (unsigned long)context->param_list.lex_state.len);
+   
+   return TRUE;
 }
