@@ -30,7 +30,7 @@ Save Changes Before Compiling = "Always"
 Hide Windows = False
 Break At First Statement = False
 Sort Type = "File Name"
-Number of Opened Files = 5
+Number of Opened Files = 6
 Window Confinement Region Enabled = True
 MainColumnWidth = 257
 FileDateColumnWidth = 70
@@ -44,60 +44,63 @@ Platform Code = 4
 Build Configuration = "Debug"
 Warn User If Debugging Release = 1
 Batch Build Release = False
-Batch Build Debug = False
+Batch Build Debug = True
 Force Rebuild = False
 
 [File 0001]
-Path = "/c/git/Lutzscpi-parser/libscpi/src/error.c"
-File Type = "CSource"
-Disk Date = 3521605290
-In Projects = "1,"
-Window Top = 272
-Window Left = 138
-Source Window State = "1,117,117,117,12,33,33,0,0,80,0,0,0,0,0,25,144,0,156,4,453,769,1,0,"
-
-[File 0002]
 Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/debug.c"
 File Type = "CSource"
 Disk Date = 3521543789
 In Projects = "1,"
 Window Top = 92
 Window Left = 42
-Window Z-Order = 4
-Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,127,0,149,0,453,769,1,0,"
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,73,0,100,0,453,769,1,0,"
 
-[File 0003]
+[File 0002]
 Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/debug.h"
 File Type = "Include"
 Disk Date = 3521535203
 In Projects = "1,"
 Window Top = 212
 Window Left = 106
-Window Z-Order = 5
 Source Window State = "1,60,60,60,11,21,21,0,3,80,0,0,0,0,0,25,33,0,60,11,453,769,1,0,"
 
-[File 0004]
+[File 0003]
 Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/main.c"
 File Type = "CSource"
-Disk Date = 3521546040
+Disk Date = 3521635866
 In Projects = "1,"
 Window Top = 122
 Window Left = 58
-Window Z-Order = 3
-Source Window State = "1,74,74,74,5,17,17,0,0,80,0,0,0,0,0,25,70,0,80,3,453,769,1,0,"
+Window Z-Order = 1
+Source Window State = "1,299,299,299,33,44,33,0,0,178,0,0,0,0,0,44,271,0,299,72,453,769,1,0,"
+
+[File 0004]
+Path = "/c/git/Lutzscpi-parser/libscpi/src/parser.c"
+File Type = "CSource"
+Disk Date = 3521605088
+In Projects = "1,"
+Window Top = 272
+Window Left = 138
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,269,0,302,0,453,769,1,0,"
 
 [File 0005]
-Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/TestLibscpi.h"
-File Type = "Include"
-Disk Date = 3521544602
+Path = "/c/git/Lutzscpi-parser/libscpi/src/scpi_debug.c"
+File Type = "CSource"
+Disk Date = 3521635053
 In Projects = "1,"
-Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+Window Top = 242
+Window Left = 122
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,29,0,58,24,453,769,1,0,"
 
 [File 0006]
-Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/TestLibscpi.uir"
-File Type = "User Interface Resource"
-Disk Date = 3521544602
+Path = "/c/git/Lutzscpi-parser/libscpi/src/error.c"
+File Type = "CSource"
+Disk Date = 3521605290
 In Projects = "1,"
+Window Top = 272
+Window Left = 138
+Source Window State = "1,117,117,117,12,33,33,0,0,0,0,0,0,0,0,0,144,0,156,4,453,769,1,0,"
 
 [File 0007]
 Path = "/c/git/Lutzscpi-parser/libscpi/src/fifo.c"
@@ -118,7 +121,9 @@ Path = "/c/git/Lutzscpi-parser/libscpi/src/ieee488.c"
 File Type = "CSource"
 Disk Date = 3521192343
 In Projects = "1,"
-Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+Window Top = 62
+Window Left = 26
+Source Window State = "1,116,116,116,13,25,25,0,0,80,0,0,0,0,0,25,140,0,158,35,453,769,1,0,"
 
 [File 0010]
 Path = "/c/git/Lutzscpi-parser/libscpi/src/lexer.c"
@@ -142,64 +147,161 @@ In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
 [File 0013]
-Path = "/c/git/Lutzscpi-parser/libscpi/src/parser.c"
-File Type = "CSource"
-Disk Date = 3521605088
-In Projects = "1,"
-Window Top = 272
-Window Left = 138
-Window Z-Order = 2
-Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,122,0,134,8,453,769,1,0,"
-
-[File 0014]
 Path = "/c/git/Lutzscpi-parser/libscpi/src/parser_private.h"
 File Type = "Include"
 Disk Date = 3521192343
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
-[File 0015]
-Path = "/c/git/Lutzscpi-parser/libscpi/src/scpi_debug.c"
+[File 0014]
+Path = "/c/git/Lutzscpi-parser/examples/common/scpi-def.c"
 File Type = "CSource"
-Disk Date = 3521519344
+Disk Date = 3521608303
+In Projects = "1,"
+Window Top = 272
+Window Left = 138
+Window Z-Order = 5
+Source Window State = "1,274,274,274,32,46,46,0,3,80,0,0,0,0,0,25,183,0,274,32,453,769,1,0,"
+
+[File 0015]
+Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/TestLibscpi.h"
+File Type = "Include"
+Disk Date = 3521635769
 In Projects = "1,"
 Window Top = 242
 Window Left = 122
-Window Z-Order = 1
-Source Window State = "1,0,0,0,0,0,0,0,0,178,0,0,0,0,0,44,20,0,61,0,453,769,1,0,"
+Window Z-Order = 3
+Source Window State = "1,74,74,74,9,21,21,0,3,80,0,0,0,0,0,25,48,0,74,9,453,769,1,0,"
 
 [File 0016]
+Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/TestLibscpi.uir"
+File Type = "User Interface Resource"
+Disk Date = 3521635769
+In Projects = "1,"
+Window Top = 32
+Window Left = 10
+Window Height = 453
+Window Width = 769
+Window Z-Order = 2
+
+[File 0017]
 Path = "/c/git/Lutzscpi-parser/libscpi/src/units.c"
 File Type = "CSource"
 Disk Date = 3521192343
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
-[File 0017]
+[File 0018]
 Path = "/c/git/Lutzscpi-parser/libscpi/src/utils.c"
 File Type = "CSource"
 Disk Date = 3521605401
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
-[File 0018]
+[File 0019]
 Path = "/c/git/Lutzscpi-parser/libscpi/src/utils_private.h"
 File Type = "Include"
 Disk Date = 3521192343
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
-[File 0019]
-Path = "/c/git/Lutzscpi-parser/examples/common/scpi-def.c"
-File Type = "CSource"
-Disk Date = 3521608303
+[File 0020]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/parser.h"
+File Type = "Include"
+Disk Date = 3521603631
+In Projects = "1,"
+Window Top = 62
+Window Left = 26
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,42,0,0,0,453,769,1,0,"
+
+[File 0021]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/types.h"
+File Type = "Include"
+Disk Date = 3521605117
+In Projects = ""
+Window Top = 122
+Window Left = 58
+Window Z-Order = 4
+Source Window State = "1,71,71,71,8,20,20,0,3,80,0,0,0,0,0,25,68,0,71,8,453,769,1,0,"
+
+[File 0022]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/ieee488.h"
+File Type = "Include"
+Disk Date = 3521192343
+In Projects = "1,"
+Window Top = 92
+Window Left = 42
+Window Z-Order = 6
+Source Window State = "1,80,81,80,0,0,0,0,0,80,0,0,0,0,0,25,32,0,39,17,453,769,1,0,"
+
+[File 0023]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/constants.h"
+File Type = "Include"
+Disk Date = 3521192343
+In Projects = "1,"
+Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+
+[File 0024]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/scpi.h"
+File Type = "Include"
+Disk Date = 3521192343
+In Projects = "1,"
+Window Top = 302
+Window Left = 154
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,8,0,0,0,453,769,1,0,"
+
+[File 0025]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/minimal.h"
+File Type = "Include"
+Disk Date = 3521192343
+In Projects = "1,"
+Window Top = 92
+Window Left = 42
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,0,0,0,0,453,769,1,0,"
+
+[File 0026]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/units.h"
+File Type = "Include"
+Disk Date = 3521192343
+In Projects = "1,"
+Window Top = 32
+Window Left = 10
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,16,0,0,0,453,769,1,0,"
+
+[File 0027]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/utils.h"
+File Type = "Include"
+Disk Date = 3521192343
+In Projects = "1,"
+Window Top = 332
+Window Left = 170
+Source Window State = "1,0,0,0,0,0,0,0,0,80,0,0,0,0,0,25,11,0,0,0,453,769,1,0,"
+
+[File 0028]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/error.h"
+File Type = "Include"
+Disk Date = 3521605201
+In Projects = "1,"
+Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+
+[File 0029]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/config.h"
+File Type = "Include"
+Disk Date = 3521605154
+In Projects = "1,"
+Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+
+[File 0030]
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/scpi_user_config.h"
+File Type = "Include"
+Disk Date = 3521606339
 In Projects = "1,"
 Source Window State = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
 
 [Default Build Config 0001 Debug]
 Generate Browse Info = True
 Enable Uninitialized Locals Runtime Warning = True
-Batch Build = False
+Batch Build = True
 Profile = "Disabled"
 Debugging Level = "Standard"
 Execution Trace = "Disabled"

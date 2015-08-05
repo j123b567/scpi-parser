@@ -9,7 +9,7 @@ IVI Standard Root Dir = "/C/Program Files (x86)/IVI Foundation/IVI"
 VXIplug&play Framework Dir = "/C/Program Files (x86)/IVI Foundation/VISA/winnt"
 IVI Standard Root 64-bit Dir = "/C/Program Files/IVI Foundation/IVI"
 VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
-Number of Files = 19
+Number of Files = 29
 Target Type = "Executable"
 Flags = 2064
 Copied From Locked InstrDrv Directory = False
@@ -18,24 +18,23 @@ Locked InstrDrv Name = ""
 Don't Display Deploy InstrDrv Dialog = False
 
 [File 0001]
-File Type = "CSource"
+File Type = "Include"
 Res Id = 1
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "debug.c"
-Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/debug.c"
+Path Rel Path = "../../libscpi/inc/scpi/config.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/config.h"
 Exclude = False
-Compile Into Object File = False
 Project Flags = 0
-Folder = "Source Files"
+Folder = "Include Files"
 
 [File 0002]
 File Type = "Include"
 Res Id = 2
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "debug.h"
-Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/debug.h"
+Path Rel Path = "../../libscpi/inc/scpi/constants.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/constants.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
@@ -45,6 +44,29 @@ File Type = "CSource"
 Res Id = 3
 Path Is Rel = True
 Path Rel To = "Project"
+Path Rel Path = "debug.c"
+Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/debug.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "Source Files"
+
+[File 0004]
+File Type = "Include"
+Res Id = 4
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "debug.h"
+Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/debug.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0005]
+File Type = "CSource"
+Res Id = 5
+Path Is Rel = True
+Path Rel To = "Project"
 Path Rel Path = "../../libscpi/src/error.c"
 Path = "/c/git/Lutzscpi-parser/libscpi/src/error.c"
 Exclude = False
@@ -52,48 +74,24 @@ Compile Into Object File = False
 Project Flags = 0
 Folder = "libscpi"
 
-[File 0004]
-File Type = "CSource"
-Res Id = 4
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/fifo.c"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/fifo.c"
-Exclude = False
-Compile Into Object File = False
-Project Flags = 0
-Folder = "libscpi"
-
-[File 0005]
-File Type = "Include"
-Res Id = 5
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/fifo_private.h"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/fifo_private.h"
-Exclude = False
-Project Flags = 0
-Folder = "libscpi"
-
 [File 0006]
-File Type = "CSource"
+File Type = "Include"
 Res Id = 6
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/ieee488.c"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/ieee488.c"
+Path Rel Path = "../../libscpi/inc/scpi/error.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/error.h"
 Exclude = False
-Compile Into Object File = False
 Project Flags = 0
-Folder = "libscpi"
+Folder = "Include Files"
 
 [File 0007]
 File Type = "CSource"
 Res Id = 7
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/lexer.c"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/lexer.c"
+Path Rel Path = "../../libscpi/src/fifo.c"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/fifo.c"
 Exclude = False
 Compile Into Object File = False
 Project Flags = 0
@@ -104,8 +102,8 @@ File Type = "Include"
 Res Id = 8
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/lexer_private.h"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/lexer_private.h"
+Path Rel Path = "../../libscpi/src/fifo_private.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/fifo_private.h"
 Exclude = False
 Project Flags = 0
 Folder = "libscpi"
@@ -115,32 +113,31 @@ File Type = "CSource"
 Res Id = 9
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "main.c"
-Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/main.c"
-Exclude = False
-Compile Into Object File = False
-Project Flags = 0
-Folder = "Source Files"
-
-[File 0010]
-File Type = "CSource"
-Res Id = 10
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/minimal.c"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/minimal.c"
+Path Rel Path = "../../libscpi/src/ieee488.c"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/ieee488.c"
 Exclude = False
 Compile Into Object File = False
 Project Flags = 0
 Folder = "libscpi"
+
+[File 0010]
+File Type = "Include"
+Res Id = 10
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/ieee488.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/ieee488.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
 
 [File 0011]
 File Type = "CSource"
 Res Id = 11
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/parser.c"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/parser.c"
+Path Rel Path = "../../libscpi/src/lexer.c"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/lexer.c"
 Exclude = False
 Compile Into Object File = False
 Project Flags = 0
@@ -151,8 +148,8 @@ File Type = "Include"
 Res Id = 12
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/parser_private.h"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/parser_private.h"
+Path Rel Path = "../../libscpi/src/lexer_private.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/lexer_private.h"
 Exclude = False
 Project Flags = 0
 Folder = "libscpi"
@@ -162,8 +159,8 @@ File Type = "CSource"
 Res Id = 13
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../common/scpi-def.c"
-Path = "/c/git/Lutzscpi-parser/examples/common/scpi-def.c"
+Path Rel Path = "main.c"
+Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/main.c"
 Exclude = False
 Compile Into Object File = False
 Project Flags = 0
@@ -174,8 +171,8 @@ File Type = "CSource"
 Res Id = 14
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "../../libscpi/src/scpi_debug.c"
-Path = "/c/git/Lutzscpi-parser/libscpi/src/scpi_debug.c"
+Path Rel Path = "../../libscpi/src/minimal.c"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/minimal.c"
 Exclude = False
 Compile Into Object File = False
 Project Flags = 0
@@ -186,15 +183,106 @@ File Type = "Include"
 Res Id = 15
 Path Is Rel = True
 Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/minimal.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/minimal.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0016]
+File Type = "CSource"
+Res Id = 16
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/src/parser.c"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/parser.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "libscpi"
+
+[File 0017]
+File Type = "Include"
+Res Id = 17
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/parser.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/parser.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0018]
+File Type = "Include"
+Res Id = 18
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/src/parser_private.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/parser_private.h"
+Exclude = False
+Project Flags = 0
+Folder = "libscpi"
+
+[File 0019]
+File Type = "CSource"
+Res Id = 19
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../common/scpi-def.c"
+Path = "/c/git/Lutzscpi-parser/examples/common/scpi-def.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "Source Files"
+
+[File 0020]
+File Type = "Include"
+Res Id = 20
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/scpi.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/scpi.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0021]
+File Type = "CSource"
+Res Id = 21
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/src/scpi_debug.c"
+Path = "/c/git/Lutzscpi-parser/libscpi/src/scpi_debug.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "libscpi"
+
+[File 0022]
+File Type = "Include"
+Res Id = 22
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/scpi_user_config.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/scpi_user_config.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0023]
+File Type = "Include"
+Res Id = 23
+Path Is Rel = True
+Path Rel To = "Project"
 Path Rel Path = "TestLibscpi.h"
 Path = "/c/git/Lutzscpi-parser/examples/test-CVI_w_GUI/TestLibscpi.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
 
-[File 0016]
+[File 0024]
 File Type = "User Interface Resource"
-Res Id = 16
+Res Id = 24
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "TestLibscpi.uir"
@@ -203,9 +291,9 @@ Exclude = False
 Project Flags = 0
 Folder = "User Interface Files"
 
-[File 0017]
+[File 0025]
 File Type = "CSource"
-Res Id = 17
+Res Id = 25
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "../../libscpi/src/units.c"
@@ -215,9 +303,20 @@ Compile Into Object File = False
 Project Flags = 0
 Folder = "libscpi"
 
-[File 0018]
+[File 0026]
+File Type = "Include"
+Res Id = 26
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/units.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/units.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0027]
 File Type = "CSource"
-Res Id = 18
+Res Id = 27
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "../../libscpi/src/utils.c"
@@ -227,9 +326,20 @@ Compile Into Object File = False
 Project Flags = 0
 Folder = "libscpi"
 
-[File 0019]
+[File 0028]
 File Type = "Include"
-Res Id = 19
+Res Id = 28
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "../../libscpi/inc/scpi/utils.h"
+Path = "/c/git/Lutzscpi-parser/libscpi/inc/scpi/utils.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+
+[File 0029]
+File Type = "Include"
+Res Id = 29
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "../../libscpi/src/utils_private.h"
