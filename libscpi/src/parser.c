@@ -785,7 +785,7 @@ scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, c
  * @param options specifications of choices numbers (patterns)
  * @param tag numerical representatio of choice
  * @param text result text
- * @return TRUE if succesfule, else false
+ * @return TRUE if succesfule, else FALSE
  */
 scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, const char ** text) {
     int i;
