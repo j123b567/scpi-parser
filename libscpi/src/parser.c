@@ -91,15 +91,10 @@ static size_t writeDelimiter(scpi_t * context) {
 static size_t writeNewLine(scpi_t * context) {
     if (context->output_count > 0) {
         size_t len;
-#if   (USED_ENDCODE == ENDCODE_CR)
-         len = writeData(context, "\r", 1);
-#elif (USED_ENDCODE == ENDCODE_LF)
-         len = writeData(context, "\n", 1);
-#elif (USED_ENDCODE == ENDCODE_CRLF)
-        len = writeData(context, "\r\n", 2);
-#else
+#ifndef SCPI_LINE_ENDING
 #error no termination character defined
 #endif
+        len = writeData(context, SCPI_LINE_ENDING, strlen(SCPI_LINE_ENDING));
         flushData(context);
         return len;
     } else {

@@ -338,7 +338,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
     int rightFlag = 0; // flag for ']' on right
     int cmd_sep_pos = 0;
 
-    int32_t numbers_idx = -1;         /* Lutz Hoerl, Thorlabs: changed type from size_t to int, size_t is positive only, int does not produce unsigne warnings */
+    size_t numbers_idx = 0;
     int32_t *number_ptr = NULL;
 
     const char * pattern_ptr = pattern;
@@ -379,13 +379,13 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
         }
 
         if (pattern_ptr[pattern_sep_pos - 1] == '#') {
-            numbers_idx++;
             if (numbers && (numbers_idx < numbers_len)) {
                 number_ptr = numbers + numbers_idx;
                 *number_ptr = 1; // default value
             } else {
                 number_ptr = NULL;
             }
+            numbers_idx++;
         } else {
             number_ptr = NULL;
         }
@@ -548,7 +548,7 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
         if (c1 != c2) {
             return c1 - c2;
         }
-        if (c1 == '\0') {        /* Lutz Hoerl, Thorlabs: think this (c1 = '\0') was really a bug */
+        if (c1 == '\0') {
             return 0;
         }
     }

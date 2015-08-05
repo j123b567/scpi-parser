@@ -13,7 +13,7 @@ STATICLIBFLAGS = rcs
 STATICLIB = lib$(LIBNAME).a
 
 SRCS = $(addprefix src/, \
-	debug.c error.c fifo.c ieee488.c \
+	error.c fifo.c ieee488.c \
 	minimal.c parser.c units.c utils.c \
 	lexer.c \
 	)
@@ -21,7 +21,7 @@ SRCS = $(addprefix src/, \
 OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 
 HDRS = $(addprefix inc/scpi/, \
-	scpi.h constants.h debug.h error.h \
+	scpi.h constants.h error.h \
 	ieee488.h minimal.h parser.h types.h units.h \
 	) \
 	$(addprefix src/, \

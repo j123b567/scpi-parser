@@ -46,12 +46,12 @@ static scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, FALSE)) {
         // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, FALSE)) {
         // do something, if parameter not present
     }
 
@@ -75,12 +75,12 @@ static scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     fprintf(stderr, "meas:volt:ac\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, FALSE)) {
         // do something, if parameter not present
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, false)) {
+    if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param2, FALSE)) {
         // do something, if parameter not present
     }
 
@@ -102,12 +102,12 @@ static scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamDouble(context, &param1, true)) {
+    if (!SCPI_ParamDouble(context, &param1, TRUE)) {
         return SCPI_RES_ERR;
     }
 
     // read second paraeter if present
-    if (!SCPI_ParamDouble(context, &param2, false)) {
+    if (!SCPI_ParamDouble(context, &param2, FALSE)) {
         // do something, if parameter not present
     }
 
@@ -122,7 +122,7 @@ static scpi_result_t TEST_Bool(scpi_t * context) {
     fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
 
     // read first parameter if present
-    if (!SCPI_ParamBool(context, &param1, true)) {
+    if (!SCPI_ParamBool(context, &param1, TRUE)) {
         return SCPI_RES_ERR;
     }
 
@@ -144,7 +144,7 @@ static scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     int32_t param;
     const char * name;
     
-    if (!SCPI_ParamChoice(context, trigger_source, &param, true)) {
+    if (!SCPI_ParamChoice(context, trigger_source, &param, TRUE)) {
         return SCPI_RES_ERR;
     }
     
@@ -171,7 +171,7 @@ static scpi_result_t TEST_Text(scpi_t * context) {
     size_t copy_len;
 
     buffer[0] = 0;
-    SCPI_ParamCopyText(context, buffer, 100, &copy_len, false);
+    SCPI_ParamCopyText(context, buffer, 100, &copy_len, FALSE);
 
     fprintf(stderr, "TEXT: ***%s***\r\n", buffer);
 
@@ -182,7 +182,7 @@ static scpi_result_t TEST_ArbQ(scpi_t * context) {
     const char * data;
     size_t len;
 
-    SCPI_ParamArbitraryBlock(context, &data, &len, false);
+    SCPI_ParamArbitraryBlock(context, &data, &len, FALSE);
 
     SCPI_ResultArbitraryBlock(context, data, len);
 

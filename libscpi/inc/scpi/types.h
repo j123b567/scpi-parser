@@ -41,15 +41,18 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "scpi/config.h"
 
-#if defined(_CVI_)
-   typedef unsigned char bool;
-#else
+#if HAVE_STDBOOL
 #include <stdbool.h>
 #endif
 
 #ifdef  __cplusplus
 extern "C" {
+#endif
+
+#if !HAVE_STDBOOL
+   typedef unsigned char bool;
 #endif
 
 #ifndef FALSE

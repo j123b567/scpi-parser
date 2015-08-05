@@ -41,23 +41,40 @@
 extern "C" {
 #endif
 
-/* set the termination character(s)   */
-#define ENDCODE_CR              1      /*   use a <CR> carriage return aka '\r' as termination charcter */
-#define ENDCODE_LF              2      /*   use a <LF> line feed aka       '\n' as termination charcter */
-#define ENDCODE_CRLF            3      /*   use <CR><LF> carriage return + line feed aka "\r\n" as termination charcters */
-   
-#define USED_ENDCODE            ENDCODE_CRLF
-   
-/* select the error list(s) */
-#define ERR_SCPI_MINIMUM        1
-#define ERR_SCPI_FULL           2
-#define ERR_SCPI_MIN_PLUS_USER  3
-#define ERR_SCPI_FULL_PLUS_USER 4
+#ifdef SCPI_USER_CONFIG
+#include "scpi_user_config.h"
+#endif
 
-#define USED_SCPI_ERROR_LIST    ERR_SCPI_MINIMUM
+/* set the termination character(s)   */
+#define LINE_ENDING_CR          "\r"    /*   use a <CR> carriage return as termination charcter */
+#define LINE_ENDING_LF          "\n"    /*   use a <LF> line feed as termination charcter */
+#define LINE_ENDING_CRLF        "\r\n"  /*   use <CR><LF> carriage return + line feed as termination charcters */
+
+#ifndef SCPI_LINE_ENDING
+#define SCPI_LINE_ENDING        LINE_ENDING_CRLF
+#endif
+
+/* Enable full error list
+ * 0 = Minimal set of errors
+ * 1 = Full set of errors
+ *
+ * For small systems, full set of errors will occupy large ammount of data
+ */
+#ifndef USE_FULL_ERROR_LIST
+#define USE_FULL_ERROR_LIST 0
+#endif
+
+/**
+ * Enable also LIST_OF_USER_ERRORS to be included
+ * 0 = Use only library defined errors
+ * 1 = Use also LIST_OF_USER_ERRORS
+ */
+#ifndef USE_USER_ERROR_LIST
+#define USE_USER_ERROR_LIST 0
+#endif
    
 /* Compiler specific */
-/* ARM, e.g. Cortex-M CPUs */
+/* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
 #if defined(__CC_ARM)
 #define HAVE_STRNLEN            0
 #define HAVE_STRNCASECMP        1
@@ -69,6 +86,7 @@ extern "C" {
 #define HAVE_STRNLEN            0
 #define HAVE_STRNCASECMP        0
 #define HAVE_STRNICMP           1
+#define HAVE_STDBOOL            0
 #endif
 
 /* 8bit PIC - PIC16, etc */
@@ -109,6 +127,10 @@ extern "C" {
 /* ======== test strnicmp ======== */
 #ifndef HAVE_STRNICMP
 #define HAVE_STRNICMP           0
+#endif
+
+#ifndef HAVE_STDBOOL
+#define HAVE_STDBOOL            1
 #endif
 
 /* define local macros depending on existance of strnlen */
