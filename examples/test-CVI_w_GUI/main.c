@@ -30,7 +30,9 @@
  * @date   Thu Nov 15 10:58:45 UTC 2012
  * 
  * @brief  SCPI parser test with a little GUI built with NI-CVI (Lutz Hoerl, Thorlabs)
- * 
+ *         You can build this example using CVI 2012SP1, an eval version is available here:
+ *         ftp://ftp.ni.com/evaluation/labview/ekit/other/downloader/NILWCVI2012SP1.exe
+ *         Size is about 550 MB
  * 
  */
 

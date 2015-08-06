@@ -26,3 +26,4 @@ examples/*/test
 /nbproject/
 /examples/test-CVI_w_GUI/cvibuild.TestLibSCPI_GUI
 /examples/test-CVI_w_GUI/TestLibSCPI_GUI.cdb
+*.bak
