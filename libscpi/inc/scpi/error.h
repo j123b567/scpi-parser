@@ -35,12 +35,12 @@
  */
 
 #ifndef SCPI_ERROR_H
-#define  SCPI_ERROR_H
+#define SCPI_ERROR_H
 
 #include "scpi/config.h"
 #include "scpi/types.h"
 
-#ifdef   __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -60,17 +60,17 @@ extern "C" {
  */
 #define LIST_OF_ERRORS \
     XE(SCPI_ERROR_COMMAND,                      -100, "Command error")                                \
-    X(SCPI_ERROR_INVALID_CHARACTER,          -101, "Invalid character")                            \
+    X(SCPI_ERROR_INVALID_CHARACTER,             -101, "Invalid character")                            \
     XE(SCPI_ERROR_SYNTAX,                       -102, "Syntax error")                                 \
-    X(SCPI_ERROR_INVALID_SEPARATOR,          -103, "Invalid separator")                            \
-    X(SCPI_ERROR_DATA_TYPE_ERROR,            -104, "Data type error")                              \
+    X(SCPI_ERROR_INVALID_SEPARATOR,             -103, "Invalid separator")                            \
+    X(SCPI_ERROR_DATA_TYPE_ERROR,               -104, "Data type error")                              \
     XE(SCPI_ERROR_GET_NOT_ALLOWED,              -105, "GET not allowed")                              \
-    X(SCPI_ERROR_PARAMETER_NOT_ALLOWED,      -108, "Parameter not allowed")                        \
-    X(SCPI_ERROR_MISSING_PARAMETER,          -109, "Missing parameter")                            \
+    X(SCPI_ERROR_PARAMETER_NOT_ALLOWED,         -108, "Parameter not allowed")                        \
+    X(SCPI_ERROR_MISSING_PARAMETER,             -109, "Missing parameter")                            \
     XE(SCPI_ERROR_COMMAND_HEADER,               -110, "Command header error")                         \
     XE(SCPI_ERROR_HEADER_SEPARATOR,             -111, "Header separator error")                       \
     XE(SCPI_ERROR_PRG_MNEMONIC_TOO_LONG,        -112, "Program mnemonic too long")                    \
-    X(SCPI_ERROR_UNDEFINED_HEADER,           -113, "Undefined header")                             \
+    X(SCPI_ERROR_UNDEFINED_HEADER,              -113, "Undefined header")                             \
     XE(SCPI_ERROR_HEADER_SUFFIX_OUTOFRANGE,     -114, "Header suffix out of range")                   \
     XE(SCPI_ERROR_UNEXP_NUM_OF_PARAMETER,       -115, "Unexpected number of parameters")              \
     XE(SCPI_ERROR_NUMERIC_DATA_ERROR,           -120, "Numeric data error")                           \
@@ -79,15 +79,15 @@ extern "C" {
     XE(SCPI_ERROR_TOO_MANY_DIGITS,              -124, "Too many digits")                              \
     XE(SCPI_ERROR_NUMERIC_DATA_NOT_ALLOWED,     -128, "Numeric data not allowed")                     \
     XE(SCPI_ERROR_SUFFIX_ERROR,                 -130, "Suffix error")                                 \
-    X(SCPI_ERROR_INVALID_SUFFIX,             -131, "Invalid suffix")                               \
+    X(SCPI_ERROR_INVALID_SUFFIX,                -131, "Invalid suffix")                               \
     XE(SCPI_ERROR_SUFFIX_TOO_LONG,              -134, "Suffix too long")                              \
-    X(SCPI_ERROR_SUFFIX_NOT_ALLOWED,         -138, "Suffix not allowed")                           \
+    X(SCPI_ERROR_SUFFIX_NOT_ALLOWED,            -138, "Suffix not allowed")                           \
     XE(SCPI_ERROR_CHARACTER_DATA_ERROR,         -140, "Character data error")                         \
     XE(SCPI_ERROR_INVAL_CHARACTER_DATA,         -141, "Invalid character data")                       \
     XE(SCPI_ERROR_CHARACTER_DATA_TOO_LONG,      -144, "Character data too long")                      \
     XE(SCPI_ERROR_CHARACTER_DATA_NOT_ALLOWED,   -148, "Character data not allowed")                   \
     XE(SCPI_ERROR_STRING_DATA_ERROR,            -150, "String data error")                            \
-    X(SCPI_ERROR_INVALID_STRING_DATA,        -151, "Invalid string data")                          \
+    X(SCPI_ERROR_INVALID_STRING_DATA,           -151, "Invalid string data")                          \
     XE(SCPI_ERROR_STRING_DATA_NOT_ALLOWED,      -158, "String data not allowed")                      \
     XE(SCPI_ERROR_BLOCK_DATA_ERROR,             -160, "Block data error")                             \
     XE(SCPI_ERROR_INVALID_BLOCK_DATA,           -161, "Invalid block data")                           \
@@ -99,7 +99,7 @@ extern "C" {
     XE(SCPI_ERROR_INVAL_OUTSIDE_MACRO_DEF,      -181, "Invalid outside macro definition")             \
     XE(SCPI_ERROR_INVAL_INSIDE_MACRO_DEF,       -183, "Invalid inside macro definition")              \
     XE(SCPI_ERROR_MACRO_PARAMETER_ERROR,        -184, "Macro parameter error")                        \
-    X(SCPI_ERROR_EXECUTION_ERROR,            -200, "Execution error")                              \
+    X(SCPI_ERROR_EXECUTION_ERROR,               -200, "Execution error")                              \
     XE(SCPI_ERROR_INVAL_WHILE_IN_LOCAL,         -201, "Invalid while in local")                       \
     XE(SCPI_ERROR_SETTINGS_LOST_DUE_TO_RTL,     -202, "Settings lost due to rtl")                     \
     XE(SCPI_ERROR_COMMAND_PROTECTED,            -203, "Command protected TK024")                      \
@@ -113,7 +113,7 @@ extern "C" {
     XE(SCPI_ERROR_SETTINGS_CONFLICT,            -221, "Settings conflict")                            \
     XE(SCPI_ERROR_DATA_OUT_OF_RANGE,            -222, "Data out of range")                            \
     XE(SCPI_ERROR_TOO_MUCH_DATA,                -223, "Too much data")                                \
-    X(SCPI_ERROR_ILLEGAL_PARAMETER_VALUE,    -224,"Illegal parameter value")                       \
+    X(SCPI_ERROR_ILLEGAL_PARAMETER_VALUE,       -224, "Illegal parameter value")                      \
     XE(SCPI_ERROR_OUT_OF_MEMORY_FOR_REQ_OP,     -225, "Out of memory")                                \
     XE(SCPI_ERROR_LISTS_NOT_SAME_LENGTH,        -226, "Lists not same length")                        \
     XE(SCPI_ERROR_DATA_CORRUPT,                 -230, "Data corrupt or stale")                        \
@@ -154,7 +154,7 @@ extern "C" {
     XE(SCPI_ERROR_REF_NAME_ALREADY_EXISTS,      -293, "Referenced name already exists")               \
     XE(SCPI_ERROR_INCOMPATIBLE_TYPE,            -294, "Incompatible type")                            \
     XE(SCPI_ERROR_DEVICE_ERROR,                 -300, "Device specific error")                        \
-    X(SCPI_ERROR_SYSTEM_ERROR,               -310, "System error")                                 \
+    X(SCPI_ERROR_SYSTEM_ERROR,                  -310, "System error")                                 \
     XE(SCPI_ERROR_MEMORY_ERROR,                 -311, "Memory error")                                 \
     XE(SCPI_ERROR_PUD_MEMORY_LOST,              -312, "PUD memory lost")                              \
     XE(SCPI_ERROR_CALIBRATION_MEMORY_LOST,      -313, "Calibration memory lost")                      \
@@ -196,9 +196,9 @@ LIST_OF_USER_ERRORS
 #undef XE
 };
 
-#ifdef   __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif   /* SCPI_ERROR_H */
+#endif /* SCPI_ERROR_H */
 

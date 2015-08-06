@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,16 +28,16 @@
 /**
  * @file   config.h
  * @date   Wed Mar 20 12:21:26 UTC 2013
- * 
+ *
  * @brief  SCPI Configuration
- * 
- * 
+ *
+ *
  */
 
 #ifndef __SCPI_CONFIG_H_
 #define __SCPI_CONFIG_H_
 
-#ifdef   __cplusplus
+#ifdef	__cplusplus
 extern "C" {
 #endif
 
@@ -72,7 +72,7 @@ extern "C" {
 #ifndef USE_USER_ERROR_LIST
 #define USE_USER_ERROR_LIST 0
 #endif
-   
+
 /* Compiler specific */
 /* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
 #if defined(__CC_ARM)
@@ -135,9 +135,9 @@ extern "C" {
 
 /* define local macros depending on existance of strnlen */
 #if HAVE_STRNLEN
-#define SCPIDEFINE_strnlen(s, l) strnlen((s), (l))
+#define SCPIDEFINE_strnlen(s, l)	strnlen((s), (l))
 #else
-#define SCPIDEFINE_strnlen(s, l) BSD_strnlen((s), (l))
+#define SCPIDEFINE_strnlen(s, l)	BSD_strnlen((s), (l))
 #endif
 
 /* define local macros depending on existance of strncasecmp and strnicmp */
@@ -156,7 +156,7 @@ extern "C" {
 #endif
 
 
-#ifdef   __cplusplus
+#ifdef	__cplusplus
 }
 #endif
 

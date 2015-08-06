@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012-2013 Jan Breuer,
+ * Copyright (c) 2012-2013 Lutz Hoerl, Thorlabs GmbH
  *
  * All Rights Reserved
  * 
@@ -26,28 +26,34 @@
  */
 
 /**
- * @file   scpi_debug.c
- * @date   Thu Nov 15 10:58:45 UTC 2012
+ * @file   scpi_user_config.h
+ * @date   Wed Aug 05 10:00:00 UTC 2015
  * 
- * @brief  Debugging SCPI
+ * @brief  User resp. device dependent SCPI Configuration
  * 
  * 
  */
 
-#include <stdio.h>
-#include "scpi/debug.h"
+#ifndef __SCPI_USER_CONFIG_H_
+#define __SCPI_USER_CONFIG_H_
 
-/**
- * Debug function: show current command and its parameters
- * @param context
- * @return 
- */
-scpi_bool_t SCPI_DebugCommand(scpi_t * context) {
-	size_t res;
-	printf("**DEBUG: %s (\"", context->param_list.cmd->pattern);
-	res = fwrite(context->param_list.lex_state.buffer, 1, context->param_list.lex_state.len, stdout);
-	(void)res;
-        printf("\" - %lu\r\n", (unsigned long)context->param_list.lex_state.len);
-	
-	return TRUE;
+#ifdef   __cplusplus
+extern "C" {
+#endif
+
+#define SCPI_LINE_ENDING    "\r\n"    /*   use <CR><LF> carriage return + line feed as termination charcters */
+
+#define USE_FULL_ERROR_LIST 1
+#define USE_USER_ERROR_LIST 1
+
+#define LIST_OF_USER_ERRORS \
+    X(SCPI_USER_ERROR_WARMUP_NOT_FINISHED,      101,  "The device has not finished the warm up process yet")            \
+    X(SCPI_USER_ERROR_INTERLOCK_OPEN,           102,  "Switching output to on is not allowed when interlock is open")   \
+
+
+
+#ifdef   __cplusplus
 }
+#endif
+
+#endif   /* #define __SCPI_USER_CONFIG_H_ */

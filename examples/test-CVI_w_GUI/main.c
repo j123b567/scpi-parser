@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012-2013 Jan Breuer,
+ * Copyright (c) 2015 Lutz Hoerl, Thorlabs GmbH
  *
  * All Rights Reserved
  * 
