@@ -245,7 +245,7 @@ static int skipAlpha(lex_state_t * state) {
  * @param chr
  * @return 
  */
-static int skipChr(lex_state_t * state, int chr) {
+static int skipChr(lex_state_t * state, char chr) {
     if (!iseos(state) && ischr(state, chr)) {
         state->pos++;
         return SKIP_OK;
@@ -630,7 +630,7 @@ static int isascii7bit(int c) {
     return (c >= 0) && (c <= 0x7f);
 }
 
-static void skipQuoteProgramData(lex_state_t * state, int quote) {
+static void skipQuoteProgramData(lex_state_t * state, char quote) {
     while (!iseos(state)) {
         if (isascii7bit(state->pos[0]) && !ischr(state, quote)) {
             state->pos++;

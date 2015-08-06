@@ -414,7 +414,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
     SCPI_LongToStr(len, block_header + 2, 10, 10);
 
     header_len = strlen(block_header + 2);
-    block_header[1] = header_len + '0';
+    block_header[1] = (char)(header_len + '0');
 
     result += writeData(context, block_header, header_len + 2);
     result += writeData(context, data, len);

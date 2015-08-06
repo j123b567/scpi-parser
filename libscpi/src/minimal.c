@@ -131,7 +131,7 @@ scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
 scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
     int32_t new_QUESE;
     if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_QUESE, new_QUESE);
+        SCPI_RegSet(context, SCPI_REG_QUESE, (scpi_reg_val_t)new_QUESE);
     }
     return SCPI_RES_OK;
 }
