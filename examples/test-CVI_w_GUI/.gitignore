@@ -1,2 +1,3 @@
 cvibuild.TestLibSCPI_GUI
-TestLibSCPI_GUI.cdb
+*.cdb
+*.cws
