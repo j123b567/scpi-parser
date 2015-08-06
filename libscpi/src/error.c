@@ -61,6 +61,33 @@ void SCPI_ErrorInit(scpi_t * context) {
 }
 
 /**
+ * Emit no error
+ * @param context scpi context
+ */
+static void SCPI_ErrorEmitEmpty(scpi_t * context) {
+    if ((SCPI_ErrorCount(context) == 0) && (SCPI_RegGet(context, SCPI_REG_STB) & STB_QMA)) {
+        SCPI_RegClearBits(context, SCPI_REG_STB, STB_QMA);
+
+        if (context->interface && context->interface->error) {
+            context->interface->error(context, 0);
+        }
+    }
+}
+
+/**
+ * Emit error
+ * @param context scpi context
+ * @param err Error to emit
+ */
+static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
+    SCPI_RegSetBits(context, SCPI_REG_STB, STB_QMA);
+
+    if (context->interface && context->interface->error) {
+        context->interface->error(context, err);
+    }
+}
+
+/**
  * Clear error queue
  * @param context - scpi context
  */
@@ -72,6 +99,8 @@ void SCPI_ErrorClear(scpi_t * context) {
 
     /* basic FIFO */
     fifo_clear((scpi_fifo_t *)context->error_queue);
+
+    SCPI_ErrorEmitEmpty(context);
 }
 
 /**
@@ -91,6 +120,8 @@ int16_t SCPI_ErrorPop(scpi_t * context) {
 
     /* basic FIFO */
     fifo_remove((scpi_fifo_t *)context->error_queue, &result);
+
+    SCPI_ErrorEmitEmpty(context);
 
     return result;
 }
@@ -161,11 +192,9 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
         }
     }
 
-    if (context) {
-        if (context->interface && context->interface->error) {
-            context->interface->error(context, err);
-        }
+    SCPI_ErrorEmit(context, err);
 
+    if (context) {
         context->cmd_error = TRUE;
     }
 }

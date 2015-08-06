@@ -102,6 +102,7 @@ static void error_buffer_clear(void) {
     err_buffer[0] = 0;
     err_buffer_pos = 0;
 
+    SCPI_RegClearBits(&scpi_context, SCPI_REG_STB, STB_QMA);
     SCPI_EventClear(&scpi_context);
     SCPI_ErrorClear(&scpi_context);
 }
@@ -280,15 +281,17 @@ static void testIEEE4882(void) {
     
     srq_val = 0;
     TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
-    CU_ASSERT_EQUAL(srq_val, 96); /* value of STB as service request */
-    TEST_IEEE4882("*STB?\r\n", "96\r\n"); /* Event status register + Service request */
+    CU_ASSERT_EQUAL(srq_val, (STB_ESR | STB_SRQ | STB_QMA)); /* value of STB as service request */
+    TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
     TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
 
-    TEST_IEEE4882("*STB?\r\n", "0\r\n");
+    TEST_IEEE4882("*STB?\r\n", "68\r\n"); /* Error queue is still not empty */
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
     
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "0,\"No error\"\r\n");
+
+    TEST_IEEE4882("*STB?\r\n", "0\r\n"); /* Error queue is now empty */
     
     RST_executed = FALSE;
     TEST_IEEE4882("*RST\r\n", "");
