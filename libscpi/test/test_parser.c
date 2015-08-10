@@ -367,6 +367,7 @@ static void testSCPI_ParamDouble(void) {
     TEST_ParamDouble("#B101010", TRUE, 42, TRUE, 0);
     TEST_ParamDouble("#H101010", TRUE, 1052688, TRUE, 0);
     TEST_ParamDouble("#Q10", TRUE, 8, TRUE, 0);
+    TEST_ParamDouble("#HFFFFFFFF", TRUE, 0xFFFFFFFFu, TRUE, 0);
 
     TEST_ParamDouble("", TRUE, 0, FALSE, -109); // missing parameter
     TEST_ParamDouble("abcd", TRUE, 0, FALSE, -104); // Data type error

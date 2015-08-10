@@ -532,7 +532,7 @@ scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixA
  * @param value result
  * @return TRUE if succesful
  */
-scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value) {
+static scpi_bool_t ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value, scpi_bool_t sign) {
 
     if (!value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
@@ -541,16 +541,43 @@ scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int3
 
     switch (parameter->type) {
         case SCPI_TOKEN_HEXNUM:
-            return strToLong(parameter->ptr, value, 16) > 0 ? TRUE : FALSE;
+            return strToULong(parameter->ptr, (uint32_t *)value, 16) > 0 ? TRUE : FALSE;
         case SCPI_TOKEN_OCTNUM:
-            return strToLong(parameter->ptr, value, 8) > 0 ? TRUE : FALSE;
+            return strToULong(parameter->ptr, (uint32_t *)value, 8) > 0 ? TRUE : FALSE;
         case SCPI_TOKEN_BINNUM:
-            return strToLong(parameter->ptr, value, 2) > 0 ? TRUE : FALSE;
+            return strToULong(parameter->ptr, (uint32_t *)value, 2) > 0 ? TRUE : FALSE;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
-            return strToLong(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
+            if (sign) {
+                return strToLong(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
+            } else {
+                return strToULong(parameter->ptr, (uint32_t *)value, 10) > 0 ? TRUE : FALSE;
+            }
     }
     return FALSE;
+}
+
+
+/**
+ * Convert parameter to integer
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return TRUE if succesful
+ */
+scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value) {
+    return ParamToInt(context, parameter, value, TRUE);
+}
+
+/**
+ * Convert parameter to unsigned integer
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return TRUE if succesful
+ */
+scpi_bool_t SCPI_ParamToUnsignedInt(scpi_t * context,  scpi_parameter_t * parameter, uint32_t * value) {
+    return ParamToInt(context, parameter, (int32_t *)value, FALSE);
 }
 
 /**
@@ -560,9 +587,10 @@ scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int3
  * @param value result
  * @return TRUE if succesful
  */
+#include "stdio.h"
 scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
     scpi_bool_t result = FALSE;
-    int32_t valint;
+    uint32_t valint;
 
     if (!value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
@@ -573,7 +601,7 @@ scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, d
         case SCPI_TOKEN_HEXNUM:
         case SCPI_TOKEN_OCTNUM:
         case SCPI_TOKEN_BINNUM:
-            result = SCPI_ParamToInt(context, parameter, &valint);
+            result = SCPI_ParamToUnsignedInt(context, parameter, &valint);
             *value = valint;
             break;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
@@ -622,7 +650,7 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
  * @param mandatory
  * @return
  */
-scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory) {
+static scpi_bool_t ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory, scpi_bool_t sign) {
     scpi_bool_t result;
     scpi_parameter_t param;
 
@@ -634,7 +662,7 @@ scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandato
     result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
         if (SCPI_ParamIsNumber(&param, FALSE)) {
-            SCPI_ParamToInt(context, &param, value);
+            result = ParamToInt(context, &param, value, sign);
         } else if (SCPI_ParamIsNumber(&param, TRUE)) {
             SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
             result = FALSE;
@@ -644,6 +672,14 @@ scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandato
         }
     }
     return result;
+}
+
+scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory) {
+    return ParamInt(context, value, mandatory, TRUE);
+}
+
+scpi_bool_t SCPI_ParamUnsignedInt(scpi_t * context, uint32_t * value, scpi_bool_t mandatory) {
+    return ParamInt(context, (int32_t *)value, mandatory, FALSE);
 }
 
 /**

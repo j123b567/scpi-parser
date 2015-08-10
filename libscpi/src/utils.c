@@ -156,6 +156,19 @@ size_t strToLong(const char * str, int32_t * val, int8_t base) {
 }
 
 /**
+ * Converts string to unsigned 32bit integer representation
+ * @param str   string value
+ * @param val   32bit integer result
+ * @return      number of bytes used in string
+ */
+size_t strToULong(const char * str, uint32_t * val, int8_t base) {
+    char * endptr;
+    *val = strtoul(str, &endptr, base);
+    return endptr - str;
+}
+
+
+/**
  * Converts string to double representation
  * @param str   string value
  * @param val   double result

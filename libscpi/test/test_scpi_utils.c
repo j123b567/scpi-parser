@@ -142,6 +142,31 @@ static void test_strToLong() {
     TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
 }
 
+static void test_strToULong() {
+    size_t result;
+    uint32_t val;
+
+#define TEST_STR_TO_ULONG(s, r, v, b)                    \
+    do {                                                \
+        result = strToULong(s, &val, b);                 \
+        CU_ASSERT_EQUAL(val, v);                        \
+        CU_ASSERT_EQUAL(result, r);                     \
+    } while(0)                                          \
+    
+    TEST_STR_TO_LONG("", 0, 0, 10);
+    TEST_STR_TO_LONG("1", 1, 1, 10);
+    TEST_STR_TO_LONG("10", 2, 10, 10);
+    TEST_STR_TO_LONG("100MHz", 3, 100, 10);
+    TEST_STR_TO_LONG("MHz", 0, 0, 10);
+    TEST_STR_TO_LONG("1.4", 1, 1, 10);
+    TEST_STR_TO_LONG(" 1", 2, 1, 10);
+    TEST_STR_TO_LONG(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_LONG("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_LONG("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
+    TEST_STR_TO_LONG("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
+}
+
 static void test_strToDouble() {
     double val;
     size_t result;
@@ -458,6 +483,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "longToStr", test_longToStr))
             || (NULL == CU_add_test(pSuite, "doubleToStr", test_doubleToStr))
             || (NULL == CU_add_test(pSuite, "strToLong", test_strToLong))
+            || (NULL == CU_add_test(pSuite, "strToULong", test_strToULong))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
             || (NULL == CU_add_test(pSuite, "compareStrAndNum", test_compareStrAndNum))
