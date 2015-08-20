@@ -113,7 +113,10 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("meas:volt:dc? def, 0.00001\r\n");
     TEST_SCPI_INPUT("meas:volt:dc? 0.00001\r\n");
 
-
+    TEST_SCPI_INPUT("test:text 'a'\r\n");
+    TEST_SCPI_INPUT("test:text 'a a'\r\n");
+    TEST_SCPI_INPUT("test:text 'aa a'\r\n");
+    TEST_SCPI_INPUT("test:text 'aaa aaaa'\r\n");
     //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
     // interactive demo
     //char smbuffer[10];
