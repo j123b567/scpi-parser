@@ -1,3 +1,9 @@
+# VIM/KDevelop Files
+*.swp
+*.kdev4
+.kdev4/
+*.kate-swp
+
 # Object files
 *.o
 
