@@ -170,7 +170,8 @@ static scpi_result_t TEST_Text(scpi_t * context) {
     char buffer[100];
     size_t copy_len;
 
-    buffer[0] = 0;
+    //buffer[0] = 0;
+    memset(buffer, 0, sizeof(buffer));
     SCPI_ParamCopyText(context, buffer, 100, &copy_len, FALSE);
 
     fprintf(stderr, "TEXT: ***%s***\r\n", buffer);
