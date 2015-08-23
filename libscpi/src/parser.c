@@ -770,6 +770,10 @@ scpi_bool_t SCPI_ParamCopyText(scpi_t * context, char * buffer, size_t buffer_le
                         i_from++;
                     }
                 }
+                *copy_len = i_to;
+                if (i_to < buffer_len) {
+                    buffer[i_to] = 0;
+                }
                 break;
             default:
                 SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);

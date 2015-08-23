@@ -407,6 +407,40 @@ static void testSCPI_ParamCharacters(void) {
 }
 
 
+#define TEST_ParamCopyText(data, mandatory, expected_value, expected_len, expected_result, expected_error_code) \
+{                                                                                       \
+    char value[100];                                                                    \
+    size_t value_len;                                                                   \
+    scpi_bool_t result;                                                                 \
+    int16_t errCode;                                                                    \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_ParamCopyText(&scpi_context, value, sizeof(value), &value_len, mandatory);\
+    /*printf("%.*s\r\n",  (int)value_len, value);*/                                     \
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_STRING_EQUAL(value, expected_value);                                  \
+        CU_ASSERT_EQUAL(value_len, expected_len);                                       \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testSCPI_ParamCopyText(void) {
+    TEST_ParamCopyText("\'abc\'", TRUE, "abc", 3, TRUE, 0);
+    TEST_ParamCopyText("\"abc\"", TRUE, "abc", 3, TRUE, 0);
+    TEST_ParamCopyText("\'a\'", TRUE, "a", 1, TRUE, 0);
+    TEST_ParamCopyText("\'a\'\'c\'", TRUE, "a\'c", 3, TRUE, 0);
+    TEST_ParamCopyText("\'a\"c\'", TRUE, "a\"c", 3, TRUE, 0);
+    TEST_ParamCopyText("\"a\"\"c\"", TRUE, "a\"c", 3, TRUE, 0);
+    TEST_ParamCopyText("\"a\'c\"", TRUE, "a\'c", 3, TRUE, 0);
+}
+
+
 int main() {
     CU_pSuite pSuite = NULL;
 
@@ -425,9 +459,10 @@ int main() {
     if ((NULL == CU_add_test(pSuite, "SCPI_ParamInt", testSCPI_ParamInt))
             || (NULL == CU_add_test(pSuite, "SCPI_ParamDouble", testSCPI_ParamDouble))
             || (NULL == CU_add_test(pSuite, "SCPI_ParamCharacters", testSCPI_ParamCharacters))
-	    || (NULL == CU_add_test(pSuite, "Commands handling", testCommandsHandling))
-	    || (NULL == CU_add_test(pSuite, "Error handling", testErrorHandling))
-	    || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamCopyText", testSCPI_ParamCopyText))
+            || (NULL == CU_add_test(pSuite, "Commands handling", testCommandsHandling))
+            || (NULL == CU_add_test(pSuite, "Error handling", testErrorHandling))
+            || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
             ) {
         CU_cleanup_registry();
         return CU_get_error();
