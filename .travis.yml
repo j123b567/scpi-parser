@@ -1,5 +1,10 @@
-install:
-        - sudo apt-get install libcunit1-dev
+addons:
+  apt:
+    packages:
+    - cunit
+    - libcunit1-dev
+
+sudo: false
 
 script:
-        - make test
+    - make test
