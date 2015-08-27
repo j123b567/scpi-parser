@@ -246,3 +246,5 @@ You can use function `SCPI_NumberToStr` to convert number with units to textual 
 You can use `SCPI_Parameter` in conjuction with `SCPI_ParamIsNumber`, `SCPI_ParamToInt`, `SCPI_ParamToDouble`, `SCPI_ParamToChoice` in your own parameter type handlers.
 
 `SCPI_ParamNumber` is now more universal. It can handle number with units, it can handle special numbers like `DEF`, `INF`, ... These special numbers are now defined in parameter and not in context. It is possible to define more general usage with different special numbers for different commands.
+
+![travis build](https://travis-ci.org/j123b567/scpi-parser.svg?branch=master)

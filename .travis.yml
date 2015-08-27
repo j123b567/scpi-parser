@@ -1,7 +1,6 @@
 addons:
   apt:
     packages:
-    - cunit
     - libcunit1-dev
 
 sudo: false
