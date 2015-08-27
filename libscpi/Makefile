@@ -2,8 +2,10 @@ LIBNAME = scpi
 
 CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -g -Iinc
 LDFLAGS += -Wl,--as-needed
-TESTCFLAGS += $(CFLAGS) `pkg-config --cflags cunit`
-TESTLDFLAGS += $(LDFLAGS) `pkg-config --libs cunit`
+#TESTCFLAGS += $(CFLAGS) `pkg-config --cflags cunit`
+#TESTLDFLAGS += $(LDFLAGS) `pkg-config --libs cunit`
+TESTCFLAGS += $(CFLAGS)
+TESTLDFLAGS += $(LDFLAGS) -lcunit
 
 OBJDIR=obj
 DISTDIR=dist
