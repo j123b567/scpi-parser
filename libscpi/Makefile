@@ -47,7 +47,7 @@ clean:
 	$(RM) -r $(OBJDIR) $(DISTDIR) $(TESTS_BINS) $(TESTS_OBJS)
 
 test: $(TESTS_BINS)
-	for t in $(TESTS_BINS); do ./$$t; done
+	$(TESTS_BINS:.test=.test &&) true
 
 $(OBJDIR):
 	mkdir -p $@
