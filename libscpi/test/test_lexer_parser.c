@@ -164,13 +164,15 @@ static void testExpression(void) {
 }
 
 static void testString(void) {
-    TEST_TOKEN("\"ahoj\"", scpiLex_StringProgramData, 1, 4, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("\"ahoj\" ", scpiLex_StringProgramData, 1, 4, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("'ahoj' ", scpiLex_StringProgramData, 1, 4, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"ahoj\"", scpiLex_StringProgramData, 0, 6, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"ahoj\" ", scpiLex_StringProgramData, 0, 6, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("'ahoj' ", scpiLex_StringProgramData, 0, 6, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
     TEST_TOKEN("'ahoj ", scpiLex_StringProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
-    TEST_TOKEN("'ah''oj' ", scpiLex_StringProgramData, 1, 6, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("'ah\"oj' ", scpiLex_StringProgramData, 1, 5, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("\"ah\"\"oj\" ", scpiLex_StringProgramData, 1, 6, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("'ah''oj' ", scpiLex_StringProgramData, 0, 8, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("'ah\"oj' ", scpiLex_StringProgramData, 0, 7, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"ah\"\"oj\" ", scpiLex_StringProgramData, 0, 8, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"\"", scpiLex_StringProgramData, 0, 2, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("''", scpiLex_StringProgramData, 0, 2, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
 }
 
 static void testProgramData(void) {
@@ -197,12 +199,13 @@ static void testProgramData(void) {
     TEST_TOKEN("( 1 + 2 ) , ", scpiParser_parseProgramData, 0, 9, SCPI_TOKEN_PROGRAM_EXPRESSION);
     TEST_TOKEN("( 1 + 2  , ", scpiParser_parseProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
 
-    TEST_TOKEN("\"ahoj\" ", scpiParser_parseProgramData, 1, 4, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("'ahoj' ", scpiParser_parseProgramData, 1, 4, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"ahoj\" ", scpiParser_parseProgramData, 0, 6, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("'ahoj' ", scpiParser_parseProgramData, 0, 6, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
     TEST_TOKEN("'ahoj ", scpiParser_parseProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
-    TEST_TOKEN("'ah''oj' ", scpiParser_parseProgramData, 1, 6, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("'ah\"oj' ", scpiParser_parseProgramData, 1, 5, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
-    TEST_TOKEN("\"ah\"\"oj\" ", scpiParser_parseProgramData, 1, 6, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("'ah''oj' ", scpiParser_parseProgramData, 0, 8, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("'ah\"oj' ", scpiParser_parseProgramData, 0, 7, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"ah\"\"oj\" ", scpiParser_parseProgramData, 0, 8, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
+    TEST_TOKEN("\"\"", scpiParser_parseProgramData, 0, 2, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
     
     TEST_TOKEN("abc_213as564 , ", scpiLex_CharacterProgramData, 0, 12, SCPI_TOKEN_PROGRAM_MNEMONIC);
     

@@ -701,8 +701,17 @@ scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t *
 
     result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
-        *value = param.ptr;
-        *len = param.len;
+        switch(param.type) {
+            case SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA:
+            case SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA:
+                *value = param.ptr + 1;
+                *len = param.len - 2;
+                break;
+            default:
+                *value = param.ptr;
+                *len = param.len;
+                break;
+        }
 
         // TODO: return also parameter type (ProgramMnemonic, ArbitraryBlockProgramData, SingleQuoteProgramData, DoubleQuoteProgramData
     }
@@ -760,7 +769,7 @@ scpi_bool_t SCPI_ParamCopyText(scpi_t * context, char * buffer, size_t buffer_le
             case SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA:
             case SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA:
                 quote = param.type == SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA ? '\'' : '"';
-                for (i_from = 0, i_to = 0; i_from < (size_t) param.len; i_from++) {
+                for (i_from = 1, i_to = 0; i_from < (size_t) (param.len - 1); i_from++) {
                     if (i_from >= buffer_len) {
                         break;
                     }

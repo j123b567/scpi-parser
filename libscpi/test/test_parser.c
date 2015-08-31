@@ -438,6 +438,9 @@ static void testSCPI_ParamCopyText(void) {
     TEST_ParamCopyText("\'a\"c\'", TRUE, "a\"c", 3, TRUE, 0);
     TEST_ParamCopyText("\"a\"\"c\"", TRUE, "a\"c", 3, TRUE, 0);
     TEST_ParamCopyText("\"a\'c\"", TRUE, "a\'c", 3, TRUE, 0);
+    TEST_ParamCopyText("\"\"", TRUE, "", 0, TRUE, 0);
+    TEST_ParamCopyText("", FALSE, "", 0, FALSE, 0);
+    TEST_ParamCopyText("\"\"", FALSE, "", 0, TRUE, 0);
 }
 
 

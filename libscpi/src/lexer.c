@@ -690,15 +690,15 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
     token->len = state->pos - token->ptr;
 
     if ((token->len > 0)) {
-        token->ptr++;
-        token->len -= 2;
+        //token->ptr++;
+        //token->len -= 2;
     } else {
         token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
     }
 
-    return token->len > 0 ? token->len + 2 : 0;
+    return token->len > 0 ? token->len : 0;
 }
 
 /* 7.7.6 <ARBITRARY BLOCK PROGRAM DATA> */
