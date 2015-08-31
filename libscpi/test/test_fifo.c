@@ -82,6 +82,7 @@ static void testFifo() {
 }
 
 int main() {
+    unsigned int result;
     CU_pSuite pSuite = NULL;
 
     /* Initialize the CUnit test registry */
@@ -104,6 +105,7 @@ int main() {
     /* Run all tests using the CUnit Basic interface */
     CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
+    result = CU_get_number_of_tests_failed();
     CU_cleanup_registry();
-    return CU_get_error();
+    return result ? result : CU_get_error();
 }
