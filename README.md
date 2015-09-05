@@ -10,6 +10,9 @@ SCPI parser library is based on these standards
  - [IEEE 488.2-2004](http://dx.doi.org/10.1109/IEEESTD.2004.95390)
 
 
+[Documentation](http://j123b567.github.io/scpi-parser)
+--------
+
 Migration from v1 to v2
 -----------------------
 Functions `SCPI_ParamNumber` and `SCPI_NumberToStr` has one more parameter - array of special values. It is still possible to use provided `scpi_special_numbers_def`, but you are free to use different deffinition per parameter.
@@ -25,6 +28,7 @@ Test callback is removed from context. You should now reimplement whole `*TST?` 
 Usage
 ---------------
 Download source package or clone repository
+ - v2.1 - https://github.com/j123b567/scpi-parser/archive/v2.1.zip
  - v2.0 - https://github.com/j123b567/scpi-parser/archive/v2.0.zip
  - v1.2 - https://github.com/j123b567/scpi-parser/archive/v1.2.zip
  - latest - https://github.com/j123b567/scpi-parser/archive/master.zip
@@ -114,137 +118,5 @@ Source codes are devided into few files to provide better portability to other s
 - *examples/test-tcp* - is the basic interactive tcp server (port 5025)
 - *examples/common* - common examples commands
 
-
-Implementation to your instrument
--------------
-
-Look inside `examples/common/scpi-def.c`. Here is basic instrument implementation. You can take it as a template for future development.
-
-First of all you need to fill structure of SCPI command definitions
-
-```c	
-scpi_command_t scpi_commands[] = {
-	{ .pattern = "*IDN?", .callback = SCPI_CoreIdnQ,},
-	{ .pattern = "*RST", .callback = SCPI_CoreRst,},
-	{ .pattern = "MEASure:VOLTage:DC?", .callback = DMM_MeasureVoltageDcQ,},
-	SCPI_CMD_LIST_END
-};
-```
-
-Than you need to initialize interface callbacks structure. If you don't want to provide some callbacks, just initialize them as `NULL`. write callback is mandatory and is used to output data from the library.
-
-```c
-scpi_interface_t scpi_interface = {
-	.write = myWrite,
-	.error = NULL,
-	.reset = NULL,
-	.srq = NULL,
-};
-```
-
-Important thing is command buffer. Maximum size is up to you and it should be larger than any possible largest command.
-
-```c
-#define SCPI_INPUT_BUFFER_LENGTH 256
-static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
-```
-
-The last structure is scpi context used in parser library.
-
-```c
-scpi_t scpi_context = {
-	.cmdlist = scpi_commands,
-	.buffer = {
-		.length = SCPI_INPUT_BUFFER_LENGTH,
-		.data = scpi_input_buffer,
-	},
-	.interface = &scpi_interface,
-	.registers = scpi_regs,
-	.units = scpi_units_def,
-};
-```
-
-All these structures should be global variables of the c file or allocated by function like malloc. It is common mistake to create these structures inside a function as local variables of this function. This will not work. If you don't know why, you should read something about [function stack.](http://stackoverflow.com/questions/4824342/returning-a-local-variable-from-function-in-c).
-
-
-Now we are ready to initialize SCPI context. It is possible to use more SCPI contexts and share some configurations (command list, registers, units list, error callback...)
-
-```c
-SCPI_Init(&scpi_context);
-```
-
-Test implementation of function myWrite, which outputs everything to stdout, can be
-
-```c	
-size_t myWrite(scpi_context_t * context, const char * data, size_t len) {
-	(void) context;
-	return fwrite(data, 1, len, stdout);
-}
-```
-
-Interactive demo can beimplemented using this loop
-
-```c
-#define SMALL_BUFFER_LEN 10
-char smbuffer[SMALL_BUFFER_LEN];
-while(1) {
-	fgets(smbuffer, SMALL_BUFFER_LEN, stdin);
-	SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
-}
-```
-
-
-Implementation of command callback
--------------
-
-Command callback is defined as function with result of type `scpi_result_t` and one parameter - scpi context
-
-```c
-	scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context)
-```
-
-Command callback should return `SCPI_RES_OK` if everything goes well.
-
-You can read command parameters and write command results. There are several functions to do this.
-
-Every time, you call function to read parameter, it shifts pointers to the next parameter. You can't read specified parameter directly by its index - e.g. 
-
-```c
-	// pseudocode
-	param3 = read_param(3); // this is not possible
-
-	read_param();           // discard first parameter
-	read_param();           // discard second parameter
-	param3 = read_param();  // read third parameter
-```
-
-If you discard some parameters, there is no way to recover them.
-
-Specifying `mandatory` parameter will introduce SCPI Error -109 "Missing parameter"
-
-These are the functions, you can use to read parameters
- - `SCPI_Parameter` - read parameter to scpi_parameter_t. This structure contains pointer to buffer and type of the parameter (program mnemonic, hex number, ....)
- - `SCPI_ParamInt` - read signed 32bit integer value (dec or hex with 0x prefix)
- - `SCPI_ParamDouble` - read double value
- - `SCPI_ParamNumber` - read double value with or without units or represented by special number (DEF, MIN, MAX, ...). This function is more universal then SCPI_ParamDouble.
- - `SCPI_ParamCopyText` - read text value - must be encapsuled in ""
- - `SCPI_ParamBool` - read boolean value (0, 1, on, off)
- - `SCPI_ParamChoice` - read value from predefined constants
- 
-
-These are the functions, you can use to write results
- - `SCPI_ResultInt` - write integer value
- - `SCPI_ResultDouble` - write double value
- - `SCPI_ResultText` - write text value encapsulated in ""
- - `SCPI_ResultMnemonic` - directly write string value
- - `SCPI_ResultArbitraryBlock` - result arbitrary data
- - `SCPI_ResultIntBase` - write integer in special base
- - `SCPI_ResultBool` - write boolean value
-
-You can use function `SCPI_NumberToStr` to convert number with units to textual representation and then use `SCPI_ResultMnemonic` to write this to the user.
-
-You can use `SCPI_Parameter` in conjuction with `SCPI_ParamIsNumber`, `SCPI_ParamToInt`, `SCPI_ParamToDouble`, `SCPI_ParamToChoice` in your own parameter type handlers.
-
-`SCPI_ParamNumber` is now more universal. It can handle number with units, it can handle special numbers like `DEF`, `INF`, ... These special numbers are now defined in parameter and not in context. It is possible to define more general usage with different special numbers for different commands.
 
 [![travis build](https://travis-ci.org/j123b567/scpi-parser.svg?branch=master)](https://travis-ci.org/j123b567/scpi-parser)
