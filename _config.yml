@@ -11,7 +11,7 @@ title:            SCPI parser
 tagline:          'Open source SCPI device library'
 description:      'Open source SCPI device library'
 url:              http://j123b567.github.io/scpi-parser/
-baseurl:          /scpi-parser/
+baseurl:          /scpi-parser
 
 author:
   name:           'Jan Breuer'
