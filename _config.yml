@@ -4,7 +4,7 @@ highlighter:      pygments
 
 # Permalinks
 permalink:        pretty
-relative_permalinks: true
+#relative_permalinks: true
 
 # Setup
 title:            SCPI parser
@@ -29,10 +29,8 @@ github:
 collections:
   api:
     output: true
-    permalink: /scpi-parser/api/:path/
   basic:
     output: true
-    permalink: /scpi-parser/basic/:path/
 
 defaults:
  - scope:
