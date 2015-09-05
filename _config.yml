@@ -29,10 +29,10 @@ github:
 collections:
   api:
     output: true
-    permalink: /api/:path/
+    permalink: /scpi-parser/api/:path/
   basic:
     output: true
-    permalink: /basic/:path/
+    permalink: /scpi-parser/basic/:path/
 
 defaults:
  - scope:
