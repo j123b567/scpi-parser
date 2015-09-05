@@ -29,8 +29,10 @@ github:
 collections:
   api:
     output: true
+    permalink: /api/:path/
   basic:
     output: true
+    permalink: /basic/:path/
 
 defaults:
  - scope:
