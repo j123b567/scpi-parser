@@ -1,0 +1,49 @@
+# Dependencies
+markdown:         redcarpet
+highlighter:      pygments
+
+# Permalinks
+permalink:        pretty
+relative_permalinks: true
+
+# Setup
+title:            SCPI parser
+tagline:          'Open source SCPI device library'
+description:      'Open source SCPI device library'
+url:              http://j123b567.github.io/scpi-parser/
+baseurl:          /
+
+author:
+  name:           'Jan Breuer'
+  url:            http://jaybee.cz
+
+paginate:         5
+paginate_path:    "/posts/page:num/"
+
+# Custom vars
+version:          2.1
+
+github:
+  repo:           https://github.com/j123b567/scpi-parser
+
+collections:
+  api:
+    output: true
+    permalink: /api/:path/
+  basic:
+    output: true
+    permalink: /basic/:path/
+
+defaults:
+ - scope:
+     path: ""
+     type: api
+   values:
+     layout: page
+ - scope:
+     path: ""
+     type: basic
+   values:
+     layout: page
+
+
