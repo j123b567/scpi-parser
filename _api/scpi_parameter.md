@@ -35,7 +35,7 @@ Parameter description
 * `ptr` is pointer to input buffer where this parameter resists. It is *not* NULL terminated.
 * `len` is length of this parameter
 
-It is possible to use functions [`SCPI_ParamIsNumber()`](/api/scpi_paramisnumber), [`SCPI_ParamToInt()`](/api/scpi_paramtoint), [`SCPI_ParamToUnsignedInt()`](/api/scpi_paramtounsignedint), [`SCPI_ParamToDouble()`](/api/scpi_paramtodouble), [`SCPI_ParamToChoice()`](/api/scpi_paramtochoice) for further processing of parameter.
+It is possible to use functions [`SCPI_ParamIsNumber()`]({{ site.baseurl }}/api/scpi_paramisnumber), [`SCPI_ParamToInt()`]({{ site.baseurl }}/api/scpi_paramtoint), [`SCPI_ParamToUnsignedInt()`]({{ site.baseurl }}/api/scpi_paramtounsignedint), [`SCPI_ParamToDouble()`]({{ site.baseurl }}/api/scpi_paramtodouble), [`SCPI_ParamToChoice()`]({{ site.baseurl }}/api/scpi_paramtochoice) for further processing of parameter.
 
 Usage example
 ---
