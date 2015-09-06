@@ -1,6 +1,7 @@
 ---
 title: SCPI_ParamArbitraryBlock()
 category: parameters
+order: 80
 ---
 
 ```c

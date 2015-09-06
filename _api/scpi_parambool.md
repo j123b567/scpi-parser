@@ -1,6 +1,7 @@
 ---
 title: SCPI_ParamBool()
 category: parameters
+order: 40
 ---
 
 ```c

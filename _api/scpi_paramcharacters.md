@@ -1,6 +1,7 @@
 ---
 title: SCPI_ParamCharacters()
 category: parameters
+order: 70
 ---
 
 ```c

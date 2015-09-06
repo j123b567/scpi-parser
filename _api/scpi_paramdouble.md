@@ -1,6 +1,7 @@
 ---
 title: SCPI_ParamDouble()
 category: parameters
+order: 30
 ---
 
 ```c

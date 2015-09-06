@@ -1,5 +1,6 @@
 ---
 title: Migration from v1 to v2
+order: 30
 ---
 
 Functions [`SCPI_ParamNumber`]({{ site.baseurl }}/api/scpi_paramnumber) and [`SCPI_NumberToStr`]({{ site.baseurl }}/api/scpi_numbertostr) has one more parameter - array of special values. It is still possible to use provided `scpi_special_numbers_def`, but you are free to use different deffinition per parameter.

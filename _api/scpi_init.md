@@ -1,6 +1,7 @@
 ---
 title: SCPI_Init()
 category: parser
+order: 10
 ---
 
 ```c

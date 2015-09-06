@@ -1,6 +1,7 @@
 ---
 title: SCPI_ParamChoice()
 category: parameters
+order: 50
 ---
 
 ```c

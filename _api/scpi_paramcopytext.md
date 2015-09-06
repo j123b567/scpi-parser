@@ -1,6 +1,7 @@
 ---
 title: SCPI_ParamCopyText()
 category: parameters
+order: 60
 ---
 
 ```c
