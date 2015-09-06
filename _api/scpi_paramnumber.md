@@ -13,7 +13,7 @@ SCPI_ParamNumber(
 
 `SCPI_ParamNumber()` reads next parameter and stores its value in `value`. If there is no parameter or type of the parameter is not a number or mnemonic, `FALSE` is returnd.
 
-If `mandatory` is `TRUE` and parameter is missing, SCPI error is also generated for this.
+If `mandatory` is `TRUE` and parameter is missing, SCPI error -109, "Missing parameter" is also generated for this.
 
 
 Value description
