@@ -20,9 +20,6 @@ author:
 paginate:         5
 paginate_path:    "/posts/page:num/"
 
-# Custom vars
-version:          2.1
-
 github:
   repo:           https://github.com/j123b567/scpi-parser
 
