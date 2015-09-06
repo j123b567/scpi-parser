@@ -13,7 +13,7 @@ This function is for testing, if parameter is numeric type or not.
 
 If `suffixAllowed` is `TRUE` and number is with suffix e.g. `10.5 V`, it will also return `TRUE`, otherwise, it will return `FALSE` in this situation.
 
-It is possible to use functions [`SCPI_ParamToInt`]({{ site.basedir }}/api/scpi_paramtoint), [`SCPI_ParamToUnsignedInt`]({{ site.basedir }}/api/scpi_paramtounsignedint) or [`SCPI_ParamToDouble`]({{ site.basedir }}/api/scpi_paramtodouble) to convert the parameter into number.
+It is possible to use functions [`SCPI_ParamToInt`]({{ site.baseurl }}/api/scpi_paramtoint), [`SCPI_ParamToUnsignedInt`]({{ site.baseurl }}/api/scpi_paramtounsignedint) or [`SCPI_ParamToDouble`]({{ site.baseurl }}/api/scpi_paramtodouble) to convert the parameter into number.
 
 Usage example
 ---
