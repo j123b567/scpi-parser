@@ -1,5 +1,6 @@
 ---
 title: SCPI_ParamToInt()
+category: parameters_ex
 ---
 
 ```c

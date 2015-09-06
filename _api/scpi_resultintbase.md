@@ -1,5 +1,6 @@
 ---
 title: SCPI_ResultIntBase()
+category: results
 ---
 
 ```c

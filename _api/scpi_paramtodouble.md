@@ -1,5 +1,6 @@
 ---
 title: SCPI_ParamToDouble()
+category: parameters_ex
 ---
 
 ```c

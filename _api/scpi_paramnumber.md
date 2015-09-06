@@ -1,5 +1,6 @@
 ---
 title: SCPI_ParamNumber()
+category: parameters
 ---
 
 ```c

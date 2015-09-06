@@ -1,5 +1,6 @@
 ---
 title: SCPI_ResultArbitraryBlock()
+category: results
 ---
 
 ```c

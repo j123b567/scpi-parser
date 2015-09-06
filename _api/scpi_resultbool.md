@@ -1,5 +1,6 @@
 ---
 title: SCPI_ResultBool()
+category: results
 ---
 
 ```c

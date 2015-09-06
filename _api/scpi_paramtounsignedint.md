@@ -1,5 +1,6 @@
 ---
 title: SCPI_ParamToUnsignedInt()
+category: parameters_ex
 ---
 
 ```c

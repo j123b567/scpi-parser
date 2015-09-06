@@ -1,5 +1,6 @@
 ---
 title: SCPI_ResultMnemonic()
+category: results
 ---
 
 ```c

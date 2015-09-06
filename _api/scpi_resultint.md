@@ -1,5 +1,6 @@
 ---
 title: SCPI_ResultInt()
+category: results
 ---
 
 ```c
