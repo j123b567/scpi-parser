@@ -865,6 +865,26 @@ int scpiLex_Semicolon(lex_state_t * state, scpi_token_t * token) {
 }
 
 /**
+ * Detect token colon
+ * @param state
+ * @param token
+ * @return 
+ */
+int scpiLex_Colon(lex_state_t * state, scpi_token_t * token) {
+    token->ptr = state->pos;
+
+    if (skipChr(state, ':')) {
+        token->len = 1;
+        token->type = SCPI_TOKEN_COLON;
+    } else {
+        token->len = 0;
+        token->type = SCPI_TOKEN_UNKNOWN;
+    }
+
+    return token->len;
+}
+
+/**
  * Detect token New line
  * @param state
  * @param token
@@ -888,6 +908,3 @@ int scpiLex_NewLine(lex_state_t * state, scpi_token_t * token) {
 
     return token->len;
 }
-
-
-

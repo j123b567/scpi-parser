@@ -42,6 +42,17 @@
 extern "C" {
 #endif
     
+    enum _scpi_expr_result_t {
+        SCPI_EXPR_OK = 0,
+        SCPI_EXPR_ERROR,
+        SCPI_EXPR_NO_MORE,
+    };
+    typedef enum _scpi_expr_result_t scpi_expr_result_t;
+
+    scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, scpi_parameter_t * valueFrom, scpi_parameter_t * valueTo);
+    scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valueFrom, int32_t * valueTo);
+    scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, double * valueFrom, double * valueTo);
+
 #ifdef __cplusplus
 }
 #endif

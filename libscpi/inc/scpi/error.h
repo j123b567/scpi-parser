@@ -92,7 +92,7 @@ extern "C" {
     XE(SCPI_ERROR_BLOCK_DATA_ERROR,             -160, "Block data error")                             \
     XE(SCPI_ERROR_INVALID_BLOCK_DATA,           -161, "Invalid block data")                           \
     XE(SCPI_ERROR_BLOCK_DATA_NOT_ALLOWED,       -168, "Block data not allowed")                       \
-    XE(SCPI_ERROR_EXPRESSION_PARSING_ERROR,     -170, "Expression error")                             \
+    X(SCPI_ERROR_EXPRESSION_PARSING_ERROR,      -170, "Expression error")                             \
     XE(SCPI_ERROR_INVAL_EXPRESSION,             -171, "Invalid expression")                           \
     XE(SCPI_ERROR_EXPRESSION_DATA_NOT_ALLOWED,  -178, "Expression data not allowed")                  \
     XE(SCPI_ERROR_MACRO_DEFINITION_ERROR,       -180, "Macro error")                                  \

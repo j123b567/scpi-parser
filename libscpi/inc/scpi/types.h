@@ -141,6 +141,7 @@ extern "C" {
     enum _scpi_token_type_t {
         SCPI_TOKEN_COMMA,
         SCPI_TOKEN_SEMICOLON,
+        SCPI_TOKEN_COLON,
         SCPI_TOKEN_QUESTION,
         SCPI_TOKEN_NL,
         SCPI_TOKEN_HEXNUM,
