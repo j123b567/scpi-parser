@@ -18,7 +18,7 @@ STATICLIB = lib$(LIBNAME).a
 SRCS = $(addprefix src/, \
 	error.c fifo.c ieee488.c \
 	minimal.c parser.c units.c utils.c \
-	lexer.c \
+	lexer.c expression.c \
 	)
 
 OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
@@ -26,6 +26,7 @@ OBJS = $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 HDRS = $(addprefix inc/scpi/, \
 	scpi.h constants.h error.h \
 	ieee488.h minimal.h parser.h types.h units.h \
+	expression.h \
 	) \
 	$(addprefix src/, \
 	lexer_private.h utils_private.h fifo_private.h \
