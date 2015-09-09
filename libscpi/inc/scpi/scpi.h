@@ -44,7 +44,7 @@
 #include "scpi/minimal.h"
 #include "scpi/units.h"
 #include "scpi/utils.h"
-
+#include "scpi/expression.h"
 
 
 #endif	/* SCPI_H */

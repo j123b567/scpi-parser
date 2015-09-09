@@ -62,7 +62,7 @@ scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t 
 {
     lex_state_t lex;
     int i;
-    scpi_expr_result_t res;
+    scpi_expr_result_t res = SCPI_EXPR_OK;
 
     if (!isRange || !valueFrom || !valueTo || !param) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
@@ -77,7 +77,7 @@ scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t 
     lex.buffer = param->ptr + 1;
     lex.pos = lex.buffer;
     lex.len = param->len - 2;
-
+  
     for (i = 0; i <= index; i++) {
         res = numericRange(&lex, isRange, valueFrom, valueTo);
         if (res != SCPI_EXPR_OK) {
@@ -85,7 +85,7 @@ scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t 
         }
         if (i != index) {
             if (!scpiLex_Comma(&lex, valueFrom)) {
-                res = SCPI_EXPR_ERROR;
+                res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
                 break;
             }
         }
@@ -106,9 +106,10 @@ scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter
 
     res = SCPI_ExprNumericListEntry(context, param, index, &range, &paramFrom, &paramTo);
     if (res == SCPI_EXPR_OK) {
+        *isRange = range;
         SCPI_ParamToInt(context, &paramFrom, valueFrom);
         if (range) {
-            SCPI_ParamToInt(context, &paramTo, valueFrom);
+            SCPI_ParamToInt(context, &paramTo, valueTo);
         }
     }
 
@@ -124,9 +125,10 @@ scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parame
 
     res = SCPI_ExprNumericListEntry(context, param, index, &range, &paramFrom, &paramTo);
     if (res == SCPI_EXPR_OK) {
+        *isRange = range;
         SCPI_ParamToDouble(context, &paramFrom, valueFrom);
         if (range) {
-            SCPI_ParamToDouble(context, &paramTo, valueFrom);
+            SCPI_ParamToDouble(context, &paramTo, valueTo);
         }
     }
 

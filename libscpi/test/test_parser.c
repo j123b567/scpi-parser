@@ -444,6 +444,89 @@ static void testSCPI_ParamCopyText(void) {
 }
 
 
+#define TEST_NumericListInt(data, index, expected_range, expected_from, expected_to, expected_result, expected_error_code) \
+{                                                                                       \
+    scpi_bool_t result;                                                                 \
+    scpi_expr_result_t result2;                                                         \
+    int16_t errCode;                                                                    \
+    scpi_parameter_t param;                                                             \
+    int32_t val_from, val_to;                                                           \
+    scpi_bool_t val_range;                                                              \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_Parameter(&scpi_context, &param, TRUE);                               \
+    result2 = SCPI_ExprNumericListEntryInt(&scpi_context, &param, index, &val_range, &val_from, &val_to);\
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result2, expected_result);                                          \
+    if (expected_result == SCPI_EXPR_OK) {                                              \
+        CU_ASSERT_EQUAL(val_range, expected_range);                                     \
+        CU_ASSERT_EQUAL(val_from, expected_from);                                       \
+        if (expected_range) {                                                           \
+            CU_ASSERT_EQUAL(val_to, expected_to);                                       \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+#define TEST_NumericListDouble(data, index, expected_range, expected_from, expected_to, expected_result, expected_error_code) \
+{                                                                                       \
+    scpi_bool_t result;                                                                 \
+    scpi_expr_result_t result2;                                                         \
+    int16_t errCode;                                                                    \
+    scpi_parameter_t param;                                                             \
+    double val_from, val_to;                                                            \
+    scpi_bool_t val_range;                                                              \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_Parameter(&scpi_context, &param, TRUE);                               \
+    result2 = SCPI_ExprNumericListEntryDouble(&scpi_context, &param, index, &val_range, &val_from, &val_to);\
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result2, expected_result);                                          \
+    if (expected_result == SCPI_EXPR_OK) {                                              \
+        CU_ASSERT_EQUAL(val_range, expected_range);                                     \
+        CU_ASSERT_DOUBLE_EQUAL(val_from, expected_from, 0.0001);                        \
+        if (expected_range) {                                                           \
+            CU_ASSERT_DOUBLE_EQUAL(val_to, expected_to, 0.0001);                        \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testNumericList(void) {
+    TEST_NumericListInt("(1:2,5:6)", 0, TRUE, 1, 2, SCPI_EXPR_OK, 0);
+    TEST_NumericListInt("(1:2,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
+    TEST_NumericListInt("(1:2,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+
+    TEST_NumericListInt("(12,5:6)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
+    TEST_NumericListInt("(12,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
+    TEST_NumericListInt("(12,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+
+    TEST_NumericListInt("(12,5:6:3)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
+    TEST_NumericListInt("(12,5:6:3)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
+    TEST_NumericListInt("(12,5:6:3)", 2, FALSE, 0, 0, SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+
+    TEST_NumericListDouble("(1:2,5:6)", 0, TRUE, 1, 2, SCPI_EXPR_OK, 0);
+    TEST_NumericListDouble("(1:2,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
+    TEST_NumericListDouble("(1:2,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+
+    TEST_NumericListDouble("(12,5:6)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
+    TEST_NumericListDouble("(12,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
+    TEST_NumericListDouble("(12,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+
+    TEST_NumericListDouble("(12,5:6:3)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
+    TEST_NumericListDouble("(12,5:6:3)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
+    TEST_NumericListDouble("(12,5:6:3)", 2, FALSE, 0, 0, SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+}
+
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -467,6 +550,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "Commands handling", testCommandsHandling))
             || (NULL == CU_add_test(pSuite, "Error handling", testErrorHandling))
             || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
+            || (NULL == CU_add_test(pSuite, "Numeric list", testNumericList))
             ) {
         CU_cleanup_registry();
         return CU_get_error();
