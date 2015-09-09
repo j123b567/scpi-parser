@@ -503,11 +503,11 @@ static void testSCPI_ParamCopyText(void) {
 static void testNumericList(void) {
     TEST_NumericListInt("(1:2,5:6)", 0, TRUE, 1, 2, SCPI_EXPR_OK, 0);
     TEST_NumericListInt("(1:2,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
-    TEST_NumericListInt("(1:2,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+    TEST_NumericListInt("(1:2,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);
 
     TEST_NumericListInt("(12,5:6)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
     TEST_NumericListInt("(12,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
-    TEST_NumericListInt("(12,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+    TEST_NumericListInt("(12,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);
 
     TEST_NumericListInt("(12,5:6:3)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
     TEST_NumericListInt("(12,5:6:3)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
@@ -515,11 +515,11 @@ static void testNumericList(void) {
 
     TEST_NumericListDouble("(1:2,5:6)", 0, TRUE, 1, 2, SCPI_EXPR_OK, 0);
     TEST_NumericListDouble("(1:2,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
-    TEST_NumericListDouble("(1:2,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+    TEST_NumericListDouble("(1:2,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);
 
     TEST_NumericListDouble("(12,5:6)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
     TEST_NumericListDouble("(12,5:6)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
-    TEST_NumericListDouble("(12,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);    
+    TEST_NumericListDouble("(12,5:6)", 2, FALSE, 0, 0, SCPI_EXPR_NO_MORE, 0);
 
     TEST_NumericListDouble("(12,5:6:3)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
     TEST_NumericListDouble("(12,5:6:3)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
