@@ -771,12 +771,12 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
 /* 7.7.7 <EXPRESSION PROGRAM DATA> */
 static int isProgramExpression(int c) {
     if ((c >= 0x20) && (c <= 0x7e)) {
-        if ((c != 0x22)
-                && (c != 0x23)
-                && (c != 0x27)
-                && (c != 0x28)
-                && (c != 0x29)
-                && (c != 0x3B)) {
+        if ((c != '"')
+                && (c != '#')
+                && (c != '\'')
+                && (c != '(')
+                && (c != ')')
+                && (c != ';')) {
             return 1;
         }
     }
