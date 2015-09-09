@@ -45,6 +45,7 @@ SCPI parser library is based on these standards
 <tr><td>String<td><code>"text"</code>, <code>'text'</code></tr>
 <tr><td>Arbitrary block<td><code>#12AB</code></tr>
 <tr><td>Program expression<td><code>(1)</code></tr>
+<tr><td>Numeric list<td><code>(1,2:50,80)</code></tr>
 <tr><td>Character data<td><code>MINimum</code>, <code>DEFault</code>, <code>INFinity</code></tr>
 </table>
 
