@@ -102,7 +102,7 @@ extern "C" {
     X(SCPI_ERROR_EXECUTION_ERROR,               -200, "Execution error")                              \
     XE(SCPI_ERROR_INVAL_WHILE_IN_LOCAL,         -201, "Invalid while in local")                       \
     XE(SCPI_ERROR_SETTINGS_LOST_DUE_TO_RTL,     -202, "Settings lost due to rtl")                     \
-    XE(SCPI_ERROR_COMMAND_PROTECTED,            -203, "Command protected TK024")                      \
+    XE(SCPI_ERROR_COMMAND_PROTECTED,            -203, "Command protected")                      \
     XE(SCPI_ERROR_TRIGGER_ERROR,                -210, "Trigger error")                                \
     XE(SCPI_ERROR_TRIGGER_IGNORED,              -211, "Trigger ignored")                              \
     XE(SCPI_ERROR_ARM_IGNORED,                  -212, "Arm ignored")                                  \
