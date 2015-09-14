@@ -1093,3 +1093,24 @@ scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
 scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len) {
     return matchCommand (context->param_list.cmd->pattern,  context->param_list.cmd_raw.data, context->param_list.cmd_raw.length, numbers, len);
 }
+
+/**
+ * If SCPI_Parameter() returns FALSE, this function can detect, if the parameter
+ * is just missing (TRUE) or if there was an error during processing of the command (FALSE)
+ * @param parameter
+ * @return
+ */
+scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter)
+{
+    return parameter->type == SCPI_TOKEN_UNKNOWN ? FALSE : TRUE;
+}
+
+/**
+ * Returns TRUE if there was an error during parameter handling
+ * @param context
+ * @return
+ */
+scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context)
+{
+    return context->cmd_error;
+}

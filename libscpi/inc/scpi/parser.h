@@ -59,6 +59,8 @@ extern "C" {
     size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
    
     scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter);
+    scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context);
     scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed);
     scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value);
     scpi_bool_t SCPI_ParamToUnsignedInt(scpi_t * context, scpi_parameter_t * parameter, uint32_t * value);
