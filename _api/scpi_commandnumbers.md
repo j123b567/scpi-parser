@@ -36,7 +36,8 @@ pattern:
 {.pattern = "TEST#:NUMbers#", .callback = TEST_Numbers,},
 ~~~~
 
-callback
+callback:
+
 ~~~~c
 static scpi_result_t TEST_Numbers(scpi_t * context) {
     int32_t numbers[2];
