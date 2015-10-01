@@ -1,4 +1,4 @@
-.PHONY: clean all test
+.PHONY: clean all test install
 
 all:
 	$(MAKE) -C libscpi
@@ -10,3 +10,6 @@ clean:
 
 test:
 	$(MAKE) test -C libscpi
+
+install:
+	$(MAKE) install -C libscpi
