@@ -151,7 +151,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     SCPI_ChoiceToName(trigger_source, param, &name);
     fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int)param);
 
-    SCPI_ResultInt(context, param);
+    SCPI_ResultInt32(context, param);
 
     return SCPI_RES_OK;
 }
@@ -197,7 +197,7 @@ scpi_result_t TEST_ArbQ(scpi_t * context) {
  */
 scpi_result_t My_CoreTstQ(scpi_t * context) {
 
-    SCPI_ResultInt(context, 0);
+    SCPI_ResultInt32(context, 0);
 
     return SCPI_RES_OK;
 }

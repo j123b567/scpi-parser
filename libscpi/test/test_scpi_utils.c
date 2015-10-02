@@ -66,33 +66,251 @@ static void test_strnpbrk() {
 
 }
 
-static void test_longToStr() {
-    char str[32];
+static void test_Int32ToStr() {
+    const size_t max=32+1;
+    char str[max];
     size_t len;
 
-    len = SCPI_LongToStr(10, str, 32, 10);
-    CU_ASSERT(len == 2);
-    CU_ASSERT_STRING_EQUAL(str, "10");
+    // test conversion to decimal numbers
+    len = SCPI_Int32ToStr(0, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
     CU_ASSERT(str[len] == '\0');
 
-    len = SCPI_LongToStr(10, str, 32, 2);
-    CU_ASSERT(len == 4);
-    CU_ASSERT(str[0] == '1');
-    CU_ASSERT(str[1] == '0');
-    CU_ASSERT(str[2] == '1');
-    CU_ASSERT(str[3] == '0');
-    CU_ASSERT(str[4] == '\0');
-
-    len = SCPI_LongToStr(10, str, 32, 16);
+    len = SCPI_Int32ToStr(1, str, max, 10);
     CU_ASSERT(len == 1);
-    CU_ASSERT(str[0] == 'A');
-    CU_ASSERT(str[1] == '\0');
-    
-    len = SCPI_LongToStr(10, str, 32, 8);
+    CU_ASSERT_STRING_EQUAL(str, "1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(-1, str, max, 10);
     CU_ASSERT(len == 2);
-    CU_ASSERT(str[0] == '1');
-    CU_ASSERT(str[1] == '2');    
-    CU_ASSERT(str[2] == '\0');    
+    CU_ASSERT_STRING_EQUAL(str, "-1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0x7fffffff, str, max, 10);
+    CU_ASSERT(len == 10);
+    CU_ASSERT_STRING_EQUAL(str, "2147483647");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0x80000000, str, max, 10);
+    CU_ASSERT(len == 11);
+    CU_ASSERT_STRING_EQUAL(str, "-2147483648");
+    CU_ASSERT(str[len] == '\0');
+
+    // test conversion to binary numbers
+    len = SCPI_Int32ToStr(0, str, max, 2);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(1, str, max, 2);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(-1, str, max, 2);
+    CU_ASSERT(len == 32);
+    CU_ASSERT_STRING_EQUAL(str, "11111111111111111111111111111111");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0x01234567, str, max, 2);
+    CU_ASSERT(len == 25);
+    CU_ASSERT_STRING_EQUAL(str, "1001000110100010101100111");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0x89abcdef, str, max, 2);
+    CU_ASSERT(len == 32);
+    CU_ASSERT_STRING_EQUAL(str, "10001001101010111100110111101111");
+    CU_ASSERT(str[len] == '\0');
+
+    // test conversion to hexadecimal numbers
+    len = SCPI_Int32ToStr(0x0, str, max, 16);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0x01234567, str, max, 16);
+    CU_ASSERT(len == 7);
+    CU_ASSERT_STRING_EQUAL(str, "1234567");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0x89ABCDEF, str, max, 16);
+    CU_ASSERT(len == 8);
+    CU_ASSERT_STRING_EQUAL(str, "89ABCDEF");
+    CU_ASSERT(str[len] == '\0');
+
+    // test conversion to octal numbers
+    len = SCPI_Int32ToStr(0, str, max, 8);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(0xffffffff, str, max, 8);
+    CU_ASSERT(len == 11);
+    CU_ASSERT_STRING_EQUAL(str, "37777777777");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int32ToStr(076543210, str, max, 8);
+    CU_ASSERT(len == 8);
+    CU_ASSERT_STRING_EQUAL(str, "76543210");
+    CU_ASSERT(str[len] == '\0');
+}
+
+static void test_UInt32ToStr() {
+    const size_t max=32+1;
+    char str[max];
+    size_t len;
+
+    // test conversion to decimal numbers
+    len = SCPI_UInt32ToStr(0, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt32ToStr(1, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt32ToStr(-1, str, max, 10);
+    CU_ASSERT(len == 10);
+    CU_ASSERT_STRING_EQUAL(str, "4294967295");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt32ToStr(0x7fffffff, str, max, 10);
+    CU_ASSERT(len == 10);
+    CU_ASSERT_STRING_EQUAL(str, "2147483647");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt32ToStr(0x80000000, str, max, 10);
+    CU_ASSERT(len == 10);
+    CU_ASSERT_STRING_EQUAL(str, "2147483648");
+    CU_ASSERT(str[len] == '\0');
+}
+
+static void test_Int64ToStr() {
+    const size_t max=64+1;
+    char str[max];
+    size_t len;
+
+    // test conversion to decimal numbers
+    len = SCPI_Int64ToStr(0, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(1, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(-1, str, max, 10);
+    CU_ASSERT(len == 2);
+    CU_ASSERT_STRING_EQUAL(str, "-1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(0x7fffffffffffffff, str, max, 10);
+    CU_ASSERT(len == 19);
+    CU_ASSERT_STRING_EQUAL(str, "9223372036854775807");
+    CU_ASSERT(str[len] == '\0');
+    printf("\n");
+    printf(str);
+    printf("\n");
+
+    len = SCPI_Int64ToStr(0x8000000000000000, str, max, 10);
+    CU_ASSERT(len == 20);
+    CU_ASSERT_STRING_EQUAL(str, "-9223372036854775808");
+    CU_ASSERT(str[len] == '\0');
+
+    // test conversion to binary numbers
+    len = SCPI_Int64ToStr(0, str, max, 2);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(1, str, max, 2);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(-1, str, max, 2);
+    CU_ASSERT(len == 64);
+    CU_ASSERT_STRING_EQUAL(str, "1111111111111111111111111111111111111111111111111111111111111111");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(0x0123456789abcdef, str, max, 2);
+    CU_ASSERT(len == 57);
+    CU_ASSERT_STRING_EQUAL(str, "100100011010001010110011110001001101010111100110111101111");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(0xfedcba9876543210, str, max, 2);
+    CU_ASSERT(len == 64);
+    CU_ASSERT_STRING_EQUAL(str, "1111111011011100101110101001100001110110010101000011001000010000");
+    CU_ASSERT(str[len] == '\0');
+
+    // test conversion to hexadecimal numbers
+    len = SCPI_Int64ToStr(0x0, str, max, 16);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(0x0123456789abcdef, str, max, 16);
+    CU_ASSERT(len == 15);
+    CU_ASSERT_STRING_EQUAL(str, "123456789ABCDEF");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(0xfedcba9876543210, str, max, 16);
+    CU_ASSERT(len == 16);
+    CU_ASSERT_STRING_EQUAL(str, "FEDCBA9876543210");
+    CU_ASSERT(str[len] == '\0');
+
+    // test conversion to octal numbers
+    len = SCPI_Int64ToStr(0, str, max, 8);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(0xffffffffffffffff, str, max, 8);
+    CU_ASSERT(len == 22);
+    CU_ASSERT_STRING_EQUAL(str, "1777777777777777777777");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_Int64ToStr(076543210, str, max, 8);
+    CU_ASSERT(len == 8);
+    CU_ASSERT_STRING_EQUAL(str, "76543210");
+    CU_ASSERT(str[len] == '\0');
+}
+
+static void test_UInt64ToStr() {
+    const size_t max=64+1;
+    char str[max];
+    size_t len;
+
+    // test conversion to decimal numbers
+    len = SCPI_UInt64ToStr(0, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "0");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt64ToStr(1, str, max, 10);
+    CU_ASSERT(len == 1);
+    CU_ASSERT_STRING_EQUAL(str, "1");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt64ToStr(-1, str, max, 10);
+    CU_ASSERT(len == 20);
+    CU_ASSERT_STRING_EQUAL(str, "18446744073709551615");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt64ToStr(0x7fffffffffffffff, str, max, 10);
+    CU_ASSERT(len == 19);
+    CU_ASSERT_STRING_EQUAL(str, "9223372036854775807");
+    CU_ASSERT(str[len] == '\0');
+
+    len = SCPI_UInt64ToStr(0x8000000000000000, str, max, 10);
+    CU_ASSERT(len == 19);
+    CU_ASSERT_STRING_EQUAL(str, "9223372036854775808");
+    CU_ASSERT(str[len] == '\0');
 }
 
 static void test_doubleToStr() {
@@ -117,17 +335,17 @@ static void test_doubleToStr() {
     TEST_DOUBLE_TO_STR(-1.3e-30, 8, "-1.3e-30");
 }
 
-static void test_strToLong() {
+static void test_strToInt32() {
     size_t result;
     int32_t val;
 
 #define TEST_STR_TO_LONG(s, r, v, b)                    \
     do {                                                \
-        result = strToLong(s, &val, b);                 \
+        result = strToInt32(s, &val, b);                 \
         CU_ASSERT_EQUAL(val, v);                        \
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
-    
+
     TEST_STR_TO_LONG("", 0, 0, 10);
     TEST_STR_TO_LONG("1", 1, 1, 10);
     TEST_STR_TO_LONG("10", 2, 10, 10);
@@ -142,13 +360,13 @@ static void test_strToLong() {
     TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
 }
 
-static void test_strToULong() {
+static void test_strToUInt32() {
     size_t result;
     uint32_t val;
 
 #define TEST_STR_TO_ULONG(s, r, v, b)                    \
     do {                                                \
-        result = strToULong(s, &val, b);                 \
+        result = strToUInt32(s, &val, b);                 \
         CU_ASSERT_EQUAL(val, v);                        \
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
@@ -479,10 +697,13 @@ int main() {
     /* Add the tests to the suite */
     if (0
             || (NULL == CU_add_test(pSuite, "strnpbrk", test_strnpbrk))
-            || (NULL == CU_add_test(pSuite, "longToStr", test_longToStr))
+            || (NULL == CU_add_test(pSuite, "Int32ToStr", test_Int32ToStr))
+            || (NULL == CU_add_test(pSuite, "UInt32ToStr", test_UInt32ToStr))
+            || (NULL == CU_add_test(pSuite, "Int64ToStr", test_Int64ToStr))
+            || (NULL == CU_add_test(pSuite, "UInt64ToStr", test_UInt64ToStr))
             || (NULL == CU_add_test(pSuite, "doubleToStr", test_doubleToStr))
-            || (NULL == CU_add_test(pSuite, "strToLong", test_strToLong))
-            || (NULL == CU_add_test(pSuite, "strToULong", test_strToULong))
+            || (NULL == CU_add_test(pSuite, "strToInt32", test_strToInt32))
+            || (NULL == CU_add_test(pSuite, "strToUInt32", test_strToUInt32))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
             || (NULL == CU_add_test(pSuite, "compareStrAndNum", test_compareStrAndNum))

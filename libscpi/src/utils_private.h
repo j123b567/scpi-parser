@@ -54,8 +54,10 @@ extern "C" {
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
     scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, size_t len2, int32_t * num) LOCAL;
-    size_t strToLong(const char * str, int32_t * val, int8_t base) LOCAL;
-    size_t strToULong(const char * str, uint32_t * val, int8_t base) LOCAL;
+    size_t strToInt32(const char * str, int32_t * val, int8_t base) LOCAL;
+    size_t strToUInt32(const char * str, uint32_t * val, int8_t base) LOCAL;
+    size_t strToInt64(const char * str, int64_t * val, int8_t base) LOCAL;
+    size_t strToUInt64(const char * str, uint64_t * val, int8_t base) LOCAL;
     size_t strToDouble(const char * str, double * val) LOCAL;
     scpi_bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     scpi_bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;

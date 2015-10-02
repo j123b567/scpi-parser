@@ -76,7 +76,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param base  output base
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_LongToStr(int32_t val, char * str, size_t len, int8_t base) {
+size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -133,6 +133,184 @@ size_t SCPI_LongToStr(int32_t val, char * str, size_t len, int8_t base) {
 }
 
 /**
+ * Converts unsigned 32b integer value to string
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @param base  output base
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_UInt32ToStr(uint32_t val, char * str, size_t len, int8_t base) {
+    const char digits[] = "0123456789ABCDEF";
+
+#define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
+    uint32_t x = 0;
+    int_fast8_t digit;
+    size_t pos = 0;
+
+    if (val == 0) {
+        ADD_CHAR('0');
+    } else {
+
+        switch (base) {
+            case 2: 
+                x = 0x80000000L;
+                break;
+            case 8:
+                x = 0x40000000L;
+                break;
+            case 10:
+                x = 1000000000L;
+                break;
+            case 0x10:
+                x = 0x10000000L;
+                break;
+            default:
+                x = 1000000000L;
+                base = 10;
+                break;
+        }
+
+        // remove leading zeros
+        while ((val / x) == 0) {
+            x /= base;
+        }
+
+        do {
+            digit = (uint8_t) (val / x);
+            ADD_CHAR(digits[digit]);
+            val -= digit * x;
+            x /= base;
+        } while (x && (pos < len));
+    }
+
+    if (pos < len) str[pos] = 0;
+    return pos;
+#undef ADD_CHAR
+}
+
+/**
+ * Converts signed 64b integer value to string
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @param base  output base
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base) {
+    const char digits[] = "0123456789ABCDEF";
+
+#define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
+    uint64_t x = 0;
+    int_fast8_t digit;
+    size_t pos = 0;
+    uint64_t uval = val;
+
+    if (uval == 0) {
+        ADD_CHAR('0');
+    } else {
+
+        switch (base) {
+            case 2: 
+                x = 0x8000000000000000LL;
+                break;
+            case 8:
+                x = 0x4000000000000000LL;
+                break;
+            case 10:
+                x = 100000000000000000LL;
+                break;
+            case 0x10:
+                x = 0x1000000000000000LL;
+                break;
+            default:
+                x = 100000000000000000LL;
+                base = 10;
+                break;
+        }
+
+        // add sign for numbers in base 10
+        if ((val < 0) && (base == 10)) {
+            uval = -val;
+            ADD_CHAR('-');
+        }
+
+        // remove leading zeros
+        while ((uval / x) == 0) {
+            x /= base;
+        }
+
+        do {
+            digit = (uint8_t) (uval / x);
+            ADD_CHAR(digits[digit]);
+            uval -= digit * x;
+            x /= base;
+        } while (x && (pos < len));
+    }
+
+    if (pos < len) str[pos] = 0;
+    return pos;
+#undef ADD_CHAR
+}
+
+/**
+ * Converts unsigned 64b integer value to string
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @param base  output base
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_UInt64ToStr(uint64_t val, char * str, size_t len, int8_t base) {
+    const char digits[] = "0123456789ABCDEF";
+
+#define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
+    uint64_t x = 0;
+    int_fast8_t digit;
+    size_t pos = 0;
+
+    if (val == 0) {
+        ADD_CHAR('0');
+    } else {
+
+        switch (base) {
+            case 2: 
+                x = 0x8000000000000000LL;
+                break;
+            case 8:
+                x = 0x4000000000000000LL;
+                break;
+            case 10:
+                x = 100000000000000000LL;
+                break;
+            case 0x10:
+                x = 0x1000000000000000LL;
+                break;
+            default:
+                x = 1000000000L;
+                base = 10;
+                break;
+        }
+
+        // remove leading zeros
+        while ((val / x) == 0) {
+            x /= base;
+        }
+
+        do {
+            digit = (uint8_t) (val / x);
+            ADD_CHAR(digits[digit]);
+            val -= digit * x;
+            x /= base;
+        } while (x && (pos < len));
+    }
+
+    if (pos < len) str[pos] = 0;
+    return pos;
+#undef ADD_CHAR
+}
+
+/**
  * Converts double value to string
  * @param val   double value
  * @param str   converted textual representation
@@ -149,7 +327,7 @@ size_t SCPI_DoubleToStr(double val, char * str, size_t len) {
  * @param val   32bit integer result
  * @return      number of bytes used in string
  */
-size_t strToLong(const char * str, int32_t * val, int8_t base) {
+size_t strToInt32(const char * str, int32_t * val, int8_t base) {
     char * endptr;
     *val = strtol(str, &endptr, base);
     return endptr - str;
@@ -161,7 +339,7 @@ size_t strToLong(const char * str, int32_t * val, int8_t base) {
  * @param val   32bit integer result
  * @return      number of bytes used in string
  */
-size_t strToULong(const char * str, uint32_t * val, int8_t base) {
+size_t strToUInt32(const char * str, uint32_t * val, int8_t base) {
     char * endptr;
     *val = strtoul(str, &endptr, base);
     return endptr - str;
@@ -224,7 +402,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
                 //*num = 1;
             } else {
                 int32_t tmpNum;
-                i = len1 + strToLong(str2 + len1, &tmpNum, 10);
+                i = len1 + strToInt32(str2 + len1, &tmpNum, 10);
                 if (i != len2) {
                     result = FALSE;
                 } else {
@@ -494,7 +672,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
 }
 
 /**
- * Compose command from previsou command anc current command
+ * Compose command from previous command anc current command
  *
  * @param prev pointer to previous command
  * @param current pointer of current command

@@ -143,9 +143,9 @@ scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter
     res = SCPI_ExprNumericListEntry(context, param, index, &range, &paramFrom, &paramTo);
     if (res == SCPI_EXPR_OK) {
         *isRange = range;
-        SCPI_ParamToInt(context, &paramFrom, valueFrom);
+        SCPI_ParamToInt32(context, &paramFrom, valueFrom);
         if (range) {
-            SCPI_ParamToInt(context, &paramTo, valueTo);
+            SCPI_ParamToInt32(context, &paramTo, valueTo);
         }
     }
 

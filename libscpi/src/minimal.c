@@ -57,7 +57,7 @@ scpi_result_t SCPI_Stub(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_StubQ(scpi_t * context) {
-    SCPI_ResultInt(context, 0);
+    SCPI_ResultInt32(context, 0);
     return SCPI_RES_OK;
 }
 
@@ -79,7 +79,7 @@ scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
 scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
     int16_t err = SCPI_ErrorPop(context);
 
-    SCPI_ResultInt(context, err);
+    SCPI_ResultInt32(context, err);
     SCPI_ResultText(context, SCPI_ErrorTranslate(err));
 
     return SCPI_RES_OK;
@@ -91,7 +91,7 @@ scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
-    SCPI_ResultInt(context, SCPI_ErrorCount(context));
+    SCPI_ResultInt32(context, SCPI_ErrorCount(context));
 
     return SCPI_RES_OK;
 }
@@ -103,7 +103,7 @@ scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
  */
 scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
     /* return value */
-    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_QUES));
+    SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_QUES));
 
     /* clear register */
     SCPI_RegSet(context, SCPI_REG_QUES, 0);
@@ -118,7 +118,7 @@ scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
  */
 scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
     /* return value */
-    SCPI_ResultInt(context, SCPI_RegGet(context, SCPI_REG_QUESE));
+    SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_QUESE));
 
     return SCPI_RES_OK;
 }
@@ -130,7 +130,7 @@ scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
  */
 scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
     int32_t new_QUESE;
-    if (SCPI_ParamInt(context, &new_QUESE, TRUE)) {
+    if (SCPI_ParamInt32(context, &new_QUESE, TRUE)) {
         SCPI_RegSet(context, SCPI_REG_QUESE, (scpi_reg_val_t)new_QUESE);
     }
     return SCPI_RES_OK;

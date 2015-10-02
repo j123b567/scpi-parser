@@ -32,14 +32,14 @@ static scpi_result_t text_function(scpi_t* context) {
 
 static scpi_result_t test_treeA(scpi_t* context) {
 
-    SCPI_ResultInt(context, 10);
+    SCPI_ResultInt32(context, 10);
 
     return SCPI_RES_OK;
 }
 
 static scpi_result_t test_treeB(scpi_t* context) {
 
-    SCPI_ResultInt(context, 20);
+    SCPI_ResultInt32(context, 20);
 
     return SCPI_RES_OK;
 }

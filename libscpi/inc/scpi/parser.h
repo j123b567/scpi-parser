@@ -51,26 +51,43 @@ extern "C" {
 
     size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);
 #define SCPI_ResultMnemonic(context, data) SCPI_ResultCharacters((context), (data), strlen(data))
-    size_t SCPI_ResultInt(scpi_t * context, int32_t val);
-    size_t SCPI_ResultIntBase(scpi_t * context, int32_t val, int8_t base);
+    size_t SCPI_ResultInt32(scpi_t * context, int32_t val);
+#define SCPI_ResultInt(context, val) SCPI_ResultInt32 ((context), (val))
+    size_t SCPI_ResultInt32Base(scpi_t * context, int32_t val, int8_t base);
+#define SCPI_ResultIntBase(context, val, base) SCPI_ResultInt32Base ((context), (val), (base))
+    size_t SCPI_ResultUInt32(scpi_t * context, uint32_t val);
+    size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base);
+    size_t SCPI_ResultInt64(scpi_t * context, int64_t val);
+    size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base);
+    size_t SCPI_ResultUInt64(scpi_t * context, uint64_t val);
+    size_t SCPI_ResultUInt64Base(scpi_t * context, uint64_t val, int8_t base);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
     size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len);
     size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
    
+
     scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter);
     scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context);
     scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixAllowed);
-    scpi_bool_t SCPI_ParamToInt(scpi_t * context, scpi_parameter_t * parameter, int32_t * value);
-    scpi_bool_t SCPI_ParamToUnsignedInt(scpi_t * context, scpi_parameter_t * parameter, uint32_t * value);
+    scpi_bool_t SCPI_ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, int32_t * value);
+#define SCPI_ParamToInt(context, parameter, value) SCPI_ParamToInt32((context), (parameter), (value))
+    scpi_bool_t SCPI_ParamToUInt32(scpi_t * context, scpi_parameter_t * parameter, uint32_t * value);
+#define SCPI_ParamToUnsignedInt(context, parameter, value) SCPI_ParamToUInt32((context), (parameter), (value))
+    scpi_bool_t SCPI_ParamToInt64(scpi_t * context, scpi_parameter_t * parameter, int64_t * value);
+    scpi_bool_t SCPI_ParamToUInt64(scpi_t * context, scpi_parameter_t * parameter, uint64_t * value);
     scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value);
     scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, const scpi_choice_def_t * options, int32_t * value);
     scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, const char ** text);
 
 
-    scpi_bool_t SCPI_ParamInt(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
-    scpi_bool_t SCPI_ParamUnsignedInt(scpi_t * context, uint32_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamInt32(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
+#define SCPI_ParamInt(context, value, mandatory) SCPI_ParamInt32((context), (value), (mandatory))
+    scpi_bool_t SCPI_ParamUInt32(scpi_t * context, uint32_t * value, scpi_bool_t mandatory);
+#define SCPI_ParamUnsignedInt(context, value, mandatory) SCPI_ParamUInt32((context), (value), (mandatory))
+    scpi_bool_t SCPI_ParamInt64(scpi_t * context, int64_t * value, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamUInt64(scpi_t * context, uint64_t * value, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamArbitraryBlock(scpi_t * context, const char ** value, size_t * len, scpi_bool_t mandatory);
