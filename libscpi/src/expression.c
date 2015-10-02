@@ -39,6 +39,16 @@
 
 #include "lexer_private.h"
 
+/**
+ * Parse one range or single value
+ * @param state lexical state
+ * @param isRange return true if parsed expression is range
+ * @param valueFrom return parsed value from
+ * @param valueTo return parsed value to
+ * @return SCPI_EXPR_OK - parsing was succesful
+ *         SCPI_EXPR_ERROR - parser error
+ *         SCPI_EXPR_NO_MORE - no more data
+ */
 static scpi_expr_result_t numericRange(lex_state_t * state, scpi_bool_t * isRange, scpi_token_t * valueFrom, scpi_token_t * valueTo)
 {
     if (scpiLex_DecimalNumericProgramData(state, valueFrom)) {
@@ -58,6 +68,19 @@ static scpi_expr_result_t numericRange(lex_state_t * state, scpi_bool_t * isRang
     return SCPI_EXPR_NO_MORE;
 }
 
+/**
+ * Parse entry on specified position
+ * @param context scpi context
+ * @param param input parameter
+ * @param index index of position (start from 0)
+ * @param isRange return true if expression at index was range
+ * @param valueFrom return value from
+ * @param valueTo return value to
+ * @return SCPI_EXPR_OK - parsing was succesful
+ *         SCPI_EXPR_ERROR - parser error
+ *         SCPI_EXPR_NO_MORE - no more data
+ * @see SCPI_ExprNumericListEntryInt, SCPI_ExprNumericListEntryDouble
+ */
 scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, scpi_parameter_t * valueFrom, scpi_parameter_t * valueTo)
 {
     lex_state_t lex;
@@ -97,6 +120,19 @@ scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t 
     return res;
 }
 
+/**
+ * Parse entry on specified position and convert result to int32_t
+ * @param context scpi context
+ * @param param input parameter
+ * @param index index of position (start from 0)
+ * @param isRange return true if expression at index was range
+ * @param valueFrom return value from
+ * @param valueTo return value to
+ * @return SCPI_EXPR_OK - parsing was succesful
+ *         SCPI_EXPR_ERROR - parser error
+ *         SCPI_EXPR_NO_MORE - no more data
+ * @see SCPI_ExprNumericListEntry, SCPI_ExprNumericListEntryDouble
+ */
 scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valueFrom, int32_t * valueTo)
 {
     scpi_expr_result_t res;
@@ -116,6 +152,19 @@ scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter
     return res;
 }
 
+/**
+ * Parse entry on specified position and convert result to double
+ * @param context scpi context
+ * @param param input parameter
+ * @param index index of position (start from 0)
+ * @param isRange return true if expression at index was range
+ * @param valueFrom return value from
+ * @param valueTo return value to
+ * @return SCPI_EXPR_OK - parsing was succesful
+ *         SCPI_EXPR_ERROR - parser error
+ *         SCPI_EXPR_NO_MORE - no more data
+ * @see SCPI_ExprNumericListEntry, SCPI_ExprNumericListEntryInt
+ */
 scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, double * valueFrom, double * valueTo)
 {
     scpi_expr_result_t res;
