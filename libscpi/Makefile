@@ -1,7 +1,7 @@
 VERSION = 2.1.0
 LIBNAME = scpi
 
-CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -g -Iinc
+CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -Iinc
 CFLAGS_SHARED += $(CFLAGS) -fPIC
 LDFLAGS += -Wl,--as-needed
 #TESTCFLAGS += $(CFLAGS) `pkg-config --cflags cunit`
