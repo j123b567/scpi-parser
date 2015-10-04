@@ -681,38 +681,6 @@ scpi_bool_t SCPI_ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, in
  * @param value result
  * @return TRUE if succesful
  */
-static scpi_bool_t ParamToUInt32(scpi_t * context, scpi_parameter_t * parameter, uint32_t * value, scpi_bool_t sign) {
-
-    if (!value) {
-        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
-        return FALSE;
-    }
-
-    switch (parameter->type) {
-        case SCPI_TOKEN_HEXNUM:
-            return strToUInt32(parameter->ptr, (uint32_t *)value, 16) > 0 ? TRUE : FALSE;
-        case SCPI_TOKEN_OCTNUM:
-            return strToUInt32(parameter->ptr, (uint32_t *)value, 8) > 0 ? TRUE : FALSE;
-        case SCPI_TOKEN_BINNUM:
-            return strToUInt32(parameter->ptr, (uint32_t *)value, 2) > 0 ? TRUE : FALSE;
-        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
-        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
-            if (sign) {
-                return strToInt32(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
-            } else {
-                return strToUInt32(parameter->ptr, (uint32_t *)value, 10) > 0 ? TRUE : FALSE;
-            }
-    }
-    return FALSE;
-}
-
-/**
- * Convert parameter to unsigned 32 bit integer
- * @param context
- * @param parameter
- * @param value result
- * @return TRUE if succesful
- */
 scpi_bool_t SCPI_ParamToUInt32(scpi_t * context,  scpi_parameter_t * parameter, uint32_t * value) {
     return ParamToInt32(context, parameter, (int32_t *)value, FALSE);
 }
