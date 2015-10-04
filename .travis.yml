@@ -2,11 +2,8 @@ addons:
   apt:
     packages:
     - libcunit1-dev
-    - libcunit1-dev:i386
-    - gcc-multilib
 
 sudo: false
 
 script:
     - make test
-    - CFLAGS="-m32" LDFLAGS="-m32" make clean test
