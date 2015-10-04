@@ -6,4 +6,5 @@ addons:
 sudo: false
 
 script:
-    - make test
+    - make
+    - CFLAGS="-g -O0 -fsanitize=address" LDFLAGS="-g -fsanitize=address" make clean test
