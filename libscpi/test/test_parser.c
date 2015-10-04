@@ -95,6 +95,7 @@ static size_t output_buffer_write(const char * data, size_t len) {
     memcpy(output_buffer + output_buffer_pos, data, len);
     output_buffer_pos += len;
     output_buffer[output_buffer_pos] = '\0';
+    return len;
 }
 
 scpi_t scpi_context;
@@ -120,6 +121,8 @@ static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
 }
 
 static scpi_result_t SCPI_Flush(scpi_t * context) {
+    (void) context;
+
     return SCPI_RES_OK;
 }
 
@@ -133,6 +136,8 @@ static int SCPI_Error(scpi_t * context, int_fast16_t err) {
 
 scpi_reg_val_t srq_val = 0;
 static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+    (void) context;
+
     if (SCPI_CTRL_SRQ == ctrl) {
         srq_val = val;
     } else {
@@ -144,6 +149,8 @@ static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_
 scpi_bool_t RST_executed = FALSE;
 
 static scpi_result_t SCPI_Reset(scpi_t * context) {
+    (void) context;
+
     RST_executed = TRUE;
     return SCPI_RES_OK;
 }

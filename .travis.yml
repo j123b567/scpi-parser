@@ -2,9 +2,10 @@ addons:
   apt:
     packages:
     - libcunit1-dev
+    - clang
 
 sudo: false
 
 script:
     - make
-    - CFLAGS="-g -O0 -fsanitize=address" LDFLAGS="-g -fsanitize=address" make clean test
+    - CC=clang CFLAGS="-g -O0 -fsanitize=address" LDFLAGS="-g -fsanitize=address" make clean test

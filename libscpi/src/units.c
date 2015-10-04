@@ -234,6 +234,8 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             value->special = FALSE;
             result = TRUE;
             break;
+        default:
+            break;
     }
 
     switch(param.type) {
@@ -250,6 +252,8 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             break;
         case SCPI_TOKEN_OCTNUM:
             value->base = 8;
+            break;
+        default:
             break;
     }
 

@@ -553,8 +553,9 @@ static scpi_bool_t ParamToInt(scpi_t * context, scpi_parameter_t * parameter, in
             } else {
                 return strToULong(parameter->ptr, (uint32_t *)value, 10) > 0 ? TRUE : FALSE;
             }
+        default:
+            return FALSE;
     }
-    return FALSE;
 }
 
 
@@ -589,7 +590,7 @@ scpi_bool_t SCPI_ParamToUnsignedInt(scpi_t * context,  scpi_parameter_t * parame
  */
 #include "stdio.h"
 scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
-    scpi_bool_t result = FALSE;
+    scpi_bool_t result;
     uint32_t valint;
 
     if (!value) {
@@ -608,6 +609,8 @@ scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, d
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             result = strToDouble(parameter->ptr, value) > 0 ? TRUE : FALSE;
             break;
+        default:
+            result = FALSE;
     }
     return result;
 }
