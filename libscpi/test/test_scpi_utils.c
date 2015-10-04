@@ -213,9 +213,6 @@ static void test_Int64ToStr() {
     CU_ASSERT(len == 19);
     CU_ASSERT_STRING_EQUAL(str, "9223372036854775807");
     CU_ASSERT(str[len] == '\0');
-    printf("\n");
-    printf(str);
-    printf("\n");
 
     len = SCPI_Int64ToStr(0x8000000000000000, str, max, 10);
     CU_ASSERT(len == 20);
