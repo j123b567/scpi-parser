@@ -37,14 +37,16 @@ SCPI parser library is based on these standards
 **Supported parameter types**
 <table>
 <tr><th>Type<th>Example</tr>
-<tr><td>Decimal<td>`10`, `10.5`</tr>
-<tr><td>Decimal with suffix<td>`-5.5 V`, `1.5 KOHM`</tr>
-<tr><td>Hexadecimal<td>`#HFF`</tr>
-<tr><td>Octal<td>`#Q77`</tr>
-<tr><td>Binary<td>`#B11`</tr>
-<tr><td>String<td>`"text"`, `'text'`</tr>
-<tr><td>Arbitrary block<td>`#12AB`</tr>
-<tr><td>Program expression<td>`(1)`</tr>
-<tr><td>Character data<td>`MINimum`, `DEFault`, `INFinity`</tr>
+<tr><td>Decimal<td><code>10</code>, <code>10.5</code></tr>
+<tr><td>Decimal with suffix<td><code>-5.5 V</code>, <code>1.5 KOHM</code></tr>
+<tr><td>Hexadecimal<td><code>#HFF</code></tr>
+<tr><td>Octal<td><code>#Q77</code></tr>
+<tr><td>Binary<td><code>#B11</code></tr>
+<tr><td>String<td><code>"text"</code>, <code>'text'</code></tr>
+<tr><td>Arbitrary block<td><code>#12AB</code></tr>
+<tr><td>Program expression<td><code>(1)</code></tr>
+<tr><td>Numeric list<td><code>(1,2:50,80)</code></tr>
+<tr><td>Channel list<td><code>(@1!2:3!4,5!6)</code></tr>
+<tr><td>Character data<td><code>MINimum</code>, <code>DEFault</code>, <code>INFinity</code></tr>
 </table>
 

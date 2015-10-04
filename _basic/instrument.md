@@ -45,11 +45,11 @@ size_t myWrite(scpi_context_t * context, const char * data, size_t len) {
 Handling input
 ---
 
-In your code, you should feed [`SCPI_Input`]({{ site.baseurl }}/api/scpi_input) function. Input command does not need to be complete in one call of this function. It is designed to buffer full command and after it is complete it calls parser.
+In your code, you should feed [`SCPI_Input`]({{ site.baseurl }}/api/SCPI_Input) function. Input command does not need to be complete in one call of this function. It is designed to buffer full command and after it is complete it calls parser.
 
 You can force parsing of buffered command by calling this function with zero length.
 
-If you have another buffering function or you always have full command in the buffer, you don't need to use intermediate buffer and you can directly call [`SCPI_Parse`]({{ site.baseurl }}/api/scpi_parse) with your application specific buffer
+If you have another buffering function or you always have full command in the buffer, you don't need to use intermediate buffer and you can directly call [`SCPI_Parse`]({{ site.baseurl }}/api/SCPI_Parse) with your application specific buffer
 
 If you need to use build in buffering, you need to specify input buffer. Maximum size is up to you and it should be larger than any possible largest command.
 
@@ -90,7 +90,7 @@ All these structures should be global variables of the c file or allocated by fu
 
 Now we are ready to initialize SCPI context. It is possible to use more SCPI contexts and share some configurations (command list, registers, units list, error callback...), but be aware that the library is not thread safe.
 
-Before any usage of the library, initialization must be performed.
+Before any usage of the library, initialization must be performed by [`SCPI_Init`]({{ site.baseurl }}/api/SCPI_Init).
 
 ```c
 SCPI_Init(&scpi_context);
