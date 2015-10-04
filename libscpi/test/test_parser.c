@@ -550,6 +550,7 @@ static void testNumericList(void) {
     errCode = SCPI_ErrorPop(&scpi_context);                                             \
     CU_ASSERT_EQUAL(result2, expected_result);                                          \
     if (expected_result == SCPI_EXPR_OK) {                                              \
+        CU_ASSERT_EQUAL(val_dimensions, expected_dimensions);                           \
         CU_ASSERT_EQUAL(val_range, expected_range);                                     \
         { size_t i; for(i = 0; (i < val_len) && (i < val_dimensions); i++) {            \
             CU_ASSERT_EQUAL(val_from[i], expected_from[i]);                             \
