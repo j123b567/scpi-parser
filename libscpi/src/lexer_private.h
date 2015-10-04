@@ -58,6 +58,7 @@ extern "C" {
     int scpiLex_Semicolon(lex_state_t * state, scpi_token_t * token) LOCAL;
     int scpiLex_Colon(lex_state_t * state, scpi_token_t * token) LOCAL;
     int scpiLex_NewLine(lex_state_t * state, scpi_token_t * token) LOCAL;
+    int scpiLex_SpecificCharacter(lex_state_t * state, scpi_token_t * token, char chr) LOCAL;
 
 #ifdef	__cplusplus
 }

@@ -885,6 +885,26 @@ int scpiLex_Colon(lex_state_t * state, scpi_token_t * token) {
 }
 
 /**
+ * Detect specified character
+ * @param state
+ * @param token
+ * @return 
+ */
+int scpiLex_SpecificCharacter(lex_state_t * state, scpi_token_t * token, char chr) {
+    token->ptr = state->pos;
+
+    if (skipChr(state, chr)) {
+        token->len = 1;
+        token->type = SCPI_TOKEN_SPECIFIC_CHARACTER;
+    } else {
+        token->len = 0;
+        token->type = SCPI_TOKEN_UNKNOWN;
+    }
+
+    return token->len;
+}
+
+/**
  * Detect token New line
  * @param state
  * @param token

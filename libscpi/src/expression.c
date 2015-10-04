@@ -41,7 +41,7 @@
 
 /**
  * Parse one range or single value
- * @param state lexical state
+ * @param state lexer state
  * @param isRange return true if parsed expression is range
  * @param valueFrom return parsed value from
  * @param valueTo return parsed value to
@@ -181,5 +181,133 @@ scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parame
         }
     }
 
+    return res;
+}
+
+/**
+ * Parse one channel_spec e.g. "1!5!8"
+ * @param context
+ * @param state lexer state
+ * @param values range values
+ * @param length length of values array
+ * @param dimensions real number of dimensions
+ */
+static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int32_t * values, size_t length, size_t * dimensions)
+{
+    scpi_parameter_t param;
+    size_t i = 0;
+    while(scpiLex_DecimalNumericProgramData(state, &param)) {
+        if (i < length) {
+            SCPI_ParamToInt(context, &param, &values[i]);
+        }
+
+        if (scpiLex_SpecificCharacter(state, &param, '!')) {
+            i++;
+        } else {
+            *dimensions = i + 1;
+            return SCPI_EXPR_OK;
+        }
+    }
+
+    if (i == 0) {
+        return SCPI_EXPR_NO_MORE;
+    } else {
+        // there was at least one number followed by !, but after ! was not another number
+        return SCPI_EXPR_ERROR;
+    }
+}
+
+/**
+ * Parse channel_range e.g. "1!2:5!6"
+ * @param context
+ * @param state lexer state
+ * @param isRange return true if it is range
+ * @param valuesFrom return array of values from
+ * @param valuesTo return array of values to
+ * @param length length of values arrays
+ * @param dimensions real number of dimensions
+ */
+static scpi_expr_result_t channelRange(scpi_t * context, lex_state_t * state, scpi_bool_t * isRange, int32_t * valuesFrom, int32_t * valuesTo, size_t length, size_t * dimensions)
+{
+    scpi_token_t token;
+    scpi_expr_result_t err;
+    size_t fromDimensions;
+    size_t toDimensions;
+
+    err = channelSpec(context, state, valuesFrom, length, &fromDimensions);
+    if (err == SCPI_EXPR_OK) {
+        if (scpiLex_Colon(state, &token)) {
+            *isRange = TRUE;
+            err = channelSpec(context, state, valuesTo, length, &toDimensions);
+            if (err != SCPI_EXPR_OK) {
+                return SCPI_EXPR_ERROR;
+            }
+            if (fromDimensions != toDimensions) {
+                return SCPI_EXPR_ERROR;
+            }
+            *dimensions = fromDimensions;
+        } else {
+            *isRange = FALSE;
+            return SCPI_EXPR_OK;
+        }
+    }
+
+    return err;
+}
+
+/**
+ * Parse one list entry at specific position e.g. "1!2:5!6"
+ * @param context
+ * @param param
+ * @param index
+ * @param isRange return true if it is range
+ * @param valuesFrom return array of values from
+ * @param valuesTo return array of values to
+ * @param length length of values arrays
+ * @param dimensions real number of dimensions
+ */
+scpi_expr_result_t SCPI_ExprChannelListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valuesFrom, int32_t * valuesTo, size_t length, size_t * dimensions)
+{
+    lex_state_t lex;
+    int i;
+    scpi_expr_result_t res = SCPI_EXPR_OK;
+    scpi_token_t token;
+
+    if (!isRange || !param || !dimensions || (length && (!valuesFrom || !valuesTo))) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return SCPI_EXPR_ERROR;
+    }
+
+    if (param->type != SCPI_TOKEN_PROGRAM_EXPRESSION) {
+        SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+        return SCPI_EXPR_ERROR;
+    }
+
+    lex.buffer = param->ptr + 1;
+    lex.pos = lex.buffer;
+    lex.len = param->len - 2;
+
+    // detect channel list expression
+    if (!scpiLex_SpecificCharacter(&lex, &token, '@')) {
+        SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+        return SCPI_EXPR_ERROR;
+    }
+
+    for (i = 0; i <= index; i++) {
+        res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0, dimensions);
+        if (res != SCPI_EXPR_OK) {
+            break;
+        }
+        if (i != index) {
+            if (!scpiLex_Comma(&lex, &token)) {
+                res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+                break;
+            }
+        }
+    }
+
+    if (res == SCPI_EXPR_ERROR) {
+        SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+    }
     return res;
 }

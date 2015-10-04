@@ -526,6 +526,69 @@ static void testNumericList(void) {
     TEST_NumericListDouble("(12,5:6:3)", 2, FALSE, 0, 0, SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
 }
 
+#define NOPAREN(...) __VA_ARGS__
+
+#define TEST_ChannelList(data, index, val_len, expected_range, expected_dimensions, _expected_from, _expected_to, expected_result, expected_error_code) \
+{                                                                                       \
+    scpi_bool_t result;                                                                 \
+    scpi_expr_result_t result2;                                                         \
+    int16_t errCode;                                                                    \
+    scpi_parameter_t param;                                                             \
+    int32_t val_from[val_len], val_to[val_len];                                         \
+    scpi_bool_t val_range;                                                              \
+    int32_t expected_from[] = {NOPAREN _expected_from};                                 \
+    int32_t expected_to[] = {NOPAREN _expected_to};                                     \
+    size_t val_dimensions;                                                              \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_Parameter(&scpi_context, &param, TRUE);                               \
+    result2 = SCPI_ExprChannelListEntry(&scpi_context, &param, index, &val_range, val_from, val_to, val_len, &val_dimensions);\
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result2, expected_result);                                          \
+    if (expected_result == SCPI_EXPR_OK) {                                              \
+        CU_ASSERT_EQUAL(val_range, expected_range);                                     \
+        { size_t i; for(i = 0; (i < val_len) && (i < val_dimensions); i++) {            \
+            CU_ASSERT_EQUAL(val_from[i], expected_from[i]);                             \
+        }}                                                                              \
+        if (expected_range) {                                                           \
+            { size_t i; for(i = 0; (i < val_len) && (i < val_dimensions); i++) {        \
+                CU_ASSERT_EQUAL(val_to[i], expected_to[i]);                             \
+            }}                                                                          \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testChannelList(void) {
+    TEST_ChannelList("(1)", 0, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+
+    TEST_ChannelList("(@1)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1)", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
+
+    TEST_ChannelList("(@1,2)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2)", 1, 1, FALSE, 1, (2), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2)", 2, 1, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
+
+    TEST_ChannelList("(@1,2:3)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2:3)", 1, 1, TRUE, 1, (2), (3), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2:3)", 2, 1, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
+
+    TEST_ChannelList("(@1,2!5:3!6)", 0, 2, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2!5:3!6)", 1, 2, TRUE, 2, (2,5), (3,6), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2!5:3!6)", 2, 2, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
+
+    TEST_ChannelList("(@1,2!5:3!6)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2!5:3!6)", 1, 1, TRUE, 2, (2), (3), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2!5:3!6)", 2, 1, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
+
+    TEST_ChannelList("(@1,2!5:3!6!7)", 0, 2, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2!5:3!6!7)", 1, 2, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+    TEST_ChannelList("(@1,2!5:3!6!7)", 2, 2, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+}
 
 int main() {
     unsigned int result;
@@ -551,6 +614,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "Error handling", testErrorHandling))
             || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
             || (NULL == CU_add_test(pSuite, "Numeric list", testNumericList))
+            || (NULL == CU_add_test(pSuite, "Channel list", testChannelList))
             ) {
         CU_cleanup_registry();
         return CU_get_error();
