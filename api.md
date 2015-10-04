@@ -26,6 +26,16 @@ Generating results
 {% endfor %}
 </ul>
 
+Handling expressions
+-------
+<ul>
+{% for p in pages_list %}
+  {% if p.category == "expressions" %}
+  <li><a href="{{ site.baseurl }}{{ p.url }}">{{ p.title }}</a>
+  {% endif %}
+{% endfor %}
+</ul>
+
 Extended parameters handling
 -------
 <ul>
