@@ -322,7 +322,7 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len) {
 scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len, int32_t * num) {
     int pattern_sep_pos_short;
 
-    if (pattern[pattern_len - 1] == '#') {
+    if ((pattern_len > 0) && pattern[pattern_len - 1] == '#') {
         size_t new_pattern_len = pattern_len - 1;
 
         pattern_sep_pos_short = patternSeparatorShortPos(pattern, new_pattern_len);
@@ -391,7 +391,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
             cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_end - cmd_ptr);
         }
 
-        if (pattern_ptr[pattern_sep_pos - 1] == '#') {
+        if ((pattern_sep_pos > 0) && pattern_ptr[pattern_sep_pos - 1] == '#') {
             if (numbers && (numbers_idx < numbers_len)) {
                 number_ptr = numbers + numbers_idx;
                 *number_ptr = 1; // default value
@@ -404,7 +404,8 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
         }
 
         if (matchPattern(pattern_ptr, pattern_sep_pos, cmd_ptr, cmd_sep_pos, number_ptr)) {
-            pattern_ptr = pattern_ptr + pattern_sep_pos;
+            pattern_ptr += pattern_sep_pos;
+            pattern_len -= pattern_sep_pos;
             cmd_ptr = cmd_ptr + cmd_sep_pos;
             result = TRUE;
 
@@ -435,24 +436,28 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
 
             /* both command and patter contains command separator at this position */
             if ((pattern_ptr[0] == cmd_ptr[0]) && ((pattern_ptr[0] == ':') || (pattern_ptr[0] == '?'))) {
-                pattern_ptr = pattern_ptr + 1;
+                pattern_ptr += 1;
+                pattern_len -= 1;
                 cmd_ptr = cmd_ptr + 1;
-            } else if ((pattern_ptr[1] == cmd_ptr[0])
+            } else if ((pattern_len > 1) && (pattern_ptr[1] == cmd_ptr[0])
                     && (pattern_ptr[0] == '[')
                     && (pattern_ptr[1] == ':')) {
-                pattern_ptr = pattern_ptr + 2; // for skip '[' in "[:"
+                pattern_ptr += 2; // for skip '[' in "[:"
+                pattern_len -= 2;
                 cmd_ptr = cmd_ptr + 1;
                 leftFlag++;
-            } else if ((pattern_ptr[1] == cmd_ptr[0])
+            } else if ((pattern_len > 1) &&  (pattern_ptr[1] == cmd_ptr[0])
                     && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == ':')) {
-                pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:"
+                pattern_ptr += 2; // for skip ']' in "]:"
+                pattern_len -= 2;
                 cmd_ptr = cmd_ptr + 1;
-            } else if ((pattern_ptr[2] == cmd_ptr[0])
+            } else if ((pattern_len > 2) && (pattern_ptr[2] == cmd_ptr[0])
                     && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == '[')
                     && (pattern_ptr[2] == ':')) {
-                pattern_ptr = pattern_ptr + 3; // for skip '][' in "][:"
+                pattern_ptr += 3; // for skip '][' in "][:"
+                pattern_len -= 3;
                 cmd_ptr = cmd_ptr + 1;
                 leftFlag++;
             } else if (((pattern_ptr[0] == ']')
@@ -466,14 +471,17 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
                 break;
             }
         } else {
-            pattern_ptr = pattern_ptr + pattern_sep_pos;
+            pattern_ptr += pattern_sep_pos;
+            pattern_len -= pattern_sep_pos;
             if ((pattern_ptr[0] == ']') && (pattern_ptr[1] == ':')) {
-                pattern_ptr = pattern_ptr + 2; // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                pattern_ptr += 2; // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                pattern_len -= 2;
                 rightFlag++;
-            } else if ((pattern_ptr[0] == ']')
+            } else if ((pattern_len > 2) && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == '[')
                     && (pattern_ptr[2] == ':')) {
-                pattern_ptr = pattern_ptr + 3; // for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                pattern_ptr += 3; // for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                pattern_len -= 3;
                 rightFlag++;
             } else {
                 result = FALSE;
