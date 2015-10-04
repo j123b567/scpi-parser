@@ -7,3 +7,4 @@ sudo: false
 
 script:
     - make test
+    - CFLAGS="-m32" LDFLAGS="-m32" make clean test
