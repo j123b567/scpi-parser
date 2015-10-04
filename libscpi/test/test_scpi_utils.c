@@ -152,19 +152,19 @@ static void test_strToULong() {
         CU_ASSERT_EQUAL(val, v);                        \
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
-    
-    TEST_STR_TO_LONG("", 0, 0, 10);
-    TEST_STR_TO_LONG("1", 1, 1, 10);
-    TEST_STR_TO_LONG("10", 2, 10, 10);
-    TEST_STR_TO_LONG("100MHz", 3, 100, 10);
-    TEST_STR_TO_LONG("MHz", 0, 0, 10);
-    TEST_STR_TO_LONG("1.4", 1, 1, 10);
-    TEST_STR_TO_LONG(" 1", 2, 1, 10);
-    TEST_STR_TO_LONG(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_LONG("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_LONG("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
-    TEST_STR_TO_LONG("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
+
+    TEST_STR_TO_ULONG("", 0, 0, 10);
+    TEST_STR_TO_ULONG("1", 1, 1, 10);
+    TEST_STR_TO_ULONG("10", 2, 10, 10);
+    TEST_STR_TO_ULONG("100MHz", 3, 100, 10);
+    TEST_STR_TO_ULONG("MHz", 0, 0, 10);
+    TEST_STR_TO_ULONG("1.4", 1, 1, 10);
+    TEST_STR_TO_ULONG(" 1", 2, 1, 10);
+    TEST_STR_TO_ULONG(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_ULONG("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_ULONG("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_ULONG("18", 1, 1, 8); // octal 1, 8 is ignored
+    TEST_STR_TO_ULONG("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
 }
 
 static void test_strToDouble() {
