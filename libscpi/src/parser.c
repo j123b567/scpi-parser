@@ -428,7 +428,7 @@ size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base) {
  * @return
  */
 size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base) {
-    char buffer[33]; //TODO
+    char buffer[65];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
@@ -453,7 +453,7 @@ size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base) {
  * @return
  */
 size_t SCPI_ResultUInt64Base(scpi_t * context, uint64_t val, int8_t base) {
-    char buffer[33]; //TODO
+    char buffer[65];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
