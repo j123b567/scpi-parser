@@ -230,17 +230,17 @@ static void test_compareStrAndNum() {
 
 #define TEST_COMPARE_STR_AND_NUM(s1, l1, s2, l2, v, r)              \
     do {                                                            \
-        num = 0;                                                    \
+        num = -1;                                                    \
         CU_ASSERT_EQUAL(compareStrAndNum(s1, l1, s2, l2, &num),r);  \
         CU_ASSERT_EQUAL(num, v);                                    \
     } while(0);                                                     \
 
-    TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcd", 4, 1, TRUE);
+    TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcd", 4, -1, TRUE);
     TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcd1", 5, 1, TRUE);
     TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcd123", 7, 123, TRUE);
-    TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcd12A", 7, 0, FALSE);
-    TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcdB12", 7, 0, FALSE);
-    TEST_COMPARE_STR_AND_NUM("abdd", 4, "abcd132", 7, 0, FALSE);
+    TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcd12A", 7, -1, FALSE);
+    TEST_COMPARE_STR_AND_NUM("abcd", 4, "abcdB12", 7, -1, FALSE);
+    TEST_COMPARE_STR_AND_NUM("abdd", 4, "abcd132", 7, -1, FALSE);
 }
 
 static void test_matchPattern() {
@@ -268,7 +268,7 @@ static void test_matchCommand() {
 
     #define TEST_MATCH_COMMAND(p, s, r)                         \
     do {                                                        \
-        result = matchCommand(p, s, strlen(s), NULL, 0);        \
+        result = matchCommand(p, s, strlen(s), NULL, 0, 0);     \
         CU_ASSERT_EQUAL(result, r);                             \
     } while(0)                                                  \
 
@@ -278,7 +278,7 @@ static void test_matchCommand() {
     do {                                                        \
         int32_t evalues[] = {NOPAREN v};                        \
         unsigned int cnt = (sizeof(evalues)/4);                 \
-        result = matchCommand(p, s, strlen(s), values, 20);     \
+        result = matchCommand(p, s, strlen(s), values, 20, -1); \
         CU_ASSERT_EQUAL(result, r);                             \
         {unsigned int i; for (i = 0; i<cnt; i++) {              \
             CU_ASSERT_EQUAL(evalues[i], values[i]);             \
@@ -401,32 +401,32 @@ static void test_matchCommand() {
     TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm2", TRUE); // test numeric parameter
     TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE); // test numeric parameter
 
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp3:mod10:fm", TRUE, (3, 10, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output3:mod10:fm", TRUE, (3, 10, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp30:modulation:fm5", TRUE, (30, 1, 5)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE, (1, 1, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm", TRUE, (3, 1, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:mod10:fm", TRUE, (3, 10, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm2", TRUE, (3, 1, 2)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE, (1, 1, 1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp3:mod10:fm", TRUE, (3, 10, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output3:mod10:fm", TRUE, (3, 10, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp30:modulation:fm5", TRUE, (30, -1, 5)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE, (-1, -1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm", TRUE, (3, -1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:mod10:fm", TRUE, (3, 10, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm2", TRUE, (3, -1, 2)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE, (-1, -1, -1)); // test numeric parameter
 
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp3:mod:fm", TRUE, (3, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output3:mod:fm", TRUE, (3, 1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp3:mod:fm", TRUE, (3, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output3:mod:fm", TRUE, (3, -1)); // test numeric parameter
     TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp30:modulation:fm5", TRUE, (30, 5)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output:mod:fm", TRUE, (1, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm", TRUE, (3, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:mod:fm", TRUE, (3, 1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output:mod:fm", TRUE, (-1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm", TRUE, (3, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:mod:fm", TRUE, (3, -1)); // test numeric parameter
     TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm2", TRUE, (3, 2)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "output:fm", TRUE, (1, 1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "output:fm", TRUE, (-1, -1)); // test numeric parameter
 
     TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp3:mod10:fm", TRUE, (3, 10)); // test numeric parameter
     TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output3:mod10:fm", TRUE, (3, 10)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp30:modulation:fm", TRUE, (30, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output:mod:fm", TRUE, (1, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, 1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp30:modulation:fm", TRUE, (30, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output:mod:fm", TRUE, (-1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, -1)); // test numeric parameter
     TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:mod10:fm", TRUE, (3, 10)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, 1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "output:fm", TRUE, (1, 1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "output:fm", TRUE, (-1, -1)); // test numeric parameter
 }
 
 static void test_composeCompoundCommand(void) {

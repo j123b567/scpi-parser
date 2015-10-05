@@ -61,7 +61,7 @@ extern "C" {
     scpi_bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     size_t skipWhitespace(const char * cmd, size_t len) LOCAL;
     scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len, int32_t * num) LOCAL;
-    scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len) LOCAL;
+    scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len, int32_t default_value) LOCAL;
     scpi_bool_t composeCompoundCommand(const scpi_token_t * prev, scpi_token_t * current) LOCAL;
 
 #if !HAVE_STRNLEN

@@ -221,7 +221,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
 
         if (num) {
             if (len1 == len2) {
-                *num = 1;
+                //*num = 1;
             } else {
                 int32_t tmpNum;
                 i = len1 + strToLong(str2 + len1, &tmpNum, 10);
@@ -345,7 +345,7 @@ scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * 
  * @param len - max search length
  * @return TRUE if pattern matches, FALSE otherwise
  */
-scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len) {
+scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len, int32_t default_value) {
     scpi_bool_t result = FALSE;
     int leftFlag = 0; // flag for '[' on left
     int rightFlag = 0; // flag for ']' on right
@@ -394,7 +394,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
         if ((pattern_sep_pos > 0) && pattern_ptr[pattern_sep_pos - 1] == '#') {
             if (numbers && (numbers_idx < numbers_len)) {
                 number_ptr = numbers + numbers_idx;
-                *number_ptr = 1; // default value
+                *number_ptr = default_value; // default value
             } else {
                 number_ptr = NULL;
             }

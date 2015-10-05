@@ -159,7 +159,7 @@ static scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 static scpi_result_t TEST_Numbers(scpi_t * context) {
     int32_t numbers[2];
 
-    SCPI_CommandNumbers(context, numbers, 2);
+    SCPI_CommandNumbers(context, numbers, 2, 1);
 
     fprintf(stderr, "TEST numbers %d %d\r\n", numbers[0], numbers[1]);
 

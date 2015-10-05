@@ -153,7 +153,7 @@ static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int 
 
     for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
         cmd = &context->cmdlist[i];
-        if (matchCommand(cmd->pattern, header, len, NULL, 0)) {
+        if (matchCommand(cmd->pattern, header, len, NULL, 0, 0)) {
             context->param_list.cmd = cmd;
             return TRUE;
         }
@@ -1073,7 +1073,7 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     }
 
     pattern = context->param_list.cmd->pattern;
-    return matchCommand (pattern, cmd, strlen (cmd), NULL, 0);
+    return matchCommand (pattern, cmd, strlen (cmd), NULL, 0, 0);
 }
 
 /**
@@ -1090,11 +1090,11 @@ int32_t SCPI_CmdTag(scpi_t * context) {
 }
 
 scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
-    return matchCommand (pattern, value, len, NULL, 0);
+    return matchCommand (pattern, value, len, NULL, 0, 0);
 }
 
-scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len) {
-    return matchCommand (context->param_list.cmd->pattern,  context->param_list.cmd_raw.data, context->param_list.cmd_raw.length, numbers, len);
+scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len, int32_t default_value) {
+    return matchCommand (context->param_list.cmd->pattern,  context->param_list.cmd_raw.data, context->param_list.cmd_raw.length, numbers, len, default_value);
 }
 
 /**
