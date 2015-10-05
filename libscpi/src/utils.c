@@ -215,16 +215,16 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base) {
                 x = 0x8000000000000000LL;
                 break;
             case 8:
-                x = 0x4000000000000000LL;
+                x = 0x8000000000000000LL;
                 break;
             case 10:
-                x = 100000000000000000LL;
+                x = 1000000000000000000LL;
                 break;
             case 0x10:
                 x = 0x1000000000000000LL;
                 break;
             default:
-                x = 100000000000000000LL;
+                x = 1000000000000000000LL;
                 base = 10;
                 break;
         }
@@ -275,19 +275,19 @@ size_t SCPI_UInt64ToStr(uint64_t val, char * str, size_t len, int8_t base) {
 
         switch (base) {
             case 2: 
-                x = 0x8000000000000000LL;
+                x = 0x8000000000000000ULL;
                 break;
             case 8:
-                x = 0x4000000000000000LL;
+                x = 0x8000000000000000ULL;
                 break;
             case 10:
-                x = 100000000000000000LL;
+                x = 10000000000000000000ULL;
                 break;
             case 0x10:
-                x = 0x1000000000000000LL;
+                x = 0x1000000000000000ULL;
                 break;
             default:
-                x = 1000000000L;
+                x = 10000000000000000000ULL;
                 base = 10;
                 break;
         }
