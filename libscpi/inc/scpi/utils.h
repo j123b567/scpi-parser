@@ -43,11 +43,9 @@
 extern "C" {
 #endif
 
-    size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base);
-#define SCPI_LongToStr(val, str, len, base) SCPI_Int32ToStr((val), (str), (len), (base))
-    size_t SCPI_UInt32ToStr(uint32_t val, char * str, size_t len, int8_t base);
-    size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base);
-    size_t SCPI_UInt64ToStr(uint64_t val, char * str, size_t len, int8_t base);
+    size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign);
+#define SCPI_LongToStr(val, str, len, base) SCPI_Int32ToStr((val), (str), (len), (base), TRUE)
+    size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign);
     size_t SCPI_DoubleToStr(double val, char * str, size_t len);
 
 #ifdef	__cplusplus

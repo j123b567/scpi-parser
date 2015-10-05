@@ -323,7 +323,7 @@ size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len) {
  * @return
  */
 size_t SCPI_ResultInt32(scpi_t * context, int32_t val) {
-    return SCPI_ResultInt32Base(context, val, 10);
+    return SCPI_ResultInt32Base(context, val, 10, TRUE);
 }
 
 /**
@@ -333,7 +333,7 @@ size_t SCPI_ResultInt32(scpi_t * context, int32_t val) {
  * @return
  */
 size_t SCPI_ResultUInt32(scpi_t * context, uint32_t val) {
-    return SCPI_ResultUInt32Base(context, val, 10);
+    return SCPI_ResultInt32Base(context, val, 10, FALSE);
 }
 
 /**
@@ -343,7 +343,7 @@ size_t SCPI_ResultUInt32(scpi_t * context, uint32_t val) {
  * @return
  */
 size_t SCPI_ResultInt64(scpi_t * context, int64_t val) {
-    return SCPI_ResultInt64Base(context, val, 10);
+    return SCPI_ResultInt64Base(context, val, 10, TRUE);
 }
 
 /**
@@ -353,7 +353,7 @@ size_t SCPI_ResultInt64(scpi_t * context, int64_t val) {
  * @return
  */
 size_t SCPI_ResultUInt64(scpi_t * context, uint64_t val) {
-    return SCPI_ResultUInt64Base(context, val, 10);
+    return SCPI_ResultInt64Base(context, val, 10, FALSE);
 }
 
 /**
@@ -371,19 +371,20 @@ static const char * getBasePrefix(int8_t base) {
 }
 
 /**
- * Write signed 32 bit integer value in specific base to the result
+ * Write signed/unsigned 32 bit integer value in specific base to the result
  * @param context
  * @param val
  * @param base
+ * @param sign
  * @return
  */
-size_t SCPI_ResultInt32Base(scpi_t * context, int32_t val, int8_t base) {
+size_t SCPI_ResultInt32Base(scpi_t * context, int32_t val, int8_t base, scpi_bool_t sign) {
     char buffer[32+1];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
 
-    len = SCPI_Int32ToStr(val, buffer, sizeof (buffer), base);
+    len = SCPI_Int32ToStr(val, buffer, sizeof (buffer), base, sign);
     basePrefix = getBasePrefix(base);
 
     result += writeDelimiter(context);
@@ -396,69 +397,20 @@ size_t SCPI_ResultInt32Base(scpi_t * context, int32_t val, int8_t base) {
 }
 
 /**
- * Write unsigned 32 bit integer value in specific base to the result
+ * Write signed/unsigned 64 bit integer value in specific base to the result
  * @param context
  * @param val
  * @param base
+ * @param sign
  * @return
  */
-size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base) {
-    char buffer[32+1];
-    const char * basePrefix;
-    size_t result = 0;
-    size_t len;
-
-    len = SCPI_UInt32ToStr(val, buffer, sizeof (buffer), base);
-    basePrefix = getBasePrefix(base);
-
-    result += writeDelimiter(context);
-    if (basePrefix != NULL) {
-        result += writeData(context, basePrefix, 2);
-    }
-    result += writeData(context, buffer, len);
-    context->output_count++;
-    return result;
-}
-
-/**
- * Write signed 64 bit integer value in specific base to the result
- * @param context
- * @param val
- * @param base
- * @return
- */
-size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base) {
+size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base, scpi_bool_t sign) {
     char buffer[64+1];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
 
-    len = SCPI_Int64ToStr(val, buffer, sizeof (buffer), base);
-    basePrefix = getBasePrefix(base);
-
-    result += writeDelimiter(context);
-    if (basePrefix != NULL) {
-        result += writeData(context, basePrefix, 2);
-    }
-    result += writeData(context, buffer, len);
-    context->output_count++;
-    return result;
-}
-
-/**
- * Write unsigned 64 bit integer value in specific base to the result
- * @param context
- * @param val
- * @param base
- * @return
- */
-size_t SCPI_ResultUInt64Base(scpi_t * context, uint64_t val, int8_t base) {
-    char buffer[64+1];
-    const char * basePrefix;
-    size_t result = 0;
-    size_t len;
-
-    len = SCPI_UInt64ToStr(val, buffer, sizeof (buffer), base);
+    len = SCPI_Int64ToStr(val, buffer, sizeof (buffer), base, sign);
     basePrefix = getBasePrefix(base);
 
     result += writeDelimiter(context);
@@ -516,7 +468,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
     char block_header[12];
     size_t header_len;
     block_header[0] = '#';
-    SCPI_Int32ToStr(len, block_header + 2, 10, 10);
+    SCPI_Int32ToStr(len, block_header + 2, 10, 10, FALSE);
 
     header_len = strlen(block_header + 2);
     block_header[1] = (char)(header_len + '0');
@@ -535,7 +487,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
  * @return
  */
 size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
-    return SCPI_ResultInt32Base(context, val ? 1 : 0, 10);
+    return SCPI_ResultInt32Base(context, val ? 1 : 0, 10, FALSE);
 }
 
 /* parsing parameters */
@@ -635,6 +587,7 @@ scpi_bool_t SCPI_ParamIsNumber(scpi_parameter_t * parameter, scpi_bool_t suffixA
  * @param context
  * @param parameter
  * @param value result
+ * @param sign
  * @return TRUE if succesful
  */
 static scpi_bool_t ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, int32_t * value, scpi_bool_t sign) {
@@ -755,6 +708,7 @@ scpi_bool_t SCPI_ParamDouble(scpi_t * context, double * value, scpi_bool_t manda
  * @param context
  * @param value
  * @param mandatory
+ * @param sign
  * @return
  */
 static scpi_bool_t ParamInt32(scpi_t * context, int32_t * value, scpi_bool_t mandatory, scpi_bool_t sign) {

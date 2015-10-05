@@ -69,14 +69,15 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
 }
 
 /**
- * Converts signed 32b integer value to string
+ * Converts signed/unsigned 32 bit integer value to string
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
  * @param base  output base
+ * @param sign  
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base) {
+size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -99,7 +100,7 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base) {
             case 10:
                 x = 1000000000L;
                 break;
-            case 0x10:
+            case 16:
                 x = 0x10000000L;
                 break;
             default:
@@ -109,7 +110,7 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base) {
         }
 
         // add sign for numbers in base 10
-        if ((val < 0) && (base == 10)) {
+        if (sign && (val < 0) && (base == 10)) {
             uval = -val;
             ADD_CHAR('-');
         }
@@ -133,71 +134,15 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base) {
 }
 
 /**
- * Converts unsigned 32b integer value to string
+ * Converts signed/unsigned 64 bit integer value to string
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
  * @param base  output base
+ * @param sign  
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_UInt32ToStr(uint32_t val, char * str, size_t len, int8_t base) {
-    const char digits[] = "0123456789ABCDEF";
-
-#define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
-    uint32_t x = 0;
-    int_fast8_t digit;
-    size_t pos = 0;
-
-    if (val == 0) {
-        ADD_CHAR('0');
-    } else {
-
-        switch (base) {
-            case 2: 
-                x = 0x80000000L;
-                break;
-            case 8:
-                x = 0x40000000L;
-                break;
-            case 10:
-                x = 1000000000L;
-                break;
-            case 0x10:
-                x = 0x10000000L;
-                break;
-            default:
-                x = 1000000000L;
-                base = 10;
-                break;
-        }
-
-        // remove leading zeros
-        while ((val / x) == 0) {
-            x /= base;
-        }
-
-        do {
-            digit = (uint8_t) (val / x);
-            ADD_CHAR(digits[digit]);
-            val -= digit * x;
-            x /= base;
-        } while (x && (pos < len));
-    }
-
-    if (pos < len) str[pos] = 0;
-    return pos;
-#undef ADD_CHAR
-}
-
-/**
- * Converts signed 64b integer value to string
- * @param val   integer value
- * @param str   converted textual representation
- * @param len   string buffer length
- * @param base  output base
- * @return number of bytes written to str (without '\0')
- */
-size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base) {
+size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -212,25 +157,25 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base) {
 
         switch (base) {
             case 2: 
-                x = 0x8000000000000000LL;
+                x = 0x8000000000000000ULL;
                 break;
             case 8:
-                x = 0x8000000000000000LL;
+                x = 0x8000000000000000ULL;
                 break;
             case 10:
-                x = 1000000000000000000LL;
+                x = 10000000000000000000ULL;
                 break;
-            case 0x10:
-                x = 0x1000000000000000LL;
+            case 16:
+                x = 0x1000000000000000ULL;
                 break;
             default:
-                x = 1000000000000000000LL;
+                x = 10000000000000000000ULL;
                 base = 10;
                 break;
         }
 
         // add sign for numbers in base 10
-        if ((val < 0) && (base == 10)) {
+        if (sign && (val < 0) && (base == 10)) {
             uval = -val;
             ADD_CHAR('-');
         }
@@ -244,63 +189,6 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base) {
             digit = (uint8_t) (uval / x);
             ADD_CHAR(digits[digit]);
             uval -= digit * x;
-            x /= base;
-        } while (x && (pos < len));
-    }
-
-    if (pos < len) str[pos] = 0;
-    return pos;
-#undef ADD_CHAR
-}
-
-/**
- * Converts unsigned 64b integer value to string
- * @param val   integer value
- * @param str   converted textual representation
- * @param len   string buffer length
- * @param base  output base
- * @return number of bytes written to str (without '\0')
- */
-size_t SCPI_UInt64ToStr(uint64_t val, char * str, size_t len, int8_t base) {
-    const char digits[] = "0123456789ABCDEF";
-
-#define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
-    uint64_t x = 0;
-    int_fast8_t digit;
-    size_t pos = 0;
-
-    if (val == 0) {
-        ADD_CHAR('0');
-    } else {
-
-        switch (base) {
-            case 2: 
-                x = 0x8000000000000000ULL;
-                break;
-            case 8:
-                x = 0x8000000000000000ULL;
-                break;
-            case 10:
-                x = 10000000000000000000ULL;
-                break;
-            case 0x10:
-                x = 0x1000000000000000ULL;
-                break;
-            default:
-                x = 10000000000000000000ULL;
-                base = 10;
-                break;
-        }
-
-        // remove leading zeros
-        while ((val / x) == 0) {
-            x /= base;
-        }
-
-        do {
-            digit = (uint8_t) (val / x);
-            ADD_CHAR(digits[digit]);
-            val -= digit * x;
             x /= base;
         } while (x && (pos < len));
     }
