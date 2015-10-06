@@ -608,7 +608,7 @@ static scpi_bool_t ParamSignToUInt32(scpi_t * context, scpi_parameter_t * parame
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             if (sign) {
-                return strBaseToInt32(parameter->ptr, (uint32_t *)value, 10) > 0 ? TRUE : FALSE;
+                return strBaseToInt32(parameter->ptr, (int32_t *)value, 10) > 0 ? TRUE : FALSE;
             } else {
                 return strBaseToUInt32(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
             }
@@ -642,7 +642,7 @@ static scpi_bool_t ParamSignToUInt64(scpi_t * context, scpi_parameter_t * parame
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             if (sign) {
-                return strBaseToInt64(parameter->ptr, (uint64_t *)value, 10) > 0 ? TRUE : FALSE;
+                return strBaseToInt64(parameter->ptr, (int64_t *)value, 10) > 0 ? TRUE : FALSE;
             } else {
                 return strBaseToUInt64(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
             }
