@@ -141,7 +141,7 @@ size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, sc
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len) {
-    UInt32ToStrBaseSign((int32_t) val, str, len, 10, TRUE);
+    return UInt32ToStrBaseSign((int32_t) val, str, len, 10, TRUE);
 }
 
 /**
@@ -153,7 +153,7 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len) {
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
-    UInt32ToStrBaseSign(val, str, len, base, FALSE);
+    return UInt32ToStrBaseSign(val, str, len, base, FALSE);
 }
 
 /**
@@ -229,7 +229,7 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len) {
-    UInt64ToStrBaseSign((int64_t) val, str, len, 10, TRUE);
+    return UInt64ToStrBaseSign((int64_t) val, str, len, 10, TRUE);
 }
 
 /**
@@ -241,7 +241,7 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len) {
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
-    UInt64ToStrBaseSign(val, str, len, base, FALSE);
+    return UInt64ToStrBaseSign(val, str, len, base, FALSE);
 }
 
 /**
