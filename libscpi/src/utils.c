@@ -77,7 +77,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param sign  
  * @return number of bytes written to str (without '\0')
  */
-static size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
+size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -153,7 +153,7 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len) {
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
-    UInt32ToStrBaseSign(val, str, len, base, TRUE);
+    UInt32ToStrBaseSign(val, str, len, base, FALSE);
 }
 
 /**
@@ -165,7 +165,7 @@ size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
  * @param sign  
  * @return number of bytes written to str (without '\0')
  */
-static size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
+size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -241,7 +241,7 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len) {
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
-    UInt64ToStrBaseSign(val, str, len, base, TRUE);
+    UInt64ToStrBaseSign(val, str, len, base, FALSE);
 }
 
 /**
