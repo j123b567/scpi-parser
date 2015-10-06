@@ -618,6 +618,40 @@ static scpi_bool_t ParamSignToUInt32(scpi_t * context, scpi_parameter_t * parame
 }
 
 /**
+ * Convert parameter to signed/unsigned 64 bit integer
+ * @param context
+ * @param parameter
+ * @param value result
+ * @param sign
+ * @return TRUE if succesful
+ */
+static scpi_bool_t ParamSignToUInt64(scpi_t * context, scpi_parameter_t * parameter, uint64_t * value, scpi_bool_t sign) {
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    switch (parameter->type) {
+        case SCPI_TOKEN_HEXNUM:
+            return strBaseToUInt64(parameter->ptr, value, 16) > 0 ? TRUE : FALSE;
+        case SCPI_TOKEN_OCTNUM:
+            return strBaseToUInt64(parameter->ptr, value, 8) > 0 ? TRUE : FALSE;
+        case SCPI_TOKEN_BINNUM:
+            return strBaseToUInt64(parameter->ptr, value, 2) > 0 ? TRUE : FALSE;
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
+            if (sign) {
+                return strBaseToInt64(parameter->ptr, (uint64_t *)value, 10) > 0 ? TRUE : FALSE;
+            } else {
+                return strBaseToUInt64(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
+            }
+        default:
+            return FALSE;
+    }
+}
+
+/**
  * Convert parameter to signed 32 bit integer
  * @param context
  * @param parameter
@@ -637,6 +671,28 @@ scpi_bool_t SCPI_ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, in
  */
 scpi_bool_t SCPI_ParamToUInt32(scpi_t * context,  scpi_parameter_t * parameter, uint32_t * value) {
     return ParamSignToUInt32(context, parameter, value, FALSE);
+}
+
+/**
+ * Convert parameter to signed 64 bit integer
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return TRUE if succesful
+ */
+scpi_bool_t SCPI_ParamToInt64(scpi_t * context, scpi_parameter_t * parameter, int64_t * value) {
+    return ParamSignToUInt64(context, parameter, (uint64_t *)value, TRUE);
+}
+
+/**
+ * Convert parameter to unsigned 32 bit integer
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return TRUE if succesful
+ */
+scpi_bool_t SCPI_ParamToUInt64(scpi_t * context,  scpi_parameter_t * parameter, uint64_t * value) {
+    return ParamSignToUInt64(context, parameter, value, FALSE);
 }
 
 /**
@@ -737,6 +793,38 @@ static scpi_bool_t ParamSignUInt32(scpi_t * context, uint32_t * value, scpi_bool
 }
 
 /**
+ * Read signed/unsigned 64 bit integer parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @param sign
+ * @return
+ */
+static scpi_bool_t ParamSignUInt64(scpi_t * context, uint64_t * value, scpi_bool_t mandatory, scpi_bool_t sign) {
+    scpi_bool_t result;
+    scpi_parameter_t param;
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {
+        if (SCPI_ParamIsNumber(&param, FALSE)) {
+            result = ParamSignToUInt64(context, &param, value, sign);
+        } else if (SCPI_ParamIsNumber(&param, TRUE)) {
+            SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+            result = FALSE;
+        } else {
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+            result = FALSE;
+        }
+    }
+    return result;
+}
+
+/**
  * Read signed 32 bit integer parameter
  * @param context
  * @param value
@@ -756,6 +844,28 @@ scpi_bool_t SCPI_ParamInt32(scpi_t * context, int32_t * value, scpi_bool_t manda
  */
 scpi_bool_t SCPI_ParamUInt32(scpi_t * context, uint32_t * value, scpi_bool_t mandatory) {
     return ParamSignUInt32(context, value, mandatory, FALSE);
+}
+
+/**
+ * Read signed 64 bit integer parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return
+ */
+scpi_bool_t SCPI_ParamInt64(scpi_t * context, int64_t * value, scpi_bool_t mandatory) {
+    return ParamSignUInt64(context, (uint64_t *)value, mandatory, TRUE);
+}
+
+/**
+ * Read unsigned 64 bit integer parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return
+ */
+scpi_bool_t SCPI_ParamUInt64(scpi_t * context, uint64_t * value, scpi_bool_t mandatory) {
+    return ParamSignUInt64(context, value, mandatory, FALSE);
 }
 
 /**

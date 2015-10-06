@@ -1,7 +1,6 @@
 VERSION = 2.1.0
 LIBNAME = scpi
 
-CFLAGS += -std=c99
 CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -Iinc
 CFLAGS_SHARED += $(CFLAGS) -fPIC
 LDFLAGS += -Wl,--as-needed

@@ -73,12 +73,13 @@ static void test_Int32ToStr() {
     const size_t max=32+1;
     int32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
     int N = sizeof(val) / sizeof(int32_t);
+    int i;
     char str[max];
     char ref[max];
     size_t len;
 
     // test signed conversion to decimal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_Int32ToStr(val[i], str, max);
         snprintf(ref, max, "%"PRIi32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -90,12 +91,13 @@ static void test_UInt32ToStrBase() {
     const size_t max=32+1;
     uint32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
     int N = sizeof(val) / sizeof(uint32_t);
+    int i;
     char str[max];
     char ref[max];
     size_t len;
 
     // test conversion to decimal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 10);
         snprintf(ref, max, "%"PRIu32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -103,7 +105,7 @@ static void test_UInt32ToStrBase() {
     }
 
     // test conversion to hexadecimal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 16);
         snprintf(ref, max, "%"PRIX32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -111,7 +113,7 @@ static void test_UInt32ToStrBase() {
     }
 
     // test conversion to octal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 8);
         snprintf(ref, max, "%"PRIo32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -144,12 +146,13 @@ static void test_Int64ToStr() {
     const size_t max=64+1;
     int64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
     int N = sizeof(val) / sizeof(int64_t);
+    int i;
     char str[max];
     char ref[max];
     size_t len;
 
     // test conversion to decimal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_Int64ToStr(val[i], str, max);
         snprintf(ref, max, "%"PRIi64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -161,12 +164,13 @@ static void test_UInt64ToStrBase() {
     const size_t max=64+1;
     uint64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
     int N = sizeof(val) / sizeof(uint64_t);
+    int i;
     char str[max];
     char ref[max];
     size_t len;
 
     // test conversion to decimal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 10);
         snprintf(ref, max, "%"PRIu64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -174,7 +178,7 @@ static void test_UInt64ToStrBase() {
     }
 
     // test conversion to hexadecimal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 16);
         snprintf(ref, max, "%"PRIX64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -182,7 +186,7 @@ static void test_UInt64ToStrBase() {
     }
 
     // test conversion to octal numbers
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 8);
         snprintf(ref, max, "%"PRIo64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -215,11 +219,12 @@ static void test_doubleToStr() {
     const size_t max=49+1;
     double val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
     int N = sizeof(val) / sizeof(int);
+    int i;
     char str[max];
     char ref[max];
     size_t len;
 
-    for (uintptr_t i=0; i<N; i++) {
+    for (i=0; i<N; i++) {
         len = SCPI_DoubleToStr(val[i], str, max);
         snprintf(ref, max, "%g", val[i]);
         CU_ASSERT(len == strlen(ref));
