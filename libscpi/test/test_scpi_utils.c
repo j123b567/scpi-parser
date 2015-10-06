@@ -72,12 +72,13 @@ static void test_strnpbrk() {
 static void test_Int32ToStr() {
     const size_t max=32+1;
     int32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
+    int N = sizeof(val) / sizeof(int32_t);
     char str[max];
     char ref[max];
     size_t len;
 
     // test signed conversion to decimal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_Int32ToStr(val[i], str, max);
         snprintf(ref, max, "%"PRIi32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -88,12 +89,13 @@ static void test_Int32ToStr() {
 static void test_UInt32ToStrBase() {
     const size_t max=32+1;
     uint32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
+    int N = sizeof(val) / sizeof(uint32_t);
     char str[max];
     char ref[max];
     size_t len;
 
     // test conversion to decimal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 10);
         snprintf(ref, max, "%"PRIu32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -101,7 +103,7 @@ static void test_UInt32ToStrBase() {
     }
 
     // test conversion to hexadecimal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 16);
         snprintf(ref, max, "%"PRIX32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -109,7 +111,7 @@ static void test_UInt32ToStrBase() {
     }
 
     // test conversion to octal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 8);
         snprintf(ref, max, "%"PRIo32, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -141,12 +143,13 @@ static void test_UInt32ToStrBase() {
 static void test_Int64ToStr() {
     const size_t max=64+1;
     int64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
+    int N = sizeof(val) / sizeof(int64_t);
     char str[max];
     char ref[max];
     size_t len;
 
     // test conversion to decimal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_Int64ToStr(val[i], str, max);
         snprintf(ref, max, "%"PRIi64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -157,12 +160,13 @@ static void test_Int64ToStr() {
 static void test_UInt64ToStrBase() {
     const size_t max=64+1;
     uint64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
+    int N = sizeof(val) / sizeof(uint64_t);
     char str[max];
     char ref[max];
     size_t len;
 
     // test conversion to decimal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 10);
         snprintf(ref, max, "%"PRIu64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -170,7 +174,7 @@ static void test_UInt64ToStrBase() {
     }
 
     // test conversion to hexadecimal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 16);
         snprintf(ref, max, "%"PRIX64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -178,7 +182,7 @@ static void test_UInt64ToStrBase() {
     }
 
     // test conversion to octal numbers
-    for (uintptr_t i=0; i<7; i++) {
+    for (uintptr_t i=0; i<N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 8);
         snprintf(ref, max, "%"PRIo64, val[i]);
         CU_ASSERT(len == strlen(ref));
@@ -208,75 +212,123 @@ static void test_UInt64ToStrBase() {
 }
 
 static void test_doubleToStr() {
-    size_t result;
-    char str[50];
+    const size_t max=49+1;
+    double val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
+    int N = sizeof(val) / sizeof(int);
+    char str[max];
+    char ref[max];
+    size_t len;
 
-#define TEST_DOUBLE_TO_STR(v, r, s)                     \
-    do {                                                \
-        result = SCPI_DoubleToStr(v, str, sizeof(str)); \
-        CU_ASSERT_EQUAL(result, r);                     \
-        CU_ASSERT_STRING_EQUAL(str, s);                 \
-    } while(0)                                          \
-
-
-    TEST_DOUBLE_TO_STR(1, 1, "1");
-    TEST_DOUBLE_TO_STR(-1, 2, "-1");
-    TEST_DOUBLE_TO_STR(1.1, 3, "1.1");
-    TEST_DOUBLE_TO_STR(-1.1, 4, "-1.1");
-    TEST_DOUBLE_TO_STR(1e3, 4, "1000");
-    TEST_DOUBLE_TO_STR(1e30, 5, "1e+30");
-    TEST_DOUBLE_TO_STR(-1.3e30, 8, "-1.3e+30");
-    TEST_DOUBLE_TO_STR(-1.3e-30, 8, "-1.3e-30");
+    for (uintptr_t i=0; i<N; i++) {
+        len = SCPI_DoubleToStr(val[i], str, max);
+        snprintf(ref, max, "%g", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
 }
 
-static void test_strToInt32() {
+static void test_strBaseToInt32() {
     size_t result;
     int32_t val;
 
-#define TEST_STR_TO_LONG(s, r, v, b)                    \
+#define TEST_STR_TO_INT32(s, r, v, b)                   \
     do {                                                \
-        result = strToInt32(s, &val, b);                 \
+        result = strBaseToInt32(s, &val, b);            \
         CU_ASSERT_EQUAL(val, v);                        \
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
 
-    TEST_STR_TO_LONG("", 0, 0, 10);
-    TEST_STR_TO_LONG("1", 1, 1, 10);
-    TEST_STR_TO_LONG("10", 2, 10, 10);
-    TEST_STR_TO_LONG("-50", 3, -50, 10);
-    TEST_STR_TO_LONG("100MHz", 3, 100, 10);
-    TEST_STR_TO_LONG("MHz", 0, 0, 10);
-    TEST_STR_TO_LONG("1.4", 1, 1, 10);
-    TEST_STR_TO_LONG(" 1", 2, 1, 10);
-    TEST_STR_TO_LONG(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_LONG("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_LONG("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_LONG("18", 1, 1, 8); // octal 1, 8 is ignored
+    // TODO: extend to corner cases, use scanf as reference
+    TEST_STR_TO_INT32("", 0, 0, 10);
+    TEST_STR_TO_INT32("1", 1, 1, 10);
+    TEST_STR_TO_INT32("10", 2, 10, 10);
+    TEST_STR_TO_INT32("-50", 3, -50, 10);
+    TEST_STR_TO_INT32("100MHz", 3, 100, 10);
+    TEST_STR_TO_INT32("MHz", 0, 0, 10);
+    TEST_STR_TO_INT32("1.4", 1, 1, 10);
+    TEST_STR_TO_INT32(" 1", 2, 1, 10);
+    TEST_STR_TO_INT32(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_INT32("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_INT32("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_INT32("18", 1, 1, 8); // octal 1, 8 is ignored
 }
 
-static void test_strToUInt32() {
+static void test_strBaseToUInt32() {
     size_t result;
     uint32_t val;
 
-#define TEST_STR_TO_ULONG(s, r, v, b)                    \
+#define TEST_STR_TO_UINT32(s, r, v, b)                  \
     do {                                                \
-        result = strToUInt32(s, &val, b);                 \
+        result = strBaseToUInt32(s, &val, b);           \
         CU_ASSERT_EQUAL(val, v);                        \
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
 
-    TEST_STR_TO_ULONG("", 0, 0, 10);
-    TEST_STR_TO_ULONG("1", 1, 1, 10);
-    TEST_STR_TO_ULONG("10", 2, 10, 10);
-    TEST_STR_TO_ULONG("100MHz", 3, 100, 10);
-    TEST_STR_TO_ULONG("MHz", 0, 0, 10);
-    TEST_STR_TO_ULONG("1.4", 1, 1, 10);
-    TEST_STR_TO_ULONG(" 1", 2, 1, 10);
-    TEST_STR_TO_ULONG(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_ULONG("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_ULONG("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_ULONG("18", 1, 1, 8); // octal 1, 8 is ignored
-    TEST_STR_TO_ULONG("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
+    // TODO: extend to corner cases, use scanf as reference
+    TEST_STR_TO_UINT32("", 0, 0, 10);
+    TEST_STR_TO_UINT32("1", 1, 1, 10);
+    TEST_STR_TO_UINT32("10", 2, 10, 10);
+    TEST_STR_TO_UINT32("100MHz", 3, 100, 10);
+    TEST_STR_TO_UINT32("MHz", 0, 0, 10);
+    TEST_STR_TO_UINT32("1.4", 1, 1, 10);
+    TEST_STR_TO_UINT32(" 1", 2, 1, 10);
+    TEST_STR_TO_UINT32(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_UINT32("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_UINT32("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_UINT32("18", 1, 1, 8); // octal 1, 8 is ignored
+    TEST_STR_TO_UINT32("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
+}
+
+static void test_strBaseToInt64() {
+    size_t result;
+    int64_t val;
+
+#define TEST_STR_TO_INT64(s, r, v, b)                   \
+    do {                                                \
+        result = strBaseToInt64(s, &val, b);            \
+        CU_ASSERT_EQUAL(val, v);                        \
+        CU_ASSERT_EQUAL(result, r);                     \
+    } while(0)                                          \
+
+    // TODO: extend to corner cases, use scanf as reference
+    TEST_STR_TO_INT64("", 0, 0, 10);
+    TEST_STR_TO_INT64("1", 1, 1, 10);
+    TEST_STR_TO_INT64("10", 2, 10, 10);
+    TEST_STR_TO_INT64("-50", 3, -50, 10);
+    TEST_STR_TO_INT64("100MHz", 3, 100, 10);
+    TEST_STR_TO_INT64("MHz", 0, 0, 10);
+    TEST_STR_TO_INT64("1.4", 1, 1, 10);
+    TEST_STR_TO_INT64(" 1", 2, 1, 10);
+    TEST_STR_TO_INT64(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_INT64("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_INT64("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_INT64("18", 1, 1, 8); // octal 1, 8 is ignored
+}
+
+static void test_strBaseToUInt64() {
+    size_t result;
+    uint64_t val;
+
+#define TEST_STR_TO_UINT64(s, r, v, b)                  \
+    do {                                                \
+        result = strBaseToUInt64(s, &val, b);           \
+        CU_ASSERT_EQUAL(val, v);                        \
+        CU_ASSERT_EQUAL(result, r);                     \
+    } while(0)                                          \
+
+    // TODO: extend to corner cases, use scanf as reference
+    TEST_STR_TO_UINT64("", 0, 0, 10);
+    TEST_STR_TO_UINT64("1", 1, 1, 10);
+    TEST_STR_TO_UINT64("10", 2, 10, 10);
+    TEST_STR_TO_UINT64("100MHz", 3, 100, 10);
+    TEST_STR_TO_UINT64("MHz", 0, 0, 10);
+    TEST_STR_TO_UINT64("1.4", 1, 1, 10);
+    TEST_STR_TO_UINT64(" 1", 2, 1, 10);
+    TEST_STR_TO_UINT64(" +100", 5, 100, 10); // space and +
+    TEST_STR_TO_UINT64("FF", 2, 255, 16); // hexadecimal FF
+    TEST_STR_TO_UINT64("77", 2, 63, 8); // octal 77
+    TEST_STR_TO_UINT64("18", 1, 1, 8); // octal 1, 8 is ignored
+    TEST_STR_TO_UINT64("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
 }
 
 static void test_strToDouble() {
@@ -596,8 +648,10 @@ int main() {
             || (NULL == CU_add_test(pSuite, "Int64ToStr", test_Int64ToStr))
             || (NULL == CU_add_test(pSuite, "UInt64ToStrBase", test_UInt64ToStrBase))
             || (NULL == CU_add_test(pSuite, "doubleToStr", test_doubleToStr))
-            || (NULL == CU_add_test(pSuite, "strToInt32", test_strToInt32))
-            || (NULL == CU_add_test(pSuite, "strToUInt32", test_strToUInt32))
+            || (NULL == CU_add_test(pSuite, "strBaseToInt32", test_strBaseToInt32))
+            || (NULL == CU_add_test(pSuite, "strBaseToUInt32", test_strBaseToUInt32))
+            || (NULL == CU_add_test(pSuite, "strBaseToInt64", test_strBaseToInt64))
+            || (NULL == CU_add_test(pSuite, "strBaseToUInt64", test_strBaseToUInt64))
             || (NULL == CU_add_test(pSuite, "strToDouble", test_strToDouble))
             || (NULL == CU_add_test(pSuite, "compareStr", test_compareStr))
             || (NULL == CU_add_test(pSuite, "compareStrAndNum", test_compareStrAndNum))

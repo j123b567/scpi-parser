@@ -261,7 +261,7 @@ size_t SCPI_DoubleToStr(double val, char * str, size_t len) {
  * @param val   32bit integer result
  * @return      number of bytes used in string
  */
-size_t strToInt32(const char * str, int32_t * val, int8_t base) {
+size_t strBaseToInt32(const char * str, int32_t * val, int8_t base) {
     char * endptr;
     *val = strtol(str, &endptr, base);
     return endptr - str;
@@ -273,9 +273,33 @@ size_t strToInt32(const char * str, int32_t * val, int8_t base) {
  * @param val   32bit integer result
  * @return      number of bytes used in string
  */
-size_t strToUInt32(const char * str, uint32_t * val, int8_t base) {
+size_t strBaseToUInt32(const char * str, uint32_t * val, int8_t base) {
     char * endptr;
     *val = strtoul(str, &endptr, base);
+    return endptr - str;
+}
+
+/**
+ * Converts string to signed 64bit integer representation
+ * @param str   string value
+ * @param val   64bit integer result
+ * @return      number of bytes used in string
+ */
+size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) {
+    char * endptr;
+    *val = strtol(str, &endptr, base);
+    return endptr - str;
+}
+
+/**
+ * Converts string to unsigned 64bit integer representation
+ * @param str   string value
+ * @param val   64bit integer result
+ * @return      number of bytes used in string
+ */
+size_t strBaseToUInt64(const char * str, uint64_t * val, int8_t base) {
+    char * endptr;
+    *val = strtoull(str, &endptr, base);
     return endptr - str;
 }
 
@@ -336,7 +360,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
                 //*num = 1;
             } else {
                 int32_t tmpNum;
-                i = len1 + strToInt32(str2 + len1, &tmpNum, 10);
+                i = len1 + strBaseToInt32(str2 + len1, &tmpNum, 10);
                 if (i != len2) {
                     result = FALSE;
                 } else {
