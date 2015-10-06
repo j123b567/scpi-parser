@@ -317,46 +317,6 @@ size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len) {
 }
 
 /**
- * Write signed 32 bit integer value to the result
- * @param context
- * @param val
- * @return
- */
-size_t SCPI_ResultInt32(scpi_t * context, int32_t val) {
-    return SCPI_ResultInt32Base(context, val, 10, TRUE);
-}
-
-/**
- * Write unsigned 32 bit integer value to the result
- * @param context
- * @param val
- * @return
- */
-size_t SCPI_ResultUInt32(scpi_t * context, uint32_t val) {
-    return SCPI_ResultInt32Base(context, val, 10, FALSE);
-}
-
-/**
- * Write signed 64 bit integer value to the result
- * @param context
- * @param val
- * @return
- */
-size_t SCPI_ResultInt64(scpi_t * context, int64_t val) {
-    return SCPI_ResultInt64Base(context, val, 10, TRUE);
-}
-
-/**
- * Write unsigned 64 bit integer value to the result
- * @param context
- * @param val
- * @return
- */
-size_t SCPI_ResultUInt64(scpi_t * context, uint64_t val) {
-    return SCPI_ResultInt64Base(context, val, 10, FALSE);
-}
-
-/**
  * Return prefix of nondecimal base
  * @param base
  * @return
@@ -378,13 +338,13 @@ static const char * getBasePrefix(int8_t base) {
  * @param sign
  * @return
  */
-size_t SCPI_ResultInt32Base(scpi_t * context, int32_t val, int8_t base, scpi_bool_t sign) {
+static size_t resultUInt32BaseSign(scpi_t * context, uint32_t val, int8_t base, scpi_bool_t sign) {
     char buffer[32+1];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
 
-    len = SCPI_Int32ToStr(val, buffer, sizeof (buffer), base, sign);
+    len = UInt32ToStrBaseSign(val, buffer, sizeof (buffer), base, sign);
     basePrefix = getBasePrefix(base);
 
     result += writeDelimiter(context);
@@ -404,13 +364,13 @@ size_t SCPI_ResultInt32Base(scpi_t * context, int32_t val, int8_t base, scpi_boo
  * @param sign
  * @return
  */
-size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base, scpi_bool_t sign) {
+static size_t resultUInt64BaseSign(scpi_t * context, uint64_t val, int8_t base, scpi_bool_t sign) {
     char buffer[64+1];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
 
-    len = SCPI_Int64ToStr(val, buffer, sizeof (buffer), base, sign);
+    len = UInt64ToStrBaseSign(val, buffer, sizeof (buffer), base, sign);
     basePrefix = getBasePrefix(base);
 
     result += writeDelimiter(context);
@@ -420,6 +380,47 @@ size_t SCPI_ResultInt64Base(scpi_t * context, int64_t val, int8_t base, scpi_boo
     result += writeData(context, buffer, len);
     context->output_count++;
     return result;
+}
+
+/**
+ * Write signed 32 bit integer value to the result
+ * @param context
+ * @param val
+ * @return
+ */
+size_t SCPI_ResultInt32(scpi_t * context, int32_t val) {
+    return resultUInt32BaseSign(context, val, 10, TRUE);
+}
+
+/**
+ * Write unsigned 32 bit integer value in specific base to the result
+ * Write signed/unsigned 32 bit integer value in specific base to the result
+ * @param context
+ * @param val
+ * @return
+ */
+size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base) {
+    return resultUInt32BaseSign(context, val, base, FALSE);
+}
+
+/**
+ * Write signed 64 bit integer value to the result
+ * @param context
+ * @param val
+ * @return
+ */
+size_t SCPI_ResultInt64(scpi_t * context, int64_t val) {
+    return resultUInt64BaseSign(context, val, 10, TRUE);
+}
+
+/**
+ * Write unsigned 64 bit integer value in specific base to the result
+ * @param context
+ * @param val
+ * @return
+ */
+size_t SCPI_ResultUInt64Base(scpi_t * context, uint64_t val, int8_t base) {
+    return resultUInt64BaseSign(context, val, base, FALSE);
 }
 
 /**
@@ -468,7 +469,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
     char block_header[12];
     size_t header_len;
     block_header[0] = '#';
-    SCPI_Int32ToStr(len, block_header + 2, 10, 10, FALSE);
+    SCPI_UInt32ToStrBase((uint32_t) len, block_header + 2, 10, 10);
 
     header_len = strlen(block_header + 2);
     block_header[1] = (char)(header_len + '0');
@@ -487,7 +488,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
  * @return
  */
 size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val) {
-    return SCPI_ResultInt32Base(context, val ? 1 : 0, 10, FALSE);
+    return resultUInt32BaseSign(context, val ? 1 : 0, 10, FALSE);
 }
 
 /* parsing parameters */

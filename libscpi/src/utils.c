@@ -69,7 +69,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
 }
 
 /**
- * Converts signed/unsigned 32 bit integer value to string
+ * Converts signed/unsigned 32 bit integer value to string in specific base
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
@@ -77,7 +77,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param sign  
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
+static size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -110,7 +110,7 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base, scpi_bo
         }
 
         // add sign for numbers in base 10
-        if (sign && (val < 0) && (base == 10)) {
+        if (sign && ((int32_t) val < 0) && (base == 10)) {
             uval = -val;
             ADD_CHAR('-');
         }
@@ -134,7 +134,30 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base, scpi_bo
 }
 
 /**
- * Converts signed/unsigned 64 bit integer value to string
+ * Converts signed 32 bit integer value to string
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len) {
+    UInt32ToStrBaseSign((int32_t) val, str, len, 10, TRUE);
+}
+
+/**
+ * Converts unsigned 32 bit integer value to string in specific base
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @param base  output base
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
+    UInt32ToStrBaseSign(val, str, len, base, TRUE);
+}
+
+/**
+ * Converts signed/unsigned 64 bit integer value to string in specific base
  * @param val   integer value
  * @param str   converted textual representation
  * @param len   string buffer length
@@ -142,7 +165,7 @@ size_t SCPI_Int32ToStr(int32_t val, char * str, size_t len, int8_t base, scpi_bo
  * @param sign  
  * @return number of bytes written to str (without '\0')
  */
-size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
+static size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
     const char digits[] = "0123456789ABCDEF";
 
 #define ADD_CHAR(c) if (pos < len) str[pos++] = (c)
@@ -175,7 +198,7 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base, scpi_bo
         }
 
         // add sign for numbers in base 10
-        if (sign && (val < 0) && (base == 10)) {
+        if (sign && ((int64_t) val < 0) && (base == 10)) {
             uval = -val;
             ADD_CHAR('-');
         }
@@ -196,6 +219,29 @@ size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len, int8_t base, scpi_bo
     if (pos < len) str[pos] = 0;
     return pos;
 #undef ADD_CHAR
+}
+
+/**
+ * Converts signed 64 bit integer value to string
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_Int64ToStr(int64_t val, char * str, size_t len) {
+    UInt64ToStrBaseSign((int64_t) val, str, len, 10, TRUE);
+}
+
+/**
+ * Converts signed/unsigned 64 bit integer value to string in specific base
+ * @param val   integer value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @param base  output base
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
+    UInt64ToStrBaseSign(val, str, len, base, TRUE);
 }
 
 /**
