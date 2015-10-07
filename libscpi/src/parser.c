@@ -717,7 +717,6 @@ scpi_bool_t SCPI_ParamToUInt64(scpi_t * context,  scpi_parameter_t * parameter, 
  * @param value result
  * @return TRUE if succesful
  */
-#include "stdio.h"
 scpi_bool_t SCPI_ParamToFloat(scpi_t * context, scpi_parameter_t * parameter, float * value) {
     scpi_bool_t result;
     uint32_t valint;
@@ -751,7 +750,6 @@ scpi_bool_t SCPI_ParamToFloat(scpi_t * context, scpi_parameter_t * parameter, fl
  * @param value result
  * @return TRUE if succesful
  */
-#include "stdio.h"
 scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
     scpi_bool_t result;
     uint64_t valint;

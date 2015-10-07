@@ -179,7 +179,7 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
     } else {
 
         switch (base) {
-            case 2: 
+            case 2:
                 x = 0x8000000000000000ULL;
                 break;
             case 8:
