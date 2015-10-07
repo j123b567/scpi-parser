@@ -60,6 +60,7 @@ extern "C" {
     size_t strBaseToUInt32(const char * str, uint32_t * val, int8_t base) LOCAL;
     size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) LOCAL;
     size_t strBaseToUInt64(const char * str, uint64_t * val, int8_t base) LOCAL;
+    size_t strToFloat(const char * str, float * val) LOCAL;
     size_t strToDouble(const char * str, double * val) LOCAL;
     scpi_bool_t locateText(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;
     scpi_bool_t locateStr(const char * str1, size_t len1, const char ** str2, size_t * len2) LOCAL;

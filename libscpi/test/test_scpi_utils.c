@@ -215,6 +215,23 @@ static void test_UInt64ToStrBase() {
     CU_ASSERT_STRING_EQUAL(str, "1111111011011100101110101001100001110110010101000011001000010000");
 }
 
+static void test_floatToStr() {
+    const size_t max=49+1;
+    float val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
+    int N = sizeof(val) / sizeof(float);
+    int i;
+    char str[max];
+    char ref[max];
+    size_t len;
+
+    for (i=0; i<N; i++) {
+        len = SCPI_FloatToStr(val[i], str, max);
+        snprintf(ref, max, "%g", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
+}
+
 static void test_doubleToStr() {
     const size_t max=49+1;
     double val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
@@ -652,6 +669,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "UInt32ToStrBase", test_UInt32ToStrBase))
             || (NULL == CU_add_test(pSuite, "Int64ToStr", test_Int64ToStr))
             || (NULL == CU_add_test(pSuite, "UInt64ToStrBase", test_UInt64ToStrBase))
+            || (NULL == CU_add_test(pSuite, "floatToStr", test_floatToStr))
             || (NULL == CU_add_test(pSuite, "doubleToStr", test_doubleToStr))
             || (NULL == CU_add_test(pSuite, "strBaseToInt32", test_strBaseToInt32))
             || (NULL == CU_add_test(pSuite, "strBaseToUInt32", test_strBaseToUInt32))

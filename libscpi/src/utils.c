@@ -245,7 +245,18 @@ size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
 }
 
 /**
- * Converts double value to string
+ * Converts float (32 bit) value to string
+ * @param val   long value
+ * @param str   converted textual representation
+ * @param len   string buffer length
+ * @return number of bytes written to str (without '\0')
+ */
+size_t SCPI_FloatToStr(float val, char * str, size_t len) {
+    return SCPIDEFINE_floatToStr(val, str, len);
+}
+
+/**
+ * Converts double (64 bit) value to string
  * @param val   double value
  * @param str   converted textual representation
  * @param len   string buffer length
@@ -303,9 +314,20 @@ size_t strBaseToUInt64(const char * str, uint64_t * val, int8_t base) {
     return endptr - str;
 }
 
+/**
+ * Converts string to float (32 bit) representation
+ * @param str   string value
+ * @param val   float result
+ * @return      number of bytes used in string
+ */
+size_t strToFloat(const char * str, float * val) {
+    char * endptr;
+    *val = strtof(str, &endptr);
+    return endptr - str;
+}
 
 /**
- * Converts string to double representation
+ * Converts string to double (64 bit) representation
  * @param str   string value
  * @param val   double result
  * @return      number of bytes used in string

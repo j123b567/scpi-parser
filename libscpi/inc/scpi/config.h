@@ -166,6 +166,12 @@ extern "C" {
 #endif
 
 #if HAVE_DTOSTRE
+#define SCPIDEFINE_floatToStr(v, s, l) strlen(dtostre((double)(v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#else
+#define SCPIDEFINE_floatToStr(v, s, l) snprintf((s), (l), "%g", (v))
+#endif
+
+#if HAVE_DTOSTRE
 #define SCPIDEFINE_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
 #else
 #define SCPIDEFINE_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))

@@ -424,7 +424,23 @@ size_t SCPI_ResultUInt64Base(scpi_t * context, uint64_t val, int8_t base) {
 }
 
 /**
- * Write double value to the result
+ * Write float (32 bit) value to the result
+ * @param context
+ * @param val
+ * @return
+ */
+size_t SCPI_ResultFloat(scpi_t * context, float val) {
+    char buffer[32];
+    size_t result = 0;
+    size_t len = SCPI_FloatToStr(val, buffer, sizeof (buffer));
+    result += writeDelimiter(context);
+    result += writeData(context, buffer, len);
+    context->output_count++;
+    return result;
+}
+
+/**
+ * Write double (64bit) value to the result
  * @param context
  * @param val
  * @return
@@ -437,7 +453,6 @@ size_t SCPI_ResultDouble(scpi_t * context, double val) {
     result += writeData(context, buffer, len);
     context->output_count++;
     return result;
-
 }
 
 /**
@@ -696,14 +711,14 @@ scpi_bool_t SCPI_ParamToUInt64(scpi_t * context,  scpi_parameter_t * parameter, 
 }
 
 /**
- * Convert parameter to double
+ * Convert parameter to float (32 bit)
  * @param context
  * @param parameter
  * @param value result
  * @return TRUE if succesful
  */
 #include "stdio.h"
-scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
+scpi_bool_t SCPI_ParamToFloat(scpi_t * context, scpi_parameter_t * parameter, float * value) {
     scpi_bool_t result;
     uint32_t valint;
 
@@ -721,6 +736,40 @@ scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, d
             break;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
+            result = strToFloat(parameter->ptr, value) > 0 ? TRUE : FALSE;
+            break;
+        default:
+            result = FALSE;
+    }
+    return result;
+}
+
+/**
+ * Convert parameter to double (64 bit)
+ * @param context
+ * @param parameter
+ * @param value result
+ * @return TRUE if succesful
+ */
+#include "stdio.h"
+scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value) {
+    scpi_bool_t result;
+    uint64_t valint;
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    switch (parameter->type) {
+        case SCPI_TOKEN_HEXNUM:
+        case SCPI_TOKEN_OCTNUM:
+        case SCPI_TOKEN_BINNUM:
+            result = SCPI_ParamToUInt64(context, parameter, &valint);
+            *value = valint;
+            break;
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
+        case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             result = strToDouble(parameter->ptr, value) > 0 ? TRUE : FALSE;
             break;
         default:
@@ -730,7 +779,38 @@ scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, d
 }
 
 /**
- * Read floating point parameter
+ * Read floating point float (32 bit) parameter
+ * @param context
+ * @param value
+ * @param mandatory
+ * @return
+ */
+scpi_bool_t SCPI_ParamFloat(scpi_t * context, float * value, scpi_bool_t mandatory) {
+    scpi_bool_t result;
+    scpi_parameter_t param;
+
+    if (!value) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return FALSE;
+    }
+
+    result = SCPI_Parameter(context, &param, mandatory);
+    if (result) {
+        if (SCPI_ParamIsNumber(&param, FALSE)) {
+            SCPI_ParamToFloat(context, &param, value);
+        } else if (SCPI_ParamIsNumber(&param, TRUE)) {
+            SCPI_ErrorPush(context, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
+            result = FALSE;
+        } else {
+            SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+            result = FALSE;
+        }
+    }
+    return result;
+}
+
+/**
+ * Read floating point double (64 bit) parameter
  * @param context
  * @param value
  * @param mandatory
