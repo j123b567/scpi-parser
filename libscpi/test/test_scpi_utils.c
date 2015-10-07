@@ -4,7 +4,7 @@
  * Copyright (c) 2012 Jan Breuer
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -13,7 +13,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -363,7 +363,7 @@ static void test_strToDouble() {
         CU_ASSERT_EQUAL(result, r);                     \
         CU_ASSERT_DOUBLE_EQUAL(v, val, 0.000001);       \
     } while(0);                                         \
-    
+
     TEST_STR_TO_DOUBLE("", 0, 0.0);
 
     TEST_STR_TO_DOUBLE(" 1", 2, 1.0);
@@ -561,7 +561,7 @@ static void test_matchCommand() {
     TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc", FALSE); // test optional keyword
     TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd", FALSE); // test optional keyword
     TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword   
+    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword
     TEST_MATCH_COMMAND("*IDN?", "idn", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", "idn?", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", "*idn", FALSE); // common command
