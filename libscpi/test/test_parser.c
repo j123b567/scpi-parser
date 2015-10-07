@@ -70,7 +70,7 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
 
     { .pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
-    
+
     { .pattern = "TEXTfunction?", .callback = text_function,},
 
     { .pattern = "TEST:TREEA?", .callback = test_treeA,},
@@ -223,7 +223,7 @@ static void testCommandsHandling(void) {
     TEST_INPUT("*IDN?", "");
     TEST_INPUT("", "MA,IN,0,VER\r\n");
     output_buffer_clear();
-    
+
     /* Test ctree traversal */
     TEST_INPUT("TEST:TREEA?;TREEB?\r\n", "10;20\r\n");
     output_buffer_clear();
@@ -285,7 +285,7 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("*SRE?\r\n", "255\r\n");
     TEST_IEEE4882("*STB?\r\n", "0\r\n");
     TEST_IEEE4882("*ESR?\r\n", "1\r\n");
-    
+
     srq_val = 0;
     TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
     CU_ASSERT_EQUAL(srq_val, (STB_ESR | STB_SRQ | STB_QMA)); /* value of STB as service request */
@@ -294,24 +294,24 @@ static void testIEEE4882(void) {
 
     TEST_IEEE4882("*STB?\r\n", "68\r\n"); /* Error queue is still not empty */
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
-    
+
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "0,\"No error\"\r\n");
 
     TEST_IEEE4882("*STB?\r\n", "0\r\n"); /* Error queue is now empty */
-    
+
     RST_executed = FALSE;
     TEST_IEEE4882("*RST\r\n", "");
     CU_ASSERT_EQUAL(RST_executed, TRUE);
 
     TEST_IEEE4882("*TST?\r\n", "0\r\n");
-    
+
     TEST_IEEE4882("*WAI\r\n", "");
 
     TEST_IEEE4882("SYSTem:VERSion?\r\n", "1999.0\r\n");
 }
 
-#define TEST_ParamInt(data, mandatory, expected_value, expected_result, expected_error_code) \
+#define TEST_ParamInt32(data, mandatory, expected_value, expected_result, expected_error_code) \
 {                                                                                       \
     int32_t value;                                                                      \
     scpi_bool_t result;                                                                 \
@@ -322,7 +322,7 @@ static void testIEEE4882(void) {
     scpi_context.param_list.lex_state.buffer = data;                                    \
     scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
-    result = SCPI_ParamInt(&scpi_context, &value, mandatory);                           \
+    result = SCPI_ParamInt32(&scpi_context, &value, mandatory);                         \
                                                                                         \
     errCode = SCPI_ErrorPop(&scpi_context);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
@@ -332,18 +332,180 @@ static void testIEEE4882(void) {
     CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
 }
 
-static void testSCPI_ParamInt(void) {
-    TEST_ParamInt("10", TRUE, 10, TRUE, 0);
-    TEST_ParamInt("", FALSE, 0, FALSE, 0);
-    TEST_ParamInt("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
-    TEST_ParamInt("#B101010", TRUE, 42, TRUE, 0);
-    TEST_ParamInt("#H101010", TRUE, 1052688, TRUE, 0);
-    TEST_ParamInt("#Q10", TRUE, 8, TRUE, 0);
+static void testSCPI_ParamInt32(void) {
+    TEST_ParamInt32("10", TRUE, 10, TRUE, 0);
+    TEST_ParamInt32("", FALSE, 0, FALSE, 0);
+    TEST_ParamInt32("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamInt32("#B101010", TRUE, 42, TRUE, 0);
+    TEST_ParamInt32("#H101010", TRUE, 1052688, TRUE, 0);
+    TEST_ParamInt32("#Q10", TRUE, 8, TRUE, 0);
 
-    TEST_ParamInt("", TRUE, 0, FALSE, -109); // missing parameter
-    TEST_ParamInt("abcd", TRUE, 0, FALSE, -104); // Data type error
-    TEST_ParamInt("10.5V", TRUE, 0, FALSE, -138);
-    TEST_ParamInt("10V", TRUE, 0, FALSE, -138);
+    TEST_ParamInt32("", TRUE, 0, FALSE, -109); // missing parameter
+    TEST_ParamInt32("abcd", TRUE, 0, FALSE, -104); // Data type error
+    TEST_ParamInt32("10.5V", TRUE, 0, FALSE, -138);
+    TEST_ParamInt32("10V", TRUE, 0, FALSE, -138);
+
+    // test range
+    TEST_ParamInt32("2147483647", TRUE, 2147483647, TRUE, 0);
+    TEST_ParamInt32("-2147483647", TRUE, -2147483647, TRUE, 0);
+}
+
+#define TEST_ParamUInt32(data, mandatory, expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    uint32_t value;                                                                     \
+    scpi_bool_t result;                                                                 \
+    int16_t errCode;                                                                    \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_ParamUInt32(&scpi_context, &value, mandatory);                        \
+                                                                                        \
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(value, expected_value);                                         \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testSCPI_ParamUInt32(void) {
+    TEST_ParamUInt32("10", TRUE, 10, TRUE, 0);
+    TEST_ParamUInt32("", FALSE, 0, FALSE, 0);
+    TEST_ParamUInt32("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamUInt32("#B101010", TRUE, 42, TRUE, 0);
+    TEST_ParamUInt32("#H101010", TRUE, 1052688, TRUE, 0);
+    TEST_ParamUInt32("#Q10", TRUE, 8, TRUE, 0);
+
+    TEST_ParamUInt32("", TRUE, 0, FALSE, -109); // missing parameter
+    TEST_ParamUInt32("abcd", TRUE, 0, FALSE, -104); // Data type error
+    TEST_ParamUInt32("10.5V", TRUE, 0, FALSE, -138);
+    TEST_ParamUInt32("10V", TRUE, 0, FALSE, -138);
+
+    // test range
+    TEST_ParamUInt32("2147483647", TRUE, 2147483647, TRUE, 0);
+    TEST_ParamUInt32("4294967295", TRUE, 4294967295, TRUE, 0);
+}
+
+#define TEST_ParamInt64(data, mandatory, expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    int64_t value;                                                                      \
+    scpi_bool_t result;                                                                 \
+    int16_t errCode;                                                                    \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_ParamInt64(&scpi_context, &value, mandatory);                         \
+                                                                                        \
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(value, expected_value);                                         \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testSCPI_ParamInt64(void) {
+    TEST_ParamInt64("10", TRUE, 10, TRUE, 0);
+    TEST_ParamInt64("", FALSE, 0, FALSE, 0);
+    TEST_ParamInt64("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamInt64("#B101010", TRUE, 42, TRUE, 0);
+    TEST_ParamInt64("#H101010", TRUE, 1052688, TRUE, 0);
+    TEST_ParamInt64("#Q10", TRUE, 8, TRUE, 0);
+
+    TEST_ParamInt64("", TRUE, 0, FALSE, -109); // missing parameter
+    TEST_ParamInt64("abcd", TRUE, 0, FALSE, -104); // Data type error
+    TEST_ParamInt64("10.5V", TRUE, 0, FALSE, -138);
+    TEST_ParamInt64("10V", TRUE, 0, FALSE, -138);
+
+    // test range
+    TEST_ParamInt64("2147483647", TRUE, 2147483647LL, TRUE, 0);
+    TEST_ParamInt64("-2147483647", TRUE, -2147483647LL, TRUE, 0);
+    TEST_ParamInt64("9223372036854775807", TRUE, 9223372036854775807LL, TRUE, 0);
+    TEST_ParamInt64("-9223372036854775807", TRUE, -9223372036854775807LL, TRUE, 0);
+}
+
+#define TEST_ParamUInt64(data, mandatory, expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    uint64_t value;                                                                     \
+    scpi_bool_t result;                                                                 \
+    int16_t errCode;                                                                    \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_ParamUInt64(&scpi_context, &value, mandatory);                        \
+                                                                                        \
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(value, expected_value);                                         \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testSCPI_ParamUInt64(void) {
+    TEST_ParamUInt64("10", TRUE, 10, TRUE, 0);
+    TEST_ParamUInt64("", FALSE, 0, FALSE, 0);
+    TEST_ParamUInt64("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamUInt64("#B101010", TRUE, 42, TRUE, 0);
+    TEST_ParamUInt64("#H101010", TRUE, 1052688, TRUE, 0);
+    TEST_ParamUInt64("#Q10", TRUE, 8, TRUE, 0);
+
+    TEST_ParamUInt64("", TRUE, 0, FALSE, -109); // missing parameter
+    TEST_ParamUInt64("abcd", TRUE, 0, FALSE, -104); // Data type error
+    TEST_ParamUInt64("10.5V", TRUE, 0, FALSE, -138);
+    TEST_ParamUInt64("10V", TRUE, 0, FALSE, -138);
+
+    // test range
+    TEST_ParamUInt64("2147483647", TRUE, 2147483647, TRUE, 0);
+    TEST_ParamUInt64("4294967295", TRUE, 4294967295, TRUE, 0);
+    TEST_ParamUInt64("9223372036854775807", TRUE, 9223372036854775807ULL, TRUE, 0);
+    TEST_ParamUInt64("18446744073709551615", TRUE, 18446744073709551615ULL, TRUE, 0);
+}
+
+
+#define TEST_ParamFloat(data, mandatory, expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    float value;                                                                        \
+    scpi_bool_t result;                                                                 \
+    int16_t errCode;                                                                    \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_ParamFloat(&scpi_context, &value, mandatory);                         \
+                                                                                        \
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_DOUBLE_EQUAL(value, expected_value, 0.000001);                        \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testSCPI_ParamFloat(void) {
+    TEST_ParamFloat("10", TRUE, 10, TRUE, 0);
+    TEST_ParamFloat("", FALSE, 0, FALSE, 0);
+    TEST_ParamFloat("10.5", TRUE, 10.5, TRUE, 0);
+    TEST_ParamFloat("#B101010", TRUE, 42, TRUE, 0);
+    TEST_ParamFloat("#H101010", TRUE, 1052688, TRUE, 0);
+    TEST_ParamFloat("#Q10", TRUE, 8, TRUE, 0);
+    TEST_ParamFloat("#HFFFFFF", TRUE, 0xFFFFFFu, TRUE, 0);
+
+    TEST_ParamFloat("", TRUE, 0, FALSE, -109); // missing parameter
+    TEST_ParamFloat("abcd", TRUE, 0, FALSE, -104); // Data type error
+    TEST_ParamFloat("10.5V", TRUE, 0, FALSE, -138);
+    TEST_ParamFloat("10V", TRUE, 0, FALSE, -138);
 }
 
 #define TEST_ParamDouble(data, mandatory, expected_value, expected_result, expected_error_code) \
@@ -614,7 +776,11 @@ int main() {
     }
 
     /* Add the tests to the suite */
-    if ((NULL == CU_add_test(pSuite, "SCPI_ParamInt", testSCPI_ParamInt))
+    if ((NULL == CU_add_test(pSuite, "SCPI_ParamInt32", testSCPI_ParamInt32))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamUInt32", testSCPI_ParamUInt32))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamInt64", testSCPI_ParamInt64))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamUInt64", testSCPI_ParamUInt64))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamFloat", testSCPI_ParamFloat))
             || (NULL == CU_add_test(pSuite, "SCPI_ParamDouble", testSCPI_ParamDouble))
             || (NULL == CU_add_test(pSuite, "SCPI_ParamCharacters", testSCPI_ParamCharacters))
             || (NULL == CU_add_test(pSuite, "SCPI_ParamCopyText", testSCPI_ParamCopyText))
