@@ -226,7 +226,7 @@ static void test_doubleToStr() {
 
     for (i=0; i<N; i++) {
         len = SCPI_DoubleToStr(val[i], str, max);
-        snprintf(ref, max, "%g", val[i]);
+        snprintf(ref, max, "%lg", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
