@@ -218,7 +218,7 @@ static void test_UInt64ToStrBase() {
 static void test_doubleToStr() {
     const size_t max=49+1;
     double val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
-    int N = sizeof(val) / sizeof(int);
+    int N = sizeof(val) / sizeof(double);
     int i;
     char str[max];
     char ref[max];
