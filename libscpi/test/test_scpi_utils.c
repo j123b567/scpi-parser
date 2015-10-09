@@ -571,6 +571,19 @@ static void test_matchCommand() {
     TEST_MATCH_COMMAND("*IDN?", ":*idn", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); // common command
 
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS?", FALSE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS?", FALSE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS:DC?", FALSE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS:DC?", FALSE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS:CURR?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS:CURR?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS:SCAL:CURR?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS:SCAL:CURR?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS:SCAL:CURR:DC?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS:SCAL:CURR:DC?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS:CURR:DC?", TRUE);
+    TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS:CURR:DC?", TRUE);
+
     TEST_MATCH_COMMAND("ABCdef#", "abc", TRUE); // test numeric parameter
     TEST_MATCH_COMMAND("ABCdef#", "abc1324", TRUE); // test numeric parameter
     TEST_MATCH_COMMAND("ABCdef#", "abcDef1324", TRUE); // test numeric parameter
