@@ -476,92 +476,94 @@ static void test_matchCommand() {
     TEST_MATCH_COMMAND("Ab", "ab", TRUE);
     TEST_MATCH_COMMAND("Ab", "aB", TRUE);
     TEST_MATCH_COMMAND("AB", "a", FALSE);
-    TEST_MATCH_COMMAND("ABc:AACddd", "ab:aac", TRUE);
-    TEST_MATCH_COMMAND("ABc:AACddd", "abc:aac", TRUE);
-    TEST_MATCH_COMMAND("ABc:AACddd", "abc:aacddd", TRUE);
-    TEST_MATCH_COMMAND("ABc:AACddd", "abc:aacdd", FALSE);
-    TEST_MATCH_COMMAND("ABc:AACddd", "a:aac", FALSE);
-    TEST_MATCH_COMMAND("ABc:AACddd", ":ab:aac", TRUE);
-    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aac", TRUE);
-    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacddd", TRUE);
-    TEST_MATCH_COMMAND("ABc:AACddd", ":abc:aacdd", FALSE);
-    TEST_MATCH_COMMAND("ABc:AACddd", ":a:aac", FALSE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", "ab:aac", TRUE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", "abcc:aac", TRUE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", "abcc:aacddd", TRUE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", "abcc:aacdd", FALSE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", "a:aac", FALSE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", ":ab:aac", TRUE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", ":abcc:aac", TRUE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", ":abcc:aacddd", TRUE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", ":abcc:aacdd", FALSE);
+    TEST_MATCH_COMMAND("ABcc:AACddd", ":a:aac", FALSE);
     TEST_MATCH_COMMAND("?", "?", TRUE);
     TEST_MATCH_COMMAND("A?", "A?", TRUE);
     TEST_MATCH_COMMAND("A", "A?", FALSE);
     TEST_MATCH_COMMAND("A?", "A", FALSE);
-    TEST_MATCH_COMMAND("[:ABc]:AACddd", ":ab:aac", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:AACddd", "aac", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:AACddd", "aac?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:AACddd?", ":ab:aac?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:AACddd?", "aac?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:AACddd?", "aac", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:bc:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd]:CDe", "ab:cd?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:bc:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd]:CDe?", "ab:cd", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd", ":ab:aac", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd", "aac", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd", "aac?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", ":ab:aac?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", "aac?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", "aac", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:bcc:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:cdefg?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:bcc:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:cdefg", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc", FALSE); // test optional keyword
 
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "ab:bc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]", "bc:cd?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "ab:bc", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABc]:BCd[:CDe]?", "bc:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "bcc:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "bcc:cdefg?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "bcc:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "bcc:cdefg", FALSE); // test optional keyword
 
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:bc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]", "ab:cd?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:bc", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe]?", "ab:cd", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:cdefg?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:cdefg", FALSE); // test optional keyword
 
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd:de", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:cd?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc:de?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd:de?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:bc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:cd?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab:de?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]", "ab?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:defffffffff", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:deffffffffffffffffffff", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:de", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:defffffffff", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg:defffffffff", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:defffffffff", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:defffffffff?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg:defffffffff?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:defffffffff?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab?", FALSE); // test optional keyword
 
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd:de?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:cd", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc:de", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd:de", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:bc", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:cd", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab:de", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABc[:BCd][:CDe][:DEf]?", "ab", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg:defffffffff?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:defffffffff?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg:defffffffff?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:defffffffff?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab?", TRUE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:defffffffff", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg:defffffffff", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:defffffffff", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab", FALSE); // test optional keyword
     TEST_MATCH_COMMAND("*IDN?", "idn", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", "idn?", FALSE); // common command
     TEST_MATCH_COMMAND("*IDN?", "*idn", FALSE); // common command
