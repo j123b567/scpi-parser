@@ -9,10 +9,10 @@
 #include <userint.h>
 
 #ifdef __cplusplus
-    extern "C" {
+extern "C" {
 #endif
 
-     /* Panels and Controls: */
+    /* Panels and Controls: */
 
 #define  PANEL                            1
 #define  PANEL_OUTPUTDEBUG                2       /* control type: textBox, callback function: (none) */
@@ -75,22 +75,22 @@
 #define  PANEL_LEDSRQ                     59      /* control type: LED, callback function: (none) */
 
 
-     /* Control Arrays: */
+    /* Control Arrays: */
 
-          /* (no control arrays in the resource file) */
-
-
-     /* Menu Bars, Menus, and Menu Items: */
-
-          /* (no menu bars in the resource file) */
+    /* (no control arrays in the resource file) */
 
 
-     /* Callback Prototypes: */
+    /* Menu Bars, Menus, and Menu Items: */
 
-int  CVICALLBACK cb_quit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK cb_scpi_input(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+    /* (no menu bars in the resource file) */
+
+
+    /* Callback Prototypes: */
+
+    int CVICALLBACK cb_quit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+    int CVICALLBACK cb_scpi_input(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
 
 #ifdef __cplusplus
-    }
+}
 #endif

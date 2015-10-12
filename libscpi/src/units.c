@@ -200,8 +200,7 @@ static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t l
  * @param mandatory if the parameter is mandatory
  * @return 
  */
-scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, scpi_bool_t mandatory)
-{
+scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, scpi_bool_t mandatory) {
     scpi_token_t token;
     lex_state_t state;
     scpi_parameter_t param;
@@ -223,7 +222,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
     state.pos = state.buffer;
     state.len = param.len;
 
-    switch(param.type) {
+    switch (param.type) {
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_HEXNUM:
         case SCPI_TOKEN_OCTNUM:
@@ -238,7 +237,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             break;
     }
 
-    switch(param.type) {
+    switch (param.type) {
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
         case SCPI_TOKEN_PROGRAM_MNEMONIC:
@@ -257,7 +256,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             break;
     }
 
-    switch(param.type) {
+    switch (param.type) {
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
             SCPI_ParamToDouble(context, &param, &(value->value));
             break;

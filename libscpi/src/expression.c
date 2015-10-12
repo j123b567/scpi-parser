@@ -49,8 +49,7 @@
  *         SCPI_EXPR_ERROR - parser error
  *         SCPI_EXPR_NO_MORE - no more data
  */
-static scpi_expr_result_t numericRange(lex_state_t * state, scpi_bool_t * isRange, scpi_token_t * valueFrom, scpi_token_t * valueTo)
-{
+static scpi_expr_result_t numericRange(lex_state_t * state, scpi_bool_t * isRange, scpi_token_t * valueFrom, scpi_token_t * valueTo) {
     if (scpiLex_DecimalNumericProgramData(state, valueFrom)) {
         if (scpiLex_Colon(state, valueTo)) {
             *isRange = TRUE;
@@ -81,8 +80,7 @@ static scpi_expr_result_t numericRange(lex_state_t * state, scpi_bool_t * isRang
  *         SCPI_EXPR_NO_MORE - no more data
  * @see SCPI_ExprNumericListEntryInt, SCPI_ExprNumericListEntryDouble
  */
-scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, scpi_parameter_t * valueFrom, scpi_parameter_t * valueTo)
-{
+scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, scpi_parameter_t * valueFrom, scpi_parameter_t * valueTo) {
     lex_state_t lex;
     int i;
     scpi_expr_result_t res = SCPI_EXPR_OK;
@@ -133,8 +131,7 @@ scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t 
  *         SCPI_EXPR_NO_MORE - no more data
  * @see SCPI_ExprNumericListEntry, SCPI_ExprNumericListEntryDouble
  */
-scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valueFrom, int32_t * valueTo)
-{
+scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valueFrom, int32_t * valueTo) {
     scpi_expr_result_t res;
     scpi_bool_t range = FALSE;
     scpi_parameter_t paramFrom;
@@ -165,8 +162,7 @@ scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter
  *         SCPI_EXPR_NO_MORE - no more data
  * @see SCPI_ExprNumericListEntry, SCPI_ExprNumericListEntryInt
  */
-scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, double * valueFrom, double * valueTo)
-{
+scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, double * valueFrom, double * valueTo) {
     scpi_expr_result_t res;
     scpi_bool_t range = FALSE;
     scpi_parameter_t paramFrom;
@@ -192,11 +188,10 @@ scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parame
  * @param length length of values array
  * @param dimensions real number of dimensions
  */
-static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int32_t * values, size_t length, size_t * dimensions)
-{
+static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int32_t * values, size_t length, size_t * dimensions) {
     scpi_parameter_t param;
     size_t i = 0;
-    while(scpiLex_DecimalNumericProgramData(state, &param)) {
+    while (scpiLex_DecimalNumericProgramData(state, &param)) {
         if (i < length) {
             SCPI_ParamToInt(context, &param, &values[i]);
         }
@@ -227,8 +222,7 @@ static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int
  * @param length length of values arrays
  * @param dimensions real number of dimensions
  */
-static scpi_expr_result_t channelRange(scpi_t * context, lex_state_t * state, scpi_bool_t * isRange, int32_t * valuesFrom, int32_t * valuesTo, size_t length, size_t * dimensions)
-{
+static scpi_expr_result_t channelRange(scpi_t * context, lex_state_t * state, scpi_bool_t * isRange, int32_t * valuesFrom, int32_t * valuesTo, size_t length, size_t * dimensions) {
     scpi_token_t token;
     scpi_expr_result_t err;
     size_t fromDimensions;
@@ -267,8 +261,7 @@ static scpi_expr_result_t channelRange(scpi_t * context, lex_state_t * state, sc
  * @param length length of values arrays
  * @param dimensions real number of dimensions
  */
-scpi_expr_result_t SCPI_ExprChannelListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valuesFrom, int32_t * valuesTo, size_t length, size_t * dimensions)
-{
+scpi_expr_result_t SCPI_ExprChannelListEntry(scpi_t * context, scpi_parameter_t * param, int index, scpi_bool_t * isRange, int32_t * valuesFrom, int32_t * valuesTo, size_t length, size_t * dimensions) {
     lex_state_t lex;
     int i;
     scpi_expr_result_t res = SCPI_EXPR_OK;

@@ -101,7 +101,6 @@ static void TEST_TOKEN(const char * str, lexfn_t fn, int offset, int len, scpi_t
     if (len != token.len) printToken(&token);   \
 } while(0)
 
-
 static void testWhiteSpace(void) {
     TEST_TOKEN("  \t MEAS", scpiLex_WhiteSpace, 0, 4, SCPI_TOKEN_WS);
     TEST_TOKEN("MEAS", scpiLex_WhiteSpace, 0, 0, SCPI_TOKEN_UNKNOWN);
@@ -206,9 +205,9 @@ static void testProgramData(void) {
     TEST_TOKEN("'ah\"oj' ", scpiParser_parseProgramData, 0, 7, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
     TEST_TOKEN("\"ah\"\"oj\" ", scpiParser_parseProgramData, 0, 8, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
     TEST_TOKEN("\"\"", scpiParser_parseProgramData, 0, 2, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
-    
+
     TEST_TOKEN("abc_213as564 , ", scpiLex_CharacterProgramData, 0, 12, SCPI_TOKEN_PROGRAM_MNEMONIC);
-    
+
     TEST_TOKEN("1.5E12 V", scpiParser_parseProgramData, 0, 8, SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX);
 }
 
@@ -234,7 +233,6 @@ static void testProgramData(void) {
     else                                        \
     if (len != token.len) printToken(&token);   \
 } while(0)
-
 
 static void testAllProgramData(void) {
     TEST_ALL_TOKEN("1.5E12 V", scpiParser_parseAllProgramData, 0, 8, SCPI_TOKEN_ALL_PROGRAM_DATA, 1);

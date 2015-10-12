@@ -55,19 +55,18 @@ static scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
         // do something, if parameter not present
     }
 
-    
+
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
-    
+
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
-    
+
     return SCPI_RES_OK;
 }
-
 
 static scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     scpi_number_t param1, param2;
@@ -84,16 +83,16 @@ static scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
         // do something, if parameter not present
     }
 
-    
+
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
-    
+
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
-    
+
     return SCPI_RES_OK;
 }
 
@@ -138,19 +137,18 @@ scpi_choice_def_t trigger_source[] = {
     SCPI_CHOICE_LIST_END /* termination of option list */
 };
 
-
 static scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
     int32_t param;
     const char * name;
-    
+
     if (!SCPI_ParamChoice(context, trigger_source, &param, TRUE)) {
         return SCPI_RES_ERR;
     }
-    
+
     SCPI_ChoiceToName(trigger_source, param, &name);
-    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int)param);
-    
+    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int) param);
+
     SCPI_ResultInt32(context, param);
 
     return SCPI_RES_OK;
@@ -170,7 +168,7 @@ static scpi_result_t TEST_Text(scpi_t * context) {
     char buffer[100];
     size_t copy_len;
 
-    if (!SCPI_ParamCopyText(context, buffer, sizeof(buffer), &copy_len, FALSE)) {
+    if (!SCPI_ParamCopyText(context, buffer, sizeof (buffer), &copy_len, FALSE)) {
         buffer[0] = '\0';
     }
 
@@ -278,13 +276,15 @@ static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 
 scpi_t scpi_context = {
     .cmdlist = scpi_commands,
-    .buffer = {
+    .buffer =
+    {
         .length = SCPI_INPUT_BUFFER_LENGTH,
         .data = scpi_input_buffer,
     },
     .interface = &scpi_interface,
     .registers = scpi_regs,
     .units = scpi_units_def,
-    .idn = {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
+    .idn =
+    {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
 

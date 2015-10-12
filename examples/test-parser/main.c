@@ -45,7 +45,7 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     return fwrite(data, 1, len, stdout);
 }
 
-scpi_result_t SCPI_Flush(scpi_t * context) {    
+scpi_result_t SCPI_Flush(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
@@ -98,8 +98,8 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("*ESE\r\n"); // cause error -109, missing parameter
     TEST_SCPI_INPUT("*ESE #H20\r\n");
 
-	TEST_SCPI_INPUT("*SRE #HFF\r\n");
-    
+    TEST_SCPI_INPUT("*SRE #HFF\r\n");
+
     TEST_SCPI_INPUT("IDN?\r\n"); // cause error -113, undefined header
 
     TEST_SCPI_INPUT("SYST:ERR?\r\n");

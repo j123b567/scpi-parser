@@ -46,9 +46,9 @@ extern "C" {
 #endif
 
 #if defined(__GNUC__) && (__GNUC__ >= 4)
-    #define LOCAL __attribute__((visibility ("hidden")))
+#define LOCAL __attribute__((visibility ("hidden")))
 #else
-    #define LOCAL
+#define LOCAL
 #endif
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
@@ -78,11 +78,11 @@ extern "C" {
 #endif
 
 #ifndef min
-    #define min(a, b)  (((a) < (b)) ? (a) : (b))
+#define min(a, b)  (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef max
-    #define max(a, b)  (((a) > (b)) ? (a) : (b))
+#define max(a, b)  (((a) > (b)) ? (a) : (b))
 #endif
 
 #if 0

@@ -339,7 +339,7 @@ static const char * getBasePrefix(int8_t base) {
  * @return
  */
 static size_t resultUInt32BaseSign(scpi_t * context, uint32_t val, int8_t base, scpi_bool_t sign) {
-    char buffer[32+1];
+    char buffer[32 + 1];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
@@ -365,7 +365,7 @@ static size_t resultUInt32BaseSign(scpi_t * context, uint32_t val, int8_t base, 
  * @return
  */
 static size_t resultUInt64BaseSign(scpi_t * context, uint64_t val, int8_t base, scpi_bool_t sign) {
-    char buffer[64+1];
+    char buffer[64 + 1];
     const char * basePrefix;
     size_t result = 0;
     size_t len;
@@ -487,7 +487,7 @@ size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len
     SCPI_UInt32ToStrBase((uint32_t) len, block_header + 2, 10, 10);
 
     header_len = strlen(block_header + 2);
-    block_header[1] = (char)(header_len + '0');
+    block_header[1] = (char) (header_len + '0');
 
     result += writeData(context, block_header, header_len + 2);
     result += writeData(context, data, len);
@@ -623,7 +623,7 @@ static scpi_bool_t ParamSignToUInt32(scpi_t * context, scpi_parameter_t * parame
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             if (sign) {
-                return strBaseToInt32(parameter->ptr, (int32_t *)value, 10) > 0 ? TRUE : FALSE;
+                return strBaseToInt32(parameter->ptr, (int32_t *) value, 10) > 0 ? TRUE : FALSE;
             } else {
                 return strBaseToUInt32(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
             }
@@ -657,7 +657,7 @@ static scpi_bool_t ParamSignToUInt64(scpi_t * context, scpi_parameter_t * parame
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             if (sign) {
-                return strBaseToInt64(parameter->ptr, (int64_t *)value, 10) > 0 ? TRUE : FALSE;
+                return strBaseToInt64(parameter->ptr, (int64_t *) value, 10) > 0 ? TRUE : FALSE;
             } else {
                 return strBaseToUInt64(parameter->ptr, value, 10) > 0 ? TRUE : FALSE;
             }
@@ -674,7 +674,7 @@ static scpi_bool_t ParamSignToUInt64(scpi_t * context, scpi_parameter_t * parame
  * @return TRUE if succesful
  */
 scpi_bool_t SCPI_ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, int32_t * value) {
-    return ParamSignToUInt32(context, parameter, (uint32_t *)value, TRUE);
+    return ParamSignToUInt32(context, parameter, (uint32_t *) value, TRUE);
 }
 
 /**
@@ -684,7 +684,7 @@ scpi_bool_t SCPI_ParamToInt32(scpi_t * context, scpi_parameter_t * parameter, in
  * @param value result
  * @return TRUE if succesful
  */
-scpi_bool_t SCPI_ParamToUInt32(scpi_t * context,  scpi_parameter_t * parameter, uint32_t * value) {
+scpi_bool_t SCPI_ParamToUInt32(scpi_t * context, scpi_parameter_t * parameter, uint32_t * value) {
     return ParamSignToUInt32(context, parameter, value, FALSE);
 }
 
@@ -696,7 +696,7 @@ scpi_bool_t SCPI_ParamToUInt32(scpi_t * context,  scpi_parameter_t * parameter, 
  * @return TRUE if succesful
  */
 scpi_bool_t SCPI_ParamToInt64(scpi_t * context, scpi_parameter_t * parameter, int64_t * value) {
-    return ParamSignToUInt64(context, parameter, (uint64_t *)value, TRUE);
+    return ParamSignToUInt64(context, parameter, (uint64_t *) value, TRUE);
 }
 
 /**
@@ -706,7 +706,7 @@ scpi_bool_t SCPI_ParamToInt64(scpi_t * context, scpi_parameter_t * parameter, in
  * @param value result
  * @return TRUE if succesful
  */
-scpi_bool_t SCPI_ParamToUInt64(scpi_t * context,  scpi_parameter_t * parameter, uint64_t * value) {
+scpi_bool_t SCPI_ParamToUInt64(scpi_t * context, scpi_parameter_t * parameter, uint64_t * value) {
     return ParamSignToUInt64(context, parameter, value, FALSE);
 }
 
@@ -910,7 +910,7 @@ static scpi_bool_t ParamSignUInt64(scpi_t * context, uint64_t * value, scpi_bool
  * @return
  */
 scpi_bool_t SCPI_ParamInt32(scpi_t * context, int32_t * value, scpi_bool_t mandatory) {
-    return ParamSignUInt32(context, (uint32_t *)value, mandatory, TRUE);
+    return ParamSignUInt32(context, (uint32_t *) value, mandatory, TRUE);
 }
 
 /**
@@ -932,7 +932,7 @@ scpi_bool_t SCPI_ParamUInt32(scpi_t * context, uint32_t * value, scpi_bool_t man
  * @return
  */
 scpi_bool_t SCPI_ParamInt64(scpi_t * context, int64_t * value, scpi_bool_t mandatory) {
-    return ParamSignUInt64(context, (uint64_t *)value, mandatory, TRUE);
+    return ParamSignUInt64(context, (uint64_t *) value, mandatory, TRUE);
 }
 
 /**
@@ -965,7 +965,7 @@ scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t *
 
     result = SCPI_Parameter(context, &param, mandatory);
     if (result) {
-        switch(param.type) {
+        switch (param.type) {
             case SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA:
             case SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA:
                 *value = param.ptr + 1;
@@ -1334,7 +1334,7 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     }
 
     pattern = context->param_list.cmd->pattern;
-    return matchCommand (pattern, cmd, strlen (cmd), NULL, 0, 0);
+    return matchCommand(pattern, cmd, strlen(cmd), NULL, 0, 0);
 }
 
 /**
@@ -1351,11 +1351,11 @@ int32_t SCPI_CmdTag(scpi_t * context) {
 }
 
 scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
-    return matchCommand (pattern, value, len, NULL, 0, 0);
+    return matchCommand(pattern, value, len, NULL, 0, 0);
 }
 
 scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len, int32_t default_value) {
-    return matchCommand (context->param_list.cmd->pattern,  context->param_list.cmd_raw.data, context->param_list.cmd_raw.length, numbers, len, default_value);
+    return matchCommand(context->param_list.cmd->pattern, context->param_list.cmd_raw.data, context->param_list.cmd_raw.length, numbers, len, default_value);
 }
 
 /**
@@ -1364,8 +1364,7 @@ scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len,
  * @param parameter
  * @return
  */
-scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter)
-{
+scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter) {
     return parameter->type == SCPI_TOKEN_UNKNOWN ? FALSE : TRUE;
 }
 
@@ -1374,7 +1373,6 @@ scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter)
  * @param context
  * @return
  */
-scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context)
-{
+scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context) {
     return context->cmd_error;
 }

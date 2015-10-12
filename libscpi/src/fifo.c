@@ -50,7 +50,7 @@ scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) {
         return FALSE;
     }
 
-    if(value) {
+    if (value) {
         *value = fifo->data[fifo->rd];
     }
 

@@ -76,7 +76,7 @@ static void testFifo() {
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
     CU_ASSERT_EQUAL(value, 5);
     TEST_FIFO_COUNT(0);
-    
+
     CU_ASSERT_FALSE(fifo_remove(&fifo, &value));
     TEST_FIFO_COUNT(0);
 }

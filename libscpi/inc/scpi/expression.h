@@ -41,7 +41,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
     enum _scpi_expr_result_t {
         SCPI_EXPR_OK = 0,
         SCPI_EXPR_ERROR,

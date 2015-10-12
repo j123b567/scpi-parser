@@ -51,13 +51,13 @@
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     if (context->user_context != NULL) {
-        int fd = *(int *)(context->user_context);
+        int fd = *(int *) (context->user_context);
         return write(fd, data, len);
     }
     return 0;
 }
 
-scpi_result_t SCPI_Flush(scpi_t * context) {    
+scpi_result_t SCPI_Flush(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
@@ -91,57 +91,52 @@ static int createServer(int port) {
     int rc;
     int on = 1;
     struct sockaddr_in servaddr;
-        
+
     /* Configure TCP Server */
-    bzero(&servaddr, sizeof(servaddr));
+    bzero(&servaddr, sizeof (servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr=htonl(INADDR_ANY);
-    servaddr.sin_port=htons(port);
-    
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_port = htons(port);
+
     /* Create socket */
-    fd = socket(AF_INET,SOCK_STREAM, 0);
-    if (fd < 0)
-    {
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
         perror("socket() failed");
         exit(-1);
-    }    
-    
+    }
+
     /* Set address reuse enable */
-    rc = setsockopt(fd, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
-    if (rc < 0)
-    {
+    rc = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof (on));
+    if (rc < 0) {
         perror("setsockopt() failed");
         close(fd);
         exit(-1);
     }
-   
+
     /* Set non blocking */
-    rc = ioctl(fd, FIONBIO, (char *)&on);
-    if (rc < 0)
-    {
+    rc = ioctl(fd, FIONBIO, (char *) &on);
+    if (rc < 0) {
         perror("ioctl() failed");
         close(fd);
         exit(-1);
-    }    
-    
+    }
+
     /* Bind to socket */
-    rc = bind(fd, (struct sockaddr *)&servaddr, sizeof(servaddr));
-    if (rc < 0)
-    {
+    rc = bind(fd, (struct sockaddr *) &servaddr, sizeof (servaddr));
+    if (rc < 0) {
         perror("bind() failed");
         close(fd);
         exit(-1);
     }
-    
+
     /* Listen on socket */
     listen(fd, 1);
-    if (rc < 0)
-    {
+    if (rc < 0) {
         perror("listen() failed");
         close(fd);
         exit(-1);
     }
-    
+
     return fd;
 }
 
@@ -150,16 +145,16 @@ static int waitServer(int fd) {
     struct timeval timeout;
     int rc;
     int max_fd;
-    
+
     FD_ZERO(&fds);
     max_fd = fd;
     FD_SET(fd, &fds);
-    
-    timeout.tv_sec  = 5;
+
+    timeout.tv_sec = 5;
     timeout.tv_usec = 0;
-    
+
     rc = select(max_fd + 1, &fds, NULL, NULL, &timeout);
-    
+
     return rc;
 }
 
@@ -176,26 +171,26 @@ int main(int argc, char** argv) {
 
     // user_context will be pointer to socket
     scpi_context.user_context = NULL;
-    
+
     SCPI_Init(&scpi_context);
 
     listenfd = createServer(5025);
-    
-    while(1) {
+
+    while (1) {
         int clifd;
         struct sockaddr_in cliaddr;
         socklen_t clilen;
 
-        clilen = sizeof(cliaddr);
-        clifd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
-        
+        clilen = sizeof (cliaddr);
+        clifd = accept(listenfd, (struct sockaddr *) &cliaddr, &clilen);
+
         if (clifd < 0) continue;
 
         printf("Connection established %s\r\n", inet_ntoa(cliaddr.sin_addr));
 
         scpi_context.user_context = &clifd;
 
-        while(1) {
+        while (1) {
             rc = waitServer(clifd);
             if (rc < 0) { // failed
                 perror("  recv() failed");
@@ -205,13 +200,13 @@ int main(int argc, char** argv) {
                 SCPI_Input(&scpi_context, NULL, 0);
             }
             if (rc > 0) { // something to read
-                rc = recv(clifd, smbuffer, sizeof(smbuffer), 0);
+                rc = recv(clifd, smbuffer, sizeof (smbuffer), 0);
                 if (rc < 0) {
                     if (errno != EWOULDBLOCK) {
                         perror("  recv() failed");
                         break;
                     }
-                } else if (rc == 0) {                
+                } else if (rc == 0) {
                     printf("Connection closed\r\n");
                     break;
                 } else {
@@ -222,7 +217,7 @@ int main(int argc, char** argv) {
 
         close(clifd);
     }
-    
+
     return (EXIT_SUCCESS);
 }
 

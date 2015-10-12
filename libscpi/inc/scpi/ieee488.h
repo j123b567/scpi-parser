@@ -43,19 +43,19 @@
 extern "C" {
 #endif
 
-scpi_result_t SCPI_CoreCls(scpi_t * context);
-scpi_result_t SCPI_CoreEse(scpi_t * context);
-scpi_result_t SCPI_CoreEseQ(scpi_t * context);
-scpi_result_t SCPI_CoreEsrQ(scpi_t * context);
-scpi_result_t SCPI_CoreIdnQ(scpi_t * context);
-scpi_result_t SCPI_CoreOpc(scpi_t * context);
-scpi_result_t SCPI_CoreOpcQ(scpi_t * context);
-scpi_result_t SCPI_CoreRst(scpi_t * context);
-scpi_result_t SCPI_CoreSre(scpi_t * context);
-scpi_result_t SCPI_CoreSreQ(scpi_t * context);
-scpi_result_t SCPI_CoreStbQ(scpi_t * context);
-scpi_result_t SCPI_CoreTstQ(scpi_t * context);
-scpi_result_t SCPI_CoreWai(scpi_t * context);
+    scpi_result_t SCPI_CoreCls(scpi_t * context);
+    scpi_result_t SCPI_CoreEse(scpi_t * context);
+    scpi_result_t SCPI_CoreEseQ(scpi_t * context);
+    scpi_result_t SCPI_CoreEsrQ(scpi_t * context);
+    scpi_result_t SCPI_CoreIdnQ(scpi_t * context);
+    scpi_result_t SCPI_CoreOpc(scpi_t * context);
+    scpi_result_t SCPI_CoreOpcQ(scpi_t * context);
+    scpi_result_t SCPI_CoreRst(scpi_t * context);
+    scpi_result_t SCPI_CoreSre(scpi_t * context);
+    scpi_result_t SCPI_CoreSreQ(scpi_t * context);
+    scpi_result_t SCPI_CoreStbQ(scpi_t * context);
+    scpi_result_t SCPI_CoreTstQ(scpi_t * context);
+    scpi_result_t SCPI_CoreWai(scpi_t * context);
 
 
 #define STB_R01 0x01    /* Not used */
@@ -78,12 +78,12 @@ scpi_result_t SCPI_CoreWai(scpi_t * context);
 #define ESR_PON 0x80    /* Power On */
 
 
-scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name);
-void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val);
-void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
-void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
+    scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name);
+    void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val);
+    void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
+    void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits);
 
-void SCPI_EventClear(scpi_t * context);
+    void SCPI_EventClear(scpi_t * context);
 
 #ifdef  __cplusplus
 }

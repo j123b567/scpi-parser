@@ -46,6 +46,5 @@
 #include "scpi/utils.h"
 #include "scpi/expression.h"
 
-
 #endif	/* SCPI_H */
 

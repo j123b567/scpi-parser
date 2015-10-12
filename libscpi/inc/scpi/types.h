@@ -52,14 +52,14 @@ extern "C" {
 #endif
 
 #if !HAVE_STDBOOL
-   typedef unsigned char bool;
+    typedef unsigned char bool;
 #endif
 
 #ifndef FALSE
-    #define FALSE 0
+#define FALSE 0
 #endif
 #ifndef TRUE
-    #define TRUE (!FALSE)
+#define TRUE (!FALSE)
 #endif
 
     /* basic data types */
@@ -255,6 +255,7 @@ extern "C" {
 
     struct _scpi_number_parameter_t {
         scpi_bool_t special;
+
         union {
             double value;
             int32_t tag;

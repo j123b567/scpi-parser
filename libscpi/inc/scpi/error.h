@@ -52,12 +52,12 @@ extern "C" {
     const char * SCPI_ErrorTranslate(int16_t err);
 
 
-/* Using X-Macro technique to define everything once
- * http://en.wikipedia.org/wiki/X_Macro
- *
- * X macro is for minimal set of errors for library itself
- * XE macro is for full set of SCPI errors available to user application
- */
+    /* Using X-Macro technique to define everything once
+     * http://en.wikipedia.org/wiki/X_Macro
+     *
+     * X macro is for minimal set of errors for library itself
+     * XE macro is for full set of SCPI errors available to user application
+     */
 #define LIST_OF_ERRORS \
     XE(SCPI_ERROR_COMMAND,                      -100, "Command error")                                \
     X(SCPI_ERROR_INVALID_CHARACTER,             -101, "Invalid character")                            \
@@ -180,21 +180,22 @@ extern "C" {
     XE(SCPI_ERROR_REQUEST_CONTROL,              -700, "Request control")                              \
     XE(SCPI_ERROR_OPERATION_COMPLETE,           -800, "Operation complete")                           \
 
-enum {
+
+    enum {
 #define X(def, val, str) def = val,
 #if USE_FULL_ERROR_LIST
 #define XE X
 #else
 #define XE(def, val, str)
 #endif
-LIST_OF_ERRORS
+        LIST_OF_ERRORS
 
 #if USE_USER_ERROR_LIST
-LIST_OF_USER_ERRORS
+        LIST_OF_USER_ERRORS
 #endif
 #undef X
 #undef XE
-};
+    };
 
 #ifdef __cplusplus
 }

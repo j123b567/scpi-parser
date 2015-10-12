@@ -73,12 +73,11 @@ typedef struct {
     //fd_set fds;
 } user_data_t;
 
-struct _queue_event_t
-{
+struct _queue_event_t {
     uint8_t cmd;
     uint8_t param1;
     int16_t param2;
-} __attribute__ ((__packed__));
+} __attribute__((__packed__));
 typedef struct _queue_event_t queue_event_t;
 
 
@@ -92,7 +91,7 @@ user_data_t user_data = {
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     if (context->user_context != NULL) {
-        user_data_t * u = (user_data_t *)(context->user_context);
+        user_data_t * u = (user_data_t *) (context->user_context);
         if (u->io) {
             return (netconn_write(u->io, data, len, NETCONN_NOCOPY) == ERR_OK) ? len : 0;
         }
@@ -102,7 +101,7 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
 
 scpi_result_t SCPI_Flush(scpi_t * context) {
     if (context->user_context != NULL) {
-        user_data_t * u = (user_data_t *)(context->user_context);
+        user_data_t * u = (user_data_t *) (context->user_context);
         if (u->io) {
             /* flush not implemented */
             return SCPI_RES_OK;
@@ -116,11 +115,11 @@ int SCPI_Error(scpi_t * context, int_fast16_t err) {
     // BEEP
     iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     if (err != 0) {
-		/* New error */
+        /* New error */
         /* Beep */
-		/* Error LED ON */
+        /* Error LED ON */
     } else {
-		/* No more errors in the queue */
+        /* No more errors in the queue */
         /* Error LED OFF */
     }
     return 0;
@@ -134,11 +133,11 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     } else {
         iprintf("**CTRL %02x: 0x%X (%d)\r\n", ctrl, val, val);
     }
-    
+
     if (context->user_context != NULL) {
-        user_data_t * u = (user_data_t *)(context->user_context);
+        user_data_t * u = (user_data_t *) (context->user_context);
         if (u->control_io) {
-            snprintf(b, sizeof(b), "SRQ%d\r\n", val);
+            snprintf(b, sizeof (b), "SRQ%d\r\n", val);
             return netconn_write(u->control_io, b, strlen(b), NETCONN_NOCOPY) == ERR_OK ? SCPI_RES_OK : SCPI_RES_ERR;
         }
     }
@@ -156,7 +155,6 @@ scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-
 static void setEseReq(void) {
     SCPI_RegSetBits(&scpi_context, SCPI_REG_ESR, ESR_REQ);
 }
@@ -168,14 +166,14 @@ static void setError(int16_t err) {
 void SCPI_RequestControl(void) {
     queue_event_t msg;
     msg.cmd = SCPI_MSG_SET_ESE_REQ;
-    
-	/* Avoid sending evtQueue message if ESR_REQ is already set 
-	if((SCPI_RegGet(&scpi_context, SCPI_REG_ESR) & ESR_REQ) == 0) {
-	    xQueueSend(user_data.evtQueue, &msg, 1000);
-	}
-	*/
 
-	xQueueSend(user_data.evtQueue, &msg, 1000);
+    /* Avoid sending evtQueue message if ESR_REQ is already set 
+    if((SCPI_RegGet(&scpi_context, SCPI_REG_ESR) & ESR_REQ) == 0) {
+        xQueueSend(user_data.evtQueue, &msg, 1000);
+    }
+     */
+
+    xQueueSend(user_data.evtQueue, &msg, 1000);
 }
 
 void SCPI_AddError(int16_t err) {
@@ -183,7 +181,7 @@ void SCPI_AddError(int16_t err) {
     msg.cmd = SCPI_MSG_SET_ERROR;
     msg.param2 = err;
 
-    xQueueSend(user_data.evtQueue, &msg, 1000); 
+    xQueueSend(user_data.evtQueue, &msg, 1000);
 }
 
 void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t len) {
@@ -355,9 +353,9 @@ fail1:
 static void scpi_server_thread(void *arg) {
     queue_event_t evt;
 
-    (void)arg;
+    (void) arg;
 
-    user_data.evtQueue = xQueueCreate(10, sizeof(queue_event_t));
+    user_data.evtQueue = xQueueCreate(10, sizeof (queue_event_t));
 
     // user_context will be pointer to socket
     scpi_context.user_context = &user_data;
@@ -367,7 +365,7 @@ static void scpi_server_thread(void *arg) {
     user_data.io_listen = createServer(DEVICE_PORT);
     user_data.control_io_listen = createServer(CONTROL_PORT);
 
-    while(1) {
+    while (1) {
         waitServer(&user_data, &evt);
 
         if (evt.cmd == SCPI_MSG_TIMEOUT) { // timeout
@@ -393,7 +391,7 @@ static void scpi_server_thread(void *arg) {
         if (evt.cmd == SCPI_MSG_SET_ESE_REQ) {
             setEseReq();
         }
-        
+
         if (evt.cmd == SCPI_MSG_SET_ERROR) {
             setError(evt.param2);
         }

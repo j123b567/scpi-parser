@@ -55,19 +55,18 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
         // do something, if parameter not present
     }
 
-    
+
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
     fprintf(stderr, "\tP1=%s\r\n", bf);
 
-    
+
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
     fprintf(stderr, "\tP2=%s\r\n", bf);
 
     SCPI_ResultDouble(context, 0);
-    
+
     return SCPI_RES_OK;
 }
-
 
 scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     scpi_number_t param1, param2;
@@ -138,7 +137,6 @@ scpi_choice_def_t trigger_source[] = {
     SCPI_CHOICE_LIST_END /* termination of option list */
 };
 
-
 scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
     int32_t param;
@@ -149,7 +147,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     }
 
     SCPI_ChoiceToName(trigger_source, param, &name);
-    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int)param);
+    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int) param);
 
     SCPI_ResultInt32(context, param);
 
@@ -158,7 +156,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
 scpi_result_t TEST_Numbers(scpi_t * context) {
 
-    fprintf(stderr, "RAW CMD %.*s\r\n", (int)context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
+    fprintf(stderr, "RAW CMD %.*s\r\n", (int) context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
 
     return SCPI_RES_OK;
 }
@@ -167,7 +165,7 @@ scpi_result_t TEST_Text(scpi_t * context) {
     char buffer[100];
     size_t copy_len;
 
-    if(!SCPI_ParamCopyText(context, buffer, sizeof(buffer), &copy_len, false)) {
+    if (!SCPI_ParamCopyText(context, buffer, sizeof (buffer), &copy_len, false)) {
         buffer[0] = '\0';
     }
 
@@ -277,8 +275,12 @@ static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 
 scpi_t scpi_context = {
     /* cmdlist */ scpi_commands,
-    /* buffer */ { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0, /* data */ scpi_input_buffer},
-    /* param_list */ { /* cmd */ NULL, /* lex_state */ {NULL, NULL, 0}, /* cmd_raw */ {0, 0, NULL}},
+    /* buffer */
+    { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0, /* data */ scpi_input_buffer},
+    /* param_list */
+    { /* cmd */ NULL, /* lex_state */
+        {NULL, NULL, 0}, /* cmd_raw */
+        {0, 0, NULL}},
     /* interface */ &scpi_interface,
     /* output_count */ 0,
     /* input_count */ 0,
@@ -287,7 +289,12 @@ scpi_t scpi_context = {
     /* registers */ scpi_regs,
     /* units */ scpi_units_def,
     /* user_context */ NULL,
-    /* parser_state */ { /* programHeader */ {SCPI_TOKEN_UNKNOWN, NULL, 0}, /* programData */ {SCPI_TOKEN_UNKNOWN, NULL, 0}, /* numberOfParameters */ 0, /* termination */ SCPI_MESSAGE_TERMINATION_NONE},
-    /* idn */ {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
+    /* parser_state */
+    { /* programHeader */
+        {SCPI_TOKEN_UNKNOWN, NULL, 0}, /* programData */
+        {SCPI_TOKEN_UNKNOWN, NULL, 0}, /* numberOfParameters */ 0, /* termination */ SCPI_MESSAGE_TERMINATION_NONE
+    },
+    /* idn */
+    {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
 

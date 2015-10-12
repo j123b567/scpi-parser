@@ -4,7 +4,7 @@
  * Copyright (c) 2012 Jan Breuer
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -13,7 +13,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,10 +30,10 @@
 /**
  * @file   scpi_utils.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  Conversion routines and string manipulation routines
- * 
- * 
+ *
+ *
  */
 
 #include <stdio.h>
@@ -53,7 +53,7 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len);
  * @param str
  * @param size
  * @param set
- * @return 
+ * @return
  */
 char * strnpbrk(const char *str, size_t size, const char *set) {
     const char *scanp;
@@ -74,7 +74,7 @@ char * strnpbrk(const char *str, size_t size, const char *set) {
  * @param str   converted textual representation
  * @param len   string buffer length
  * @param base  output base
- * @param sign  
+ * @param sign
  * @return number of bytes written to str (without '\0')
  */
 size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
@@ -162,7 +162,7 @@ size_t SCPI_UInt32ToStrBase(uint32_t val, char * str, size_t len, int8_t base) {
  * @param str   converted textual representation
  * @param len   string buffer length
  * @param base  output base
- * @param sign  
+ * @param sign
  * @return number of bytes written to str (without '\0')
  */
 size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, scpi_bool_t sign) {
@@ -475,7 +475,7 @@ static size_t cmdSeparatorPos(const char * cmd, size_t len) {
  * @param pattern_len
  * @param str
  * @param str_len
- * @return 
+ * @return
  */
 scpi_bool_t matchPattern(const char * pattern, size_t pattern_len, const char * str, size_t str_len, int32_t * num) {
     int pattern_sep_pos_short;

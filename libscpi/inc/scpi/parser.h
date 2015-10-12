@@ -48,7 +48,6 @@ extern "C" {
     int SCPI_Input(scpi_t * context, const char * data, int len);
     int SCPI_Parse(scpi_t * context, char * data, int len);
 
-
     size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);
 #define SCPI_ResultMnemonic(context, data) SCPI_ResultCharacters((context), (data), strlen(data))
     size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base);
@@ -60,7 +59,6 @@ extern "C" {
     size_t SCPI_ResultText(scpi_t * context, const char * data);
     size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len);
     size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
-   
 
     scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter);
@@ -74,7 +72,6 @@ extern "C" {
     scpi_bool_t SCPI_ParamToDouble(scpi_t * context, scpi_parameter_t * parameter, double * value);
     scpi_bool_t SCPI_ParamToChoice(scpi_t * context, scpi_parameter_t * parameter, const scpi_choice_def_t * options, int32_t * value);
     scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, const char ** text);
-
 
     scpi_bool_t SCPI_ParamInt32(scpi_t * context, int32_t * value, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamUInt32(scpi_t * context, uint32_t * value, scpi_bool_t mandatory);
@@ -93,7 +90,6 @@ extern "C" {
     int32_t SCPI_CmdTag(scpi_t * context);
     scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len);
     scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len, int32_t default_value);
-
 
     // deprecated finction, should be removed later
 #define SCPI_ResultIntBase(context, val, base) SCPI_ResultInt32Base ((context), (val), (base), TRUE)

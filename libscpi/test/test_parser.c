@@ -99,6 +99,7 @@ static size_t output_buffer_write(const char * data, size_t len) {
 }
 
 scpi_t scpi_context;
+
 static void error_buffer_clear(void) {
     err_buffer[0] = 0;
     err_buffer_pos = 0;
@@ -112,7 +113,6 @@ static void error_buffer_add(int_fast16_t err) {
     err_buffer[err_buffer_pos] = err;
     err_buffer_pos++;
 }
-
 
 static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     (void) context;
@@ -135,6 +135,7 @@ static int SCPI_Error(scpi_t * context, int_fast16_t err) {
 }
 
 scpi_reg_val_t srq_val = 0;
+
 static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
     (void) context;
 
@@ -171,16 +172,17 @@ static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 
 scpi_t scpi_context = {
     .cmdlist = scpi_commands,
-    .buffer = {
+    .buffer =
+    {
         .length = SCPI_INPUT_BUFFER_LENGTH,
         .data = scpi_input_buffer,
     },
     .interface = &scpi_interface,
     .registers = scpi_regs,
     .units = scpi_units_def,
-    .idn = {"MA", "IN", NULL, "VER"},
+    .idn =
+    {"MA", "IN", NULL, "VER"},
 };
-
 
 static int init_suite(void) {
     SCPI_Init(&scpi_context);
@@ -748,7 +750,7 @@ static void testChannelList(void) {
     TEST_ChannelList("(@1,2:3)", 2, 1, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
 
     TEST_ChannelList("(@1,2!5:3!6)", 0, 2, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
-    TEST_ChannelList("(@1,2!5:3!6)", 1, 2, TRUE, 2, (2,5), (3,6), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1,2!5:3!6)", 1, 2, TRUE, 2, (2, 5), (3, 6), SCPI_EXPR_OK, 0);
     TEST_ChannelList("(@1,2!5:3!6)", 2, 2, FALSE, 0, (0), (0), SCPI_EXPR_NO_MORE, 0);
 
     TEST_ChannelList("(@1,2!5:3!6)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);

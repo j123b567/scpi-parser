@@ -105,7 +105,7 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
     if ((name >= SCPI_REG_COUNT) || (context->registers == NULL)) {
         return;
     }
-    
+
     /* store old register value */
     old_val = context->registers[name];
 
@@ -148,8 +148,8 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
         case SCPI_REG_OPERE:
             regUpdate(context, SCPI_REG_OPER);
             break;
-            
-            
+
+
         case SCPI_REG_COUNT:
             /* nothing to do */
             break;
@@ -212,7 +212,7 @@ scpi_result_t SCPI_CoreCls(scpi_t * context) {
 scpi_result_t SCPI_CoreEse(scpi_t * context) {
     int32_t new_ESE;
     if (SCPI_ParamInt32(context, &new_ESE, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_ESE, (scpi_reg_val_t)new_ESE);
+        SCPI_RegSet(context, SCPI_REG_ESE, (scpi_reg_val_t) new_ESE);
     }
     return SCPI_RES_OK;
 }
@@ -251,7 +251,7 @@ scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
  */
 scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
     int i;
-    for (i = 0; i<4; i++) {
+    for (i = 0; i < 4; i++) {
         if (context->idn[i]) {
             SCPI_ResultMnemonic(context, context->idn[i]);
         } else {
@@ -302,7 +302,7 @@ scpi_result_t SCPI_CoreRst(scpi_t * context) {
 scpi_result_t SCPI_CoreSre(scpi_t * context) {
     int32_t new_SRE;
     if (SCPI_ParamInt32(context, &new_SRE, TRUE)) {
-        SCPI_RegSet(context, SCPI_REG_SRE, (scpi_reg_val_t)new_SRE);
+        SCPI_RegSet(context, SCPI_REG_SRE, (scpi_reg_val_t) new_SRE);
     }
     return SCPI_RES_OK;
 }

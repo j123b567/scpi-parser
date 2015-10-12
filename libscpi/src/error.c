@@ -44,7 +44,6 @@
 /* basic FIFO */
 static scpi_fifo_t local_error_queue;
 
-
 /**
  * Initialize error queue
  * @param context - scpi context
@@ -56,8 +55,8 @@ void SCPI_ErrorInit(scpi_t * context) {
      */
 
     /* basic FIFO */
-    context->error_queue = (scpi_error_queue_t)&local_error_queue;
-    fifo_init((scpi_fifo_t *)context->error_queue);
+    context->error_queue = (scpi_error_queue_t) & local_error_queue;
+    fifo_init((scpi_fifo_t *) context->error_queue);
 }
 
 /**
@@ -98,7 +97,7 @@ void SCPI_ErrorClear(scpi_t * context) {
      */
 
     /* basic FIFO */
-    fifo_clear((scpi_fifo_t *)context->error_queue);
+    fifo_clear((scpi_fifo_t *) context->error_queue);
 
     SCPI_ErrorEmitEmpty(context);
 }
@@ -119,7 +118,7 @@ int16_t SCPI_ErrorPop(scpi_t * context) {
      */
 
     /* basic FIFO */
-    fifo_remove((scpi_fifo_t *)context->error_queue, &result);
+    fifo_remove((scpi_fifo_t *) context->error_queue, &result);
 
     SCPI_ErrorEmitEmpty(context);
 
@@ -140,7 +139,7 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
      */
 
     /* basic FIFO */
-    fifo_count((scpi_fifo_t *)context->error_queue, &result);
+    fifo_count((scpi_fifo_t *) context->error_queue, &result);
 
     return result;
 }
@@ -152,7 +151,7 @@ static void SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
      */
 
     /* basic FIFO */
-    fifo_add((scpi_fifo_t *)context->error_queue, err);
+    fifo_add((scpi_fifo_t *) context->error_queue, err);
 }
 
 struct error_reg {
@@ -167,7 +166,7 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
     {-100, -199, ESR_CER}, /* Command error (e.g. syntax error) ch 21.8.9    */
     {-200, -299, ESR_EER}, /* Execution Error (e.g. range error) ch 21.8.10  */
     {-300, -399, ESR_DER}, /* Device specific error -300, -399 ch 21.8.11    */
-    {   1,32767, ESR_DER}, /* Device designer provided specific error 1, 32767 ch 21.8.11    */
+    { 1, 32767, ESR_DER}, /* Device designer provided specific error 1, 32767 ch 21.8.11    */
     {-400, -499, ESR_QER}, /* Query error -400, -499 ch 21.8.12              */
     {-500, -599, ESR_PON}, /* Power on event -500, -599 ch 21.8.13           */
     {-600, -699, ESR_URQ}, /* User Request Event -600, -699 ch 21.8.14       */
@@ -186,7 +185,7 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 
     SCPI_ErrorAddInternal(context, err);
 
-    for(i = 0; i < ERROR_DEFS_N; i++) {
+    for (i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {
             SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
         }
@@ -213,14 +212,14 @@ const char * SCPI_ErrorTranslate(int16_t err) {
 #else
 #define XE(def, val, str)
 #endif
-LIST_OF_ERRORS
+            LIST_OF_ERRORS
 
 #if USE_USER_ERROR_LIST
-LIST_OF_USER_ERRORS
+                    LIST_OF_USER_ERRORS
 #endif
 #undef X
 #undef XE
-        default: return "Unknown error";
+                default: return "Unknown error";
     }
 }
 

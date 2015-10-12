@@ -45,7 +45,7 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     return fwrite(data, 1, len, stdout);
 }
 
-scpi_result_t SCPI_Flush(scpi_t * context) {    
+scpi_result_t SCPI_Flush(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
@@ -73,6 +73,7 @@ scpi_result_t SCPI_Reset(scpi_t * context) {
 scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
     return SCPI_RES_ERR;
 }
+
 /*
  * 
  */
@@ -87,10 +88,10 @@ int main(int argc, char** argv) {
     printf("SCPI Interactive demo\r\n");
     char smbuffer[10];
     while (1) {
-         if (NULL == fgets(smbuffer, 10, stdin)) {
-             break;
-         }
-         SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
+        if (NULL == fgets(smbuffer, 10, stdin)) {
+            break;
+        }
+        SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
     }
 
 
