@@ -303,5 +303,11 @@ scpi_expr_result_t SCPI_ExprChannelListEntry(scpi_t * context, scpi_parameter_t 
     if (res == SCPI_EXPR_ERROR) {
         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
     }
+    if (res == SCPI_EXPR_NO_MORE) {
+        if (!scpiLex_IsEos(&lex)) {
+            res = SCPI_EXPR_ERROR;
+            SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+        }
+    }
     return res;
 }

@@ -760,6 +760,9 @@ static void testChannelList(void) {
     TEST_ChannelList("(@1,2!5:3!6!7)", 0, 2, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
     TEST_ChannelList("(@1,2!5:3!6!7)", 1, 2, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
     TEST_ChannelList("(@1,2!5:3!6!7)", 2, 2, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+
+    TEST_ChannelList("(@1, 2)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
+    TEST_ChannelList("(@1, 2)", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
 }
 
 int main() {
