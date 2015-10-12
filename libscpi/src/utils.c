@@ -508,8 +508,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
 #define SKIP_CMD(n) do {cmd_ptr += (n);  cmd_len -= (n);} while(0)
 
     scpi_bool_t result = FALSE;
-    int leftFlag = 0; // flag for '[' on left
-    int rightFlag = 0; // flag for ']' on right
+    int brackets = 0;
     int cmd_sep_pos = 0;
 
     size_t numbers_idx = 0;
@@ -534,7 +533,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
     /* now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */
     if (pattern_ptr[0] == '[') { // skip first '['
         SKIP_PATTERN(1);
-        leftFlag++;
+        brackets++;
     }
     if (pattern_ptr[0] == ':') { // skip first ':'
         SKIP_PATTERN(1);
@@ -554,10 +553,6 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
     while (1) {
         int pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_len);
 
-        if ((leftFlag > 0) && (rightFlag > 0)) {
-            leftFlag--;
-            rightFlag--;
-        }
         cmd_sep_pos = cmdSeparatorPos(cmd_ptr, cmd_len);
 
         if ((pattern_sep_pos > 0) && pattern_ptr[pattern_sep_pos - 1] == '#') {
@@ -595,16 +590,16 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
                     pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_len);
                     switch (pattern_ptr[pattern_sep_pos]) {
                         case '[':
-                            leftFlag++;
+                            brackets++;
                             break;
                         case ']':
-                            leftFlag--;
+                            brackets--;
                             break;
                         default:
                             break;
                     }
                     SKIP_PATTERN(pattern_sep_pos + 1);
-                    if (leftFlag == 0) {
+                    if (brackets == 0) {
                         if ((pattern_len > 0) && (pattern_ptr[0] == '[')) {
                             continue;
                         } else {
@@ -630,14 +625,14 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
                     && (pattern_ptr[1] == ':')) {
                 SKIP_PATTERN(2); // for skip '[' in "[:"
                 SKIP_CMD(1);
-                leftFlag++;
+                brackets++;
             } else if ((pattern_len > 1)
                     && (pattern_ptr[1] == cmd_ptr[0])
                     && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == ':')) {
                 SKIP_PATTERN(2); // for skip ']' in "]:"
                 SKIP_CMD(1);
-                rightFlag++;
+                brackets--;
             } else if ((pattern_len > 2)
                     && (pattern_ptr[2] == cmd_ptr[0])
                     && (pattern_ptr[0] == ']')
@@ -645,8 +640,8 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
                     && (pattern_ptr[2] == ':')) {
                 SKIP_PATTERN(3); // for skip '][' in "][:"
                 SKIP_CMD(1);
-                leftFlag++;
-                rightFlag++;
+                //brackets++;
+                //brackets--;
             } else {
                 result = FALSE;
                 break;
@@ -655,13 +650,13 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
             SKIP_PATTERN(pattern_sep_pos);
             if ((pattern_ptr[0] == ']') && (pattern_ptr[1] == ':')) {
                 SKIP_PATTERN(2); // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
-                rightFlag++;
+                brackets--;
             } else if ((pattern_len > 2) && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == '[')
                     && (pattern_ptr[2] == ':')) {
                 SKIP_PATTERN(3); // for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged
-                leftFlag++;
-                rightFlag++;
+                //brackets++;
+                //brackets--;
             } else {
                 result = FALSE;
                 break;
