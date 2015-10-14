@@ -765,6 +765,47 @@ static void testChannelList(void) {
     TEST_ChannelList("(@1, 2)", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
 }
 
+
+#define TEST_ParamNumber(data, mandatory, expected_special, expected_tag, expected_value, expected_unit, expected_base, expected_result, expected_error_code) \
+{                                                                                       \
+    scpi_number_t value;                                                                \
+    scpi_bool_t result;                                                                 \
+    int16_t errCode;                                                                    \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = SCPI_ParamNumber(&scpi_context, scpi_special_numbers_def, &value, mandatory);\
+                                                                                        \
+    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(value.special, expected_special);                               \
+        if (value.special) CU_ASSERT_EQUAL(value.tag, expected_tag);                    \
+        if (!value.special) CU_ASSERT_DOUBLE_EQUAL(value.value, expected_value, 0.000001);\
+        CU_ASSERT_EQUAL(value.unit, expected_unit);                                     \
+        CU_ASSERT_EQUAL(value.base, expected_base);                                     \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+}
+
+static void testParamNumber(void) {
+    TEST_ParamNumber("1", TRUE, FALSE, SCPI_NUM_NUMBER, 1, SCPI_UNIT_NONE, 10, TRUE, 0);
+    TEST_ParamNumber("#Q20", TRUE, FALSE, SCPI_NUM_NUMBER, 16, SCPI_UNIT_NONE, 8, TRUE, 0);
+    TEST_ParamNumber("#H20", TRUE, FALSE, SCPI_NUM_NUMBER, 32, SCPI_UNIT_NONE, 16, TRUE, 0);
+    TEST_ParamNumber("#B11", TRUE, FALSE, SCPI_NUM_NUMBER, 3, SCPI_UNIT_NONE, 2, TRUE, 0);
+    TEST_ParamNumber("1.2", TRUE, FALSE, SCPI_NUM_NUMBER, 1.2, SCPI_UNIT_NONE, 10, TRUE, 0);
+    TEST_ParamNumber("1.2e-1", TRUE, FALSE, SCPI_NUM_NUMBER, 0.12, SCPI_UNIT_NONE, 10, TRUE, 0);
+    TEST_ParamNumber("1.2e-1V", TRUE, FALSE, SCPI_NUM_NUMBER, 0.12, SCPI_UNIT_VOLT, 10, TRUE, 0);
+    TEST_ParamNumber("1.2mV", TRUE, FALSE, SCPI_NUM_NUMBER, 0.0012, SCPI_UNIT_VOLT, 10, TRUE, 0);
+    TEST_ParamNumber("100 OHM", TRUE, FALSE, SCPI_NUM_NUMBER, 100, SCPI_UNIT_OHM, 10, TRUE, 0);
+    TEST_ParamNumber("min", TRUE, TRUE, SCPI_NUM_MIN, 0, SCPI_UNIT_NONE, 10, TRUE, 0);
+    TEST_ParamNumber("infinity", TRUE, TRUE, SCPI_NUM_INF, 0, SCPI_UNIT_NONE, 10, TRUE, 0);
+    TEST_ParamNumber("minc", TRUE, TRUE, SCPI_NUM_NUMBER, 0, SCPI_UNIT_NONE, 10, FALSE, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -794,6 +835,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
             || (NULL == CU_add_test(pSuite, "Numeric list", testNumericList))
             || (NULL == CU_add_test(pSuite, "Channel list", testChannelList))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamNumber", testParamNumber))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

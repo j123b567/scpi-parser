@@ -283,7 +283,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             scpiLex_CharacterProgramData(&state, &token);
 
             /* convert string to special number type */
-            SCPI_ParamToChoice(context, &token, special, &tag);
+            result = SCPI_ParamToChoice(context, &token, special, &tag);
 
             value->special = TRUE;
             value->tag = tag;
