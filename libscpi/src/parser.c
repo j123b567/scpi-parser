@@ -118,9 +118,10 @@ static size_t writeSemicolon(scpi_t * context) {
  * Process command
  * @param context
  */
-static void processCommand(scpi_t * context) {
+static scpi_bool_t processCommand(scpi_t * context) {
     const scpi_command_t * cmd = context->param_list.cmd;
     lex_state_t * state = &context->param_list.lex_state;
+    scpi_bool_t result = TRUE;
 
     /* conditionaly write ; */
     writeSemicolon(context);
@@ -131,15 +132,25 @@ static void processCommand(scpi_t * context) {
 
     /* if callback exists - call command callback */
     if (cmd->callback != NULL) {
-        if ((cmd->callback(context) != SCPI_RES_OK) && !context->cmd_error) {
-            SCPI_ErrorPush(context, SCPI_ERROR_EXECUTION_ERROR);
+        if ((cmd->callback(context) != SCPI_RES_OK)) {
+            if (!context->cmd_error) {
+                SCPI_ErrorPush(context, SCPI_ERROR_EXECUTION_ERROR);
+            }
+            result = FALSE;
+        } else {
+            if (context->cmd_error) {
+                result = FALSE;
+            }
         }
     }
 
     /* set error if command callback did not read all parameters */
     if (state->pos < (state->buffer + state->len) && !context->cmd_error) {
         SCPI_ErrorPush(context, SCPI_ERROR_PARAMETER_NOT_ALLOWED);
+        result = FALSE;
     }
+
+    return result;
 }
 
 /**
@@ -166,28 +177,27 @@ static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int 
  * @param context
  * @param data - complete command line
  * @param len - command line length
- * @return 1 if the last evaluated command was found
+ * @return FALSE if there was some error during evaluation of commands
  */
-int SCPI_Parse(scpi_t * context, char * data, int len) {
-    int result = 0;
+scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
+    scpi_bool_t result = TRUE;
     scpi_parser_state_t * state;
     int r;
     scpi_token_t cmd_prev = {SCPI_TOKEN_UNKNOWN, NULL, 0};
 
     if (context == NULL) {
-        return -1;
+        return FALSE;
     }
 
     state = &context->parser_state;
     context->output_count = 0;
 
     while (1) {
-        result = 0;
-
         r = scpiParser_detectProgramMessageUnit(state, data, len);
 
         if (state->programHeader.type == SCPI_TOKEN_INVALID) {
             SCPI_ErrorPush(context, SCPI_ERROR_INVALID_CHARACTER);
+            result = FALSE;
         } else if (state->programHeader.len > 0) {
 
             composeCompoundCommand(&cmd_prev, &state->programHeader);
@@ -201,12 +211,11 @@ int SCPI_Parse(scpi_t * context, char * data, int len) {
                 context->param_list.cmd_raw.position = 0;
                 context->param_list.cmd_raw.length = state->programHeader.len;
 
-                processCommand(context);
-
-                result = 1;
+                result &= processCommand(context);
                 cmd_prev = state->programHeader;
             } else {
                 SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
+                result = FALSE;
             }
         }
 
@@ -260,8 +269,8 @@ void SCPI_Init(scpi_t * context) {
  * @param len - length of data
  * @return
  */
-int SCPI_Input(scpi_t * context, const char * data, int len) {
-    int result = 0;
+scpi_bool_t SCPI_Input(scpi_t * context, const char * data, int len) {
+    scpi_bool_t result = TRUE;
     size_t totcmdlen = 0;
     int cmdlen = 0;
 
@@ -274,7 +283,11 @@ int SCPI_Input(scpi_t * context, const char * data, int len) {
 
         buffer_free = context->buffer.length - context->buffer.position;
         if (len > (buffer_free - 1)) {
-            return -1;
+            /* Input buffer overrun - invalidate buffer */
+            context->buffer.position = 0;
+            context->buffer.data[context->buffer.position] = 0;
+            SCPI_ErrorPush(context, SCPI_ERROR_INPUT_BUFFER_OVERRUN);
+            return FALSE;
         }
         memcpy(&context->buffer.data[context->buffer.position], data, len);
         context->buffer.position += len;

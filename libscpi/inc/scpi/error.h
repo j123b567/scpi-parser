@@ -168,7 +168,7 @@ extern "C" {
     XE(SCPI_ERROR_COMMUNICATION_ERROR,          -360, "Communication error")                          \
     XE(SCPI_ERROR_PARITY_ERROR_IN_CMD_MSG,      -361, "Parity error in program message")              \
     XE(SCPI_ERROR_FRAMING_ERROR_IN_CMD_MSG,     -362, "Framing error in program message")             \
-    XE(SCPI_ERROR_INPUT_BUFFER_OVERRUN,         -363, "Input buffer overrun")                         \
+    X(SCPI_ERROR_INPUT_BUFFER_OVERRUN,          -363, "Input buffer overrun")                         \
     XE(SCPI_ERROR_TIME_OUT,                     -365, "Time out error")                               \
     XE(SCPI_ERROR_QUERY_ERROR,                  -400, "Query error")                                  \
     XE(SCPI_ERROR_QUERY_INTERRUPTED,            -410, "Query INTERRUPTED")                            \

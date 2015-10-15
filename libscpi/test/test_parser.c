@@ -241,19 +241,24 @@ static void testErrorHandling(void) {
     output_buffer_clear();
     error_buffer_clear();
 
-#define TEST_ERROR(data, output, err_num) {                     \
+#define TEST_ERROR(data, output, expected_result, err_num) {    \
     output_buffer_clear();                                      \
     error_buffer_clear();                                       \
-    SCPI_Input(&scpi_context, data, strlen(data));              \
+    scpi_bool_t result = SCPI_Input(&scpi_context, data, strlen(data)); \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
-    CU_ASSERT_EQUAL(err_buffer[0], err_num)                     \
+    CU_ASSERT_EQUAL(err_buffer[0], err_num);                    \
+    CU_ASSERT_EQUAL(result, expected_result);                   \
 }
 
-    TEST_ERROR("*IDN?\r\n", "MA,IN,0,VER\r\n", 0);
-    TEST_ERROR("IDN?\r\n", "", SCPI_ERROR_UNDEFINED_HEADER);
-    TEST_ERROR("*ESE\r\n", "", SCPI_ERROR_MISSING_PARAMETER);
-    TEST_ERROR("*IDN? 12\r\n", "MA,IN,0,VER\r\n", SCPI_ERROR_PARAMETER_NOT_ALLOWED);
-    TEST_ERROR("TEXT? \"PARAM1\", \"PARAM2\"\r\n", "\"PARAM2\"\r\n", 0);
+    TEST_ERROR("*IDN?\r\n", "MA,IN,0,VER\r\n", TRUE, 0);
+    TEST_ERROR("IDN?\r\n", "", FALSE, SCPI_ERROR_UNDEFINED_HEADER);
+    TEST_ERROR("*ESE\r\n", "", FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ERROR("*IDN? 12\r\n", "MA,IN,0,VER\r\n", FALSE, SCPI_ERROR_PARAMETER_NOT_ALLOWED);
+    TEST_ERROR("TEXT? \"PARAM1\", \"PARAM2\"\r\n", "\"PARAM2\"\r\n", TRUE, 0);
+    TEST_ERROR("ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ"
+               "ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ"
+               "ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ",
+               "", FALSE, SCPI_ERROR_INPUT_BUFFER_OVERRUN);
 
     // TODO: SCPI_ERROR_INVALID_SEPARATOR
     // TODO: SCPI_ERROR_INVALID_SUFFIX
