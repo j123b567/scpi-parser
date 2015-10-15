@@ -1350,6 +1350,7 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
     return matchCommand(pattern, cmd, strlen(cmd), NULL, 0, 0);
 }
 
+#if USE_COMMAND_TAGS
 /**
  * Return the .tag field of the matching scpi_command_t
  * @param context
@@ -1362,6 +1363,7 @@ int32_t SCPI_CmdTag(scpi_t * context) {
         return 0;
     }
 }
+#endif /* USE_COMMAND_TAGS */
 
 scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len) {
     return matchCommand(pattern, value, len, NULL, 0, 0);

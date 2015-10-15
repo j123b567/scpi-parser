@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,10 +28,10 @@
 /**
  * @file   scpi_parser.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  SCPI parser implementation
- * 
- * 
+ *
+ *
  */
 
 #ifndef SCPI_PARSER_H
@@ -87,10 +87,13 @@ extern "C" {
     scpi_bool_t SCPI_ParamChoice(scpi_t * context, const scpi_choice_def_t * options, int32_t * value, scpi_bool_t mandatory);
 
     scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd);
+#if USE_COMMAND_TAGS
     int32_t SCPI_CmdTag(scpi_t * context);
+#endif /* USE_COMMAND_TAGS */
     scpi_bool_t SCPI_Match(const char * pattern, const char * value, size_t len);
     scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len, int32_t default_value);
 
+#if USE_DEPRECATED_FUNCTIONS
     // deprecated finction, should be removed later
 #define SCPI_ResultIntBase(context, val, base) SCPI_ResultInt32Base ((context), (val), (base), TRUE)
 #define SCPI_ResultInt(context, val) SCPI_ResultInt32 ((context), (val))
@@ -98,6 +101,7 @@ extern "C" {
 #define SCPI_ParamToUnsignedInt(context, parameter, value) SCPI_ParamToUInt32((context), (parameter), (value))
 #define SCPI_ParamInt(context, value, mandatory) SCPI_ParamInt32((context), (value), (mandatory))
 #define SCPI_ParamUnsignedInt(context, value, mandatory) SCPI_ParamUInt32((context), (value), (mandatory))
+#endif /* USE_DEPRECATED_FUNCTIONS */
 
 #ifdef	__cplusplus
 }

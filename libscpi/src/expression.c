@@ -193,7 +193,7 @@ static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int
     size_t i = 0;
     while (scpiLex_DecimalNumericProgramData(state, &param)) {
         if (i < length) {
-            SCPI_ParamToInt(context, &param, &values[i]);
+            SCPI_ParamToInt32(context, &param, &values[i]);
         }
 
         if (scpiLex_SpecificCharacter(state, &param, '!')) {

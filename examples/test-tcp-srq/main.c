@@ -112,7 +112,7 @@ scpi_result_t SCPI_Reset(scpi_t * context) {
 }
 
 scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
-    SCPI_ResultInt(context, CONTROL_PORT);
+    SCPI_ResultInt32(context, CONTROL_PORT);
     return SCPI_RES_OK;
 }
 
