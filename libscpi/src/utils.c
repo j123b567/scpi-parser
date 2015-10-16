@@ -298,7 +298,7 @@ size_t strBaseToUInt32(const char * str, uint32_t * val, int8_t base) {
  */
 size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) {
     char * endptr;
-    *val = strtol(str, &endptr, base);
+    *val = strtoll(str, &endptr, base);
     return endptr - str;
 }
 

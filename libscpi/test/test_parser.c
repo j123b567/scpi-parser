@@ -392,8 +392,8 @@ static void testSCPI_ParamUInt32(void) {
     TEST_ParamUInt32("10V", TRUE, 0, FALSE, -138);
 
     // test range
-    TEST_ParamUInt32("2147483647", TRUE, 2147483647, TRUE, 0);
-    TEST_ParamUInt32("4294967295", TRUE, 4294967295, TRUE, 0);
+    TEST_ParamUInt32("2147483647", TRUE, 2147483647ULL, TRUE, 0);
+    TEST_ParamUInt32("4294967295", TRUE, 4294967295ULL, TRUE, 0);
 }
 
 #define TEST_ParamInt64(data, mandatory, expected_value, expected_result, expected_error_code) \
@@ -472,8 +472,8 @@ static void testSCPI_ParamUInt64(void) {
     TEST_ParamUInt64("10V", TRUE, 0, FALSE, -138);
 
     // test range
-    TEST_ParamUInt64("2147483647", TRUE, 2147483647, TRUE, 0);
-    TEST_ParamUInt64("4294967295", TRUE, 4294967295, TRUE, 0);
+    TEST_ParamUInt64("2147483647", TRUE, 2147483647ULL, TRUE, 0);
+    TEST_ParamUInt64("4294967295", TRUE, 4294967295ULL, TRUE, 0);
     TEST_ParamUInt64("9223372036854775807", TRUE, 9223372036854775807ULL, TRUE, 0);
     TEST_ParamUInt64("18446744073709551615", TRUE, 18446744073709551615ULL, TRUE, 0);
 }
