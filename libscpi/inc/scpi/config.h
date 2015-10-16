@@ -89,6 +89,14 @@ extern "C" {
 #define USE_USER_ERROR_LIST 0
 #endif
 
+#ifndef USE_COMMAND_TAGS
+#define USE_COMMAND_TAGS 1
+#endif
+
+#ifndef USE_DEPRECATED_FUNCTIONS
+#define USE_DEPRECATED_FUNCTIONS 1
+#endif
+
 /* Compiler specific */
 /* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
 #if defined(__CC_ARM)
