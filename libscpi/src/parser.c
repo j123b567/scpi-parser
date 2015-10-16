@@ -45,6 +45,10 @@
 #include "scpi/constants.h"
 #include "scpi/utils.h"
 
+#if USE_64K_PROGMEM_FOR_CMD_LIST
+#include <avr/pgmspace.h>
+#endif
+
 /**
  * Write data to SCPI output
  * @param context
@@ -160,12 +164,26 @@ static scpi_bool_t processCommand(scpi_t * context) {
  */
 static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int len) {
     int32_t i;
+#if USE_64K_PROGMEM_FOR_CMD_LIST
+    PGM_P pattern;
+
+    for (i = 0; (pattern = (PGM_P)pgm_read_word(&context->cmdlist[i].pattern)) != 0; ++i) {
+        strncpy_P(context->param_list.cmd_pattern_s, pattern, SCPI_MAX_CMD_PATTERN_SIZE);
+        context->param_list.cmd_pattern_s[SCPI_MAX_CMD_PATTERN_SIZE] = '\0';
+
+        if (matchCommand(context->param_list.cmd_pattern_s, header, len, NULL, 0, 0)) {
+            context->param_list.cmd_s.callback = (scpi_command_callback_t)pgm_read_word(&context->cmdlist[i].callback);
+#if USE_COMMAND_TAGS 
+            context->param_list.cmd_s..tag = (int32_t)pgm_read_dword(&context->cmdlist[i].tag);
+#endif
+#else
     const scpi_command_t * cmd;
 
     for (i = 0; context->cmdlist[i].pattern != NULL; i++) {
         cmd = &context->cmdlist[i];
         if (matchCommand(cmd->pattern, header, len, NULL, 0, 0)) {
             context->param_list.cmd = cmd;
+#endif
             return TRUE;
         }
     }
@@ -254,6 +272,11 @@ void SCPI_Init(scpi_t * context) {
     if (context->idn[3] == NULL) {
         context->idn[3] = SCPI_DEFAULT_4_REVISION;
     }
+
+#if USE_64K_PROGMEM_FOR_CMD_LIST
+    context->param_list.cmd_s.pattern = context->param_list.cmd_pattern_s;
+    context->param_list.cmd = &context->param_list.cmd_s;
+#endif
 
     context->buffer.position = 0;
     SCPI_ErrorInit(context);

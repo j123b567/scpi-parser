@@ -93,6 +93,10 @@ extern "C" {
 #define USE_COMMAND_TAGS 1
 #endif
 
+#ifndef USE_64K_PROGMEM_FOR_CMD_LIST
+#define USE_64K_PROGMEM_FOR_CMD_LIST 0
+#endif
+
 #ifndef USE_DEPRECATED_FUNCTIONS
 #define USE_DEPRECATED_FUNCTIONS 1
 #endif

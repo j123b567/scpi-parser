@@ -113,7 +113,11 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
+#if USE_COMMAND_TAGS
 #define SCPI_CMD_LIST_END       {NULL, NULL, 0}
+#else
+#define SCPI_CMD_LIST_END       {NULL, NULL}
+#endif
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
@@ -246,10 +250,22 @@ extern "C" {
 #define SCPI_CHOICE_LIST_END   {NULL, -1}
     typedef struct _scpi_choice_def_t scpi_choice_def_t;
 
+    struct _scpi_command_t {
+        const char * pattern;
+        scpi_command_callback_t callback;
+#if USE_COMMAND_TAGS
+        int32_t tag;
+#endif /* USE_COMMAND_TAGS */
+    };
+
     struct _scpi_param_list_t {
         const scpi_command_t * cmd;
         lex_state_t lex_state;
         scpi_const_buffer_t cmd_raw;
+#if USE_64K_PROGMEM_FOR_CMD_LIST
+        scpi_command_t cmd_s;
+        char cmd_pattern_s[SCPI_MAX_CMD_PATTERN_SIZE + 1];
+#endif
     };
     typedef struct _scpi_param_list_t scpi_param_list_t;
 
@@ -273,14 +289,6 @@ extern "C" {
 
     typedef scpi_token_t scpi_parameter_t;
 
-    struct _scpi_command_t {
-        const char * pattern;
-        scpi_command_callback_t callback;
-#if USE_COMMAND_TAGS
-        int32_t tag;
-#endif /* USE_COMMAND_TAGS */
-    };
-
     struct _scpi_interface_t {
         scpi_error_callback_t error;
         scpi_write_t write;
@@ -288,6 +296,7 @@ extern "C" {
         scpi_command_callback_t flush;
         scpi_command_callback_t reset;
     };
+
 
     struct _scpi_t {
         const scpi_command_t * cmdlist;
