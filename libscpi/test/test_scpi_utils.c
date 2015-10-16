@@ -85,6 +85,16 @@ static void test_Int32ToStr() {
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
+
+    int16_t val16[] = {0, 1, -1, INT16_MIN, INT16_MAX, 0x0123, 0x4567, 0x89ab, 0xcdef};
+    int N16 = sizeof (val16) / sizeof (int16_t);
+    // test signed conversion to decimal numbers
+    for (i = 0; i < N16; i++) {
+        len = SCPI_Int32ToStr((int32_t) val16[i], str, max);
+        snprintf(ref, max, "%"PRIi16, val16[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
 }
 
 static void test_UInt32ToStrBase() {
