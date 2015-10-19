@@ -65,9 +65,11 @@ void setup() {
     while (!Serial);
     Serial.println("serial com ready");
 
-    SCPI_Init(&scpi_context);
+	scpi_t *context = SCPI_GetContext();
+    
+    SCPI_Init(context);
 
-#define TEST_SCPI_INPUT(cmd)    result = SCPI_Input(&scpi_context, cmd, strlen(cmd))
+#define TEST_SCPI_INPUT(cmd)    result = SCPI_Input(context, cmd, strlen(cmd))
 
     TEST_SCPI_INPUT("*CLS\r\n");
     TEST_SCPI_INPUT("*RST\r\n");

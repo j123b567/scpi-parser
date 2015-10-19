@@ -37,7 +37,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "scpi/scpi.h"
 #include "scpi-def.h"
 
 #if USE_64K_PROGMEM_FOR_CMD_LIST
@@ -47,7 +46,7 @@
 scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
-    fprintf(stderr, "meas:volt:dc\r\n"); // debug command name
+    SerialPrintf("meas:volt:dc"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
@@ -61,11 +60,11 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 
 
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
-    fprintf(stderr, "\tP1=%s\r\n", bf);
+    SerialPrintf("\tP1=%s", bf);
 
 
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
-    fprintf(stderr, "\tP2=%s\r\n", bf);
+    SerialPrintf("\tP2=%s", bf);
 
     SCPI_ResultDouble(context, 0);
 
@@ -75,7 +74,7 @@ scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
-    fprintf(stderr, "meas:volt:ac\r\n"); // debug command name
+    SerialPrintf("meas:volt:ac"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, false)) {
@@ -89,11 +88,11 @@ scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
 
 
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param1, bf, 15);
-    fprintf(stderr, "\tP1=%s\r\n", bf);
+    SerialPrintf("\tP1=%s", bf);
 
 
     SCPI_NumberToStr(context, scpi_special_numbers_def, &param2, bf, 15);
-    fprintf(stderr, "\tP2=%s\r\n", bf);
+    SerialPrintf("\tP2=%s", bf);
 
     SCPI_ResultDouble(context, 0);
 
@@ -102,7 +101,7 @@ scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
 
 scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     double param1, param2;
-    fprintf(stderr, "conf:volt:dc\r\n"); // debug command name
+    SerialPrintf("conf:volt:dc"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamDouble(context, &param1, true)) {
@@ -114,22 +113,22 @@ scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
         // do something, if parameter not present
     }
 
-    fprintf(stderr, "\tP1=%lf\r\n", param1);
-    fprintf(stderr, "\tP2=%lf\r\n", param2);
+    SerialPrintf("\tP1=%lf", param1);
+    SerialPrintf("\tP2=%lf", param2);
 
     return SCPI_RES_OK;
 }
 
 scpi_result_t TEST_Bool(scpi_t * context) {
     scpi_bool_t param1;
-    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name
+    SerialPrintf("TEST:BOOL"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamBool(context, &param1, true)) {
         return SCPI_RES_ERR;
     }
 
-    fprintf(stderr, "\tP1=%d\r\n", param1);
+    SerialPrintf("\tP1=%d", param1);
 
     return SCPI_RES_OK;
 }
@@ -151,7 +150,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
     }
 
     SCPI_ChoiceToName(trigger_source, param, &name);
-    fprintf(stderr, "\tP1=%s (%ld)\r\n", name, (long int) param);
+    SerialPrintf("\tP1=%s (%ld)", name, (long int) param);
 
     SCPI_ResultInt32(context, param);
 
@@ -160,7 +159,7 @@ scpi_result_t TEST_ChoiceQ(scpi_t * context) {
 
 scpi_result_t TEST_Numbers(scpi_t * context) {
 
-    fprintf(stderr, "RAW CMD %.*s\r\n", (int) context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
+    SerialPrintf("RAW CMD %.*s", (int) context->param_list.cmd_raw.length, context->param_list.cmd_raw.data);
 
     return SCPI_RES_OK;
 }
@@ -173,7 +172,7 @@ scpi_result_t TEST_Text(scpi_t * context) {
         buffer[0] = '\0';
     }
 
-    fprintf(stderr, "TEXT: ***%s***\r\n", buffer);
+    SerialPrintf("TEXT: ***%s***", buffer);
 
     return SCPI_RES_OK;
 }
@@ -287,6 +286,16 @@ static const scpi_command_t scpi_commands[] PROGMEM = {
     SCPI_CMD_LIST_END
 };
 
+#elif USE_FULL_PROGMEM_FOR_CMD_LIST
+
+#define SCPI_COMMAND(P, C) P
+static const char scpi_command_patterns[] PROGMEM = SCPI_COMMANDS;
+#define SCPI_COMMAND(P, C) {(const char *)(sizeof(P) - 1), C},
+static const scpi_command_t scpi_commands[] PROGMEM = {
+    SCPI_COMMANDS
+    SCPI_CMD_LIST_END
+};
+
 #else
 
 #define SCPI_COMMAND(P, C) {P, C},
@@ -296,7 +305,6 @@ static const scpi_command_t scpi_commands[] = {
 };
 
 #endif
-
 
 static scpi_interface_t scpi_interface = {
     /* error */ SCPI_Error,
@@ -312,8 +320,13 @@ static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
 
 
-scpi_t scpi_context = {
+static scpi_t scpi_context = {
+#if USE_FULL_PROGMEM_FOR_CMD_LIST
+    /* cmdlist */ 0,
+    /* cmdpatterns */ 0,
+#else
     /* cmdlist */ scpi_commands,
+#endif
     /* buffer */
     { /* length */ SCPI_INPUT_BUFFER_LENGTH, /* position */ 0, /* data */ scpi_input_buffer},
     /* param_list */
@@ -337,3 +350,10 @@ scpi_t scpi_context = {
     {"MANUFACTURE", "INSTR2013", NULL, "01-02"},
 };
 
+scpi_t *SCPI_GetContext() {
+#if USE_FULL_PROGMEM_FOR_CMD_LIST
+    scpi_context.cmdlist = pgm_get_far_address(scpi_commands);
+    scpi_context.cmdpatterns = pgm_get_far_address(scpi_command_patterns);
+#endif   
+    return &scpi_context;
+}

@@ -43,6 +43,10 @@
 #include <stdint.h>
 #include "scpi/config.h"
 
+#if USE_FULL_PROGMEM_FOR_CMD_LIST
+#include <avr/pgmspace.h>
+#endif
+
 #if HAVE_STDBOOL
 #include <stdbool.h>
 #endif
@@ -113,11 +117,7 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
-#if USE_COMMAND_TAGS
-#define SCPI_CMD_LIST_END       {NULL, NULL, 0}
-#else
-#define SCPI_CMD_LIST_END       {NULL, NULL}
-#endif
+#define SCPI_CMD_LIST_END       {}
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
@@ -262,7 +262,7 @@ extern "C" {
         const scpi_command_t * cmd;
         lex_state_t lex_state;
         scpi_const_buffer_t cmd_raw;
-#if USE_64K_PROGMEM_FOR_CMD_LIST
+#if USE_64K_PROGMEM_FOR_CMD_LIST || USE_FULL_PROGMEM_FOR_CMD_LIST 
         scpi_command_t cmd_s;
         char cmd_pattern_s[SCPI_MAX_CMD_PATTERN_SIZE + 1];
 #endif
@@ -297,9 +297,13 @@ extern "C" {
         scpi_command_callback_t reset;
     };
 
-
     struct _scpi_t {
+#if USE_FULL_PROGMEM_FOR_CMD_LIST         
+        uint_farptr_t cmdlist;
+        uint_farptr_t cmdpatterns;
+#else        
         const scpi_command_t * cmdlist;
+#endif
         scpi_buffer_t buffer;
         scpi_param_list_t param_list;
         scpi_interface_t * interface;

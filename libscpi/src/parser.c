@@ -164,6 +164,7 @@ static scpi_bool_t processCommand(scpi_t * context) {
  */
 static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int len) {
     int32_t i;
+    
 #if USE_64K_PROGMEM_FOR_CMD_LIST
     PGM_P pattern;
 
@@ -174,8 +175,34 @@ static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int 
         if (matchCommand(context->param_list.cmd_pattern_s, header, len, NULL, 0, 0)) {
             context->param_list.cmd_s.callback = (scpi_command_callback_t)pgm_read_word(&context->cmdlist[i].callback);
 #if USE_COMMAND_TAGS 
-            context->param_list.cmd_s..tag = (int32_t)pgm_read_dword(&context->cmdlist[i].tag);
+            context->param_list.cmd_s.tag = (int32_t)pgm_read_dword(&context->cmdlist[i].tag);
 #endif
+            return TRUE;
+        }
+    }
+
+
+#elif USE_FULL_PROGMEM_FOR_CMD_LIST
+    uint_farptr_t p_cmd = context->cmdlist;
+    uint_farptr_t p_pattern = context->cmdpatterns;
+    uint16_t pattern_length;
+    
+    for (i = 0;
+         (pattern_length = pgm_read_word_far(p_cmd + offsetof(scpi_command_t, pattern))) != 0;
+         ++i, p_cmd += sizeof(scpi_command_t), p_pattern += pattern_length)
+    {
+        strncpy_PF(context->param_list.cmd_pattern_s, p_pattern, pattern_length);
+        context->param_list.cmd_pattern_s[pattern_length] = '\0';
+        
+        if (matchCommand(context->param_list.cmd_pattern_s, header, len, NULL, 0, 0)) {
+            context->param_list.cmd_s.callback = (scpi_command_callback_t)pgm_read_word_far(p_cmd + offsetof(scpi_command_t, callback));
+#if USE_COMMAND_TAGS 
+            context->param_list.cmd_s.tag = (int32_t)pgm_read_dword_far(p_cmd + offsetof(scpi_command_t, tag));
+#endif
+            return TRUE;
+        }
+    }
+
 #else
     const scpi_command_t * cmd;
 
@@ -183,10 +210,11 @@ static scpi_bool_t findCommandHeader(scpi_t * context, const char * header, int 
         cmd = &context->cmdlist[i];
         if (matchCommand(cmd->pattern, header, len, NULL, 0, 0)) {
             context->param_list.cmd = cmd;
-#endif
             return TRUE;
         }
     }
+#endif
+
     return FALSE;
 }
 
@@ -273,7 +301,7 @@ void SCPI_Init(scpi_t * context) {
         context->idn[3] = SCPI_DEFAULT_4_REVISION;
     }
 
-#if USE_64K_PROGMEM_FOR_CMD_LIST
+#if USE_64K_PROGMEM_FOR_CMD_LIST || USE_FULL_PROGMEM_FOR_CMD_LIST 
     context->param_list.cmd_s.pattern = context->param_list.cmd_pattern_s;
     context->param_list.cmd = &context->param_list.cmd_s;
 #endif
