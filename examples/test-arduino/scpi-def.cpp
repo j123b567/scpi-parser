@@ -280,6 +280,7 @@ scpi_result_t SCPI_MeasurePeriod(scpi_t * context) {
 
 #define SCPI_COMMAND(P, C) static const char C ## _pattern[] PROGMEM = P;
 SCPI_COMMANDS
+#undef SCPI_COMMAND
 #define SCPI_COMMAND(P, C) {C ## _pattern, C},
 static const scpi_command_t scpi_commands[] PROGMEM = {
     SCPI_COMMANDS
@@ -290,6 +291,7 @@ static const scpi_command_t scpi_commands[] PROGMEM = {
 
 #define SCPI_COMMAND(P, C) P
 static const char scpi_command_patterns[] PROGMEM = SCPI_COMMANDS;
+#undef SCPI_COMMAND
 #define SCPI_COMMAND(P, C) {(const char *)(sizeof(P) - 1), C},
 static const scpi_command_t scpi_commands[] PROGMEM = {
     SCPI_COMMANDS
