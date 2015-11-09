@@ -69,6 +69,11 @@ extern "C" {
     scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int32_t *numbers, size_t numbers_len, int32_t default_value) LOCAL;
     scpi_bool_t composeCompoundCommand(const scpi_token_t * prev, scpi_token_t * current) LOCAL;
 
+#define SCPI_DTOSTRE_UPPERCASE   1
+#define SCPI_DTOSTRE_ALWAYS_SIGN 2
+#define SCPI_DTOSTRE_PLUS_SIGN   4
+    char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __prec, unsigned char __flags);
+
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen) LOCAL;
 #endif

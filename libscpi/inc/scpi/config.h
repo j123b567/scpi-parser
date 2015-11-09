@@ -97,6 +97,10 @@ extern "C" {
 #define USE_DEPRECATED_FUNCTIONS 1
 #endif
 
+#ifndef USE_CUSTOM_DTOSTR
+#define USE_CUSTOM_DTOSTR 0
+#endif
+
 /* Compiler specific */
 /* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
 #if defined(__CC_ARM)
@@ -175,14 +179,18 @@ extern "C" {
 
 #if HAVE_DTOSTRE
 #define SCPIDEFINE_floatToStr(v, s, l) strlen(dtostre((double)(v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#elif USE_CUSTOM_DTOSTRE
+#define SCPIDEFINE_floatToStr(v, s, l) strlen(SCPI_dtostre((v), (s), (l), 6, 0))
 #else
 #define SCPIDEFINE_floatToStr(v, s, l) snprintf((s), (l), "%g", (v))
 #endif
 
 #if HAVE_DTOSTRE
-#define SCPIDEFINE_doubleToStr(v, s, l) strlen(dtostre((v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#define SCPIDEFINE_doubleToStr(v, s, l) strlen(dtostre((v), (s), 15, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#elif USE_CUSTOM_DTOSTRE
+#define SCPIDEFINE_doubleToStr(v, s, l) strlen(SCPI_dtostre((v), (s), (l), 15, 0))
 #else
-#define SCPIDEFINE_doubleToStr(v, s, l) snprintf((s), (l), "%lg", (v))
+#define SCPIDEFINE_doubleToStr(v, s, l) snprintf((s), (l), "%.15lg", (v))
 #endif
 
 
