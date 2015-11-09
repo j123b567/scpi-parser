@@ -726,6 +726,24 @@ static void test_composeCompoundCommand(void) {
     TEST_COMPOSE_COMMAND(":A;C", 2, 3, 1, ":C", TRUE);
 }
 
+static void test_swap(void) {
+#define TEST_SWAP(l, a, b) CU_ASSERT_EQUAL(SCPI_Swap##l(a), b)
+
+    TEST_SWAP(16, 0x0011, 0x1100);
+    TEST_SWAP(16, 0x1234, 0x3412);
+
+    TEST_SWAP(32, 0x00000011, 0x11000000);
+    TEST_SWAP(32, 0x00001234, 0x34120000);
+    TEST_SWAP(32, 0x00AB1234, 0x3412AB00);
+    TEST_SWAP(32, 0xCDAB1234, 0x3412ABCD);
+
+    TEST_SWAP(64, 0x0000000000000011ull, 0x1100000000000000ull);
+    TEST_SWAP(64, 0x0000000000001234ull, 0x3412000000000000ull);
+    TEST_SWAP(64, 0x0000000000AB1234ull, 0x3412AB0000000000ull);
+    TEST_SWAP(64, 0x00000000CDAB1234ull, 0x3412ABCD00000000ull);
+    TEST_SWAP(64, 0x123456789ABCDEF0ull, 0xF0DEBC9A78563412ull);
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -761,6 +779,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
             || (NULL == CU_add_test(pSuite, "composeCompoundCommand", test_composeCompoundCommand))
+            || (NULL == CU_add_test(pSuite, "swap", test_swap))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

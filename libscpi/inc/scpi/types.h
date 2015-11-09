@@ -303,7 +303,17 @@ extern "C" {
         void * user_context;
         scpi_parser_state_t parser_state;
         const char * idn[4];
+        size_t arbitrary_reminding;
     };
+
+    enum _scpi_array_format_t {
+        SCPI_FORMAT_ASCII = 0,
+        SCPI_FORMAT_NORMAL = 1,
+        SCPI_FORMAT_SWAPPED = 2,
+        SCPI_FORMAT_BIGENDIAN = SCPI_FORMAT_NORMAL,
+        SCPI_FORMAT_LITTLEENDIAN = SCPI_FORMAT_SWAPPED,
+    };
+    typedef enum _scpi_array_format_t scpi_array_format_t;
 
 #ifdef  __cplusplus
 }

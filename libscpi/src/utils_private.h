@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,10 +28,10 @@
 /**
  * @file   scpi_utils.h
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  Conversion routines and string manipulation routines
- * 
- * 
+ *
+ *
  */
 
 #ifndef SCPI_UTILS_PRIVATE_H
@@ -73,6 +73,11 @@ extern "C" {
 #define SCPI_DTOSTRE_ALWAYS_SIGN 2
 #define SCPI_DTOSTRE_PLUS_SIGN   4
     char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __prec, unsigned char __flags);
+
+    scpi_array_format_t SCPI_GetNativeFormat(void);
+    uint16_t SCPI_Swap16(uint16_t val);
+    uint32_t SCPI_Swap32(uint32_t val);
+    uint64_t SCPI_Swap64(uint64_t val);
 
 #if !HAVE_STRNLEN
     size_t BSD_strnlen(const char *s, size_t maxlen) LOCAL;

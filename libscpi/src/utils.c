@@ -928,3 +928,50 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
     strncpy(__s, buffer, __ssize);
     return __s;
 }
+
+/**
+ * Get native CPU endiannes
+ * @return 
+ */
+scpi_array_format_t SCPI_GetNativeFormat(void) {
+    // @todo: endianity runtime test
+    return SCPI_FORMAT_LITTLEENDIAN;
+}
+
+/**
+ * Swap 16bit number
+ * @param val
+ * @return 
+ */
+uint16_t SCPI_Swap16(uint16_t val) {
+    return ((val & 0x00FF) << 8) | 
+            ((val & 0xFF00) >> 8);
+}
+
+/**
+ * Swap 32bit number
+ * @param val
+ * @return 
+ */
+uint32_t SCPI_Swap32(uint32_t val) {
+    return ((val & 0x000000FF) << 24) |
+            ((val & 0x0000FF00) << 8) |
+            ((val & 0x00FF0000) >> 8) |
+            ((val & 0xFF000000) >> 24);
+}
+
+/**
+ * Swap 64bit number
+ * @param val
+ * @return 
+ */
+uint64_t SCPI_Swap64(uint64_t val) {
+    return ((val & 0x00000000000000FFul) << 56) |
+            ((val & 0x000000000000FF00ul) << 40) |
+            ((val & 0x0000000000FF0000ul) << 24) |
+            ((val & 0x00000000FF000000ul) << 8) |
+            ((val & 0x000000FF00000000ul) >> 8) |
+            ((val & 0x0000FF0000000000ul) >> 24) |
+            ((val & 0x00FF000000000000ul) >> 40) |
+            ((val & 0xFF00000000000000ul) >> 56);
+}
