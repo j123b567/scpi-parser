@@ -934,8 +934,12 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
  * @return 
  */
 scpi_array_format_t SCPI_GetNativeFormat(void) {
-    // @todo: endianity runtime test
-    return SCPI_FORMAT_LITTLEENDIAN;
+    union {
+        uint32_t i;
+        char c[4];
+    } bint = {0x01020304};
+
+    return bint.c[0] == 1 ? SCPI_FORMAT_BIGENDIAN : SCPI_FORMAT_LITTLEENDIAN;
 }
 
 /**
