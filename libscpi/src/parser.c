@@ -1492,7 +1492,7 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
 
 
 #define RESULT_ARRAY(func) do {\
-    size_t result;\
+    size_t result = 0;\
     if (format == SCPI_FORMAT_ASCII) {\
         size_t i;\
         for (i = 0; i < count; i++) {\
