@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "utils_private.h"
 #include "scpi/utils.h"
@@ -753,3 +754,228 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 }
 #endif
 
+// Floating point to string conversion routines
+//
+// Copyright (C) 2002 Michael Ringgaard. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the project nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE.
+
+static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf, size_t bufsize) {
+    int r2;
+    double fi, fj;
+    char *p, *p1;
+
+    if (ndigits < 0) ndigits = 0;
+    if (ndigits >= (int) (bufsize - 1)) ndigits = bufsize - 2;
+    r2 = 0;
+    *sign = 0;
+    p = &buf[0];
+    if (arg < 0) {
+        *sign = 1;
+        arg = -arg;
+    }
+    arg = modf(arg, &fi);
+    p1 = &buf[bufsize];
+
+    if (fi != 0) {
+        p1 = &buf[bufsize];
+        while (fi != 0) {
+            fj = modf(fi / 10, &fi);
+            *--p1 = (int) ((fj + .03) * 10) + '0';
+            r2++;
+        }
+        while (p1 < &buf[bufsize]) *p++ = *p1++;
+    } else if (arg > 0) {
+        while ((fj = arg * 10) < 1) {
+            arg = fj;
+            r2--;
+        }
+    }
+    p1 = &buf[ndigits];
+    *decpt = r2;
+    if (p1 < &buf[0]) {
+        buf[0] = '\0';
+        return buf;
+    }
+    while (p <= p1 && p < &buf[bufsize]) {
+        arg *= 10;
+        arg = modf(arg, &fj);
+        *p++ = (int) fj + '0';
+    }
+    if (p1 >= &buf[bufsize]) {
+        buf[bufsize - 1] = '\0';
+        return buf;
+    }
+    p = p1;
+    *p1 += 5;
+    while (*p1 > '9') {
+        *p1 = '0';
+        if (p1 > buf) {
+            ++*--p1;
+        } else {
+            *p1 = '1';
+            (*decpt)++;
+        }
+    }
+    *p = '\0';
+    return buf;
+}
+
+#define SCPI_DTOSTRE_BUFFER_SIZE 310
+
+char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __prec, unsigned char __flags) {
+    char buffer[SCPI_DTOSTRE_BUFFER_SIZE];
+
+    int sign = signbit(__val);
+    char * s = buffer;
+    int decpt;
+    if (sign) {
+        __val = -__val;
+        s[0] = '-';
+        s++;
+    } else if (!isnan(__val)) {
+        if (SCPI_DTOSTRE_PLUS_SIGN & __flags) {
+            s[0] = '+';
+            s++;
+        } else if (SCPI_DTOSTRE_ALWAYS_SIGN & __flags) {
+            s[0] = ' ';
+            s++;
+        }
+    }
+
+    if (!isfinite(__val)) {
+        if (isnan(__val)) {
+            strcpy(s, (__flags & SCPI_DTOSTRE_UPPERCASE) ? "NAN" : "nan");
+        } else {
+            strcpy(s, (__flags & SCPI_DTOSTRE_UPPERCASE) ? "INF" : "inf");
+        }
+        strncpy(__s, buffer, __ssize);
+        return __s;
+    }
+
+    scpi_ecvt(__val, __prec, &decpt, &sign, s, SCPI_DTOSTRE_BUFFER_SIZE - 1);
+    if (decpt > 1 && decpt <= __prec) {
+        memmove(s + decpt + 1, s + decpt, __prec + 1 - decpt);
+        s[decpt] = '.';
+        decpt = 0;
+    } else if (decpt > -4 && decpt <= 0) {
+        decpt = -decpt + 1;
+        memmove(s + decpt + 1, s, __prec + 1);
+        memset(s, '0', decpt + 1);
+        s[1] = '.';
+        decpt = 0;
+    } else {
+        memmove(s + 2, s + 1, __prec + 1);
+        s[1] = '.';
+        decpt--;
+    }
+
+    s = &s[__prec];
+    while (s[0] == '0') {
+        s[0] = 0;
+        s--;
+    }
+    if (s[0] == '.') {
+        s[0] = 0;
+        s--;
+    }
+
+    if (decpt != 0) {
+        s++;
+        s[0] = 'e';
+        s++;
+        if (decpt != 0) {
+            if (decpt > 0) {
+                s[0] = '+';
+            }
+            if (decpt < 0) {
+                s[0] = '-';
+                decpt = -decpt;
+            }
+            s++;
+        }
+        UInt32ToStrBaseSign(decpt, s, 5, 10, 0);
+        if (s[1] == 0) {
+            s[2] = s[1];
+            s[1] = s[0];
+            s[0] = '0';
+        }
+    }
+
+    strncpy(__s, buffer, __ssize);
+    return __s;
+}
+
+/**
+ * Get native CPU endiannes
+ * @return 
+ */
+scpi_array_format_t SCPI_GetNativeFormat(void) {
+    union {
+        uint32_t i;
+        char c[4];
+    } bint = {0x01020304};
+
+    return bint.c[0] == 1 ? SCPI_FORMAT_BIGENDIAN : SCPI_FORMAT_LITTLEENDIAN;
+}
+
+/**
+ * Swap 16bit number
+ * @param val
+ * @return 
+ */
+uint16_t SCPI_Swap16(uint16_t val) {
+    return ((val & 0x00FF) << 8) | 
+            ((val & 0xFF00) >> 8);
+}
+
+/**
+ * Swap 32bit number
+ * @param val
+ * @return 
+ */
+uint32_t SCPI_Swap32(uint32_t val) {
+    return ((val & 0x000000FF) << 24) |
+            ((val & 0x0000FF00) << 8) |
+            ((val & 0x00FF0000) >> 8) |
+            ((val & 0xFF000000) >> 24);
+}
+
+/**
+ * Swap 64bit number
+ * @param val
+ * @return 
+ */
+uint64_t SCPI_Swap64(uint64_t val) {
+    return ((val & 0x00000000000000FFul) << 56) |
+            ((val & 0x000000000000FF00ul) << 40) |
+            ((val & 0x0000000000FF0000ul) << 24) |
+            ((val & 0x00000000FF000000ul) << 8) |
+            ((val & 0x000000FF00000000ul) >> 8) |
+            ((val & 0x0000FF0000000000ul) >> 24) |
+            ((val & 0x00FF000000000000ul) >> 40) |
+            ((val & 0xFF00000000000000ul) >> 56);
+}

@@ -57,7 +57,11 @@
  * @return number of bytes written
  */
 static size_t writeData(scpi_t * context, const char * data, size_t len) {
-    return context->interface->write(context, data, len);
+    if (len > 0) {
+        return context->interface->write(context, data, len);
+    } else {
+        return 0;
+    }
 }
 
 /**
@@ -133,6 +137,7 @@ static scpi_bool_t processCommand(scpi_t * context) {
     context->cmd_error = FALSE;
     context->output_count = 0;
     context->input_count = 0;
+    context->arbitrary_reminding = 0;
 
     /* if callback exists - call command callback */
     if (cmd->callback != NULL) {
@@ -527,13 +532,62 @@ size_t SCPI_ResultDouble(scpi_t * context, double val) {
  */
 size_t SCPI_ResultText(scpi_t * context, const char * data) {
     size_t result = 0;
+    size_t len = strlen(data);
+    const char * quote;
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
-    // TODO: convert " to ""
-    result += writeData(context, data, strlen(data));
+    while ((quote = strnpbrk(data, len, "\""))) {
+        result += writeData(context, data, quote - data + 1);
+        result += writeData(context, "\"", 1);
+        len -= quote - data + 1;
+        data = quote + 1;
+    }
+    result += writeData(context, data, len);
     result += writeData(context, "\"", 1);
     context->output_count++;
     return result;
+}
+
+/**
+ * Write arbitrary block header with length
+ * @param context
+ * @param len
+ * @return
+ */
+size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len) {
+    char block_header[12];
+    size_t header_len;
+    block_header[0] = '#';
+    SCPI_UInt32ToStrBase((uint32_t) len, block_header + 2, 10, 10);
+
+    header_len = strlen(block_header + 2);
+    block_header[1] = (char) (header_len + '0');
+
+    context->arbitrary_reminding = len;
+    return writeData(context, block_header, header_len + 2);
+}
+
+/**
+ * Add data to arbitrary block
+ * @param context
+ * @param data
+ * @param len
+ * @return
+ */
+size_t SCPI_ResultArbitraryBlockData(scpi_t * context, const void * data, size_t len) {
+
+    if (context->arbitrary_reminding < len) {
+        SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+        return 0;
+    }
+
+    context->arbitrary_reminding -= len;
+
+    if (context->arbitrary_reminding == 0) {
+        context->output_count++;
+    }
+
+    return writeData(context, (const char *) data, len);
 }
 
 /**
@@ -543,20 +597,10 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
  * @param len
  * @return
  */
-size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len) {
+size_t SCPI_ResultArbitraryBlock(scpi_t * context, const void * data, size_t len) {
     size_t result = 0;
-    char block_header[12];
-    size_t header_len;
-    block_header[0] = '#';
-    SCPI_UInt32ToStrBase((uint32_t) len, block_header + 2, 10, 10);
-
-    header_len = strlen(block_header + 2);
-    block_header[1] = (char) (header_len + '0');
-
-    result += writeData(context, block_header, header_len + 2);
-    result += writeData(context, data, len);
-
-    context->output_count++;
+    result += SCPI_ResultArbitraryBlockHeader(context, len);
+    result += SCPI_ResultArbitraryBlockData(context, data, len);
     return result;
 }
 
@@ -1402,6 +1446,7 @@ scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd) {
 }
 
 #if USE_COMMAND_TAGS
+
 /**
  * Return the .tag field of the matching scpi_command_t
  * @param context
@@ -1441,4 +1486,205 @@ scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter) {
  */
 scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context) {
     return context->cmd_error;
+}
+
+/**
+ * Result binary array and swap bytes if needed (native endiannes != required endiannes)
+ * @param context
+ * @param array
+ * @param count
+ * @param item_size
+ * @param format
+ * @return
+ */
+static size_t parserResultArrayBinary(scpi_t * context, const void * array, size_t count, size_t item_size, scpi_array_format_t format) {
+
+    if (SCPI_GetNativeFormat() == format) {
+        switch (item_size) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+                return SCPI_ResultArbitraryBlock(context, array, count * item_size);
+            default:
+                SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+                return 0;
+        }
+    } else {
+        size_t result = 0;
+        size_t i;
+        switch (item_size) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+                result += SCPI_ResultArbitraryBlockHeader(context, count * item_size);
+            default:
+                SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+                return 0;
+        }
+
+        switch (item_size) {
+            case 1:
+                result += SCPI_ResultArbitraryBlockData(context, array, count);
+                break;
+            case 2:
+                for (i = 0; i < count; i++) {
+                    uint16_t val = SCPI_Swap16(((uint16_t*) array)[i]);
+                    result += SCPI_ResultArbitraryBlockData(context, &val, item_size);
+                }
+                break;
+            case 4:
+                for (i = 0; i < count; i++) {
+                    uint32_t val = SCPI_Swap32(((uint32_t*) array)[i]);
+                    result += SCPI_ResultArbitraryBlockData(context, &val, item_size);
+                }
+                break;
+            case 8:
+                for (i = 0; i < count; i++) {
+                    uint64_t val = SCPI_Swap64(((uint64_t*) array)[i]);
+                    result += SCPI_ResultArbitraryBlockData(context, &val, item_size);
+                }
+                break;
+        }
+
+        return result;
+    }
+}
+
+
+#define RESULT_ARRAY(func) do {\
+    size_t result = 0;\
+    if (format == SCPI_FORMAT_ASCII) {\
+        size_t i;\
+        for (i = 0; i < count; i++) {\
+            result += func(context, array[i]);\
+        }\
+        if (count > 0) {\
+            result += count - 1; /* add length of commas */\
+        }\
+    } else {\
+        result = parserResultArrayBinary(context, array, count, sizeof(*array), format);\
+    }\
+    return result;\
+} while(0)
+
+/**
+ * Result array of signed 8bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayInt8(scpi_t * context, const int8_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultInt8);
+}
+
+/**
+ * Result array of unsigned 8bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayUInt8(scpi_t * context, const uint8_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultUInt8);
+}
+
+/**
+ * Result array of signed 16bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayInt16(scpi_t * context, const int16_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultInt16);
+}
+
+/**
+ * Result array of unsigned 16bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayUInt16(scpi_t * context, const uint16_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultUInt16);
+}
+
+/**
+ * Result array of signed 32bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayInt32(scpi_t * context, const int32_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultInt32);
+}
+
+/**
+ * Result array of unsigned 32bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayUInt32(scpi_t * context, const uint32_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultUInt32);
+}
+
+/**
+ * Result array of signed 64bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayInt64(scpi_t * context, const int64_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultInt64);
+}
+
+/**
+ * Result array of unsigned 64bit integers
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayUInt64(scpi_t * context, const uint64_t * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultUInt64);
+}
+
+/**
+ * Result array of floats
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayFloat(scpi_t * context, const float * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultFloat);
+}
+
+/**
+ * Result array of doubles
+ * @param context
+ * @param array
+ * @param count
+ * @param format
+ * @return
+ */
+size_t SCPI_ResultArrayDouble(scpi_t * context, const double * array, size_t count, scpi_array_format_t format) {
+    RESULT_ARRAY(SCPI_ResultDouble);
 }

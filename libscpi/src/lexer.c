@@ -642,6 +642,8 @@ static void skipQuoteProgramData(lex_state_t * state, char quote) {
                 state->pos--;
                 break;
             }
+        } else {
+            break;
         }
     }
 }

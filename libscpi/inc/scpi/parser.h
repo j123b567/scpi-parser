@@ -50,15 +50,36 @@ extern "C" {
 
     size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);
 #define SCPI_ResultMnemonic(context, data) SCPI_ResultCharacters((context), (data), strlen(data))
+#define SCPI_ResultUInt8Base(c, v, b) SCPI_ResultUInt32Base((c), (v), (uint8_t)(b))
+#define SCPI_ResultUInt8(c, v) SCPI_ResultUInt32Base((c), (uint8_t)(v), 10)
+#define SCPI_ResultInt8(c, v) SCPI_ResultInt32((c), (int8_t)(v))
+#define SCPI_ResultUInt16Base(c, v, b) SCPI_ResultUInt32Base((c), (uint16_t)(v), (b))
+#define SCPI_ResultUInt16(c, v) SCPI_ResultUInt32Base((c), (uint16_t)(v), 10)
+#define SCPI_ResultInt16(c, v) SCPI_ResultInt32((c), (int16_t)(v))
     size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base);
+#define SCPI_ResultUInt32(c, v) SCPI_ResultUInt32Base((c), (v), 10)
     size_t SCPI_ResultInt32(scpi_t * context, int32_t val);
     size_t SCPI_ResultUInt64Base(scpi_t * context, uint64_t val, int8_t base);
+#define SCPI_ResultUInt64(c, v) SCPI_ResultUInt64Base((c), (v), 10)
     size_t SCPI_ResultInt64(scpi_t * context, int64_t val);
     size_t SCPI_ResultFloat(scpi_t * context, float val);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
-    size_t SCPI_ResultArbitraryBlock(scpi_t * context, const char * data, size_t len);
+    size_t SCPI_ResultArbitraryBlock(scpi_t * context, const void * data, size_t len);
+    size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len);
+    size_t SCPI_ResultArbitraryBlockData(scpi_t * context, const void * data, size_t len);
     size_t SCPI_ResultBool(scpi_t * context, scpi_bool_t val);
+
+    size_t SCPI_ResultArrayInt8(scpi_t * context, const int8_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayUInt8(scpi_t * context, const uint8_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayInt16(scpi_t * context, const int16_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayUInt16(scpi_t * context, const uint16_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayInt32(scpi_t * context, const int32_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayUInt32(scpi_t * context, const uint32_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayInt64(scpi_t * context, const int64_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayUInt64(scpi_t * context, const uint64_t * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayFloat(scpi_t * context, const float * array, size_t count, scpi_array_format_t format);
+    size_t SCPI_ResultArrayDouble(scpi_t * context, const double * array, size_t count, scpi_array_format_t format);
 
     scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamIsValid(scpi_parameter_t * parameter);

@@ -225,6 +225,47 @@ static void test_UInt64ToStrBase() {
     CU_ASSERT_STRING_EQUAL(str, "1111111011011100101110101001100001110110010101000011001000010000");
 }
 
+static void test_scpi_dtostre() {
+    const size_t strsize = 49 + 1;
+    double val[] = {NAN, INFINITY, -INFINITY, 0,
+        1, 1.1, 1.01, 1.001, 1.0001, 1.00001, 1.000001, 1.0000001, 1.00000001,
+        1.000000001, 1.0000000001, 1.00000000001, 1.000000000001,
+        1.0000000000001, 1e-5, 1.1e-5, 1.01e-5, 1.001e-5, 1.0001e-5, 1.00001e-5,
+        1.000001e-5, 1.0000001e-5, 1.00000001e-5, 1.000000001e-5,
+        1.0000000001e-5, 1.00000000001e-5, 1.000000000001e-5,
+        1.0000000000001e-5, 1, 12, 123, 1234, 12345, 123456, 1234567, 12345678,
+        123456789, 1234567890, 12345678901, 123456789012, 1234567890123,
+        12345678901234, 123456789012345, 1234567890123456, 12345678901234567,
+        123456789012345678, 1234567890123456789, 1234567890123456789e1, 1.1,
+        10.1, 100.1, 1000.1, 10000.1, 100000.1, 1000000.1, 10000000.1,
+        100000000.1, 1000000000.1, 0.1234567890123456789,
+        0.01234567890123456789, 0.001234567890123456789,
+        0.0001234567890123456789, 0.00001234567890123456789,
+        0.000001234567890123456789, 0.0000001234567890123456789,
+        0.00000001234567890123456789, 0.00000000123456789, 0.000000000123456789,
+        0.0000000000123456789, 0.00000000000123456789, 0.000000000000123456789,
+        0.0000000000000123456789, 0.00000000000000123456789,
+        0.000000000000000123456789, 0.0000000000000000123456789,
+        -1e-5, -1.1e-5, -1.01e-5, -1.001e-5, -1.0001e-5, -1.00001e-5,
+        -1.00001e-6, -1.00001e-10, -1.00001e-20, -1.00001e-50, -1.00001e-100,
+        -1.00001e-200, -1.00001e-300, -1.00001e6, -1.00001e10, -1.00001e20,
+        -1.00001e50, -1.00001e100, -1.00001e150, -1.00001e200, -1.00001e300,
+        1.7976931348623157e308, 2.2250738585072014e-308,
+        -1.7976931348623157e308, -2.2250738585072014e-308};
+    int N = sizeof (val) / sizeof (*val);
+    int i;
+    char str[strsize];
+    char ref[strsize];
+    size_t len;
+
+    for (i = 0; i < N; i++) {
+        len = strlen(SCPI_dtostre(val[i], str, strsize, 15, 0));
+        snprintf(ref, strsize, "%.15lg", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
+}
+
 static void test_floatToStr() {
     const size_t max = 49 + 1;
     float val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
@@ -245,7 +286,7 @@ static void test_floatToStr() {
 static void test_doubleToStr() {
     const size_t max = 49 + 1;
     double val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
-    int N = sizeof (val) / sizeof (double);
+    int N = sizeof (val) / sizeof (*val);
     int i;
     char str[max];
     char ref[max];
@@ -253,7 +294,7 @@ static void test_doubleToStr() {
 
     for (i = 0; i < N; i++) {
         len = SCPI_DoubleToStr(val[i], str, max);
-        snprintf(ref, max, "%lg", val[i]);
+        snprintf(ref, max, "%.15lg", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -685,6 +726,24 @@ static void test_composeCompoundCommand(void) {
     TEST_COMPOSE_COMMAND(":A;C", 2, 3, 1, ":C", TRUE);
 }
 
+static void test_swap(void) {
+#define TEST_SWAP(l, a, b) CU_ASSERT_EQUAL(SCPI_Swap##l(a), b)
+
+    TEST_SWAP(16, 0x0011, 0x1100);
+    TEST_SWAP(16, 0x1234, 0x3412);
+
+    TEST_SWAP(32, 0x00000011, 0x11000000);
+    TEST_SWAP(32, 0x00001234, 0x34120000);
+    TEST_SWAP(32, 0x00AB1234, 0x3412AB00);
+    TEST_SWAP(32, 0xCDAB1234, 0x3412ABCD);
+
+    TEST_SWAP(64, 0x0000000000000011ull, 0x1100000000000000ull);
+    TEST_SWAP(64, 0x0000000000001234ull, 0x3412000000000000ull);
+    TEST_SWAP(64, 0x0000000000AB1234ull, 0x3412AB0000000000ull);
+    TEST_SWAP(64, 0x00000000CDAB1234ull, 0x3412ABCD00000000ull);
+    TEST_SWAP(64, 0x123456789ABCDEF0ull, 0xF0DEBC9A78563412ull);
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -707,6 +766,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "UInt32ToStrBase", test_UInt32ToStrBase))
             || (NULL == CU_add_test(pSuite, "Int64ToStr", test_Int64ToStr))
             || (NULL == CU_add_test(pSuite, "UInt64ToStrBase", test_UInt64ToStrBase))
+            || (NULL == CU_add_test(pSuite, "SCPI_dtostre", test_scpi_dtostre))
             || (NULL == CU_add_test(pSuite, "floatToStr", test_floatToStr))
             || (NULL == CU_add_test(pSuite, "doubleToStr", test_doubleToStr))
             || (NULL == CU_add_test(pSuite, "strBaseToInt32", test_strBaseToInt32))
@@ -719,6 +779,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "matchPattern", test_matchPattern))
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
             || (NULL == CU_add_test(pSuite, "composeCompoundCommand", test_composeCompoundCommand))
+            || (NULL == CU_add_test(pSuite, "swap", test_swap))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

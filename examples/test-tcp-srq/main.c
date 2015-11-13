@@ -107,6 +107,8 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
 }
 
 scpi_result_t SCPI_Reset(scpi_t * context) {
+    (void) context;
+
     fprintf(stderr, "**Reset\r\n");
     return SCPI_RES_OK;
 }
@@ -200,7 +202,7 @@ static int waitServer(user_data_t * user_data) {
     return rc;
 }
 
-static int processIoListen(user_data_t * user_data) {
+static void processIoListen(user_data_t * user_data) {
     struct sockaddr_in cliaddr;
     socklen_t clilen;
     clilen = sizeof (cliaddr);
@@ -211,7 +213,7 @@ static int processIoListen(user_data_t * user_data) {
     printf("Connection established %s\r\n", inet_ntoa(cliaddr.sin_addr));
 }
 
-static int processSrqIoListen(user_data_t * user_data) {
+static void processSrqIoListen(user_data_t * user_data) {
     struct sockaddr_in cliaddr;
     socklen_t clilen;
     clilen = sizeof (cliaddr);
@@ -231,7 +233,7 @@ static void closeSrqIo(user_data_t * user_data) {
     user_data->control_io = -1;
 }
 
-static int processIo(user_data_t * user_data) {
+static void processIo(user_data_t * user_data) {
     int rc;
     char smbuffer[10];
     rc = recv(user_data->io, smbuffer, sizeof (smbuffer), 0);
@@ -248,7 +250,7 @@ static int processIo(user_data_t * user_data) {
     }
 }
 
-static int processSrqIo(user_data_t * user_data) {
+static void processSrqIo(user_data_t * user_data) {
     int rc;
     char smbuffer[10];
     rc = recv(user_data->control_io, smbuffer, sizeof (smbuffer), 0);
