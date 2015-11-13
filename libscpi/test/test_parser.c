@@ -815,6 +815,203 @@ static void testParamNumber(void) {
     TEST_ParamNumber("minc", TRUE, TRUE, SCPI_NUM_NUMBER, 0, SCPI_UNIT_NONE, 10, FALSE, SCPI_ERROR_ILLEGAL_PARAMETER_VALUE);
 }
 
+#define TEST_Result(func, value, expected_result) \
+{\
+    output_buffer_clear();\
+    scpi_context.output_count = 0;\
+    size_t expected_len = strlen(expected_result);\
+    size_t len = SCPI_Result##func(&scpi_context, (value));\
+    CU_ASSERT_EQUAL(len, expected_len);\
+    CU_ASSERT_EQUAL(output_buffer_pos, expected_len);\
+    CU_ASSERT_EQUAL(memcmp(output_buffer, expected_result, expected_len), 0);\
+}
+
+#define TEST_ResultBase(func, value, base, expected_result) \
+{\
+    output_buffer_clear();\
+    scpi_context.output_count = 0;\
+    size_t expected_len = strlen(expected_result);\
+    size_t len = SCPI_Result##func##Base(&scpi_context, (value), (base));\
+    CU_ASSERT_EQUAL(len, expected_len);\
+    CU_ASSERT_EQUAL(output_buffer_pos, expected_len);\
+    CU_ASSERT_EQUAL(memcmp(output_buffer, expected_result, expected_len), 0);\
+}
+
+static void testResultInt8(void) {
+    TEST_Result(Int8, 10, "10");
+    TEST_Result(Int8, -10, "-10");
+    TEST_Result(Int8, 100, "100");
+    TEST_Result(Int8, -100, "-100");
+    TEST_Result(Int8, 256, "0");
+    TEST_Result(Int8, 1111, "87");
+    TEST_Result(Int8, 127, "127");
+    TEST_Result(Int8, -128, "-128");
+}
+
+static void testResultUInt8(void) {
+    TEST_Result(UInt8, 10, "10");
+    TEST_Result(UInt8, -10, "246");
+    TEST_Result(UInt8, 100, "100");
+    TEST_Result(UInt8, -100, "156");
+    TEST_Result(UInt8, 256, "0");
+    TEST_Result(UInt8, 1111, "87");
+    TEST_Result(UInt8, 127, "127");
+    TEST_Result(UInt8, -128, "128");
+    TEST_Result(UInt8, 0, "0");
+    TEST_Result(UInt8, 255, "255");
+
+    TEST_ResultBase(UInt8, 0xff, 16, "#HFF");
+    TEST_ResultBase(UInt8, 0xff, 8, "#Q377");
+    TEST_ResultBase(UInt8, 0xff, 2, "#B11111111");
+}
+
+static void testResultInt16(void) {
+    TEST_Result(Int16, 10, "10");
+    TEST_Result(Int16, -10, "-10");
+    TEST_Result(Int16, 100, "100");
+    TEST_Result(Int16, -100, "-100");
+    TEST_Result(Int16, 256, "256");
+    TEST_Result(Int16, 1111, "1111");
+    TEST_Result(Int16, 127, "127");
+    TEST_Result(Int16, -128, "-128");
+    TEST_Result(Int16, 111111, "-19961");
+    TEST_Result(Int16, 32767, "32767");
+    TEST_Result(Int16, -32768, "-32768");
+}
+
+static void testResultUInt16(void) {
+    TEST_Result(UInt16, 10, "10");
+    TEST_Result(UInt16, -10, "65526");
+    TEST_Result(UInt16, 100, "100");
+    TEST_Result(UInt16, -100, "65436");
+    TEST_Result(UInt16, 256, "256");
+    TEST_Result(UInt16, 1111, "1111");
+    TEST_Result(UInt16, 127, "127");
+    TEST_Result(UInt16, -128, "65408");
+    TEST_Result(UInt16, 111111, "45575");
+    TEST_Result(UInt16, 32767, "32767");
+    TEST_Result(UInt16, -32768, "32768");
+    TEST_Result(UInt16, 65535, "65535");
+
+    TEST_ResultBase(UInt16, 0xffff, 16, "#HFFFF");
+    TEST_ResultBase(UInt16, 0xffff, 8, "#Q177777");
+    TEST_ResultBase(UInt16, 0xffff, 2, "#B1111111111111111");
+}
+
+static void testResultInt32(void) {
+    TEST_Result(Int32, 10, "10");
+    TEST_Result(Int32, -10, "-10");
+    TEST_Result(Int32, 2147483647, "2147483647");
+    TEST_Result(Int32, -2147483648, "-2147483648");
+}
+
+static void testResultUInt32(void) {
+    TEST_Result(UInt32, 10, "10");
+    TEST_Result(UInt32, -10, "4294967286");
+    TEST_Result(UInt32, 2147483647, "2147483647");
+    TEST_Result(UInt32, -2147483648, "2147483648");
+    TEST_Result(UInt32, 4294967295, "4294967295");
+
+    TEST_ResultBase(UInt32, 0xffffffff, 16, "#HFFFFFFFF");
+    TEST_ResultBase(UInt32, 0xffffffff, 8, "#Q37777777777");
+    TEST_ResultBase(UInt32, 0xffffffff, 2, "#B11111111111111111111111111111111");
+}
+
+static void testResultInt64(void) {
+    TEST_Result(Int64, 10, "10");
+    TEST_Result(Int64, -10, "-10");
+    TEST_Result(Int64, 127, "127");
+    TEST_Result(Int64, -128, "-128");
+    TEST_Result(Int64, 32767, "32767");
+    TEST_Result(Int64, -32768, "-32768");
+    TEST_Result(Int64, 2147483647, "2147483647");
+    TEST_Result(Int64, -2147483648, "-2147483648");
+    TEST_Result(Int64, 9223372036854775807LL, "9223372036854775807");
+    //TEST_Result(Int64, -9223372036854775808LL, "-9223372036854775808"); bug in GCC
+    TEST_Result(Int64, -9223372036854775807LL, "-9223372036854775807");
+}
+
+static void testResultUInt64(void) {
+    TEST_Result(UInt64, 10, "10");
+    TEST_Result(UInt64, -10, "18446744073709551606");
+    TEST_Result(UInt64, 127, "127");
+    TEST_Result(UInt64, -128, "18446744073709551488");
+    TEST_Result(UInt64, 32767, "32767");
+    TEST_Result(UInt64, -32768, "18446744073709518848");
+    TEST_Result(UInt64, 2147483647, "2147483647");
+    TEST_Result(UInt64, -2147483648, "18446744071562067968");
+    TEST_Result(UInt64, 9223372036854775807LL, "9223372036854775807");
+    //TEST_Result(Int64, -9223372036854775808LL, "9223372036854775808"); bug in GCC
+    TEST_Result(UInt64, -9223372036854775807LL, "9223372036854775809");
+    TEST_Result(UInt64, 18446744073709551615ULL, "18446744073709551615");
+
+    TEST_ResultBase(UInt64, 0xffffffffffffffffULL, 16, "#HFFFFFFFFFFFFFFFF");
+    TEST_ResultBase(UInt64, 0xffffffffffffffffULL, 8, "#Q1777777777777777777777");
+    TEST_ResultBase(UInt64, 0xffffffffffffffffULL, 2, "#B1111111111111111111111111111111111111111111111111111111111111111");
+}
+
+static void testResultFloat(void) {
+    TEST_Result(Float, 10, "10");
+    TEST_Result(Float, -10, "-10");
+    TEST_Result(Float, 127, "127");
+    TEST_Result(Float, -128, "-128");
+    TEST_Result(Float, 32767, "32767");
+    TEST_Result(Float, -32768, "-32768");
+    TEST_Result(Float, 2147483647, "2.14748e+09");
+    TEST_Result(Float, -2147483648, "-2.14748e+09");
+    TEST_Result(Float, 9223372036854775807LL, "9.22337e+18");
+    TEST_Result(Float, -9223372036854775807LL, "-9.22337e+18");
+
+    TEST_Result(Float, 1.256e-17, "1.256e-17");
+    TEST_Result(Float, -1.256e-17, "-1.256e-17");
+}
+
+static void testResultDouble(void) {
+    TEST_Result(Double, 10, "10");
+    TEST_Result(Double, -10, "-10");
+    TEST_Result(Double, 127, "127");
+    TEST_Result(Double, -128, "-128");
+    TEST_Result(Double, 32767, "32767");
+    TEST_Result(Double, -32768, "-32768");
+    TEST_Result(Double, 2147483647, "2147483647");
+    TEST_Result(Double, -2147483648, "-2147483648");
+    TEST_Result(Double, 9223372036854775807LL, "9.22337203685478e+18");
+    TEST_Result(Double, -9223372036854775807LL, "-9.22337203685478e+18");
+
+    TEST_Result(Double, 1.256e-17, "1.256e-17");
+    TEST_Result(Double, -1.256e-17, "-1.256e-17");
+}
+
+static void testResultBool(void) {
+    TEST_Result(Bool, TRUE, "1");
+    TEST_Result(Bool, FALSE, "0");
+    TEST_Result(Bool, 1000, "1");
+}
+
+static void testResultMnemonic(void) {
+    TEST_Result(Mnemonic, "a", "a");
+    TEST_Result(Mnemonic, "abcd", "abcd");
+    TEST_Result(Mnemonic, "abcd123", "abcd123");
+}
+
+static void testResultText(void) {
+    TEST_Result(Text, "a", "\"a\"");
+    TEST_Result(Text, "abcd", "\"abcd\"");
+    TEST_Result(Text, "abcd123", "\"abcd123\"");
+    TEST_Result(Text, "abcd\"123", "\"abcd\"\"123\"");
+    TEST_Result(Text, "abcd\"", "\"abcd\"\"\"");
+}
+
+static void testResultArbitraryBlock(void) {
+#define SCPI_ResultArbitraryBlockString(c, s) SCPI_ResultArbitraryBlock((c), (s), strlen(s))
+
+    TEST_Result(ArbitraryBlockString, "a", "#11a");
+    TEST_Result(ArbitraryBlockString, "a\"", "#12a\"");
+    TEST_Result(ArbitraryBlockString, "a\r\n", "#13a\r\n");
+    TEST_Result(ArbitraryBlockString, "X1234567890", "#211X1234567890");
+    TEST_Result(ArbitraryBlockString, "X1234567890\x80x", "#213X1234567890\x80x");
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -845,6 +1042,20 @@ int main() {
             || (NULL == CU_add_test(pSuite, "Numeric list", testNumericList))
             || (NULL == CU_add_test(pSuite, "Channel list", testChannelList))
             || (NULL == CU_add_test(pSuite, "SCPI_ParamNumber", testParamNumber))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultInt8", testResultInt8))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultUInt8", testResultUInt8))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultInt16", testResultInt16))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultUInt16", testResultUInt16))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultInt32", testResultInt32))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultUInt32", testResultUInt32))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultInt64", testResultInt64))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultUInt64", testResultUInt64))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultFloat", testResultFloat))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultDouble", testResultDouble))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultBool", testResultBool))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultMnemonic", testResultMnemonic))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultText", testResultText))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

@@ -53,7 +53,11 @@
  * @return number of bytes written
  */
 static size_t writeData(scpi_t * context, const char * data, size_t len) {
-    return context->interface->write(context, data, len);
+    if (len > 0) {
+        return context->interface->write(context, data, len);
+    } else {
+        return 0;
+    }
 }
 
 /**
@@ -477,10 +481,17 @@ size_t SCPI_ResultDouble(scpi_t * context, double val) {
  */
 size_t SCPI_ResultText(scpi_t * context, const char * data) {
     size_t result = 0;
+    size_t len = strlen(data);
+    const char * quote;
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
-    // TODO: convert " to ""
-    result += writeData(context, data, strlen(data));
+    while (quote = strnpbrk(data, len, "\"")) {
+        result += writeData(context, data, quote - data + 1);
+        result += writeData(context, "\"", 1);
+        len -= quote - data + 1;
+        data = quote + 1;
+    }
+    result += writeData(context, data, len);
     result += writeData(context, "\"", 1);
     context->output_count++;
     return result;
@@ -1433,7 +1444,7 @@ scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context) {
  * @param count
  * @param item_size
  * @param format
- * @return 
+ * @return
  */
 static size_t parserResultArrayBinary(scpi_t * context, const void * array, size_t count, size_t item_size, scpi_array_format_t format) {
 
@@ -1468,19 +1479,19 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
                 break;
             case 2:
                 for (i = 0; i < count; i++) {
-                    uint16_t val = SCPI_Swap16(((uint16_t*)array)[i]);
+                    uint16_t val = SCPI_Swap16(((uint16_t*) array)[i]);
                     result += SCPI_ResultArbitraryBlockData(context, &val, item_size);
                 }
                 break;
             case 4:
                 for (i = 0; i < count; i++) {
-                    uint32_t val = SCPI_Swap32(((uint32_t*)array)[i]);
+                    uint32_t val = SCPI_Swap32(((uint32_t*) array)[i]);
                     result += SCPI_ResultArbitraryBlockData(context, &val, item_size);
                 }
                 break;
             case 8:
                 for (i = 0; i < count; i++) {
-                    uint64_t val = SCPI_Swap64(((uint64_t*)array)[i]);
+                    uint64_t val = SCPI_Swap64(((uint64_t*) array)[i]);
                     result += SCPI_ResultArbitraryBlockData(context, &val, item_size);
                 }
                 break;
@@ -1537,7 +1548,7 @@ size_t SCPI_ResultArrayUInt8(scpi_t * context, const uint8_t * array, size_t cou
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayInt16(scpi_t * context, const int16_t * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultInt16);
@@ -1549,7 +1560,7 @@ size_t SCPI_ResultArrayInt16(scpi_t * context, const int16_t * array, size_t cou
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayUInt16(scpi_t * context, const uint16_t * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultUInt16);
@@ -1561,7 +1572,7 @@ size_t SCPI_ResultArrayUInt16(scpi_t * context, const uint16_t * array, size_t c
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayInt32(scpi_t * context, const int32_t * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultInt32);
@@ -1573,7 +1584,7 @@ size_t SCPI_ResultArrayInt32(scpi_t * context, const int32_t * array, size_t cou
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayUInt32(scpi_t * context, const uint32_t * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultUInt32);
@@ -1585,7 +1596,7 @@ size_t SCPI_ResultArrayUInt32(scpi_t * context, const uint32_t * array, size_t c
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayInt64(scpi_t * context, const int64_t * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultInt64);
@@ -1597,7 +1608,7 @@ size_t SCPI_ResultArrayInt64(scpi_t * context, const int64_t * array, size_t cou
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayUInt64(scpi_t * context, const uint64_t * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultUInt64);
@@ -1609,7 +1620,7 @@ size_t SCPI_ResultArrayUInt64(scpi_t * context, const uint64_t * array, size_t c
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayFloat(scpi_t * context, const float * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultFloat);
@@ -1621,7 +1632,7 @@ size_t SCPI_ResultArrayFloat(scpi_t * context, const float * array, size_t count
  * @param array
  * @param count
  * @param format
- * @return 
+ * @return
  */
 size_t SCPI_ResultArrayDouble(scpi_t * context, const double * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultDouble);

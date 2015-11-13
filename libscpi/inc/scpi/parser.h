@@ -50,12 +50,12 @@ extern "C" {
 
     size_t SCPI_ResultCharacters(scpi_t * context, const char * data, size_t len);
 #define SCPI_ResultMnemonic(context, data) SCPI_ResultCharacters((context), (data), strlen(data))
-#define SCPI_ResultUInt8Base SCPI_ResultUInt32Base
-#define SCPI_ResultUInt8(c, v) SCPI_ResultUInt32Base((c), (v), 10)
-#define SCPI_ResultInt8 SCPI_ResultInt32
-#define SCPI_ResultUInt16Base SCPI_ResultUInt32Base
-#define SCPI_ResultUInt16(c, v) SCPI_ResultUInt32Base((c), (v), 10)
-#define SCPI_ResultInt16 SCPI_ResultInt32
+#define SCPI_ResultUInt8Base(c, v, b) SCPI_ResultUInt32Base((c), (v), (uint8_t)(b))
+#define SCPI_ResultUInt8(c, v) SCPI_ResultUInt32Base((c), (uint8_t)(v), 10)
+#define SCPI_ResultInt8(c, v) SCPI_ResultInt32((c), (int8_t)(v))
+#define SCPI_ResultUInt16Base(c, v, b) SCPI_ResultUInt32Base((c), (uint16_t)(v), (b))
+#define SCPI_ResultUInt16(c, v) SCPI_ResultUInt32Base((c), (uint16_t)(v), 10)
+#define SCPI_ResultInt16(c, v) SCPI_ResultInt32((c), (int16_t)(v))
     size_t SCPI_ResultUInt32Base(scpi_t * context, uint32_t val, int8_t base);
 #define SCPI_ResultUInt32(c, v) SCPI_ResultUInt32Base((c), (v), 10)
     size_t SCPI_ResultInt32(scpi_t * context, int32_t val);
