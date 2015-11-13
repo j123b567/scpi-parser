@@ -189,7 +189,7 @@ static int skipWs(lex_state_t * state) {
  * @return 
  */
 static int skipDigit(lex_state_t * state) {
-    if (!iseos(state) && isdigit(state->pos[0])) {
+    if (!iseos(state) && isdigit((uint8_t)(state->pos[0]))) {
         state->pos++;
         return SKIP_OK;
     } else {
@@ -204,7 +204,7 @@ static int skipDigit(lex_state_t * state) {
  */
 static int skipNumbers(lex_state_t * state) {
     int someNumbers = 0;
-    while (!iseos(state) && isdigit(state->pos[0])) {
+    while (!iseos(state) && isdigit((uint8_t)(state->pos[0]))) {
         state->pos++;
         someNumbers++;
     }
@@ -232,7 +232,7 @@ static int skipPlusmn(lex_state_t * state) {
  */
 static int skipAlpha(lex_state_t * state) {
     int someLetters = 0;
-    while (!iseos(state) && isalpha(state->pos[0])) {
+    while (!iseos(state) && isalpha((uint8_t)(state->pos[0]))) {
         state->pos++;
         someLetters++;
     }
@@ -305,9 +305,9 @@ static int skipColon(lex_state_t * state) {
  */
 static int skipProgramMnemonic(lex_state_t * state) {
     const char * startPos = state->pos;
-    if (!iseos(state) && isalpha(state->pos[0])) {
+    if (!iseos(state) && isalpha((uint8_t)(state->pos[0]))) {
         state->pos++;
-        while (!iseos(state) && (isalnum(state->pos[0]) || ischr(state, '_'))) {
+        while (!iseos(state) && (isalnum((uint8_t)(state->pos[0])) || ischr(state, '_'))) {
             state->pos++;
         }
     }
@@ -451,9 +451,9 @@ int scpiLex_ProgramHeader(lex_state_t * state, scpi_token_t * token) {
 int scpiLex_CharacterProgramData(lex_state_t * state, scpi_token_t * token) {
     token->ptr = state->pos;
 
-    if (!iseos(state) && isalpha(state->pos[0])) {
+    if (!iseos(state) && isalpha((uint8_t)(state->pos[0]))) {
         state->pos++;
-        while (!iseos(state) && (isalnum(state->pos[0]) || ischr(state, '_'))) {
+        while (!iseos(state) && (isalnum((uint8_t)(state->pos[0])) || ischr(state, '_'))) {
             state->pos++;
         }
     }
@@ -562,7 +562,7 @@ int scpiLex_SuffixProgramData(lex_state_t * state, scpi_token_t * token) {
 /* 7.7.4 <NONDECIMAL NUMERIC PROGRAM DATA> */
 static int skipHexNum(lex_state_t * state) {
     int someNumbers = 0;
-    while (!iseos(state) && isxdigit(state->pos[0])) {
+    while (!iseos(state) && isxdigit((uint8_t)(state->pos[0]))) {
         state->pos++;
         someNumbers++;
     }
@@ -728,7 +728,7 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
             state->pos++;
 
             for (; i > 0; i--) {
-                if (!iseos(state) && isdigit(state->pos[0])) {
+                if (!iseos(state) && isdigit((uint8_t)(state->pos[0]))) {
                     arbitraryBlockLength *= 10;
                     arbitraryBlockLength += (state->pos[0] - '0');
                     state->pos++;
