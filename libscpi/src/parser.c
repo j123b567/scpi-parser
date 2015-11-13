@@ -485,7 +485,7 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     const char * quote;
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
-    while (quote = strnpbrk(data, len, "\"")) {
+    while ((quote = strnpbrk(data, len, "\""))) {
         result += writeData(context, data, quote - data + 1);
         result += writeData(context, "\"", 1);
         len -= quote - data + 1;

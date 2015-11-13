@@ -901,16 +901,18 @@ static void testResultUInt16(void) {
 static void testResultInt32(void) {
     TEST_Result(Int32, 10, "10");
     TEST_Result(Int32, -10, "-10");
-    TEST_Result(Int32, 2147483647, "2147483647");
-    TEST_Result(Int32, -2147483648, "-2147483648");
+    TEST_Result(Int32, 2147483647L, "2147483647");
+    //TEST_Result(Int32, -2147483648L, "-2147483648"); // bug in GCC
+    TEST_Result(Int32, -2147483647L, "-2147483647");
 }
 
 static void testResultUInt32(void) {
     TEST_Result(UInt32, 10, "10");
     TEST_Result(UInt32, -10, "4294967286");
-    TEST_Result(UInt32, 2147483647, "2147483647");
-    TEST_Result(UInt32, -2147483648, "2147483648");
-    TEST_Result(UInt32, 4294967295, "4294967295");
+    TEST_Result(UInt32, 2147483647L, "2147483647");
+    //TEST_Result(UInt32, -2147483648L, "2147483648"); // bug in GCC
+    TEST_Result(UInt32, -2147483647L, "2147483649");
+    TEST_Result(UInt32, 4294967295UL, "4294967295");
 
     TEST_ResultBase(UInt32, 0xffffffff, 16, "#HFFFFFFFF");
     TEST_ResultBase(UInt32, 0xffffffff, 8, "#Q37777777777");
@@ -924,8 +926,9 @@ static void testResultInt64(void) {
     TEST_Result(Int64, -128, "-128");
     TEST_Result(Int64, 32767, "32767");
     TEST_Result(Int64, -32768, "-32768");
-    TEST_Result(Int64, 2147483647, "2147483647");
-    TEST_Result(Int64, -2147483648, "-2147483648");
+    TEST_Result(Int64, 2147483647L, "2147483647");
+    //TEST_Result(Int64, -2147483648, "-2147483648"); // bug in gcc
+    TEST_Result(Int64, -2147483647L, "-2147483647");
     TEST_Result(Int64, 9223372036854775807LL, "9223372036854775807");
     //TEST_Result(Int64, -9223372036854775808LL, "-9223372036854775808"); bug in GCC
     TEST_Result(Int64, -9223372036854775807LL, "-9223372036854775807");
@@ -938,8 +941,9 @@ static void testResultUInt64(void) {
     TEST_Result(UInt64, -128, "18446744073709551488");
     TEST_Result(UInt64, 32767, "32767");
     TEST_Result(UInt64, -32768, "18446744073709518848");
-    TEST_Result(UInt64, 2147483647, "2147483647");
-    TEST_Result(UInt64, -2147483648, "18446744071562067968");
+    TEST_Result(UInt64, 2147483647L, "2147483647");
+    //TEST_Result(UInt64, -2147483648L, "18446744071562067968"); // bug in GCC
+    TEST_Result(UInt64, -2147483647L, "18446744071562067969");
     TEST_Result(UInt64, 9223372036854775807LL, "9223372036854775807");
     //TEST_Result(Int64, -9223372036854775808LL, "9223372036854775808"); bug in GCC
     TEST_Result(UInt64, -9223372036854775807LL, "9223372036854775809");
@@ -957,8 +961,9 @@ static void testResultFloat(void) {
     TEST_Result(Float, -128, "-128");
     TEST_Result(Float, 32767, "32767");
     TEST_Result(Float, -32768, "-32768");
-    TEST_Result(Float, 2147483647, "2.14748e+09");
-    TEST_Result(Float, -2147483648, "-2.14748e+09");
+    TEST_Result(Float, 2147483647L, "2.14748e+09");
+    //TEST_Result(Float, -2147483648, "-2.14748e+09"); // bug in GCC
+    TEST_Result(Float, -2147483647L, "-2.14748e+09");
     TEST_Result(Float, 9223372036854775807LL, "9.22337e+18");
     TEST_Result(Float, -9223372036854775807LL, "-9.22337e+18");
 
@@ -974,7 +979,8 @@ static void testResultDouble(void) {
     TEST_Result(Double, 32767, "32767");
     TEST_Result(Double, -32768, "-32768");
     TEST_Result(Double, 2147483647, "2147483647");
-    TEST_Result(Double, -2147483648, "-2147483648");
+    //TEST_Result(Double, -2147483648, "-2147483648"); // bug in GCC
+    TEST_Result(Double, -2147483647, "-2147483647");
     TEST_Result(Double, 9223372036854775807LL, "9.22337203685478e+18");
     TEST_Result(Double, -9223372036854775807LL, "-9.22337203685478e+18");
 
