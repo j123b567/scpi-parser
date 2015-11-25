@@ -247,19 +247,6 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
  * @param interface
  */
 void SCPI_Init(scpi_t * context) {
-    if (context->idn[0] == NULL) {
-        context->idn[0] = SCPI_DEFAULT_1_MANUFACTURE;
-    }
-    if (context->idn[1] == NULL) {
-        context->idn[1] = SCPI_DEFAULT_2_MODEL;
-    }
-    if (context->idn[2] == NULL) {
-        context->idn[2] = SCPI_DEFAULT_3;
-    }
-    if (context->idn[3] == NULL) {
-        context->idn[3] = SCPI_DEFAULT_4_REVISION;
-    }
-
     context->buffer.position = 0;
     SCPI_ErrorInit(context);
 }
