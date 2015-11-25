@@ -76,6 +76,9 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "TEST:TREEA?", .callback = test_treeA,},
     { .pattern = "TEST:TREEB?", .callback = test_treeB,},
 
+    { .pattern = "STUB", .callback = SCPI_Stub,},
+    { .pattern = "STUB?", .callback = SCPI_StubQ,},
+
     SCPI_CMD_LIST_END
 };
 
@@ -281,6 +284,15 @@ static void testIEEE4882(void) {
     output_buffer_clear();                                      \
 }
 
+#define TEST_IEEE4882_REG(reg, expected) {                                     \
+    CU_ASSERT_STRING_EQUAL(SCPI_RegGet(&scpi_context, reg), expected);         \
+}
+
+
+#define TEST_IEEE4882_REG_SET(reg, val) {                                      \
+    SCPI_RegSet(&scpi_context, reg, val);                                      \
+}
+
     output_buffer_clear();
     error_buffer_clear();
 
@@ -306,6 +318,7 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("*STB?\r\n", "68\r\n"); /* Error queue is still not empty */
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
 
+    TEST_IEEE4882("SYST:ERR:COUNT?\r\n", "1\r\n");
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "0,\"No error\"\r\n");
 
@@ -320,6 +333,26 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("*WAI\r\n", "");
 
     TEST_IEEE4882("SYSTem:VERSion?\r\n", "1999.0\r\n");
+
+    TEST_IEEE4882_REG_SET(SCPI_REG_QUES, 1);
+    TEST_IEEE4882_REG(SCPI_REG_QUES, 1);
+    TEST_IEEE4882("STATus:PRESet\r\n", "");
+    TEST_IEEE4882_REG(SCPI_REG_QUES, 0);
+
+    TEST_IEEE4882_REG_SET(SCPI_REG_QUESE, 1);
+    TEST_IEEE4882("STATus:QUEStionable:ENABle?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_QUESE, 1);
+    TEST_IEEE4882("STATus:QUEStionable:ENABle 2\r\n", "");
+    TEST_IEEE4882_REG(SCPI_REG_QUESE, 2);
+
+    TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "0\r\n");
+    TEST_IEEE4882_REG_SET(SCPI_REG_QUES, 1);
+    TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_QUES, 0);
+    TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "0\r\n");
+
+    TEST_IEEE4882("STUB\r\n", "");
+    TEST_IEEE4882("STUB?\r\n", "0\r\n");
 }
 
 #define TEST_ParamInt32(data, mandatory, expected_value, expected_result, expected_error_code) \
