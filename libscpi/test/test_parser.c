@@ -1071,6 +1071,8 @@ static void testResultArray(void) {
 #define SCPI_ResultArrayUInt32ASCII(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
 #define SCPI_ResultArrayInt64ASCII(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
 #define SCPI_ResultArrayUInt64ASCII(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayFloatASCII(c, a) SCPI_ResultArrayFloat((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayDoubleASCII(c, a) SCPI_ResultArrayDouble((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
 
 #define SCPI_ResultArrayInt8NORMAL(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
 #define SCPI_ResultArrayUInt8NORMAL(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
@@ -1080,6 +1082,8 @@ static void testResultArray(void) {
 #define SCPI_ResultArrayUInt32NORMAL(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
 #define SCPI_ResultArrayInt64NORMAL(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
 #define SCPI_ResultArrayUInt64NORMAL(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayFloatNORMAL(c, a) SCPI_ResultArrayFloat((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayDoubleNORMAL(c, a) SCPI_ResultArrayDouble((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
 
 #define SCPI_ResultArrayInt8SWAPPED(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
 #define SCPI_ResultArrayUInt8SWAPPED(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
@@ -1089,6 +1093,8 @@ static void testResultArray(void) {
 #define SCPI_ResultArrayUInt32SWAPPED(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
 #define SCPI_ResultArrayInt64SWAPPED(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
 #define SCPI_ResultArrayUInt64SWAPPED(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayFloatSWAPPED(c, a) SCPI_ResultArrayFloat((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayDoubleSWAPPED(c, a) SCPI_ResultArrayDouble((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
 
     int8_t int8_arr[] = {-5, 48, 49, 109, 87};
     TEST_Result(ArrayInt8ASCII, int8_arr, "-5,48,49,109,87");
@@ -1129,6 +1135,16 @@ static void testResultArray(void) {
     TEST_Result(ArrayUInt64ASCII, uint64_arr, "18446744073709551611,3472611983179986487");
     TEST_Result(ArrayUInt64NORMAL, uint64_arr, "#216" "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFB" "01234567");
     TEST_Result(ArrayUInt64SWAPPED, uint64_arr, "#216" "\xFB\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF" "76543210");
+
+    float float_arr[] = {0.7549173, 3.0196693};
+    TEST_Result(ArrayFloatASCII, float_arr, "0.754917,3.01967");
+    TEST_Result(ArrayFloatNORMAL, float_arr, "#18" "?ABC" "@ABC");
+    TEST_Result(ArrayFloatSWAPPED, float_arr, "#18" "CBA?" "CBA@");
+
+    double double_arr[] = {76543217654321, 1234567891234567};
+    TEST_Result(ArrayDoubleASCII, double_arr, "76543217654321,1.23456789123457e+15");
+    TEST_Result(ArrayDoubleNORMAL, double_arr, "#216" "\x42\xd1\x67\x66\xd3\x16\x8c\x40" "\x43\x11\x8b\x54\xf2\x6e\xbc\x1c");
+    TEST_Result(ArrayDoubleSWAPPED, double_arr, "#216" "\x40\x8c\x16\xd3\x66\x67\xd1\x42" "\x1c\xbc\x6e\xf2\x54\x8b\x11\x43");
 }
 
 int main() {
