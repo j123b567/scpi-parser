@@ -51,4 +51,4 @@ SCPI parser library is based on these standards
 </table>
 
 
-[![travis build](https://travis-ci.org/j123b567/scpi-parser.svg?branch=master)](https://travis-ci.org/j123b567/scpi-parser)
+[![travis build](https://travis-ci.org/j123b567/scpi-parser.svg?branch=master)](https://travis-ci.org/j123b567/scpi-parser) [![Coverage Status](https://coveralls.io/repos/j123b567/scpi-parser/badge.svg?branch=master&service=github)](https://coveralls.io/github/j123b567/scpi-parser?branch=master)
