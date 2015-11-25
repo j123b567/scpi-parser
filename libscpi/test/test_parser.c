@@ -1147,6 +1147,26 @@ static void testResultArray(void) {
     TEST_Result(ArrayDoubleSWAPPED, double_arr, "#216" "\x40\x8c\x16\xd3\x66\x67\xd1\x42" "\x1c\xbc\x6e\xf2\x54\x8b\x11\x43");
 }
 
+static void testNumberToStr(void) {
+
+#define TEST_SCPI_NumberToStr(_special, _value, _unit, expected_result) do {\
+    scpi_number_t number;\
+    number.base = 10;\
+    number.special = (_special);\
+    number.unit = (_unit);\
+    if (number.special) { number.tag = (_value); } else { number.value = (_value); }\
+    char buffer[100 + 1];\
+    size_t res_len;\
+    res_len = SCPI_NumberToStr(&scpi_context, scpi_special_numbers_def, &number, buffer, 100);\
+    CU_ASSERT_STRING_EQUAL(buffer, expected_result);\
+    CU_ASSERT_EQUAL(res_len, strlen(expected_result));\
+} while(0)
+
+    TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_NONE, "10.5");
+    TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V");
+    TEST_SCPI_NumberToStr(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault");
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -1192,6 +1212,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultText", testResultText))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
+            || (NULL == CU_add_test(pSuite, "SCPI_NumberToStr", testNumberToStr))
             ) {
         CU_cleanup_registry();
         return CU_get_error();
