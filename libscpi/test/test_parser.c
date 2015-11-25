@@ -1061,6 +1061,76 @@ static void testResultArbitraryBlock(void) {
     TEST_Result(ArbitraryBlockString, "X1234567890\x80x", "#213X1234567890\x80x");
 }
 
+static void testResultArray(void) {
+
+#define SCPI_ResultArrayInt8ASCII(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt8ASCII(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayInt16ASCII(c, a) SCPI_ResultArrayInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt16ASCII(c, a) SCPI_ResultArrayUInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayInt32ASCII(c, a) SCPI_ResultArrayInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt32ASCII(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayInt64ASCII(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt64ASCII(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+
+#define SCPI_ResultArrayInt8NORMAL(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt8NORMAL(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayInt16NORMAL(c, a) SCPI_ResultArrayInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt16NORMAL(c, a) SCPI_ResultArrayUInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayInt32NORMAL(c, a) SCPI_ResultArrayInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt32NORMAL(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayInt64NORMAL(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt64NORMAL(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+
+#define SCPI_ResultArrayInt8SWAPPED(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt8SWAPPED(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayInt16SWAPPED(c, a) SCPI_ResultArrayInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt16SWAPPED(c, a) SCPI_ResultArrayUInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayInt32SWAPPED(c, a) SCPI_ResultArrayInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt32SWAPPED(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayInt64SWAPPED(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt64SWAPPED(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+
+    int8_t int8_arr[] = {-5, 48, 49, 109, 87};
+    TEST_Result(ArrayInt8ASCII, int8_arr, "-5,48,49,109,87");
+    TEST_Result(ArrayInt8NORMAL, int8_arr, "#15" "\xFB" "01mW");
+    TEST_Result(ArrayInt8SWAPPED, int8_arr, "#15" "\xFB" "01mW");
+
+    uint8_t uint8_arr[] = {250, 48, 49, 109, 87};
+    TEST_Result(ArrayUInt8ASCII, uint8_arr, "250,48,49,109,87");
+    TEST_Result(ArrayUInt8NORMAL, uint8_arr, "#15" "\xFA" "01mW");
+    TEST_Result(ArrayUInt8SWAPPED, uint8_arr, "#15" "\xFA" "01mW");
+
+    int16_t int16_arr[] = {-5, 18505, 12340};
+    TEST_Result(ArrayInt16ASCII, int16_arr, "-5,18505,12340");
+    TEST_Result(ArrayInt16NORMAL, int16_arr, "#16" "\xFF\xFB" "HI" "04");
+    TEST_Result(ArrayInt16SWAPPED, int16_arr, "#16" "\xFB\xFF" "IH" "40");
+
+    uint16_t uint16_arr[] = {65531, 18505, 12340};
+    TEST_Result(ArrayUInt16ASCII, uint16_arr, "65531,18505,12340");
+    TEST_Result(ArrayUInt16NORMAL, uint16_arr, "#16" "\xFF\xFB" "HI" "04");
+    TEST_Result(ArrayUInt16SWAPPED, uint16_arr, "#16" "\xFB\xFF" "IH" "40");
+
+    int32_t int32_arr[] = {-5L, 808530483L, 1094861636L};
+    TEST_Result(ArrayInt32ASCII, int32_arr, "-5,808530483,1094861636");
+    TEST_Result(ArrayInt32NORMAL, int32_arr, "#212" "\xFF\xFF\xFF\xFB" "0123" "ABCD");
+    TEST_Result(ArrayInt32SWAPPED, int32_arr, "#212" "\xFB\xFF\xFF\xFF" "3210" "DCBA");
+
+    uint32_t uint32_arr[] = {4294967291UL, 808530483UL, 1094861636UL};
+    TEST_Result(ArrayUInt32ASCII, uint32_arr, "4294967291,808530483,1094861636");
+    TEST_Result(ArrayUInt32NORMAL, uint32_arr, "#212" "\xFF\xFF\xFF\xFB" "0123" "ABCD");
+    TEST_Result(ArrayUInt32SWAPPED, uint32_arr, "#212" "\xFB\xFF\xFF\xFF" "3210" "DCBA");
+
+    int64_t int64_arr[] = {-5LL, 3472611983179986487LL};
+    TEST_Result(ArrayInt64ASCII, int64_arr, "-5,3472611983179986487");
+    TEST_Result(ArrayInt64NORMAL, int64_arr, "#216" "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFB" "01234567");
+    TEST_Result(ArrayInt64SWAPPED, int64_arr, "#216" "\xFB\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF" "76543210");
+
+    uint64_t uint64_arr[] = {18446744073709551611ULL, 3472611983179986487ULL};
+    TEST_Result(ArrayUInt64ASCII, uint64_arr, "18446744073709551611,3472611983179986487");
+    TEST_Result(ArrayUInt64NORMAL, uint64_arr, "#216" "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFB" "01234567");
+    TEST_Result(ArrayUInt64SWAPPED, uint64_arr, "#216" "\xFB\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF" "76543210");
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -1105,6 +1175,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultMnemonic", testResultMnemonic))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultText", testResultText))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

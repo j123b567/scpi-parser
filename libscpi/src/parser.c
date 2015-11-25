@@ -1455,6 +1455,7 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
             case 4:
             case 8:
                 result += SCPI_ResultArbitraryBlockHeader(context, count * item_size);
+                break;
             default:
                 SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
                 return 0;
@@ -1495,9 +1496,6 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
         size_t i;\
         for (i = 0; i < count; i++) {\
             result += func(context, array[i]);\
-        }\
-        if (count > 0) {\
-            result += count - 1; /* add length of commas */\
         }\
     } else {\
         result = parserResultArrayBinary(context, array, count, sizeof(*array), format);\
