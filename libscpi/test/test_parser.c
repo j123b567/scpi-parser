@@ -285,7 +285,7 @@ static void testIEEE4882(void) {
 }
 
 #define TEST_IEEE4882_REG(reg, expected) {                                     \
-    CU_ASSERT_STRING_EQUAL(SCPI_RegGet(&scpi_context, reg), expected);         \
+    CU_ASSERT_EQUAL(SCPI_RegGet(&scpi_context, reg), expected);                \
 }
 
 
