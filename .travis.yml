@@ -1,3 +1,4 @@
+language: c
 addons:
   apt:
     packages:
@@ -6,6 +7,9 @@ addons:
     - gcc-multilib
 
 sudo: false
+
+before_install:
+  - pip install --user cpp-coveralls
 
 before_script:
   - wget http://downloads.sourceforge.net/project/cunit/CUnit/2.1-3/CUnit-2.1-3.tar.bz2 -O /tmp/cunit.tar.bz2
@@ -17,6 +21,10 @@ before_script:
   - cd ..
 
 script:
-    - make
-    - CC=clang CFLAGS="-g -O0 -fsanitize=address" LDFLAGS="-g -fsanitize=address" make clean test
-    - CFLAGS="-m32" LDFLAGS="-m32 -L$PWD/CUnit-2.1-3/CUnit/Sources/.libs/" make clean test
+  - make
+  - CC=clang CFLAGS="-g -O0 -fsanitize=address" LDFLAGS="-g -fsanitize=address" make clean test
+  - CFLAGS="-m32" LDFLAGS="-m32 -L$PWD/CUnit-2.1-3/CUnit/Sources/.libs/" make clean test
+  - LDFLAGS="-lgcov" CFLAGS="-fprofile-arcs -ftest-coverage" make clean all test
+
+after_success:
+  - coveralls -b libscpi/ -e libscpi/test -e examples -e libscpi/obj/shared --gcov-options '\-lp'
