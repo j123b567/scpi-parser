@@ -316,7 +316,7 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
     CU_ASSERT_EQUAL(srq_val, (STB_ESR | STB_SRQ | STB_QMA)); /* value of STB as service request */
     TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
-    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
+    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */        
 
     TEST_IEEE4882("*STB?\r\n", "68\r\n"); /* Error queue is still not empty */
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
@@ -327,6 +327,15 @@ static void testIEEE4882(void) {
 
     TEST_IEEE4882("*STB?\r\n", "0\r\n"); /* Error queue is now empty */
 
+    scpi_context.interface->control = NULL;
+    srq_val = 0;
+    TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
+    CU_ASSERT_EQUAL(srq_val, 0); /* no control callback */
+    TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
+    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */        
+    TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
+    scpi_context.interface->control = SCPI_Control;
+    
     RST_executed = FALSE;
     TEST_IEEE4882("*RST\r\n", "");
     CU_ASSERT_EQUAL(RST_executed, TRUE);
@@ -363,6 +372,10 @@ static void testIEEE4882(void) {
 
     TEST_IEEE4882("STUB\r\n", "");
     TEST_IEEE4882("STUB?\r\n", "0\r\n");
+    
+    TEST_IEEE4882_REG(SCPI_REG_COUNT + 1, 0);
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPERE, 1);
+    TEST_IEEE4882_REG(SCPI_REG_OPERE, 1);
 }
 
 #define TEST_ParamInt32(data, mandatory, expected_value, expected_result, expected_error_code) \
