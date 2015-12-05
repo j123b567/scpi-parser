@@ -245,6 +245,8 @@ static scpi_expr_result_t channelRange(scpi_t * context, lex_state_t * state, sc
             *dimensions = fromDimensions;
             return SCPI_EXPR_OK;
         }
+    } else if (err == SCPI_EXPR_NO_MORE) {
+        err = SCPI_EXPR_ERROR;
     }
 
     return err;
