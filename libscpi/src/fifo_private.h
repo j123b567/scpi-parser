@@ -44,18 +44,7 @@
 extern "C" {
 #endif
 
-
-#define FIFO_SIZE 16
-
-    struct _scpi_fifo_t {
-        int16_t wr;
-        int16_t rd;
-        int16_t size;
-        int16_t data[FIFO_SIZE];
-    };
-    typedef struct _scpi_fifo_t scpi_fifo_t;
-
-    void fifo_init(scpi_fifo_t * fifo) LOCAL;
+    void fifo_init(scpi_fifo_t * fifo, int16_t * data, int16_t size) LOCAL;
     void fifo_clear(scpi_fifo_t * fifo) LOCAL;
     scpi_bool_t fifo_is_empty(scpi_fifo_t * fifo) LOCAL;
     scpi_bool_t fifo_is_full(scpi_fifo_t * fifo) LOCAL;

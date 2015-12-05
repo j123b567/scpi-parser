@@ -171,25 +171,17 @@ static scpi_interface_t scpi_interface = {
 #define SCPI_INPUT_BUFFER_LENGTH 256
 static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 
-static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
-
-
-scpi_t scpi_context = {
-    .cmdlist = scpi_commands,
-    .buffer =
-    {
-        .length = SCPI_INPUT_BUFFER_LENGTH,
-        .data = scpi_input_buffer,
-    },
-    .interface = &scpi_interface,
-    .registers = scpi_regs,
-    .units = scpi_units_def,
-    .idn =
-    {"MA", "IN", NULL, "VER"},
-};
+#define SCPI_ERROR_QUEUE_SIZE 5
+static int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 
 static int init_suite(void) {
-    SCPI_Init(&scpi_context);
+    SCPI_Init(&scpi_context,
+            scpi_commands,
+            &scpi_interface,
+            scpi_units_def,
+            "MA", "IN", NULL, "VER",
+            scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
     return 0;
 }
@@ -1182,8 +1174,6 @@ static void testNumberToStr(void) {
 }
 
 static void testErrorQueue(void) {
-    ((scpi_fifo_t *) (scpi_context.error_queue))->size = 5;
-
     SCPI_ErrorClear(&scpi_context);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
     SCPI_ErrorPush(&scpi_context, -1);
@@ -1211,7 +1201,6 @@ static void testErrorQueue(void) {
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
 
     SCPI_ErrorClear(&scpi_context);
-    ((scpi_fifo_t *) (scpi_context.error_queue))->size = FIFO_SIZE;
 }
 
 int main() {

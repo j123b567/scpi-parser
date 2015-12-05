@@ -44,7 +44,7 @@
 extern "C" {
 #endif
 
-    void SCPI_ErrorInit(scpi_t * context);
+    void SCPI_ErrorInit(scpi_t * context, int16_t * data, int16_t size);
     void SCPI_ErrorClear(scpi_t * context);
     int16_t SCPI_ErrorPop(scpi_t * context);
     void SCPI_ErrorPush(scpi_t * context, int16_t err);

@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,10 +28,10 @@
 /**
  * @file   main.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  TCP/IP SCPI Server
- * 
- * 
+ *
+ *
  */
 
 #include <stdio.h>
@@ -268,7 +268,7 @@ static void processSrqIo(user_data_t * user_data) {
 }
 
 /*
- * 
+ *
  */
 int main(int argc, char** argv) {
     (void) argc;
@@ -284,9 +284,14 @@ int main(int argc, char** argv) {
     };
 
     // user_context will be pointer to socket
+    SCPI_Init(&scpi_context,
+            scpi_commands,
+            &scpi_interface,
+            scpi_units_def,
+            SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+            scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
     scpi_context.user_context = &user_data;
-
-    SCPI_Init(&scpi_context);
 
     user_data.io_listen = createServer(5025);
     user_data.control_io_listen = createServer(CONTROL_PORT);

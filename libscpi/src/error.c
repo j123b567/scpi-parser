@@ -41,16 +41,12 @@
 #include "scpi/error.h"
 #include "fifo_private.h"
 
-/* basic FIFO */
-static scpi_fifo_t local_error_queue;
-
 /**
  * Initialize error queue
  * @param context - scpi context
  */
-void SCPI_ErrorInit(scpi_t * context) {
-    context->error_queue = (scpi_error_queue_t) & local_error_queue;
-    fifo_init((scpi_fifo_t *) context->error_queue);
+void SCPI_ErrorInit(scpi_t * context, int16_t * data, int16_t size) {
+    fifo_init(&context->error_queue, data, size);
 }
 
 /**
@@ -85,7 +81,7 @@ static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
  * @param context - scpi context
  */
 void SCPI_ErrorClear(scpi_t * context) {
-    fifo_clear((scpi_fifo_t *) context->error_queue);
+    fifo_clear(&context->error_queue);
 
     SCPI_ErrorEmitEmpty(context);
 }
@@ -98,7 +94,7 @@ void SCPI_ErrorClear(scpi_t * context) {
 int16_t SCPI_ErrorPop(scpi_t * context) {
     int16_t result = 0;
 
-    fifo_remove((scpi_fifo_t *) context->error_queue, &result);
+    fifo_remove(&context->error_queue, &result);
 
     SCPI_ErrorEmitEmpty(context);
 
@@ -113,15 +109,15 @@ int16_t SCPI_ErrorPop(scpi_t * context) {
 int32_t SCPI_ErrorCount(scpi_t * context) {
     int16_t result = 0;
 
-    fifo_count((scpi_fifo_t *) context->error_queue, &result);
+    fifo_count(&context->error_queue, &result);
 
     return result;
 }
 
 static void SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
-    if (!fifo_add((scpi_fifo_t *) context->error_queue, err)) {
-        fifo_remove_last((scpi_fifo_t *) context->error_queue, NULL);
-        fifo_add((scpi_fifo_t *) context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW);
+    if (!fifo_add(&context->error_queue, err)) {
+        fifo_remove_last(&context->error_queue, NULL);
+        fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW);
     }
 }
 

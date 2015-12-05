@@ -5,10 +5,11 @@
  * Initialize fifo
  * @param fifo
  */
-void fifo_init(scpi_fifo_t * fifo) {
+void fifo_init(scpi_fifo_t * fifo, int16_t * data, int16_t size) {
     fifo->wr = 0;
     fifo->rd = 0;
-    fifo->size = FIFO_SIZE;
+    fifo->data = data;
+    fifo->size = size;
 }
 
 /**

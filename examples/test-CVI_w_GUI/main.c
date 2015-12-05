@@ -169,7 +169,13 @@ scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
 int main(int argc, char** argv) {
     int result;
 
-    SCPI_Init(&scpi_context);
+    SCPI_Init(&scpi_context,
+        scpi_commands,
+        &scpi_interface,
+        scpi_units_def,
+        SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+        scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+        scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
     if (InitCVIRTE(0, argv, 0) == 0)
         return -1; /* out of memory */
