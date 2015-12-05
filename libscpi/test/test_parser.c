@@ -8,6 +8,7 @@
 #include "CUnit/Basic.h"
 
 #include "scpi/scpi.h"
+#include "../src/fifo_private.h"
 
 /*
  * CUnit Test Suite
@@ -316,7 +317,7 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
     CU_ASSERT_EQUAL(srq_val, (STB_ESR | STB_SRQ | STB_QMA)); /* value of STB as service request */
     TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
-    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */        
+    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
 
     TEST_IEEE4882("*STB?\r\n", "68\r\n"); /* Error queue is still not empty */
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
@@ -332,10 +333,10 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
     CU_ASSERT_EQUAL(srq_val, 0); /* no control callback */
     TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
-    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */        
+    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
     scpi_context.interface->control = SCPI_Control;
-    
+
     RST_executed = FALSE;
     TEST_IEEE4882("*RST\r\n", "");
     CU_ASSERT_EQUAL(RST_executed, TRUE);
@@ -372,7 +373,7 @@ static void testIEEE4882(void) {
 
     TEST_IEEE4882("STUB\r\n", "");
     TEST_IEEE4882("STUB?\r\n", "0\r\n");
-    
+
     TEST_IEEE4882_REG(SCPI_REG_COUNT + 1, 0);
     TEST_IEEE4882_REG_SET(SCPI_REG_OPERE, 1);
     TEST_IEEE4882_REG(SCPI_REG_OPERE, 1);
@@ -1180,6 +1181,39 @@ static void testNumberToStr(void) {
     TEST_SCPI_NumberToStr(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault");
 }
 
+static void testErrorQueue(void) {
+    ((scpi_fifo_t *) (scpi_context.error_queue))->size = 5;
+
+    SCPI_ErrorClear(&scpi_context);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
+    SCPI_ErrorPush(&scpi_context, -1);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 1);
+    SCPI_ErrorPush(&scpi_context, -2);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 2);
+    SCPI_ErrorPush(&scpi_context, -3);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 3);
+    SCPI_ErrorPush(&scpi_context, -4);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
+    SCPI_ErrorPush(&scpi_context, -5);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
+    SCPI_ErrorPush(&scpi_context, -6);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
+
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -1);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 3);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -2);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 2);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -3);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 1);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), SCPI_ERROR_QUEUE_OVERFLOW);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), 0);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
+
+    SCPI_ErrorClear(&scpi_context);
+    ((scpi_fifo_t *) (scpi_context.error_queue))->size = FIFO_SIZE;
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -1226,6 +1260,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
             || (NULL == CU_add_test(pSuite, "SCPI_NumberToStr", testNumberToStr))
+            || (NULL == CU_add_test(pSuite, "SCPI_ErrorQueue", testErrorQueue))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

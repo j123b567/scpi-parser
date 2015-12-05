@@ -49,12 +49,6 @@ static scpi_fifo_t local_error_queue;
  * @param context - scpi context
  */
 void SCPI_ErrorInit(scpi_t * context) {
-    /*
-     * // FreeRTOS
-     * context->error_queue = (scpi_error_queue_t)xQueueCreate(100, sizeof(int16_t));
-     */
-
-    /* basic FIFO */
     context->error_queue = (scpi_error_queue_t) & local_error_queue;
     fifo_init((scpi_fifo_t *) context->error_queue);
 }
@@ -91,12 +85,6 @@ static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
  * @param context - scpi context
  */
 void SCPI_ErrorClear(scpi_t * context) {
-    /*
-     * // FreeRTOS
-     * xQueueReset((xQueueHandle)context->error_queue);
-     */
-
-    /* basic FIFO */
     fifo_clear((scpi_fifo_t *) context->error_queue);
 
     SCPI_ErrorEmitEmpty(context);
@@ -110,14 +98,6 @@ void SCPI_ErrorClear(scpi_t * context) {
 int16_t SCPI_ErrorPop(scpi_t * context) {
     int16_t result = 0;
 
-    /*
-     * // FreeRTOS
-     * if (pdFALSE == xQueueReceive((xQueueHandle)context->error_queue, &result, 0)) {
-     *   result = 0;
-     * }
-     */
-
-    /* basic FIFO */
     fifo_remove((scpi_fifo_t *) context->error_queue, &result);
 
     SCPI_ErrorEmitEmpty(context);
@@ -133,25 +113,16 @@ int16_t SCPI_ErrorPop(scpi_t * context) {
 int32_t SCPI_ErrorCount(scpi_t * context) {
     int16_t result = 0;
 
-    /*
-     * // FreeRTOS
-     * result = uxQueueMessagesWaiting((xQueueHandle)context->error_queue);
-     */
-
-    /* basic FIFO */
     fifo_count((scpi_fifo_t *) context->error_queue, &result);
 
     return result;
 }
 
 static void SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
-    /*
-     * // FreeRTOS
-     * xQueueSend((xQueueHandle)context->error_queue, &err, 0);
-     */
-
-    /* basic FIFO */
-    fifo_add((scpi_fifo_t *) context->error_queue, err);
+    if (!fifo_add((scpi_fifo_t *) context->error_queue, err)) {
+        fifo_remove_last((scpi_fifo_t *) context->error_queue, NULL);
+        fifo_add((scpi_fifo_t *) context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW);
+    }
 }
 
 struct error_reg {

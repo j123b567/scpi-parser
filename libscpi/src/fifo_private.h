@@ -57,8 +57,11 @@ extern "C" {
 
     void fifo_init(scpi_fifo_t * fifo) LOCAL;
     void fifo_clear(scpi_fifo_t * fifo) LOCAL;
+    scpi_bool_t fifo_is_empty(scpi_fifo_t * fifo) LOCAL;
+    scpi_bool_t fifo_is_full(scpi_fifo_t * fifo) LOCAL;
     scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t value) LOCAL;
     scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) LOCAL;
+    scpi_bool_t fifo_remove_last(scpi_fifo_t * fifo, int16_t * value) LOCAL;
     scpi_bool_t fifo_count(scpi_fifo_t * fifo, int16_t * value) LOCAL;
 
 #ifdef	__cplusplus
