@@ -5,10 +5,11 @@
  * Initialize fifo
  * @param fifo
  */
-void fifo_init(scpi_fifo_t * fifo) {
+void fifo_init(scpi_fifo_t * fifo, int16_t * data, int16_t size) {
     fifo->wr = 0;
     fifo->rd = 0;
-    fifo->size = FIFO_SIZE;
+    fifo->data = data;
+    fifo->size = size;
 }
 
 /**
@@ -21,19 +22,37 @@ void fifo_clear(scpi_fifo_t * fifo) {
 }
 
 /**
- * Add element to fifo. If fifo is full, remove last element.
+ * Test if fifo is empty
+ * @param fifo
+ * @return
+ */
+scpi_bool_t fifo_is_empty(scpi_fifo_t * fifo) {
+    return fifo->wr == fifo->rd;
+}
+
+/**
+ * Test if fifo is full
+ * @param fifo
+ * @return
+ */
+scpi_bool_t fifo_is_full(scpi_fifo_t * fifo) {
+    return fifo->wr == ((fifo->rd + fifo->size - 1) % (fifo->size));
+}
+
+/**
+ * Add element to fifo. If fifo is full, return FALSE.
  * @param fifo
  * @param value
- * @return 
+ * @return
  */
 scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t value) {
     /* FIFO full? */
-    if (fifo->wr == ((fifo->rd + fifo->size) % (fifo->size + 1))) {
-        fifo_remove(fifo, NULL);
+    if (fifo_is_full(fifo)) {
+        return FALSE;
     }
 
     fifo->data[fifo->wr] = value;
-    fifo->wr = (fifo->wr + 1) % (fifo->size + 1);
+    fifo->wr = (fifo->wr + 1) % (fifo->size);
 
     return TRUE;
 }
@@ -46,7 +65,7 @@ scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t value) {
  */
 scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) {
     /* FIFO empty? */
-    if (fifo->wr == fifo->rd) {
+    if (fifo_is_empty(fifo)) {
         return FALSE;
     }
 
@@ -54,7 +73,28 @@ scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) {
         *value = fifo->data[fifo->rd];
     }
 
-    fifo->rd = (fifo->rd + 1) % (fifo->size + 1);
+    fifo->rd = (fifo->rd + 1) % (fifo->size);
+
+    return TRUE;
+}
+
+/**
+ * Remove last element from fifo
+ * @param fifo
+ * @param value
+ * @return FALSE - fifo is empty
+ */
+scpi_bool_t fifo_remove_last(scpi_fifo_t * fifo, int16_t * value) {
+    /* FIFO empty? */
+    if (fifo_is_empty(fifo)) {
+        return FALSE;
+    }
+
+    fifo->wr = (fifo->wr + fifo->size - 1) % (fifo->size);
+
+    if (value) {
+        *value = fifo->data[fifo->wr];
+    }
 
     return TRUE;
 }
@@ -63,12 +103,12 @@ scpi_bool_t fifo_remove(scpi_fifo_t * fifo, int16_t * value) {
  * Retrive number of elements in fifo
  * @param fifo
  * @param value
- * @return 
+ * @return
  */
 scpi_bool_t fifo_count(scpi_fifo_t * fifo, int16_t * value) {
     *value = fifo->wr - fifo->rd;
     if (*value < 0) {
-        *value += (fifo->size + 1);
+        *value += (fifo->size);
     }
     return TRUE;
 }

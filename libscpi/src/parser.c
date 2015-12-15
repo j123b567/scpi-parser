@@ -292,27 +292,30 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
  * @param buffer
  * @param interface
  */
-void SCPI_Init(scpi_t * context) {
-    if (context->idn[0] == NULL) {
-        context->idn[0] = SCPI_DEFAULT_1_MANUFACTURE;
-    }
-    if (context->idn[1] == NULL) {
-        context->idn[1] = SCPI_DEFAULT_2_MODEL;
-    }
-    if (context->idn[2] == NULL) {
-        context->idn[2] = SCPI_DEFAULT_3;
-    }
-    if (context->idn[3] == NULL) {
-        context->idn[3] = SCPI_DEFAULT_4_REVISION;
-    }
+void SCPI_Init(scpi_t * context, 
+        const scpi_command_t * commands,
+        scpi_interface_t * interface,
+        const scpi_unit_def_t * units,
+        const char * idn1, const char * idn2, const char * idn3, const char * idn4,
+        char * input_buffer, size_t input_buffer_length, 
+        int16_t * error_queue_data, int16_t error_queue_size) {
+    memset(context, 0, sizeof(*context));
+    context->cmdlist = commands;
+    context->interface = interface;
+    context->units = units;
+    context->idn[0] = idn1;
+    context->idn[1] = idn2;
+    context->idn[2] = idn3;
+    context->idn[3] = idn4;
+    context->buffer.data = input_buffer;
+    context->buffer.length = input_buffer_length;
+    context->buffer.position = 0;
+    SCPI_ErrorInit(context, error_queue_data, error_queue_size);
 
 #if USE_64K_PROGMEM_FOR_CMD_LIST || USE_FULL_PROGMEM_FOR_CMD_LIST 
     context->param_list.cmd_s.pattern = context->param_list.cmd_pattern_s;
     context->param_list.cmd = &context->param_list.cmd_s;
 #endif
-
-    context->buffer.position = 0;
-    SCPI_ErrorInit(context);
 }
 
 /**
@@ -1519,6 +1522,7 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
             case 4:
             case 8:
                 result += SCPI_ResultArbitraryBlockHeader(context, count * item_size);
+                break;
             default:
                 SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
                 return 0;
@@ -1559,9 +1563,6 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
         size_t i;\
         for (i = 0; i < count; i++) {\
             result += func(context, array[i]);\
-        }\
-        if (count > 0) {\
-            result += count - 1; /* add length of commas */\
         }\
     } else {\
         result = parserResultArrayBinary(context, array, count, sizeof(*array), format);\

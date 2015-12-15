@@ -41,14 +41,6 @@
 extern "C" {
 #endif
 
-
-    /*  4.1.3.6 *IDN? */
-
-#define SCPI_DEFAULT_1_MANUFACTURE "CTU FEE"
-#define SCPI_DEFAULT_2_MODEL "TSI3225"
-#define SCPI_DEFAULT_3 "0"
-#define SCPI_DEFAULT_4_REVISION "01-01"
-
     /* 21.21 :VERSion? 
      * YYYY.V
      * YYYY = SCPI year

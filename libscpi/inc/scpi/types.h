@@ -205,8 +205,13 @@ extern "C" {
 
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
-    /* scpi error queue */
-    typedef void * scpi_error_queue_t;
+    struct _scpi_fifo_t {
+        int16_t wr;
+        int16_t rd;
+        int16_t size;
+        int16_t * data;
+    };
+    typedef struct _scpi_fifo_t scpi_fifo_t;
 
     /* scpi units */
     enum _scpi_unit_t {
@@ -310,8 +315,8 @@ extern "C" {
         int_fast16_t output_count;
         int_fast16_t input_count;
         scpi_bool_t cmd_error;
-        scpi_error_queue_t error_queue;
-        scpi_reg_val_t * registers;
+        scpi_fifo_t error_queue;
+        scpi_reg_val_t registers[SCPI_REG_COUNT];
         const scpi_unit_def_t * units;
         void * user_context;
         scpi_parser_state_t parser_state;

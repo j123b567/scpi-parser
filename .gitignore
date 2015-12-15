@@ -31,3 +31,8 @@ examples/*/test
 
 /nbproject/
 *.bak
+
+# Code coverage files
+*.gcno
+*.gcda
+*.gcov

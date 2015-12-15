@@ -8,6 +8,7 @@
 #include "CUnit/Basic.h"
 
 #include "scpi/scpi.h"
+#include "../src/fifo_private.h"
 
 /*
  * CUnit Test Suite
@@ -75,6 +76,9 @@ static const scpi_command_t scpi_commands[] = {
 
     { .pattern = "TEST:TREEA?", .callback = test_treeA,},
     { .pattern = "TEST:TREEB?", .callback = test_treeB,},
+
+    { .pattern = "STUB", .callback = SCPI_Stub,},
+    { .pattern = "STUB?", .callback = SCPI_StubQ,},
 
     SCPI_CMD_LIST_END
 };
@@ -167,25 +171,17 @@ static scpi_interface_t scpi_interface = {
 #define SCPI_INPUT_BUFFER_LENGTH 256
 static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 
-static scpi_reg_val_t scpi_regs[SCPI_REG_COUNT];
-
-
-scpi_t scpi_context = {
-    .cmdlist = scpi_commands,
-    .buffer =
-    {
-        .length = SCPI_INPUT_BUFFER_LENGTH,
-        .data = scpi_input_buffer,
-    },
-    .interface = &scpi_interface,
-    .registers = scpi_regs,
-    .units = scpi_units_def,
-    .idn =
-    {"MA", "IN", NULL, "VER"},
-};
+#define SCPI_ERROR_QUEUE_SIZE 5
+static int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 
 static int init_suite(void) {
-    SCPI_Init(&scpi_context);
+    SCPI_Init(&scpi_context,
+            scpi_commands,
+            &scpi_interface,
+            scpi_units_def,
+            "MA", "IN", NULL, "VER",
+            scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
     return 0;
 }
@@ -263,6 +259,9 @@ static void testErrorHandling(void) {
             "ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ"
             "ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ",
             "", FALSE, SCPI_ERROR_INPUT_BUFFER_OVERRUN);
+    TEST_ERROR("*SRE\r\n", "", FALSE, SCPI_ERROR_MISSING_PARAMETER);
+
+
 
     // TODO: SCPI_ERROR_INVALID_SEPARATOR
     // TODO: SCPI_ERROR_INVALID_SUFFIX
@@ -279,6 +278,15 @@ static void testIEEE4882(void) {
     SCPI_Input(&scpi_context, data, strlen(data));              \
     CU_ASSERT_STRING_EQUAL(output, output_buffer);              \
     output_buffer_clear();                                      \
+}
+
+#define TEST_IEEE4882_REG(reg, expected) {                                     \
+    CU_ASSERT_EQUAL(SCPI_RegGet(&scpi_context, reg), expected);                \
+}
+
+
+#define TEST_IEEE4882_REG_SET(reg, val) {                                      \
+    SCPI_RegSet(&scpi_context, reg, val);                                      \
 }
 
     output_buffer_clear();
@@ -306,20 +314,61 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("*STB?\r\n", "68\r\n"); /* Error queue is still not empty */
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
 
+    TEST_IEEE4882("SYST:ERR:COUNT?\r\n", "1\r\n");
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "0,\"No error\"\r\n");
 
     TEST_IEEE4882("*STB?\r\n", "0\r\n"); /* Error queue is now empty */
 
+    scpi_context.interface->control = NULL;
+    srq_val = 0;
+    TEST_IEEE4882("ABCD\r\n", ""); /* "Undefined header" cause command error */
+    CU_ASSERT_EQUAL(srq_val, 0); /* no control callback */
+    TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
+    TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
+    TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
+    scpi_context.interface->control = SCPI_Control;
+
     RST_executed = FALSE;
     TEST_IEEE4882("*RST\r\n", "");
     CU_ASSERT_EQUAL(RST_executed, TRUE);
+
+    scpi_context.interface->reset = NULL;
+    RST_executed = FALSE;
+    TEST_IEEE4882("*RST\r\n", "");
+    CU_ASSERT_EQUAL(RST_executed, FALSE);
+    scpi_context.interface->reset = SCPI_Reset;
+
 
     TEST_IEEE4882("*TST?\r\n", "0\r\n");
 
     TEST_IEEE4882("*WAI\r\n", "");
 
     TEST_IEEE4882("SYSTem:VERSion?\r\n", "1999.0\r\n");
+
+    TEST_IEEE4882_REG_SET(SCPI_REG_QUES, 1);
+    TEST_IEEE4882_REG(SCPI_REG_QUES, 1);
+    TEST_IEEE4882("STATus:PRESet\r\n", "");
+    TEST_IEEE4882_REG(SCPI_REG_QUES, 0);
+
+    TEST_IEEE4882_REG_SET(SCPI_REG_QUESE, 1);
+    TEST_IEEE4882("STATus:QUEStionable:ENABle?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_QUESE, 1);
+    TEST_IEEE4882("STATus:QUEStionable:ENABle 2\r\n", "");
+    TEST_IEEE4882_REG(SCPI_REG_QUESE, 2);
+
+    TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "0\r\n");
+    TEST_IEEE4882_REG_SET(SCPI_REG_QUES, 1);
+    TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_QUES, 0);
+    TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "0\r\n");
+
+    TEST_IEEE4882("STUB\r\n", "");
+    TEST_IEEE4882("STUB?\r\n", "0\r\n");
+
+    TEST_IEEE4882_REG(SCPI_REG_COUNT + 1, 0);
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPERE, 1);
+    TEST_IEEE4882_REG(SCPI_REG_OPERE, 1);
 }
 
 #define TEST_ParamInt32(data, mandatory, expected_value, expected_result, expected_error_code) \
@@ -704,6 +753,8 @@ static void testNumericList(void) {
     TEST_NumericListDouble("(12,5:6:3)", 0, FALSE, 12, 0, SCPI_EXPR_OK, 0);
     TEST_NumericListDouble("(12,5:6:3)", 1, TRUE, 5, 6, SCPI_EXPR_OK, 0);
     TEST_NumericListDouble("(12,5:6:3)", 2, FALSE, 0, 0, SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+    TEST_NumericListDouble("(12,5:)", 2, FALSE, 0, 0, SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+    TEST_NumericListDouble("aaaa", 2, FALSE, 0, 0, SCPI_EXPR_ERROR, SCPI_ERROR_DATA_TYPE_ERROR);
 }
 
 #define NOPAREN(...) __VA_ARGS__
@@ -772,6 +823,10 @@ static void testChannelList(void) {
 
     TEST_ChannelList("(@1, 2)", 0, 1, FALSE, 1, (1), (0), SCPI_EXPR_OK, 0);
     TEST_ChannelList("(@1, 2)", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+
+    TEST_ChannelList("(@1,)", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+    TEST_ChannelList("(@1,2:)", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+    TEST_ChannelList("abcd", 1, 1, FALSE, 0, (0), (0), SCPI_EXPR_ERROR, SCPI_ERROR_DATA_TYPE_ERROR);
 }
 
 
@@ -1018,6 +1073,142 @@ static void testResultArbitraryBlock(void) {
     TEST_Result(ArbitraryBlockString, "X1234567890\x80x", "#213X1234567890\x80x");
 }
 
+static void testResultArray(void) {
+
+#define SCPI_ResultArrayInt8ASCII(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt8ASCII(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayInt16ASCII(c, a) SCPI_ResultArrayInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt16ASCII(c, a) SCPI_ResultArrayUInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayInt32ASCII(c, a) SCPI_ResultArrayInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt32ASCII(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayInt64ASCII(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayUInt64ASCII(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayFloatASCII(c, a) SCPI_ResultArrayFloat((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+#define SCPI_ResultArrayDoubleASCII(c, a) SCPI_ResultArrayDouble((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_ASCII)
+
+#define SCPI_ResultArrayInt8NORMAL(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt8NORMAL(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayInt16NORMAL(c, a) SCPI_ResultArrayInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt16NORMAL(c, a) SCPI_ResultArrayUInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayInt32NORMAL(c, a) SCPI_ResultArrayInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt32NORMAL(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayInt64NORMAL(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayUInt64NORMAL(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayFloatNORMAL(c, a) SCPI_ResultArrayFloat((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+#define SCPI_ResultArrayDoubleNORMAL(c, a) SCPI_ResultArrayDouble((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_NORMAL)
+
+#define SCPI_ResultArrayInt8SWAPPED(c, a) SCPI_ResultArrayInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt8SWAPPED(c, a) SCPI_ResultArrayUInt8((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayInt16SWAPPED(c, a) SCPI_ResultArrayInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt16SWAPPED(c, a) SCPI_ResultArrayUInt16((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayInt32SWAPPED(c, a) SCPI_ResultArrayInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt32SWAPPED(c, a) SCPI_ResultArrayUInt32((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayInt64SWAPPED(c, a) SCPI_ResultArrayInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayUInt64SWAPPED(c, a) SCPI_ResultArrayUInt64((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayFloatSWAPPED(c, a) SCPI_ResultArrayFloat((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+#define SCPI_ResultArrayDoubleSWAPPED(c, a) SCPI_ResultArrayDouble((c), (a), sizeof(a)/sizeof(*a), SCPI_FORMAT_SWAPPED)
+
+    int8_t int8_arr[] = {-5, 48, 49, 109, 87};
+    TEST_Result(ArrayInt8ASCII, int8_arr, "-5,48,49,109,87");
+    TEST_Result(ArrayInt8NORMAL, int8_arr, "#15" "\xFB" "01mW");
+    TEST_Result(ArrayInt8SWAPPED, int8_arr, "#15" "\xFB" "01mW");
+
+    uint8_t uint8_arr[] = {250, 48, 49, 109, 87};
+    TEST_Result(ArrayUInt8ASCII, uint8_arr, "250,48,49,109,87");
+    TEST_Result(ArrayUInt8NORMAL, uint8_arr, "#15" "\xFA" "01mW");
+    TEST_Result(ArrayUInt8SWAPPED, uint8_arr, "#15" "\xFA" "01mW");
+
+    int16_t int16_arr[] = {-5, 18505, 12340};
+    TEST_Result(ArrayInt16ASCII, int16_arr, "-5,18505,12340");
+    TEST_Result(ArrayInt16NORMAL, int16_arr, "#16" "\xFF\xFB" "HI" "04");
+    TEST_Result(ArrayInt16SWAPPED, int16_arr, "#16" "\xFB\xFF" "IH" "40");
+
+    uint16_t uint16_arr[] = {65531, 18505, 12340};
+    TEST_Result(ArrayUInt16ASCII, uint16_arr, "65531,18505,12340");
+    TEST_Result(ArrayUInt16NORMAL, uint16_arr, "#16" "\xFF\xFB" "HI" "04");
+    TEST_Result(ArrayUInt16SWAPPED, uint16_arr, "#16" "\xFB\xFF" "IH" "40");
+
+    int32_t int32_arr[] = {-5L, 808530483L, 1094861636L};
+    TEST_Result(ArrayInt32ASCII, int32_arr, "-5,808530483,1094861636");
+    TEST_Result(ArrayInt32NORMAL, int32_arr, "#212" "\xFF\xFF\xFF\xFB" "0123" "ABCD");
+    TEST_Result(ArrayInt32SWAPPED, int32_arr, "#212" "\xFB\xFF\xFF\xFF" "3210" "DCBA");
+
+    uint32_t uint32_arr[] = {4294967291UL, 808530483UL, 1094861636UL};
+    TEST_Result(ArrayUInt32ASCII, uint32_arr, "4294967291,808530483,1094861636");
+    TEST_Result(ArrayUInt32NORMAL, uint32_arr, "#212" "\xFF\xFF\xFF\xFB" "0123" "ABCD");
+    TEST_Result(ArrayUInt32SWAPPED, uint32_arr, "#212" "\xFB\xFF\xFF\xFF" "3210" "DCBA");
+
+    int64_t int64_arr[] = {-5LL, 3472611983179986487LL};
+    TEST_Result(ArrayInt64ASCII, int64_arr, "-5,3472611983179986487");
+    TEST_Result(ArrayInt64NORMAL, int64_arr, "#216" "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFB" "01234567");
+    TEST_Result(ArrayInt64SWAPPED, int64_arr, "#216" "\xFB\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF" "76543210");
+
+    uint64_t uint64_arr[] = {18446744073709551611ULL, 3472611983179986487ULL};
+    TEST_Result(ArrayUInt64ASCII, uint64_arr, "18446744073709551611,3472611983179986487");
+    TEST_Result(ArrayUInt64NORMAL, uint64_arr, "#216" "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFB" "01234567");
+    TEST_Result(ArrayUInt64SWAPPED, uint64_arr, "#216" "\xFB\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF" "76543210");
+
+    float float_arr[] = {0.7549173, 3.0196693};
+    TEST_Result(ArrayFloatASCII, float_arr, "0.754917,3.01967");
+    TEST_Result(ArrayFloatNORMAL, float_arr, "#18" "?ABC" "@ABC");
+    TEST_Result(ArrayFloatSWAPPED, float_arr, "#18" "CBA?" "CBA@");
+
+    double double_arr[] = {76543217654321, 1234567891234567};
+    TEST_Result(ArrayDoubleASCII, double_arr, "76543217654321,1.23456789123457e+15");
+    TEST_Result(ArrayDoubleNORMAL, double_arr, "#216" "\x42\xd1\x67\x66\xd3\x16\x8c\x40" "\x43\x11\x8b\x54\xf2\x6e\xbc\x1c");
+    TEST_Result(ArrayDoubleSWAPPED, double_arr, "#216" "\x40\x8c\x16\xd3\x66\x67\xd1\x42" "\x1c\xbc\x6e\xf2\x54\x8b\x11\x43");
+}
+
+static void testNumberToStr(void) {
+
+#define TEST_SCPI_NumberToStr(_special, _value, _unit, expected_result) do {\
+    scpi_number_t number;\
+    number.base = 10;\
+    number.special = (_special);\
+    number.unit = (_unit);\
+    if (number.special) { number.tag = (_value); } else { number.value = (_value); }\
+    char buffer[100 + 1];\
+    size_t res_len;\
+    res_len = SCPI_NumberToStr(&scpi_context, scpi_special_numbers_def, &number, buffer, 100);\
+    CU_ASSERT_STRING_EQUAL(buffer, expected_result);\
+    CU_ASSERT_EQUAL(res_len, strlen(expected_result));\
+} while(0)
+
+    TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_NONE, "10.5");
+    TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V");
+    TEST_SCPI_NumberToStr(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault");
+}
+
+static void testErrorQueue(void) {
+    SCPI_ErrorClear(&scpi_context);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
+    SCPI_ErrorPush(&scpi_context, -1);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 1);
+    SCPI_ErrorPush(&scpi_context, -2);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 2);
+    SCPI_ErrorPush(&scpi_context, -3);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 3);
+    SCPI_ErrorPush(&scpi_context, -4);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
+    SCPI_ErrorPush(&scpi_context, -5);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
+    SCPI_ErrorPush(&scpi_context, -6);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
+
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -1);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 3);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -2);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 2);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -3);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 1);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), SCPI_ERROR_QUEUE_OVERFLOW);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
+    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), 0);
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
+
+    SCPI_ErrorClear(&scpi_context);
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -1062,6 +1253,9 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultMnemonic", testResultMnemonic))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultText", testResultText))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
+            || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
+            || (NULL == CU_add_test(pSuite, "SCPI_NumberToStr", testNumberToStr))
+            || (NULL == CU_add_test(pSuite, "SCPI_ErrorQueue", testErrorQueue))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

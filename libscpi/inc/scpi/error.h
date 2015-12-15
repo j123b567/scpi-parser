@@ -44,7 +44,7 @@
 extern "C" {
 #endif
 
-    void SCPI_ErrorInit(scpi_t * context);
+    void SCPI_ErrorInit(scpi_t * context, int16_t * data, int16_t size);
     void SCPI_ErrorClear(scpi_t * context);
     int16_t SCPI_ErrorPop(scpi_t * context);
     void SCPI_ErrorPush(scpi_t * context, int16_t err);
@@ -164,7 +164,7 @@ extern "C" {
     XE(SCPI_ERROR_OUT_OF_DEVICE_MEMORY,         -321, "Out of memory")                                \
     XE(SCPI_ERROR_SELF_TEST_FAILED,             -330, "Self-test failed")                             \
     XE(SCPI_ERROR_CALIBRATION_FAILED,           -340, "Calibration failed")                           \
-    XE(SCPI_ERROR_QUEUE_OVERFLOW,               -350, "Queue overflow")                               \
+    X(SCPI_ERROR_QUEUE_OVERFLOW,                -350, "Queue overflow")                               \
     XE(SCPI_ERROR_COMMUNICATION_ERROR,          -360, "Communication error")                          \
     XE(SCPI_ERROR_PARITY_ERROR_IN_CMD_MSG,      -361, "Parity error in program message")              \
     XE(SCPI_ERROR_FRAMING_ERROR_IN_CMD_MSG,     -362, "Framing error in program message")             \

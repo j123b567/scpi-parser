@@ -110,6 +110,9 @@ static void testNondecimal(void) {
     TEST_TOKEN("#H123fe5A", scpiLex_NondecimalNumericData, 2, 7, SCPI_TOKEN_HEXNUM);
     TEST_TOKEN("#B0111010101", scpiLex_NondecimalNumericData, 2, 10, SCPI_TOKEN_BINNUM);
     TEST_TOKEN("#Q125725433", scpiLex_NondecimalNumericData, 2, 9, SCPI_TOKEN_OCTNUM);
+    TEST_TOKEN("#H123fe5A,", scpiLex_NondecimalNumericData, 2, 7, SCPI_TOKEN_HEXNUM);
+    TEST_TOKEN("#B0111010101,", scpiLex_NondecimalNumericData, 2, 10, SCPI_TOKEN_BINNUM);
+    TEST_TOKEN("#Q125725433,", scpiLex_NondecimalNumericData, 2, 9, SCPI_TOKEN_OCTNUM);
 }
 
 static void testCharacterProgramData(void) {
@@ -131,6 +134,7 @@ static void testDecimal(void) {
 static void testSuffix(void) {
     TEST_TOKEN("A/V , ", scpiLex_SuffixProgramData, 0, 3, SCPI_TOKEN_SUFFIX_PROGRAM_DATA);
     TEST_TOKEN("mA.h", scpiLex_SuffixProgramData, 0, 4, SCPI_TOKEN_SUFFIX_PROGRAM_DATA);
+    TEST_TOKEN("mA3.h", scpiLex_SuffixProgramData, 0, 5, SCPI_TOKEN_SUFFIX_PROGRAM_DATA);
 }
 
 static void testProgramHeader(void) {
@@ -146,6 +150,7 @@ static void testProgramHeader(void) {
     TEST_TOKEN("*RST", scpiLex_ProgramHeader, 0, 4, SCPI_TOKEN_COMMON_PROGRAM_HEADER);
     TEST_TOKEN("CONF:VOLT:DC", scpiLex_ProgramHeader, 0, 12, SCPI_TOKEN_COMPOUND_PROGRAM_HEADER);
     TEST_TOKEN("]]", scpiLex_ProgramHeader, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("*", scpiLex_ProgramHeader, 0, 1, SCPI_TOKEN_INCOMPLETE_COMMON_PROGRAM_HEADER);
 }
 
 static void testArbitraryBlock(void) {
@@ -154,6 +159,9 @@ static void testArbitraryBlock(void) {
     TEST_TOKEN("#13AB", scpiLex_ArbitraryBlockProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
     TEST_TOKEN("#12\r\n, ", scpiLex_ArbitraryBlockProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
     TEST_TOKEN("#02AB, ", scpiLex_ArbitraryBlockProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("#12", scpiLex_ArbitraryBlockProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("#1", scpiLex_ArbitraryBlockProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("#", scpiLex_ArbitraryBlockProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
 }
 
 static void testExpression(void) {
@@ -172,6 +180,9 @@ static void testString(void) {
     TEST_TOKEN("\"ah\"\"oj\" ", scpiLex_StringProgramData, 0, 8, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
     TEST_TOKEN("\"\"", scpiLex_StringProgramData, 0, 2, SCPI_TOKEN_DOUBLE_QUOTE_PROGRAM_DATA);
     TEST_TOKEN("''", scpiLex_StringProgramData, 0, 2, SCPI_TOKEN_SINGLE_QUOTE_PROGRAM_DATA);
+
+    TEST_TOKEN("'abcd", scpiLex_StringProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("\"abcd", scpiLex_StringProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
 }
 
 static void testProgramData(void) {
