@@ -25,8 +25,8 @@ static int clean_suite(void) {
 
 static void testFifo() {
     scpi_fifo_t fifo;
-    int16_t fifo_data[5];
-    fifo_init(&fifo, fifo_data, 5);
+    int16_t fifo_data[4];
+    fifo_init(&fifo, fifo_data, 4);
     int16_t value;
 
 #define TEST_FIFO_COUNT(n)                      \
