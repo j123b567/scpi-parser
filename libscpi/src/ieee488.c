@@ -71,7 +71,7 @@ static void regUpdateSTB(scpi_t * context, scpi_reg_val_t val, scpi_reg_name_t m
  * @return register value
  */
 scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
-    if ((name < SCPI_REG_COUNT) && (context->registers != NULL)) {
+    if ((name < SCPI_REG_COUNT) && context) {
         return context->registers[name];
     } else {
         return 0;
@@ -102,7 +102,7 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
     scpi_reg_val_t mask;
     scpi_reg_val_t old_val;
 
-    if ((name >= SCPI_REG_COUNT) || (context->registers == NULL)) {
+    if ((name >= SCPI_REG_COUNT) || (context == NULL)) {
         return;
     }
 
