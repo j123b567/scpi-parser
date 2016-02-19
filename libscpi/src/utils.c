@@ -98,15 +98,13 @@ size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, sc
             case 8:
                 x = 0x40000000L;
                 break;
+            default:
             case 10:
+                base = 10;
                 x = 1000000000L;
                 break;
             case 16:
                 x = 0x10000000L;
-                break;
-            default:
-                x = 1000000000L;
-                base = 10;
                 break;
         }
 
@@ -186,15 +184,13 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
             case 8:
                 x = 0x8000000000000000ULL;
                 break;
+	    default:
             case 10:
                 x = 10000000000000000000ULL;
+                base = 10;
                 break;
             case 16:
                 x = 0x1000000000000000ULL;
-                break;
-            default:
-                x = 10000000000000000000ULL;
-                base = 10;
                 break;
         }
 
