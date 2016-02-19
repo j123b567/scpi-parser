@@ -114,11 +114,13 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
     return result;
 }
 
-static void SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
+static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
     if (!fifo_add(&context->error_queue, err)) {
         fifo_remove_last(&context->error_queue, NULL);
         fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW);
+        return FALSE;
     }
+    return TRUE;
 }
 
 struct error_reg {
@@ -150,7 +152,7 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 
     int i;
 
-    SCPI_ErrorAddInternal(context, err);
+    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err);
 
     for (i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {
@@ -159,6 +161,9 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
     }
 
     SCPI_ErrorEmit(context, err);
+    if (queue_overflow) {
+        SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
+    }
 
     if (context) {
         context->cmd_error = TRUE;
@@ -179,14 +184,14 @@ const char * SCPI_ErrorTranslate(int16_t err) {
 #else
 #define XE(def, val, str)
 #endif
-            LIST_OF_ERRORS
+        LIST_OF_ERRORS
 
 #if USE_USER_ERROR_LIST
-                    LIST_OF_USER_ERRORS
+        LIST_OF_USER_ERRORS
 #endif
 #undef X
 #undef XE
-                default: return "Unknown error";
+        default: return "Unknown error";
     }
 }
 
