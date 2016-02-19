@@ -171,7 +171,7 @@ static scpi_interface_t scpi_interface = {
 #define SCPI_INPUT_BUFFER_LENGTH 256
 static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 
-#define SCPI_ERROR_QUEUE_SIZE 5
+#define SCPI_ERROR_QUEUE_SIZE 4
 static int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 
 static int init_suite(void) {

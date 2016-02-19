@@ -204,6 +204,7 @@ extern "C" {
     struct _scpi_fifo_t {
         int16_t wr;
         int16_t rd;
+        int16_t count;
         int16_t size;
         int16_t * data;
     };
