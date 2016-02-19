@@ -45,6 +45,17 @@ static scpi_result_t test_treeB(scpi_t* context) {
     return SCPI_RES_OK;
 }
 
+static double test_sample_received = NAN;
+
+static scpi_result_t SCPI_Sample(scpi_t * context) {
+    const char * val;
+    size_t len;
+    if (!SCPI_ParamArbitraryBlock(context, &val, &len, TRUE)) return SCPI_RES_ERR;
+    if (len != sizeof(test_sample_received)) return SCPI_RES_ERR;
+    memcpy(&test_sample_received, val, sizeof(test_sample_received));
+    return SCPI_RES_OK;
+}
+
 static const scpi_command_t scpi_commands[] = {
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
@@ -80,6 +91,7 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "STUB", .callback = SCPI_Stub,},
     { .pattern = "STUB?", .callback = SCPI_StubQ,},
 
+    { .pattern = "SAMple", .callback = SCPI_Sample,},
     SCPI_CMD_LIST_END
 };
 
@@ -1299,6 +1311,127 @@ static void testErrorQueue(void) {
     SCPI_ErrorClear(&scpi_context);
 }
 
+#define TEST_INCOMPLETE_ARB(_val, _part_len) do {\
+    double val = _val;\
+    char command_text[] = "SAMple #18[DOUBLE]\r";\
+    char * command = command_text;\
+    size_t command_len = strlen(command);\
+    memcpy(command + 10, &val, sizeof(val));\
+    test_sample_received = NAN;\
+    size_t part_len = _part_len;\
+    SCPI_ErrorClear(&scpi_context);\
+    while (command_len) {\
+        part_len = part_len > command_len ? command_len : part_len;\
+        SCPI_Input(&scpi_context, command, part_len);\
+        command += part_len;\
+        command_len -= part_len;\
+    }\
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);\
+    CU_ASSERT_EQUAL(test_sample_received, val);\
+} while(0)
+
+static void testIncompleteArbitraryParameter(void) {
+    TEST_INCOMPLETE_ARB(0.5, 19);
+    TEST_INCOMPLETE_ARB(0.5, 18);
+    TEST_INCOMPLETE_ARB(0.5, 17);
+    TEST_INCOMPLETE_ARB(0.5, 16);
+    TEST_INCOMPLETE_ARB(0.5, 15);
+    TEST_INCOMPLETE_ARB(0.5, 14);
+    TEST_INCOMPLETE_ARB(0.5, 13);
+    TEST_INCOMPLETE_ARB(0.5, 12);
+    TEST_INCOMPLETE_ARB(0.5, 11);
+    TEST_INCOMPLETE_ARB(0.5, 10);
+    TEST_INCOMPLETE_ARB(0.5, 9);
+    TEST_INCOMPLETE_ARB(0.5, 8);
+    TEST_INCOMPLETE_ARB(0.5, 7);
+    TEST_INCOMPLETE_ARB(0.5, 6);
+    TEST_INCOMPLETE_ARB(0.5, 5);
+    TEST_INCOMPLETE_ARB(0.5, 4);
+    TEST_INCOMPLETE_ARB(0.5, 3);
+    TEST_INCOMPLETE_ARB(0.5, 2);
+    TEST_INCOMPLETE_ARB(0.5, 1);
+
+    TEST_INCOMPLETE_ARB(0.501220703125, 19);
+    TEST_INCOMPLETE_ARB(0.501220703125, 18);
+    TEST_INCOMPLETE_ARB(0.501220703125, 17);
+    TEST_INCOMPLETE_ARB(0.501220703125, 16);
+    TEST_INCOMPLETE_ARB(0.501220703125, 15);
+    TEST_INCOMPLETE_ARB(0.501220703125, 14);
+    TEST_INCOMPLETE_ARB(0.501220703125, 13);
+    TEST_INCOMPLETE_ARB(0.501220703125, 12);
+    TEST_INCOMPLETE_ARB(0.501220703125, 11);
+    TEST_INCOMPLETE_ARB(0.501220703125, 10);
+    TEST_INCOMPLETE_ARB(0.501220703125, 9);
+    TEST_INCOMPLETE_ARB(0.501220703125, 8);
+    TEST_INCOMPLETE_ARB(0.501220703125, 7);
+    TEST_INCOMPLETE_ARB(0.501220703125, 6);
+    TEST_INCOMPLETE_ARB(0.501220703125, 5);
+    TEST_INCOMPLETE_ARB(0.501220703125, 4);
+    TEST_INCOMPLETE_ARB(0.501220703125, 3);
+    TEST_INCOMPLETE_ARB(0.501220703125, 2);
+    TEST_INCOMPLETE_ARB(0.501220703125, 1);
+
+    TEST_INCOMPLETE_ARB(0.500000024214387, 19);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 18);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 17);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 16);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 15);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 14);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 13);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 12);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 11);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 10);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 9);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 8);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 7);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 6);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 5);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 4);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 3);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 2);
+    TEST_INCOMPLETE_ARB(0.500000024214387, 1);
+}
+
+#define TEST_INCOMPLETE_TEXT(_text, _part_len) do {\
+    char command_text[] = "TEXT? \"\", \"" _text "\"\r";\
+    char * command = command_text;\
+    size_t command_len = strlen(command);\
+    output_buffer_clear();\
+    size_t part_len = _part_len;\
+    SCPI_ErrorClear(&scpi_context);\
+    while (command_len) {\
+        part_len = part_len > command_len ? command_len : part_len;\
+        SCPI_Input(&scpi_context, command, part_len);\
+        command += part_len;\
+        command_len -= part_len;\
+    }\
+    CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);\
+    CU_ASSERT_STRING_EQUAL("\"" _text "\"\r\n", output_buffer);\
+} while(0)
+
+static void testIncompleteTextParameter(void) {
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 20);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 19);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 18);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 17);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 16);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 15);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 14);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 13);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 12);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 11);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 10);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 9);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 8);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 7);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 6);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 5);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 4);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 3);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 2);
+    TEST_INCOMPLETE_TEXT("AbcdEfgh", 1);
+}
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -1349,6 +1482,8 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
             || (NULL == CU_add_test(pSuite, "SCPI_NumberToStr", testNumberToStr))
             || (NULL == CU_add_test(pSuite, "SCPI_ErrorQueue", testErrorQueue))
+            || (NULL == CU_add_test(pSuite, "Incomplete arbitrary parameter", testIncompleteArbitraryParameter))
+            || (NULL == CU_add_test(pSuite, "Incomplete text parameter", testIncompleteTextParameter))
             ) {
         CU_cleanup_registry();
         return CU_get_error();

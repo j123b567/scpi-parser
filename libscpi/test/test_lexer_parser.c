@@ -204,7 +204,7 @@ static void testProgramData(void) {
 
     TEST_TOKEN("#12AB", scpiParser_parseProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
     TEST_TOKEN("#12AB, ", scpiParser_parseProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
-    TEST_TOKEN("#13AB", scpiParser_parseProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("#13AB", scpiParser_parseProgramData, 5, 0, SCPI_TOKEN_UNKNOWN);
     TEST_TOKEN("#12\r\n, ", scpiParser_parseProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
     TEST_TOKEN("#02AB, ", scpiParser_parseProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
 
