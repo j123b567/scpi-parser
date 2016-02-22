@@ -101,6 +101,62 @@ extern "C" {
 #define USE_CUSTOM_DTOSTR 0
 #endif
 
+#ifndef USE_UNITS_IMPERIAL
+#define USE_UNITS_IMPERIAL 0
+#endif
+
+#ifndef USE_UNITS_ANGLE
+#define USE_UNITS_ANGLE SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_PARICLES
+#define USE_UNITS_PARICLES SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_DISTANCE
+#define USE_UNITS_DISTANCE SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_MAGNETIC
+#define USE_UNITS_MAGNETIC SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_LIGHT
+#define USE_UNITS_LIGHT SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_ENERGY_FORCE_MASS
+#define USE_UNITS_ENERGY_FORCE_MASS SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_TIME
+#define USE_UNITS_TIME SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_TEMPERATURE
+#define USE_UNITS_TEMPERATURE SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_RATIO
+#define USE_UNITS_RATIO SYSTEM_TYPE
+#endif
+
+#ifndef USE_UNITS_POWER
+#define USE_UNITS_POWER 1
+#endif
+
+#ifndef USE_UNITS_FREQUENCY
+#define USE_UNITS_FREQUENCY 1
+#endif
+
+#ifndef USE_UNITS_ELECTRIC
+#define USE_UNITS_ELECTRIC 1
+#endif
+
+#ifndef USE_UNITS_ELECTRIC_CHARGE_CONDUCTANCE
+#define USE_UNITS_ELECTRIC_CHARGE_CONDUCTANCE SYSTEM_TYPE
+#endif
+
 /* Compiler specific */
 /* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
 #if defined(__CC_ARM)
