@@ -63,7 +63,7 @@
  * units definition IEEE 488.2-1992 tab 7-1
  */
 const scpi_unit_def_t scpi_units_def[] = {
-#if USE_UNITS_PARICLES
+#if USE_UNITS_PARTICLES
     /* Absorbet dose */
     {/* name */ "GY", /* unit */ SCPI_UNIT_GRAY, /* mult */ 1},
 
@@ -90,7 +90,7 @@ const scpi_unit_def_t scpi_units_def[] = {
 
     /* Mass */
     {/* name */ "U", /* unit */ SCPI_UNIT_ATOMIC_MASS, /* mult */ 1},
-#endif /* USE_UNITS_PARICLES */
+#endif /* USE_UNITS_PARTICLES */
 
 #if USE_UNITS_ANGLE
     /* Angle */
