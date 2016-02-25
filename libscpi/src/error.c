@@ -45,7 +45,7 @@
  * Initialize error queue
  * @param context - scpi context
  */
-void SCPI_ErrorInit(scpi_t * context, int16_t * data, int16_t size) {
+void SCPI_ErrorInit(scpi_t * context, scpi_error_t * data, int16_t size) {
     fifo_init(&context->error_queue, data, size);
 }
 
@@ -86,6 +86,16 @@ void SCPI_ErrorClear(scpi_t * context) {
     SCPI_ErrorEmitEmpty(context);
 }
 
+
+scpi_bool_t SCPI_ErrorPopEx(scpi_t * context, scpi_error_t * error) {
+	if(error == NULL) return FALSE;
+
+	fifo_remove(&context->error_queue, error);
+
+	SCPI_ErrorEmitEmpty(context);
+
+	return TRUE;
+}
 /**
  * Pop error from queue
  * @param context - scpi context
@@ -114,10 +124,10 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
     return result;
 }
 
-static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
-    if (!fifo_add(&context->error_queue, err)) {
+static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info) {
+    if (!fifo_add(&context->error_queue, err, info)) {
         fifo_remove_last(&context->error_queue, NULL);
-        fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW);
+        fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
         return FALSE;
     }
     return TRUE;
@@ -148,11 +158,38 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
  * @param context - scpi context
  * @param err - error number
  */
-void SCPI_ErrorPush(scpi_t * context, int16_t err) {
+void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
+	int i;
+	char * info_ptr=SCPIDEFINE_strdup(info);
+	scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info_ptr);
 
+	for (i = 0; i < ERROR_DEFS_N; i++) {
+		if ((err <= errs[i].from) && (err >= errs[i].to)) {
+			SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
+		}
+	}
+
+	SCPI_ErrorEmit(context, err);
+	if (queue_overflow) {
+		SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
+	}
+
+	if (context) {
+		context->cmd_error = TRUE;
+	}
+}
+
+/**
+ * Push error to queue
+ * @param context - scpi context
+ * @param err - error number
+ */
+void SCPI_ErrorPush(scpi_t * context, int16_t err) {
+	SCPI_ErrorPushEx(context, err, NULL);
+	return;
     int i;
 
-    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err);
+    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, NULL);
 
     for (i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {

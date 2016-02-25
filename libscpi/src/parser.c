@@ -219,7 +219,10 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
                 result &= processCommand(context);
                 cmd_prev = state->programHeader;
             } else {
-                SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
+                //SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
+				/* test */
+				data[r-1]=0;
+				SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data);
                 result = FALSE;
             }
         }
@@ -252,7 +255,8 @@ void SCPI_Init(scpi_t * context,
         const scpi_unit_def_t * units,
         const char * idn1, const char * idn2, const char * idn3, const char * idn4,
         char * input_buffer, size_t input_buffer_length, 
-        int16_t * error_queue_data, int16_t error_queue_size) {
+        scpi_error_t * error_queue_data, int16_t error_queue_size,
+		char * error_info_heap, size_t error_info_heap_length) {
     memset(context, 0, sizeof(*context));
     context->cmdlist = commands;
     context->interface = interface;
@@ -264,6 +268,9 @@ void SCPI_Init(scpi_t * context,
     context->buffer.data = input_buffer;
     context->buffer.length = input_buffer_length;
     context->buffer.position = 0;
+	context->error_info_heap.data = error_info_heap;
+	context->error_info_heap.position = 0;
+	context->error_info_heap.length = error_info_heap_length;
     SCPI_ErrorInit(context, error_queue_data, error_queue_size);
 }
 
