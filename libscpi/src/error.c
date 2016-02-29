@@ -84,7 +84,7 @@ void SCPI_ErrorClear(scpi_t * context) {
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 	scpi_error_t error;
 	while(fifo_remove(&context->error_queue, &error)){
-		SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info);
+		SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info, false);
 	}
 #endif	
     fifo_clear(&context->error_queue);
@@ -138,9 +138,7 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
 
 static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info) {
     if (!fifo_add(&context->error_queue, err, info)) {
-		scpi_error_t * error;
-        fifo_remove_last(&context->error_queue, error);
-		SCPIDEFINE_free(&context->error_info_heap, error->device_dependent_info);
+        fifo_remove_last(&context->error_queue, NULL);
         fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
         return FALSE;
     }
@@ -193,6 +191,7 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
 	SCPI_ErrorEmit(context, err);
 	if (queue_overflow) {
 		SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
+		SCPIDEFINE_free(&context->error_info_heap, info_ptr, true);
 	}
 
 	if (context) {

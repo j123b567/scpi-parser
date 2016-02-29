@@ -48,6 +48,11 @@ extern "C" {
      */
 #define SCPI_STD_VERSION_REVISION "1999.0"
 
+/* 21.8 :ERRor Subsystem
+ * The maximum string length of <Error/event_description> plus <Device-dependent_info> is 255 characters.
+ */
+#define SCPI_STD_ERROR_DESC_CHARS_LIMIT 255
+
 #ifdef	__cplusplus
 }
 #endif

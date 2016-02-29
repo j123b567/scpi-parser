@@ -203,7 +203,7 @@ extern "C" {
 
 	struct _scpi_error_info_heap_t {
         int16_t wr;
-        int16_t rd;
+        //int16_t rd;
         int16_t count;
         int16_t size;
         char * data;

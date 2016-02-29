@@ -269,8 +269,10 @@ void SCPI_Init(scpi_t * context,
     context->buffer.length = input_buffer_length;
     context->buffer.position = 0;
 	context->error_info_heap.data = error_info_heap;
-	context->error_info_heap.position = 0;
-	context->error_info_heap.length = error_info_heap_length;
+	context->error_info_heap.wr = 0;
+	context->error_info_heap.size = error_info_heap_length;
+	context->error_info_heap.count = context->error_info_heap.size;
+	memset(context->error_info_heap.data,0,context->error_info_heap.size);
     SCPI_ErrorInit(context, error_queue_data, error_queue_size);
 }
 
@@ -507,36 +509,32 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     return result;
 }
 
-#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-	#if USE_MEMORY_ALLOCATION_FREE
-		#define MAX_BUFF_SIZE	2
-	#else
-		#define MAX_BUFF_SIZE	3
-	#endif
-#else
-	#define MAX_BUFF_SIZE	1
-#endif
 
-static size_t startoutputlimit = 0;
-
+/**
+ * Write string withn " to the result
+ * @param context
+ * @param data
+ * @return
+ */
+static size_t outputlimit_0=0;
 size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
  	size_t result = 0;
-	size_t outputlimit = startoutputlimit++;
+	size_t outputlimit = outputlimit_0++; //SCPI_STD_ERROR_DESC_CHARS_LIMIT;
 	size_t step = 0;
 	const char * quote;
 
-	char * data[MAX_BUFF_SIZE];
-	size_t len[MAX_BUFF_SIZE];
+	char * data[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
+	size_t len[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
 	 
 	data[0] = SCPI_ErrorTranslate(error->error_code);
 	len[0] = strlen(data[0]);
+	
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+	data[1] = error->device_dependent_info;
 	#if USE_MEMORY_ALLOCATION_FREE
-		data[1] = error->device_dependent_info;
 		len[1] = error->device_dependent_info ? strlen(data[1]) : 0;
 	#else
-		data[1] = SCPIDEFINE_get_1st_part(error->device_dependent_info,&len[1]);
-		data[2] = SCPIDEFINE_get_1st_part(data[1],&len[2]);
+		SCPIDEFINE_get_parts(&context->error_info_heap, data[1], &len[1], &data[2], &len[2]);
 	#endif
 #endif
 
@@ -544,7 +542,7 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
 	result += writeDelimiter(context);
 	result += writeData(context, "\"", 1);	
 	
-	for(size_t i = 0; data[i] && outputlimit && (i < MAX_BUFF_SIZE); i++){
+	for(size_t i = 0; data[i] && outputlimit && (i < SCPIDEFINE_DESCRIPTION_MAX_PARTS); i++){
 		if(i==1){
 			result += writeSemicolon(context);
 			outputlimit -= 1;
@@ -575,15 +573,11 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
 	result += writeData(context, "\"", 1);
 	
 	#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-		#if USE_MEMORY_ALLOCATION_FREE
-			SCPIDEFINE_free(error->device_dependent_info);
-		#else
-		#endif
+		SCPIDEFINE_free(&context->error_info_heap, error->device_dependent_info, false);
 	#endif
 	
 	return result;
 }
-#undef MAX_BUFF_SIZE
 
 /**
  * Write arbitrary block header with length

@@ -77,15 +77,15 @@ scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
  * @return 
  */
 scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
-	scpi_error_t error;
+	SCPI_ResultInt32(context,context->error_info_heap.count);
+	
+	scpi_error_t error;	
 	SCPI_ErrorPopEx(context, &error);
 	SCPI_ResultError(context, &error);
+	
+	SCPI_ResultInt32(context,context->error_info_heap.count);
 	return SCPI_RES_OK;
-    
-	//int16_t err = SCPI_ErrorPop(context);
-    //SCPI_ResultInt32(context, error.error_code);
-    //SCPI_ResultText(context, SCPI_ErrorTranslate(error.error_code));
-    //return SCPI_RES_OK;
+
 }
 
 /**

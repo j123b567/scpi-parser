@@ -263,17 +263,19 @@ extern "C" {
 		#include <stdlib.h>
 		#include <string.h>
 		#include <malloc.h>
-		#define SCPIDEFINE_strdup(h,s)			strdup((s))
-		#define SCPIDEFINE_free(h,s)			free((s))
+		#define SCPIDEFINE_DESCRIPTION_MAX_PARTS	2
+		#define SCPIDEFINE_strdup(h, s)				strdup((s))
+		#define SCPIDEFINE_free(h, s, r)			free((s))
 	#else
-		#define SCPIDEFINE_strdup(h,s)			OUR_strdup((h), (s))
-		#define SCPIDEFINE_free(h,s)			OUR_free((h), (s))
-		#define SCPIDEFINE_get_1st_part(s,l)	OUR_get_1st_part((s),(l))
-		#define SCPIDEFINE_get_2st_part(s,l)	OUR_get_2nd_part((s),(l))
+		#define SCPIDEFINE_DESCRIPTION_MAX_PARTS	3
+		#define SCPIDEFINE_strdup(h, s)				OUR_strdup((h), (s))
+		#define SCPIDEFINE_free(h, s, r)			OUR_free((h), (s), (r))
+		#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)	OUR_get_parts((h), (s), (l1), (s2), (l2))
 	#endif
 #else
-	#define SCPIDEFINE_strdup(h,s)				(void)(s)
-	#define SCPIDEFINE_free(h,s)				(void)(s)
+	#define SCPIDEFINE_DESCRIPTION_MAX_PARTS	1
+	#define SCPIDEFINE_strdup(h, s)				NULL
+	#define SCPIDEFINE_free(h, s, r)			(void)
 #endif
 
 #ifdef	__cplusplus

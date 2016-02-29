@@ -751,8 +751,16 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 #endif
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+/**
+ * Duplicate string if "strdup" ("malloc/free") not supported on system.
+ * Allocate space in heap if it possible
+ *
+ * @param heap - pointer to manual allocated heap buffer
+ * @param s - current pointer of duplication string
+ * @return - pointer of duplicated string or NULL, if duplicate is not possible.
+ */
 char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
-	if(!heap || !s) {
+	if(!s || !heap) {
 		return NULL;
 	}
 	if(heap->data[heap->wr]!='\0'){
@@ -763,20 +771,91 @@ char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
 	if(len > heap->count){
 		return NULL;
 	}
-	size_t f_part=(&heap->data[heap->wr]-heap->data)
+	char * ptrs = s;
+	char * head = &heap->data[heap->wr];
+	size_t rem = heap->size - (&heap->data[heap->wr]-heap->data);
+	size_t sstp = 0;
+	
+	if(len >= rem){
+		memcpy(&heap->data[heap->wr],s,rem);
+		len = len - rem;
+		ptrs += rem;
+		heap->wr = 0;
+		heap->count -= rem;
+	}
+	
+	memcpy(&heap->data[heap->wr],ptrs,len);
+	heap->wr += len;
+	heap->count -= len;
+	
+	return head;
+}
+
+/**
+ * Return pointers and lengths two parts of string in the circular buffer from heap
+ *
+ * @param heap - pointer to manual allocated heap buffer
+ * @param s - pointer of duplicate string.
+ * @return len1 - lenght of first part of string.
+ * @return s2 - pointer of second part of string, if string splited .
+ * @return len2 - lenght of second part of string.
+ */
+scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t * len1, const char ** s2, size_t * len2) {
+	if(!heap || !s || !len1 || !s2 || !len2) {
+		return FALSE;
+	}
+	
+	if(*s == '\0') {
+		return FALSE;
+	}
+	
+	*len1 = 0;
+	size_t rem = heap->size - (s - heap->data);
+	*len1 = strnlen(s, rem);
+
+	if(&s[*len1-1] == &heap->data[heap->size-1]){
+		*s2 = heap->data;
+		*len2 = strnlen(*s2, heap->size);
+	}else{
+		*s2 = NULL;
+		*len2 = 0;	
+	}
+	return TRUE;
+}
+
+/**
+ * Frees space in heap, if "malloc/free" not supported on system, or nothing.
+ *
+ * @param heap - pointer to manual allocated heap buffer
+ * @param s - pointer of duplicate string
+ * @param rollback - backward write pointer in heap
+ */
+void OUR_free(scpi_error_info_heap_t * heap, const char * s, scpi_bool_t rollback) {
+	
+	if(!s) return;
+	
+	char * data_add;
+	size_t len[2];
+		
+	if( !OUR_get_parts( heap, s, &len[0], &data_add, &len[1] ) ) return;
 	
 	
-	return NULL;
+	if(data_add) {
+		len[1]++;
+		memset(data_add,0,len[1]);
+		heap->count += len[1];
+	} else {
+		len[0]++;
+	}
+	memset(s,0,len[0]);
+	heap->count += len[0];
+	if(rollback){
+		heap->wr-=len[0];
+		heap->wr-=len[1];
+		if(heap->wr < 0)heap->wr += heap->size;
+	}
 }
-void OUR_free(scpi_error_info_heap_t * heap, const char *s) {
-	
-}
-char * OUR_get_1st_part(const char *s, size_t * len) {
-	return NULL;
-}
-char * OUR_get_2nd_part(const char *s, size_t * len) {
-	return NULL;
-}
+
 #endif
 
 // Floating point to string conversion routines
