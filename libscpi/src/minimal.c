@@ -78,24 +78,14 @@ scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
  */
 scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
 	scpi_error_t error;
-	if(!SCPI_ErrorPopEx(context, &error))return SCPI_RES_ERR;
-	
-    //int16_t err = SCPI_ErrorPop(context);
-
-    SCPI_ResultInt32(context, error.error_code);
-    SCPI_ResultText(context, SCPI_ErrorTranslate(error.error_code));
-	
-	size_t info_len=0;
-	if(error.device_dependent_info){
-		info_len=SCPIDEFINE_strnlen(error.device_dependent_info,255);
-		SCPI_ResultCharacters(context, ";", 1);
-		SCPI_ResultText(context, error.device_dependent_info);
-		SCPIDEFINE_free(error.device_dependent_info);		
-	}
-	
-
-	
-    return SCPI_RES_OK;
+	SCPI_ErrorPopEx(context, &error);
+	SCPI_ResultError(context, &error);
+	return SCPI_RES_OK;
+    
+	//int16_t err = SCPI_ErrorPop(context);
+    //SCPI_ResultInt32(context, error.error_code);
+    //SCPI_ResultText(context, SCPI_ErrorTranslate(error.error_code));
+    //return SCPI_RES_OK;
 }
 
 /**

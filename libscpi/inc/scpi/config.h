@@ -91,11 +91,12 @@ extern "C" {
 
 #ifndef USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 #define USE_DEVICE_DEPENDENT_ERROR_INFORMATION 1
+	#ifndef USE_MEMORY_ALLOCATION_FREE
+	#define USE_MEMORY_ALLOCATION_FREE 1
+	#endif
 #endif
 
-#ifndef USE_MEMORY_ALLOCATION_FREE
-#define USE_MEMORY_ALLOCATION_FREE 1
-#endif
+
 
 #ifndef USE_COMMAND_TAGS
 #define USE_COMMAND_TAGS 1
@@ -259,17 +260,20 @@ extern "C" {
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 	#if USE_MEMORY_ALLOCATION_FREE
+		#include <stdlib.h>
 		#include <string.h>
 		#include <malloc.h>
-		#define SCPIDEFINE_strdup(s)		strdup((s))
-		#define SCPIDEFINE_free(s)			free((s))
+		#define SCPIDEFINE_strdup(h,s)			strdup((s))
+		#define SCPIDEFINE_free(h,s)			free((s))
 	#else
-		#define SCPIDEFINE_strdup(s)		NULL
-		#define SCPIDEFINE_free(s)			NULL
+		#define SCPIDEFINE_strdup(h,s)			OUR_strdup((h), (s))
+		#define SCPIDEFINE_free(h,s)			OUR_free((h), (s))
+		#define SCPIDEFINE_get_1st_part(s,l)	OUR_get_1st_part((s),(l))
+		#define SCPIDEFINE_get_2st_part(s,l)	OUR_get_2nd_part((s),(l))
 	#endif
 #else
-	#define SCPIDEFINE_strdup(s)			NULL
-	#define SCPIDEFINE_free(s)				NULL
+	#define SCPIDEFINE_strdup(h,s)				(void)(s)
+	#define SCPIDEFINE_free(h,s)				(void)(s)
 #endif
 
 #ifdef	__cplusplus

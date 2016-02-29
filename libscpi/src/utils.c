@@ -750,6 +750,35 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 }
 #endif
 
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
+	if(!heap || !s) {
+		return NULL;
+	}
+	if(heap->data[heap->wr]!='\0'){
+		return NULL;
+	}
+	
+	size_t len=strlen(s) + 1; // additional '\0' at end
+	if(len > heap->count){
+		return NULL;
+	}
+	size_t f_part=(&heap->data[heap->wr]-heap->data)
+	
+	
+	return NULL;
+}
+void OUR_free(scpi_error_info_heap_t * heap, const char *s) {
+	
+}
+char * OUR_get_1st_part(const char *s, size_t * len) {
+	return NULL;
+}
+char * OUR_get_2nd_part(const char *s, size_t * len) {
+	return NULL;
+}
+#endif
+
 // Floating point to string conversion routines
 //
 // Copyright (C) 2002 Michael Ringgaard. All rights reserved.

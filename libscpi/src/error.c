@@ -81,15 +81,27 @@ static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
  * @param context - scpi context
  */
 void SCPI_ErrorClear(scpi_t * context) {
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+	scpi_error_t error;
+	while(fifo_remove(&context->error_queue, &error)){
+		SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info);
+	}
+#endif	
     fifo_clear(&context->error_queue);
 
     SCPI_ErrorEmitEmpty(context);
 }
 
-
+/**
+ * Pop error from queue
+ * @param context - scpi context
+ * @param error
+ * @return 
+ */
 scpi_bool_t SCPI_ErrorPopEx(scpi_t * context, scpi_error_t * error) {
-	if(error == NULL) return FALSE;
-
+	if(!error) return FALSE;
+	error->error_code = 0;
+	error->device_dependent_info = NULL;
 	fifo_remove(&context->error_queue, error);
 
 	SCPI_ErrorEmitEmpty(context);
@@ -126,7 +138,9 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
 
 static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info) {
     if (!fifo_add(&context->error_queue, err, info)) {
-        fifo_remove_last(&context->error_queue, NULL);
+		scpi_error_t * error;
+        fifo_remove_last(&context->error_queue, error);
+		SCPIDEFINE_free(&context->error_info_heap, error->device_dependent_info);
         fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
         return FALSE;
     }
@@ -160,7 +174,14 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
  */
 void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
 	int i;
-	char * info_ptr=SCPIDEFINE_strdup(info);
+	char * info_ptr = NULL;
+	
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+	if (info){
+		info_ptr = SCPIDEFINE_strdup(&context->error_info_heap, info);
+	}
+#endif
+
 	scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info_ptr);
 
 	for (i = 0; i < ERROR_DEFS_N; i++) {
@@ -187,24 +208,24 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
 void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 	SCPI_ErrorPushEx(context, err, NULL);
 	return;
-    int i;
-
-    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, NULL);
-
-    for (i = 0; i < ERROR_DEFS_N; i++) {
-        if ((err <= errs[i].from) && (err >= errs[i].to)) {
-            SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
-        }
-    }
-
-    SCPI_ErrorEmit(context, err);
-    if (queue_overflow) {
-        SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
-    }
-
-    if (context) {
-        context->cmd_error = TRUE;
-    }
+    //int i;
+//
+    //scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, NULL);
+//
+    //for (i = 0; i < ERROR_DEFS_N; i++) {
+        //if ((err <= errs[i].from) && (err >= errs[i].to)) {
+            //SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
+        //}
+    //}
+//
+    //SCPI_ErrorEmit(context, err);
+    //if (queue_overflow) {
+        //SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
+    //}
+//
+    //if (context) {
+        //context->cmd_error = TRUE;
+    //}
 }
 
 /**

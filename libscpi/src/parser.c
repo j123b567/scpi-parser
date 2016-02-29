@@ -507,6 +507,84 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     return result;
 }
 
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+	#if USE_MEMORY_ALLOCATION_FREE
+		#define MAX_BUFF_SIZE	2
+	#else
+		#define MAX_BUFF_SIZE	3
+	#endif
+#else
+	#define MAX_BUFF_SIZE	1
+#endif
+
+static size_t startoutputlimit = 0;
+
+size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
+ 	size_t result = 0;
+	size_t outputlimit = startoutputlimit++;
+	size_t step = 0;
+	const char * quote;
+
+	char * data[MAX_BUFF_SIZE];
+	size_t len[MAX_BUFF_SIZE];
+	 
+	data[0] = SCPI_ErrorTranslate(error->error_code);
+	len[0] = strlen(data[0]);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+	#if USE_MEMORY_ALLOCATION_FREE
+		data[1] = error->device_dependent_info;
+		len[1] = error->device_dependent_info ? strlen(data[1]) : 0;
+	#else
+		data[1] = SCPIDEFINE_get_1st_part(error->device_dependent_info,&len[1]);
+		data[2] = SCPIDEFINE_get_1st_part(data[1],&len[2]);
+	#endif
+#endif
+
+	result += SCPI_ResultInt32(context, error->error_code);
+	result += writeDelimiter(context);
+	result += writeData(context, "\"", 1);	
+	
+	for(size_t i = 0; data[i] && outputlimit && (i < MAX_BUFF_SIZE); i++){
+		if(i==1){
+			result += writeSemicolon(context);
+			outputlimit -= 1;
+		}
+		if(len[i] > outputlimit) {
+			len[i] = outputlimit;
+		}
+		
+		while ((quote = strnpbrk(data[i], len[i], "\""))) {
+			if((step = quote - data[i] + 1) >= outputlimit){
+				len[i] -= 1;
+				outputlimit -= 1;
+				break;
+			}
+			result += writeData(context, data[i], step);
+			result += writeData(context, "\"", 1);
+			len[i] -= step ;
+			outputlimit -= step + 1;
+			data[i] = quote + 1;
+			if(len[i] > outputlimit) {
+				len[i] = outputlimit;
+			}			
+		}
+		
+		result += writeData(context, data[i], len[i]);
+		outputlimit-=len[i];
+	}
+	result += writeData(context, "\"", 1);
+	
+	#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+		#if USE_MEMORY_ALLOCATION_FREE
+			SCPIDEFINE_free(error->device_dependent_info);
+		#else
+		#endif
+	#endif
+	
+	return result;
+}
+#undef MAX_BUFF_SIZE
+
 /**
  * Write arbitrary block header with length
  * @param context

@@ -202,8 +202,10 @@ extern "C" {
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
 	struct _scpi_error_info_heap_t {
-        size_t length;
-        size_t position;
+        int16_t wr;
+        int16_t rd;
+        int16_t count;
+        int16_t size;
         char * data;
 	};
 	typedef struct _scpi_error_info_heap_t scpi_error_info_heap_t;
@@ -213,7 +215,7 @@ extern "C" {
 		const char * device_dependent_info;
 	};
 	typedef struct _scpi_error_t scpi_error_t;
-	
+		
     struct _scpi_fifo_t {
         int16_t wr;
         int16_t rd;
