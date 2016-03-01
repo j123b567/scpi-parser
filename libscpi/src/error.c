@@ -41,6 +41,11 @@
 #include "scpi/error.h"
 #include "fifo_private.h"
 
+#if USE_64K_PROGMEM_FOR_ERROR_MESSAGES || USE_FULL_PROGMEM_FOR_ERROR_MESSAGES
+#include <avr/pgmspace.h>
+static char error_message_buffer[SCPI_MAX_ERROR_MESSAGE_SIZE + 1];
+#endif
+
 /**
  * Initialize error queue
  * @param context - scpi context
@@ -178,7 +183,13 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 const char * SCPI_ErrorTranslate(int16_t err) {
     switch (err) {
         case 0: return "No error";
+#if USE_64K_PROGMEM_FOR_ERROR_MESSAGES
+#define X(def, val, str) case def: strcpy_P(error_message_buffer, PSTR(str)); return error_message_buffer;
+#elif USE_FULL_PROGMEM_FOR_ERROR_MESSAGES
+#define X(def, val, str) case def: strcpy_PF(error_message_buffer, PSTR(str)); return error_message_buffer;
+#else
 #define X(def, val, str) case def: return str;
+#endif
 #if USE_FULL_ERROR_LIST
 #define XE X
 #else
