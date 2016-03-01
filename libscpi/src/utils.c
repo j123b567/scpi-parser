@@ -98,15 +98,13 @@ size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, sc
             case 8:
                 x = 0x40000000L;
                 break;
+            default:
             case 10:
+                base = 10;
                 x = 1000000000L;
                 break;
             case 16:
                 x = 0x10000000L;
-                break;
-            default:
-                x = 1000000000L;
-                base = 10;
                 break;
         }
 
@@ -186,15 +184,13 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
             case 8:
                 x = 0x8000000000000000ULL;
                 break;
+	    default:
             case 10:
                 x = 10000000000000000000ULL;
+                base = 10;
                 break;
             case 16:
                 x = 0x1000000000000000ULL;
-                break;
-            default:
-                x = 10000000000000000000ULL;
-                base = 10;
                 break;
         }
 
@@ -784,67 +780,74 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 // SUCH DAMAGE.
 
 static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf, size_t bufsize) {
-    int r2;
+    int r1, r2;
     double fi, fj;
-    char *p, *p1;
+    int w1, w2;
 
     if (ndigits < 0) ndigits = 0;
     if (ndigits >= (int) (bufsize - 1)) ndigits = bufsize - 2;
+
     r2 = 0;
     *sign = 0;
-    p = &buf[0];
+    w1 = 0;
     if (arg < 0) {
         *sign = 1;
         arg = -arg;
     }
+    frexp(arg, &r1);
     arg = modf(arg, &fi);
-    p1 = &buf[bufsize];
 
     if (fi != 0) {
-        p1 = &buf[bufsize];
+        r1 = r1 * 308 / 1024 - ndigits;
+        w2 = bufsize;
+        while (r1 > 0) {
+            fj = modf(fi / 10, &fi);
+            r2++;
+            r1--;
+        }
         while (fi != 0) {
             fj = modf(fi / 10, &fi);
-            *--p1 = (int) ((fj + .03) * 10) + '0';
+            buf[--w2] = (int) ((fj + .03) * 10) + '0';
             r2++;
         }
-        while (p1 < &buf[bufsize]) *p++ = *p1++;
+        while (w2 < (int)bufsize) buf[w1++] = buf[w2++];
     } else if (arg > 0) {
         while ((fj = arg * 10) < 1) {
             arg = fj;
             r2--;
         }
     }
-    p1 = &buf[ndigits];
+    w2 = ndigits;
     *decpt = r2;
-    if (p1 < &buf[0]) {
+    if (w2 < 0) {
         buf[0] = '\0';
         return buf;
     }
-    while (p <= p1 && p < &buf[bufsize]) {
+    while (w1 <= w2 && w1 < (int)bufsize) {
         arg *= 10;
         arg = modf(arg, &fj);
-        *p++ = (int) fj + '0';
+        buf[w1++] = (int) fj + '0';
     }
-    if (p1 >= &buf[bufsize]) {
+    if (w2 >= (int)bufsize) {
         buf[bufsize - 1] = '\0';
         return buf;
     }
-    p = p1;
-    *p1 += 5;
-    while (*p1 > '9') {
-        *p1 = '0';
-        if (p1 > buf) {
-            ++*--p1;
+    w1 = w2;
+    buf[w2] += 5;
+    while (buf[w2] > '9') {
+        buf[w2] = '0';
+        if (w2 > 0) {
+            ++buf[--w2];
         } else {
-            *p1 = '1';
+            buf[w2] = '1';
             (*decpt)++;
         }
     }
-    *p = '\0';
+    buf[w1] = '\0';
     return buf;
 }
 
-#define SCPI_DTOSTRE_BUFFER_SIZE 310
+#define SCPI_DTOSTRE_BUFFER_SIZE 32
 
 char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __prec, unsigned char __flags) {
     char buffer[SCPI_DTOSTRE_BUFFER_SIZE];

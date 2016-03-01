@@ -142,12 +142,14 @@ static void testProgramHeader(void) {
     TEST_TOKEN("*RST ", scpiLex_ProgramHeader, 0, 4, SCPI_TOKEN_COMMON_PROGRAM_HEADER);
     TEST_TOKEN("*?; ", scpiLex_ProgramHeader, 0, 1, SCPI_TOKEN_INCOMPLETE_COMMON_PROGRAM_HEADER);
     TEST_TOKEN(":*IDN?; ", scpiLex_ProgramHeader, 0, 1, SCPI_TOKEN_INCOMPLETE_COMPOUND_PROGRAM_HEADER);
+    TEST_TOKEN(":meas", scpiLex_ProgramHeader, 0, 5, SCPI_TOKEN_COMPOUND_PROGRAM_HEADER);
     TEST_TOKEN("MEAS:VOLT:DC? ", scpiLex_ProgramHeader, 0, 13, SCPI_TOKEN_COMPOUND_QUERY_PROGRAM_HEADER);
     TEST_TOKEN("CONF:VOLT:DC ", scpiLex_ProgramHeader, 0, 12, SCPI_TOKEN_COMPOUND_PROGRAM_HEADER);
     TEST_TOKEN(":MEAS:VOLT:DC? ", scpiLex_ProgramHeader, 0, 14, SCPI_TOKEN_COMPOUND_QUERY_PROGRAM_HEADER);
     TEST_TOKEN(":MEAS::VOLT:DC? ", scpiLex_ProgramHeader, 0, 6, SCPI_TOKEN_INCOMPLETE_COMPOUND_PROGRAM_HEADER);
     TEST_TOKEN("*IDN?", scpiLex_ProgramHeader, 0, 5, SCPI_TOKEN_COMMON_QUERY_PROGRAM_HEADER);
     TEST_TOKEN("*RST", scpiLex_ProgramHeader, 0, 4, SCPI_TOKEN_COMMON_PROGRAM_HEADER);
+    TEST_TOKEN("CONF:VOLT:DC", scpiLex_ProgramHeader, 0, 12, SCPI_TOKEN_COMPOUND_PROGRAM_HEADER);
     TEST_TOKEN("CONF:VOLT:DC", scpiLex_ProgramHeader, 0, 12, SCPI_TOKEN_COMPOUND_PROGRAM_HEADER);
     TEST_TOKEN("]]", scpiLex_ProgramHeader, 0, 0, SCPI_TOKEN_UNKNOWN);
     TEST_TOKEN("*", scpiLex_ProgramHeader, 0, 1, SCPI_TOKEN_INCOMPLETE_COMMON_PROGRAM_HEADER);
@@ -202,7 +204,7 @@ static void testProgramData(void) {
 
     TEST_TOKEN("#12AB", scpiParser_parseProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
     TEST_TOKEN("#12AB, ", scpiParser_parseProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
-    TEST_TOKEN("#13AB", scpiParser_parseProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
+    TEST_TOKEN("#13AB", scpiParser_parseProgramData, 5, 0, SCPI_TOKEN_UNKNOWN);
     TEST_TOKEN("#12\r\n, ", scpiParser_parseProgramData, 3, 2, SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA);
     TEST_TOKEN("#02AB, ", scpiParser_parseProgramData, 0, 0, SCPI_TOKEN_UNKNOWN);
 

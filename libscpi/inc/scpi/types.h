@@ -208,6 +208,7 @@ extern "C" {
     struct _scpi_fifo_t {
         int16_t wr;
         int16_t rd;
+        int16_t count;
         int16_t size;
         int16_t * data;
     };
@@ -221,8 +222,54 @@ extern "C" {
         SCPI_UNIT_OHM,
         SCPI_UNIT_HERTZ,
         SCPI_UNIT_CELSIUS,
-        SCPI_UNIT_SECONDS,
-        SCPI_UNIT_DISTANCE
+        SCPI_UNIT_SECOND,
+        SCPI_UNIT_METER,
+        SCPI_UNIT_GRAY,
+        SCPI_UNIT_BECQUEREL,
+        SCPI_UNIT_MOLE,
+        SCPI_UNIT_DEGREE,
+        SCPI_UNIT_GRADE,
+        SCPI_UNIT_RADIAN,
+        SCPI_UNIT_REVOLUTION,
+        SCPI_UNIT_STERADIAN,
+        SCPI_UNIT_SIEVERT,
+        SCPI_UNIT_FARAD,
+        SCPI_UNIT_COULOMB,
+        SCPI_UNIT_SIEMENS,
+        SCPI_UNIT_ELECTRONVOLT,
+        SCPI_UNIT_JOULE,
+        SCPI_UNIT_NEWTON,
+        SCPI_UNIT_LUX,
+        SCPI_UNIT_HENRY,
+        SCPI_UNIT_ASTRONOMIC_UNIT,
+        SCPI_UNIT_INCH,
+        SCPI_UNIT_FOOT,
+        SCPI_UNIT_PARSEC,
+        SCPI_UNIT_MILE,
+        SCPI_UNIT_NAUTICAL_MILE,
+        SCPI_UNIT_LUMEN,
+        SCPI_UNIT_CANDELA,
+        SCPI_UNIT_WEBER,
+        SCPI_UNIT_TESLA,
+        SCPI_UNIT_ATOMIC_MASS,
+        SCPI_UNIT_KILOGRAM,
+        SCPI_UNIT_WATT,
+        SCPI_UNIT_DBM,
+        SCPI_UNIT_ATMOSPHERE,
+        SCPI_UNIT_INCH_OF_MERCURY,
+        SCPI_UNIT_MM_OF_MERCURY,
+        SCPI_UNIT_PASCAL,
+        SCPI_UNIT_TORT,
+        SCPI_UNIT_BAR,
+        SCPI_UNIT_DECIBEL,
+        SCPI_UNIT_UNITLESS,
+        SCPI_UNIT_FAGRENHEIT,
+        SCPI_UNIT_KELVIN,
+        SCPI_UNIT_DAY,
+        SCPI_UNIT_YEAR,
+        SCPI_UNIT_STROKES,
+        SCPI_UNIT_POISE,
+        SCPI_UNIT_LITER
     };
     typedef enum _scpi_unit_t scpi_unit_t;
 
