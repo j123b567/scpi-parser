@@ -202,10 +202,10 @@ extern "C" {
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
 	struct _scpi_error_info_heap_t {
-        int16_t wr;
-        //int16_t rd;
-        int16_t count;
-        int16_t size;
+        size_t wr;
+        //size_t rd;
+		size_t count;
+        size_t size;
         char * data;
 	};
 	typedef struct _scpi_error_info_heap_t scpi_error_info_heap_t;

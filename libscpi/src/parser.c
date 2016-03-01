@@ -219,10 +219,11 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
                 result &= processCommand(context);
                 cmd_prev = state->programHeader;
             } else {
-                //SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
 				/* test */
-				data[r-1]=0;
+				/* place undefined header with error */
+				data[r?(r-1):r]=0;
 				SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data);
+                //SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);				
                 result = FALSE;
             }
         }
@@ -511,15 +512,19 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
 
 
 /**
- * Write string withn " to the result
+ * SCPI-99:21.8 Device-dependent error information.
+ * Write error information with the following syntax:
+ * <Error/event_number>,"<Error/event_description>[;<Device-dependent_info>]"
+ * The maximum string length of <Error/event_description> plus <Device-dependent_info>
+ * is SCPI_STD_ERROR_DESC_MAX_STRING_LENGTH (255) characters.
+ *
  * @param context
- * @param data
+ * @param error
  * @return
  */
-static size_t outputlimit_0=0;
 size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
  	size_t result = 0;
-	size_t outputlimit = outputlimit_0++; //SCPI_STD_ERROR_DESC_CHARS_LIMIT;
+	size_t outputlimit = SCPI_STD_ERROR_DESC_MAX_STRING_LENGTH;
 	size_t step = 0;
 	const char * quote;
 
@@ -531,11 +536,11 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
 	
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 	data[1] = error->device_dependent_info;
-	#if USE_MEMORY_ALLOCATION_FREE
-		len[1] = error->device_dependent_info ? strlen(data[1]) : 0;
-	#else
-		SCPIDEFINE_get_parts(&context->error_info_heap, data[1], &len[1], &data[2], &len[2]);
-	#endif
+#if USE_MEMORY_ALLOCATION_FREE
+	len[1] = error->device_dependent_info ? strlen(data[1]) : 0;
+#else
+	SCPIDEFINE_get_parts(&context->error_info_heap, data[1], &len[1], &data[2], &len[2]);
+#endif
 #endif
 
 	result += SCPI_ResultInt32(context, error->error_code);

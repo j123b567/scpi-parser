@@ -98,8 +98,8 @@ void SCPI_ErrorClear(scpi_t * context) {
  * @param error
  * @return 
  */
-scpi_bool_t SCPI_ErrorPopEx(scpi_t * context, scpi_error_t * error) {
-	if(!error) return FALSE;
+scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error) {
+	if(!error || !context) return FALSE;
 	error->error_code = 0;
 	error->device_dependent_info = NULL;
 	fifo_remove(&context->error_queue, error);
@@ -107,20 +107,6 @@ scpi_bool_t SCPI_ErrorPopEx(scpi_t * context, scpi_error_t * error) {
 	SCPI_ErrorEmitEmpty(context);
 
 	return TRUE;
-}
-/**
- * Pop error from queue
- * @param context - scpi context
- * @return error number
- */
-int16_t SCPI_ErrorPop(scpi_t * context) {
-    int16_t result = 0;
-
-    fifo_remove(&context->error_queue, &result);
-
-    SCPI_ErrorEmitEmpty(context);
-
-    return result;
 }
 
 /**
@@ -191,7 +177,9 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
 	SCPI_ErrorEmit(context, err);
 	if (queue_overflow) {
 		SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION		
 		SCPIDEFINE_free(&context->error_info_heap, info_ptr, true);
+#endif
 	}
 
 	if (context) {
@@ -207,24 +195,6 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
 void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 	SCPI_ErrorPushEx(context, err, NULL);
 	return;
-    //int i;
-//
-    //scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, NULL);
-//
-    //for (i = 0; i < ERROR_DEFS_N; i++) {
-        //if ((err <= errs[i].from) && (err >= errs[i].to)) {
-            //SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
-        //}
-    //}
-//
-    //SCPI_ErrorEmit(context, err);
-    //if (queue_overflow) {
-        //SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
-    //}
-//
-    //if (context) {
-        //context->cmd_error = TRUE;
-    //}
 }
 
 /**

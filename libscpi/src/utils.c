@@ -763,14 +763,16 @@ char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
 	if(!s || !heap) {
 		return NULL;
 	}
+
 	if(heap->data[heap->wr]!='\0'){
 		return NULL;
 	}
 	
-	size_t len=strlen(s) + 1; // additional '\0' at end
-	if(len > heap->count){
+	size_t len=strlen(s);
+	if( ( len == 0 ) || ( len > heap->count ) ){
 		return NULL;
 	}
+	len++;	// additional '\0' at end
 	char * ptrs = s;
 	char * head = &heap->data[heap->wr];
 	size_t rem = heap->size - (&heap->data[heap->wr]-heap->data);
@@ -839,7 +841,6 @@ void OUR_free(scpi_error_info_heap_t * heap, const char * s, scpi_bool_t rollbac
 		
 	if( !OUR_get_parts( heap, s, &len[0], &data_add, &len[1] ) ) return;
 	
-	
 	if(data_add) {
 		len[1]++;
 		memset(data_add,0,len[1]);
@@ -849,10 +850,16 @@ void OUR_free(scpi_error_info_heap_t * heap, const char * s, scpi_bool_t rollbac
 	}
 	memset(s,0,len[0]);
 	heap->count += len[0];
+	if( heap->count == heap->size){
+		heap->wr = 0;
+		return;
+	}
 	if(rollback){
-		heap->wr-=len[0];
-		heap->wr-=len[1];
-		if(heap->wr < 0)heap->wr += heap->size;
+		size_t rb = len[0] + len[1];
+		if( rb > heap->wr){
+			heap->wr += heap->size; 
+		}
+		heap->wr -= rb;
 	}
 }
 
