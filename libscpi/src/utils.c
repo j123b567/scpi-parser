@@ -768,11 +768,14 @@ char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
 		return NULL;
 	}
 	
-	size_t len=strlen(s);
-	if( ( len == 0 ) || ( len > heap->count ) ){
+	if( *s == '\0' ){
 		return NULL;
 	}
-	len++;	// additional '\0' at end
+	
+	size_t len=strlen(s) + 1;	// additional '\0' at end
+	if( len > heap->count ) {
+		return NULL;
+	}
 	char * ptrs = s;
 	char * head = &heap->data[heap->wr];
 	size_t rem = heap->size - (&heap->data[heap->wr]-heap->data);
