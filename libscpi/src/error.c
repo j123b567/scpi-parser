@@ -126,7 +126,7 @@ static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
 struct error_reg {
     int16_t from;
     int16_t to;
-    scpi_reg_val_t bit;
+    scpi_reg_val_t esrBit;
 };
 
 #define ERROR_DEFS_N	9
@@ -156,7 +156,7 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
 
     for (i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {
-            SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
+            SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].esrBit);
         }
     }
 
