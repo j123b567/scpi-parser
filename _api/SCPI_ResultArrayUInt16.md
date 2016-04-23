@@ -1,6 +1,6 @@
 ---
 title: SCPI_ResultArrayUInt16()
-category: results
+category: results_array
 ---
 
 ```c

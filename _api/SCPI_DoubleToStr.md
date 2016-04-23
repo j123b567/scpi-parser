@@ -1,6 +1,6 @@
 ---
 title: SCPI_DoubleToStr()
-category: results
+category: results_helper
 ---
 
 ```c

@@ -1,6 +1,6 @@
 ---
 title: SCPI_Int64ToStr()
-category: results
+category: results_helper
 ---
 
 ```c

@@ -1,6 +1,6 @@
 ---
 title: SCPI_NumberToStr()
-category: results
+category: results_helper
 ---
 
 ```c

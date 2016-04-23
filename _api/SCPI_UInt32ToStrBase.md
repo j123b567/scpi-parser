@@ -1,6 +1,6 @@
 ---
 title: SCPI_UInt32ToStrBase()
-category: results
+category: results_helper
 ---
 
 ```c

@@ -1,6 +1,6 @@
 ---
 title: SCPI_FloatToStr()
-category: results
+category: results_helper
 ---
 
 ```c

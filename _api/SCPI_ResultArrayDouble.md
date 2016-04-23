@@ -1,6 +1,6 @@
 ---
 title: SCPI_ResultArrayDouble()
-category: results
+category: results_array
 ---
 
 ```c

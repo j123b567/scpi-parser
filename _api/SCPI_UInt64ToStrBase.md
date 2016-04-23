@@ -1,6 +1,6 @@
 ---
 title: SCPI_UInt64ToStrBase()
-category: results
+category: results_helper
 ---
 
 ```c

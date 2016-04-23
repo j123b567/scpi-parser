@@ -28,6 +28,28 @@ Generating results
 {% endfor %}
 </ul>
 
+Generating results as array
+-------
+
+<ul>
+{% for p in pages_list %}
+  {% if p.category == "results_array" %}
+  <li><a href="{{ site.baseurl }}{{ p.url }}">{{ p.title }}</a></li>
+  {% endif %}
+{% endfor %}
+</ul>
+
+Helper function for generating results
+-------
+
+<ul>
+{% for p in pages_list %}
+  {% if p.category == "results_helper" %}
+  <li><a href="{{ site.baseurl }}{{ p.url }}">{{ p.title }}</a></li>
+  {% endif %}
+{% endfor %}
+</ul>
+
 Handling expressions
 -------
 
