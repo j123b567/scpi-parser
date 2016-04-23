@@ -36,7 +36,7 @@ SCPI parser library is based on these standards
 
 **Supported parameter types**
 <table>
-<tr><th>Type<th>Example</td></tr>
+<tr><th>Type</th><th>Example</th></tr>
 <tr><td>Decimal</td><td><code>10</code>, <code>10.5</code></td></tr>
 <tr><td>Decimal with suffix</td><td><code>-5.5 V</code>, <code>1.5 KOHM</code></td></tr>
 <tr><td>Hexadecimal</td><td><code>#HFF</code></td></tr>
