@@ -19,35 +19,38 @@ SCPI parser library is based on these standards
 
 **SCPI version compliance**
 
-|--------------+---------|
 | SCPI version | v1999.0 |
-|--------------+---------|
 
 
 **Supported command patterns**
-<table>
-<tr><th>Feature</th><th>Pattern example</th></tr>
-<tr><td>Short and long form</td><td>`MEASure` means `MEAS` or `MEASURE` command</td></tr>
-<tr><td>Common command</td><td>`*CLS`</td></tr>
-<tr><td>Compound command</td><td>`CONFigure:VOLTage`</td></tr>
-<tr><td>Query command</td><td>`MEASure:VOLTage?`, `*IDN?`</td></tr>
-<tr><td>Optional keywords</td><td>`MEASure:VOLTage[:DC]?`</td></tr>
-<tr><td>Numeric keyword suffix<br>Multiple identical capabilities</td><td>`OUTput#:FREQunecy`</td></tr>
-</table>
+
+|---------------------+---------------------------------------------|
+| Feature             | Pattern example                             |
+|---------------------+---------------------------------------------|
+| Short and long form | `MEASure` means `MEAS` or `MEASURE` command |
+| Short and long form | `MEASure` means `MEAS` or `MEASURE` command |
+| Common command      | `*CLS`                                      |
+| Compound command    | `CONFigure:VOLTage`                         |
+| Query command       | `MEASure:VOLTage?`, `*IDN?`                 |
+| Optional keywords   | `MEASure:VOLTage[:DC]?`                     |
+| Numeric keyword suffix<br>Multiple identical capabilities | `OUTput#:FREQunecy` |
+|---------------------+---------------------------------------------|
 
 **Supported parameter types**
-<table>
-<tr><th>Type</th><th>Example</th></tr>
-<tr><td>Decimal</td><td><code>10</code>, <code>10.5</code></td></tr>
-<tr><td>Decimal with suffix</td><td><code>-5.5 V</code>, <code>1.5 KOHM</code></td></tr>
-<tr><td>Hexadecimal</td><td><code>#HFF</code></td></tr>
-<tr><td>Octal</td><td><code>#Q77</code></td></tr>
-<tr><td>Binary</td><td><code>#B11</code></td></tr>
-<tr><td>String</td><td><code>"text"</code>, <code>'text'</code></td></tr>
-<tr><td>Arbitrary block</td><td><code>#12AB</code></td></tr>
-<tr><td>Program expression</td><td><code>(1)</code></td></tr>
-<tr><td>Numeric list</td><td><code>(1,2:50,80)</code></td></tr>
-<tr><td>Channel list</td><td><code>(@1!2:3!4,5!6)</code></td></tr>
-<tr><td>Character data</td><td><code>MINimum</code>, <code>DEFault</code>, <code>INFinity</code></td></tr>
-</table>
+
+|---------------------+----------------------|
+| Type                | Example              |
+|---------------------+----------------------|
+| Decimal             | `10`, `10.5`         |
+| Decimal with suffix | `-5.5 V`, `1.5 KOHM` |
+| Hexadecimal         | `#HFF`               |
+| Octal               | `#Q77`               |
+| Binary              | `#B11`               |
+| String              | `"text"`, `'text'`   |
+| Arbitrary block     | `#12AB`              |
+| Program expression  | `(1)`                |
+| Numeric list        | `(1,2:50,80)`        |
+| Channel list        | `(@1!2:3!4,5!6)`     |
+| Character data      | `MINimum`, `DEFault`, `INFinity` |
+|---------------------+----------------------|
 
