@@ -10,3 +10,9 @@ SCPI_Parse(
     char * data,
     int len);
 ```
+
+This function handles input buffer and expects full message. If it is not true, error occur.
+
+See also
+---
+[`SCPI_Input()`]({{ site.baseurl }}/api/SCPI_Input)

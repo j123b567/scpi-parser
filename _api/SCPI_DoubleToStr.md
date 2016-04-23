@@ -10,3 +10,5 @@ SCPI_DoubleToStr(
     char * str,
     size_t len);
 ```
+
+Convert double value `val` to prepared string buffer `str`. This function expects maximal length of the `str` buffer as `len`.

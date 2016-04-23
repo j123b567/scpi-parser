@@ -1,13 +1,12 @@
 ---
-title: SCPI_ParamUnsignedInt()
+title: SCPI_ParamInt64()
 category: parameters
-order: 20
 ---
 
 ```c
 scpi_bool_t
-SCPI_ParamUnsignedInt(
+SCPI_ParamInt64(
     scpi_t * context,
-    uint32_t * value,
+    int64_t * value,
     scpi_bool_t mandatory);
 ```

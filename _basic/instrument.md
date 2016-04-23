@@ -69,29 +69,28 @@ while(1) {
 }
 ```
 
+There is also need to allocate error queue. This can be done by
+```c
+#define SCPI_ERROR_QUEUE_SIZE 17
+int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+```
+
 SCPI parser context
 ---
-The last structure is scpi context used in parser library. So, compose everything together.
+The last structure is scpi context used in parser library. So, compose everything together by init function. Before any usage of the library, initialization must be performed by [`SCPI_Init`]({{ site.baseurl }}/api/SCPI_Init).
 
 ```c
-scpi_t scpi_context = {
-	.cmdlist = scpi_commands,
-	.buffer = {
-		.length = SCPI_INPUT_BUFFER_LENGTH,
-		.data = scpi_input_buffer,
-	},
-	.interface = &scpi_interface,
-	.registers = scpi_regs,
-	.units = scpi_units_def,
-};
+scpi_t scpi_context;
+SCPI_Init(&scpi_context,
+    scpi_commands,
+    &scpi_interface,
+    scpi_units_def,
+    SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+    scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+    scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 ```
 
 All these structures should be global variables of the c file or allocated by function like `malloc`. It is common mistake to create these structures inside a function as local variables of this function. This will not work. If you don't know why, you should read something about [function stack.](http://stackoverflow.com/questions/4824342/returning-a-local-variable-from-function-in-c).
 
-Now we are ready to initialize SCPI context. It is possible to use more SCPI contexts and share some configurations (command list, registers, units list, error callback...), but be aware that the library is not thread safe.
+It is possible to use more SCPI contexts and share some configurations (command list, registers, units list, error callback...), but be aware that the library is not thread safe.
 
-Before any usage of the library, initialization must be performed by [`SCPI_Init`]({{ site.baseurl }}/api/SCPI_Init).
-
-```c
-SCPI_Init(&scpi_context);
-```

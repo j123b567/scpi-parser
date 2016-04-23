@@ -1,12 +1,13 @@
 ---
-title: SCPI_ParamInt()
+title: SCPI_ParamUInt64()
 category: parameters
+order: 20
 ---
 
 ```c
 scpi_bool_t
-SCPI_ParamInt(
+SCPI_ParamUInt64(
     scpi_t * context,
-    int32_t * value,
+    uint64_t * value,
     scpi_bool_t mandatory);
 ```

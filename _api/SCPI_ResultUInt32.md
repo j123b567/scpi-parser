@@ -1,11 +1,11 @@
 ---
-title: SCPI_ResultInt()
+title: SCPI_ResultUInt32()
 category: results
 ---
 
 ```c
 size_t
-SCPI_ResultInt(
+SCPI_ResultUInt32(
     scpi_t * context,
-    int32_t val);
+    uint32_t val);
 ```

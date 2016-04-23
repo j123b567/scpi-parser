@@ -8,3 +8,5 @@ int32_t
 SCPI_ErrorCount(
     scpi_t * context);
 ```
+
+Return number of errors in the queue;

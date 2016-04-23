@@ -1,11 +1,11 @@
 ---
-title: SCPI_ParamToUnsignedInt()
+title: SCPI_ParamToUInt32()
 category: parameters_ex
 ---
 
 ```c
 scpi_bool_t
-SCPI_ParamToUnsignedInt(
+SCPI_ParamToUInt32(
     scpi_t * context,
     scpi_parameter_t * parameter,
     uint32_t * value);
@@ -25,7 +25,7 @@ if (res) {
     // Is parameter a number without suffix?
     if (SCPI_ParamIsNumber(&param1, FALSE) {
         // Convert parameter to unsigned int. Result is in value.
-        SCPI_ParamToUnsignedInt(context, &param1, &value);
+        SCPI_ParamToUInt32(context, &param1, &value);
     }
 }
 ```

@@ -1,13 +1,12 @@
 ---
-title: SCPI_LongToStr()
+title: SCPI_Int32ToStr()
 category: results
 ---
 
 ```c
 size_t
-SCPI_LongToStr(
+SCPI_Int32ToStr(
     int32_t val,
     char * str,
-    size_t len,
-    int8_t base);
+    size_t len);
 ```

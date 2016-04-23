@@ -8,3 +8,5 @@ void
 SCPI_ErrorClear(
     scpi_t * context);
 ```
+
+Clear all errors in the queue;

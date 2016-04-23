@@ -9,3 +9,5 @@ SCPI_ErrorPush(
     scpi_t * context,
     int16_t err);
 ```
+
+Add error to queue.

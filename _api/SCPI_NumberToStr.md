@@ -12,3 +12,5 @@ SCPI_NumberToStr(
     char * str,
     size_t len);
 ```
+
+This function converts special number to string representation with units. This function is inverse function to [`SCPI_ParamNumber()`]({{ site.baseurl }}/api/SCPI_ParamNumber).
