@@ -18,9 +18,10 @@ SCPI parser library is based on these standards
 
 
 **SCPI version compliance**
-<table>
-<tr><td>SCPI version</td><td>v1999.0</td></tr>
-</table>
+
+|--------------+---------|
+| SCPI version | v1999.0 |
+|--------------+---------|
 
 
 **Supported command patterns**
