@@ -19,34 +19,34 @@ SCPI parser library is based on these standards
 
 **SCPI version compliance**
 <table>
-<tr><td>SCPI version<td>v1999.0</tr>
+<tr><td>SCPI version</td><td>v1999.0</td></tr>
 </table>
 
 
 **Supported command patterns**
 <table>
-<tr><th>Feature<th>Pattern example</tr>
-<tr><td>Short and long form<td>`MEASure` means `MEAS` or `MEASURE` command</tr>
-<tr><td>Common command<td>`*CLS`</td>
-<tr><td>Compound command<td>`CONFigure:VOLTage`<tr>
-<tr><td>Query command<td>`MEASure:VOLTage?`, `*IDN?`</tr>
-<tr><td>Optional keywords<td>`MEASure:VOLTage[:DC]?`</tr>
-<tr><td>Numeric keyword suffix<br>Multiple identical capabilities<td>`OUTput#:FREQunecy`</tr>
+<tr><th>Feature</th><th>Pattern example</th></tr>
+<tr><td>Short and long form</td><td>`MEASure` means `MEAS` or `MEASURE` command</td></tr>
+<tr><td>Common command</td><td>`*CLS`</td></tr>
+<tr><td>Compound command</td><td>`CONFigure:VOLTage`</td></tr>
+<tr><td>Query command</td><td>`MEASure:VOLTage?`, `*IDN?`</td></tr>
+<tr><td>Optional keywords</td><td>`MEASure:VOLTage[:DC]?`</td></tr>
+<tr><td>Numeric keyword suffix<br>Multiple identical capabilities</td><td>`OUTput#:FREQunecy`</td></tr>
 </table>
 
 **Supported parameter types**
 <table>
-<tr><th>Type<th>Example</tr>
-<tr><td>Decimal<td><code>10</code>, <code>10.5</code></tr>
-<tr><td>Decimal with suffix<td><code>-5.5 V</code>, <code>1.5 KOHM</code></tr>
-<tr><td>Hexadecimal<td><code>#HFF</code></tr>
-<tr><td>Octal<td><code>#Q77</code></tr>
-<tr><td>Binary<td><code>#B11</code></tr>
-<tr><td>String<td><code>"text"</code>, <code>'text'</code></tr>
-<tr><td>Arbitrary block<td><code>#12AB</code></tr>
-<tr><td>Program expression<td><code>(1)</code></tr>
-<tr><td>Numeric list<td><code>(1,2:50,80)</code></tr>
-<tr><td>Channel list<td><code>(@1!2:3!4,5!6)</code></tr>
-<tr><td>Character data<td><code>MINimum</code>, <code>DEFault</code>, <code>INFinity</code></tr>
+<tr><th>Type<th>Example</td></tr>
+<tr><td>Decimal</td><td><code>10</code>, <code>10.5</code></td></tr>
+<tr><td>Decimal with suffix</td><td><code>-5.5 V</code>, <code>1.5 KOHM</code></td></tr>
+<tr><td>Hexadecimal</td><td><code>#HFF</code></td></tr>
+<tr><td>Octal</td><td><code>#Q77</code></td></tr>
+<tr><td>Binary</td><td><code>#B11</code></td></tr>
+<tr><td>String</td><td><code>"text"</code>, <code>'text'</code></td></tr>
+<tr><td>Arbitrary block</td><td><code>#12AB</code></td></tr>
+<tr><td>Program expression</td><td><code>(1)</code></td></tr>
+<tr><td>Numeric list</td><td><code>(1,2:50,80)</code></td></tr>
+<tr><td>Channel list</td><td><code>(@1!2:3!4,5!6)</code></td></tr>
+<tr><td>Character data</td><td><code>MINimum</code>, <code>DEFault</code>, <code>INFinity</code></td></tr>
 </table>
 
