@@ -17,7 +17,7 @@
         `layout: page` in the front-matter. See readme for usage.
       {% endcomment %}
 
-      {% assign pages_list = site.pages | sort:"order" %}      
+      {% assign pages_list = site.pages | sort:"order" %}
       {% for node in pages_list %}
         {% if node.title != null %}
           {% if node.layout == "page" %}
@@ -31,6 +31,6 @@
       <a class="sidebar-nav-item" href="{{ site.github.repo }}">GitHub project</a>
     </nav>
 
-    <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
+    <p>Copyright &copy; {{ site.time | date: '%Y' }} Jan Breuer under <a href="https://github.com/j123b567/scpi-parser/blob/master/LICENSE">Simplified BSD license</a></p>
   </div>
 </div>
