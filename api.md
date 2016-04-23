@@ -8,6 +8,7 @@ order: 20
 
 Parameters handling
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "parameters" %}
@@ -18,6 +19,7 @@ Parameters handling
 
 Generating results
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "results" %}
@@ -28,6 +30,7 @@ Generating results
 
 Handling expressions
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "expressions" %}
@@ -38,6 +41,7 @@ Handling expressions
 
 Extended parameters handling
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "parameters_ex" %}
@@ -48,6 +52,7 @@ Extended parameters handling
 
 Command handling
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "commands" %}
@@ -58,6 +63,7 @@ Command handling
 
 Parser functions
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "parser" %}
@@ -68,6 +74,7 @@ Parser functions
 
 Errors handling
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "errors" %}
@@ -78,6 +85,7 @@ Errors handling
 
 IEEE 488 registers handling
 -------
+
 <ul>
 {% for p in pages_list %}
   {% if p.category == "regs" %}
