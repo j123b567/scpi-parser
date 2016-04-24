@@ -186,6 +186,9 @@ static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 #define SCPI_ERROR_QUEUE_SIZE 4
 static scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 
+#define SCPI_ERROR_INFO_HEAP_SIZE 100
+static char error_info_heap[SCPI_ERROR_INFO_HEAP_SIZE];
+
 static int init_suite(void) {
     SCPI_Init(&scpi_context,
             scpi_commands,
@@ -193,8 +196,11 @@ static int init_suite(void) {
             scpi_units_def,
             "MA", "IN", NULL, "VER",
             scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
-            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE,
-            NULL, 0);
+            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+    SCPI_InitHeap(&scpi_context,
+            error_info_heap, SCPI_ERROR_INFO_HEAP_SIZE);
+#endif
 
     return 0;
 }

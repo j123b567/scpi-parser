@@ -271,14 +271,14 @@ extern "C" {
 #define SCPIDEFINE_free(h, s, r)                        free((s))
 #else
 #define SCPIDEFINE_DESCRIPTION_MAX_PARTS                3
-#define SCPIDEFINE_strndup(h, s, l)                     OUR_strndup((h), (s), (l))
-#define SCPIDEFINE_free(h, s, r)                        OUR_free((h), (s), (r))
-#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)          OUR_get_parts((h), (s), (l1), (s2), (l2))
+#define SCPIDEFINE_strndup(h, s, l)                     scpiheap_strndup((h), (s), (l))
+#define SCPIDEFINE_free(h, s, r)                        scpiheap_free((h), (s), (r))
+#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)          scpiheap_get_parts((h), (s), (l1), (s2), (l2))
 #endif
 #else
 #define SCPIDEFINE_DESCRIPTION_MAX_PARTS                1
 #define SCPIDEFINE_strdup(h, s, l)                      NULL
-#define SCPIDEFINE_free(h, s, r)                        (void)
+#define SCPIDEFINE_free(h, s, r)
 #endif
 
 #ifdef	__cplusplus

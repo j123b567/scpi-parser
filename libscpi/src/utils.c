@@ -753,6 +753,21 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
 
 /**
+ * Initialize heap structure
+ * @param heap - pointer to manual allocated heap buffer
+ * @param error_info_heap - buffer for the heap
+ * @param error_info_heap_length - length of the heap
+ */
+void scpiheap_init(scpi_error_info_heap_t * heap, char * error_info_heap, size_t error_info_heap_length)
+{
+    heap->data = error_info_heap;
+    heap->wr = 0;
+    heap->size = error_info_heap_length;
+    heap->count = heap->size;
+    memset(heap->data, 0, heap->size);
+}
+
+/**
  * Duplicate string if "strdup" ("malloc/free") not supported on system.
  * Allocate space in heap if it possible
  *
@@ -760,8 +775,8 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
  * @param s - current pointer of duplication string
  * @return - pointer of duplicated string or NULL, if duplicate is not possible.
  */
-char * OUR_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) {
-    if (!s || !heap) {
+char * scpiheap_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) {
+    if (!s || !heap || !heap->size) {
         return NULL;
     }
 
@@ -793,6 +808,12 @@ char * OUR_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) {
     heap->wr += len;
     heap->count -= len;
 
+    // ensure '\0' a the end
+    if (heap->wr > 0) {
+        heap->data[heap->wr - 1] = '\0';
+    } else {
+        heap->data[heap->size - 1] = '\0';
+    }
     return head;
 }
 
@@ -805,7 +826,7 @@ char * OUR_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) {
  * @return s2 - pointer of second part of string, if string splited .
  * @return len2 - lenght of second part of string.
  */
-scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t * len1, const char ** s2, size_t * len2) {
+scpi_bool_t scpiheap_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t * len1, const char ** s2, size_t * len2) {
     if (!heap || !s || !len1 || !s2 || !len2) {
         return FALSE;
     }
@@ -835,14 +856,14 @@ scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t 
  * @param s - pointer of duplicate string
  * @param rollback - backward write pointer in heap
  */
-void OUR_free(scpi_error_info_heap_t * heap, char * s, scpi_bool_t rollback) {
+void scpiheap_free(scpi_error_info_heap_t * heap, char * s, scpi_bool_t rollback) {
 
     if (!s) return;
 
     char * data_add;
     size_t len[2];
 
-    if (!OUR_get_parts(heap, s, &len[0], (const char **)&data_add, &len[1])) return;
+    if (!scpiheap_get_parts(heap, s, &len[0], (const char **)&data_add, &len[1])) return;
 
     if (data_add) {
         len[1]++;

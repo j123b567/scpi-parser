@@ -88,9 +88,10 @@ extern "C" {
 #endif
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
-	char * OUR_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) LOCAL;
-	void OUR_free(scpi_error_info_heap_t * heap, char *s, scpi_bool_t rollback) LOCAL;
-	scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char *s1, size_t * len1, const char ** s2, size_t * len2) LOCAL;
+    void scpiheap_init(scpi_error_info_heap_t * heap, char * error_info_heap, size_t error_info_heap_length);
+    char * scpiheap_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) LOCAL;
+    void scpiheap_free(scpi_error_info_heap_t * heap, char *s, scpi_bool_t rollback) LOCAL;
+    scpi_bool_t scpiheap_get_parts(scpi_error_info_heap_t * heap, const char *s1, size_t * len1, const char ** s2, size_t * len2) LOCAL;
 #endif
 
 #ifndef min

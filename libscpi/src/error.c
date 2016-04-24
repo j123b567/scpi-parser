@@ -41,6 +41,12 @@
 #include "scpi/error.h"
 #include "fifo_private.h"
 
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+#define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); (e)->device_dependent_info = (i); } while(0)
+#else
+#define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); } while(0)
+#endif
+
 /**
  * Initialize error queue
  * @param context - scpi context
@@ -100,8 +106,7 @@ void SCPI_ErrorClear(scpi_t * context) {
  */
 scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error) {
     if (!error || !context) return FALSE;
-    error->error_code = 0;
-    error->device_dependent_info = NULL;
+    SCPI_ERROR_SETVAL(error, 0, NULL);
     fifo_remove(&context->error_queue, error);
 
     SCPI_ErrorEmitEmpty(context);
@@ -124,13 +129,11 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
 
 static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info) {
     scpi_error_t error_value;
-    error_value.error_code = err;
-    error_value.device_dependent_info = info;
+    SCPI_ERROR_SETVAL(&error_value, err, info);
     if (!fifo_add(&context->error_queue, &error_value)) {
         fifo_remove_last(&context->error_queue, &error_value);
         SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, false);
-        error_value.error_code = SCPI_ERROR_QUEUE_OVERFLOW;
-        error_value.device_dependent_info = NULL;
+        SCPI_ERROR_SETVAL(&error_value, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
         fifo_add(&context->error_queue, &error_value);
         return FALSE;
     }

@@ -246,9 +246,17 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
 /**
  * Initialize SCPI context structure
  * @param context
- * @param command_list
- * @param buffer
+ * @param commands
  * @param interface
+ * @param units
+ * @param idn1
+ * @param idn2
+ * @param idn3
+ * @param idn4
+ * @param input_buffer
+ * @param input_buffer_length
+ * @param error_queue_data
+ * @param error_queue_size
  */
 void SCPI_Init(scpi_t * context,
         const scpi_command_t * commands,
@@ -256,8 +264,7 @@ void SCPI_Init(scpi_t * context,
         const scpi_unit_def_t * units,
         const char * idn1, const char * idn2, const char * idn3, const char * idn4,
         char * input_buffer, size_t input_buffer_length,
-        scpi_error_t * error_queue_data, int16_t error_queue_size,
-        char * error_info_heap, size_t error_info_heap_length) {
+        scpi_error_t * error_queue_data, int16_t error_queue_size) {
     memset(context, 0, sizeof (*context));
     context->cmdlist = commands;
     context->interface = interface;
@@ -269,13 +276,22 @@ void SCPI_Init(scpi_t * context,
     context->buffer.data = input_buffer;
     context->buffer.length = input_buffer_length;
     context->buffer.position = 0;
-    context->error_info_heap.data = error_info_heap;
-    context->error_info_heap.wr = 0;
-    context->error_info_heap.size = error_info_heap_length;
-    context->error_info_heap.count = context->error_info_heap.size;
-    memset(context->error_info_heap.data, 0, context->error_info_heap.size);
     SCPI_ErrorInit(context, error_queue_data, error_queue_size);
 }
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+/**
+ * Initialize context's
+ * @param context
+ * @param data
+ * @param len
+ * @return
+ */
+void SCPI_InitHeap(scpi_t * context,
+        char * error_info_heap, size_t error_info_heap_length) {
+    scpiheap_init(&context->error_info_heap, error_info_heap, error_info_heap_length);
+}
+#endif
 
 /**
  * Interface to the application. Adds data to system buffer and try to search
