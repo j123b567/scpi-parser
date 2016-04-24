@@ -128,7 +128,7 @@ static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * i
     error_value.device_dependent_info = info;
     if (!fifo_add(&context->error_queue, &error_value)) {
         fifo_remove_last(&context->error_queue, &error_value);
-        // TODO free device_dependent_info
+        SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, false);
         error_value.error_code = SCPI_ERROR_QUEUE_OVERFLOW;
         error_value.device_dependent_info = NULL;
         fifo_add(&context->error_queue, &error_value);
@@ -162,13 +162,13 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
  * @param context - scpi context
  * @param err - error number
  */
-void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
+void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_len) {
     int i;
     char * info_ptr = NULL;
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
     if (info) {
-        info_ptr = SCPIDEFINE_strdup(&context->error_info_heap, info);
+        info_ptr = SCPIDEFINE_strndup(&context->error_info_heap, info, info_len);
     }
 #endif
 
@@ -199,7 +199,7 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
  * @param err - error number
  */
 void SCPI_ErrorPush(scpi_t * context, int16_t err) {
-    SCPI_ErrorPushEx(context, err, NULL);
+    SCPI_ErrorPushEx(context, err, NULL, 0);
     return;
 }
 

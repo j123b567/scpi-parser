@@ -328,7 +328,11 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
 
     TEST_IEEE4882("SYST:ERR:COUNT?\r\n", "1\r\n");
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header;ABCD\"\r\n");
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "0,\"No error\"\r\n");
 
     TEST_IEEE4882("*STB?\r\n", "0\r\n"); /* Error queue is now empty */
@@ -339,7 +343,11 @@ static void testIEEE4882(void) {
     CU_ASSERT_EQUAL(srq_val, 0); /* no control callback */
     TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
     TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header;ABCD\"\r\n");
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     scpi_context.interface->control = SCPI_Control;
 
     RST_executed = FALSE;

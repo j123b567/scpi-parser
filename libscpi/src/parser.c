@@ -219,11 +219,11 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
                 result &= processCommand(context);
                 cmd_prev = state->programHeader;
             } else {
-                /* test */
                 /* place undefined header with error */
-                data[r ? (r - 1) : r] = 0;
-                SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data);
-                //SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
+                /* calculate length of errornouse header and trim \r\n */
+                size_t r2 = r;
+                while(r2 > 0 && (data[r2 - 1] == '\r' || data[r2 - 1] == '\n')) r2--;
+                SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data, r2);
                 result = FALSE;
             }
         }
@@ -547,7 +547,7 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
 
-    for (i = 0; data[i] && outputlimit && (i < SCPIDEFINE_DESCRIPTION_MAX_PARTS); i++) {
+    for (i = 0; (i < SCPIDEFINE_DESCRIPTION_MAX_PARTS) && data[i] && outputlimit; i++) {
         if (i == 1) {
             result += writeSemicolon(context);
             outputlimit -= 1;

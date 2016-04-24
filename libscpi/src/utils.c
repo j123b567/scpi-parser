@@ -760,7 +760,7 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
  * @param s - current pointer of duplication string
  * @return - pointer of duplicated string or NULL, if duplicate is not possible.
  */
-char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
+char * OUR_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) {
     if (!s || !heap) {
         return NULL;
     }
@@ -773,14 +773,13 @@ char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
         return NULL;
     }
 
-    size_t len = strlen(s) + 1; // additional '\0' at end
+    size_t len = SCPIDEFINE_strnlen(s, n) + 1; // additional '\0' at end
     if (len > heap->count) {
         return NULL;
     }
-    char * ptrs = s;
+    const char * ptrs = s;
     char * head = &heap->data[heap->wr];
     size_t rem = heap->size - (&heap->data[heap->wr] - heap->data);
-    size_t sstp = 0;
 
     if (len >= rem) {
         memcpy(&heap->data[heap->wr], s, rem);
@@ -836,14 +835,14 @@ scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t 
  * @param s - pointer of duplicate string
  * @param rollback - backward write pointer in heap
  */
-void OUR_free(scpi_error_info_heap_t * heap, const char * s, scpi_bool_t rollback) {
+void OUR_free(scpi_error_info_heap_t * heap, char * s, scpi_bool_t rollback) {
 
     if (!s) return;
 
     char * data_add;
     size_t len[2];
 
-    if (!OUR_get_parts(heap, s, &len[0], &data_add, &len[1])) return;
+    if (!OUR_get_parts(heap, s, &len[0], (const char **)&data_add, &len[1])) return;
 
     if (data_add) {
         len[1]++;

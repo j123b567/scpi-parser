@@ -90,13 +90,14 @@ extern "C" {
 #endif
 
 #ifndef USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-#define USE_DEVICE_DEPENDENT_ERROR_INFORMATION 0
+#define USE_DEVICE_DEPENDENT_ERROR_INFORMATION SYSTEM_TYPE
+#endif
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 #ifndef USE_MEMORY_ALLOCATION_FREE
 #define USE_MEMORY_ALLOCATION_FREE 1
 #endif
 #endif
-
-
 
 #ifndef USE_COMMAND_TAGS
 #define USE_COMMAND_TAGS 1
@@ -266,18 +267,18 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #define SCPIDEFINE_DESCRIPTION_MAX_PARTS		2
-#define SCPIDEFINE_strdup(h, s)					strdup((s))
-#define SCPIDEFINE_free(h, s, r)				free((s))
+#define SCPIDEFINE_strndup(h, s, l)                     strndup((s), (l))
+#define SCPIDEFINE_free(h, s, r)                        free((s))
 #else
-#define SCPIDEFINE_DESCRIPTION_MAX_PARTS		3
-#define SCPIDEFINE_strdup(h, s)					OUR_strdup((h), (s))
-#define SCPIDEFINE_free(h, s, r)				OUR_free((h), (s), (r))
-#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)	OUR_get_parts((h), (s), (l1), (s2), (l2))
+#define SCPIDEFINE_DESCRIPTION_MAX_PARTS                3
+#define SCPIDEFINE_strndup(h, s, l)                     OUR_strndup((h), (s), (l))
+#define SCPIDEFINE_free(h, s, r)                        OUR_free((h), (s), (r))
+#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)          OUR_get_parts((h), (s), (l1), (s2), (l2))
 #endif
 #else
-#define SCPIDEFINE_DESCRIPTION_MAX_PARTS		1
-#define SCPIDEFINE_strdup(h, s)					NULL
-#define SCPIDEFINE_free(h, s, r)				(void)
+#define SCPIDEFINE_DESCRIPTION_MAX_PARTS                1
+#define SCPIDEFINE_strdup(h, s, l)                      NULL
+#define SCPIDEFINE_free(h, s, r)                        (void)
 #endif
 
 #ifdef	__cplusplus

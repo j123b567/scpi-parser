@@ -212,7 +212,7 @@ extern "C" {
 
     struct _scpi_error_t {
         int16_t error_code;
-        const char * device_dependent_info;
+        char * device_dependent_info;
     };
     typedef struct _scpi_error_t scpi_error_t;
 
