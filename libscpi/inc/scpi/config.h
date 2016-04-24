@@ -277,7 +277,7 @@ extern "C" {
 #endif
 #else
 #define SCPIDEFINE_DESCRIPTION_MAX_PARTS                1
-#define SCPIDEFINE_strdup(h, s, l)                      NULL
+#define SCPIDEFINE_strndup(h, s, l)                     NULL
 #define SCPIDEFINE_free(h, s, r)
 #endif
 
