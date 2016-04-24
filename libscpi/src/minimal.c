@@ -40,6 +40,7 @@
 #include "scpi/constants.h"
 #include "scpi/error.h"
 #include "scpi/ieee488.h"
+#include "utils_private.h"
 
 /**
  * Command stub function
@@ -80,6 +81,9 @@ scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
     scpi_error_t error;
     SCPI_ErrorPop(context, &error);
     SCPI_ResultError(context, &error);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info, false);
+#endif
     return SCPI_RES_OK;
 }
 

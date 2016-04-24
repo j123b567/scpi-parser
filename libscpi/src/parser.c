@@ -593,10 +593,6 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
     }
     result += writeData(context, "\"", 1);
 
-#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-    SCPIDEFINE_free(&context->error_info_heap, error->device_dependent_info, false);
-#endif
-
     return result;
 }
 
