@@ -35,12 +35,12 @@
  */
 
 #ifndef SCPI_PARSER_H
-#define	SCPI_PARSER_H
+#define SCPI_PARSER_H
 
 #include <string.h>
 #include "scpi/types.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
     void SCPI_Init(scpi_t * context,
@@ -48,7 +48,7 @@ extern "C" {
             scpi_interface_t * interface,
             const scpi_unit_def_t * units,
             const char * idn1, const char * idn2, const char * idn3, const char * idn4,
-            char * input_buffer, size_t input_buffer_length, 
+            char * input_buffer, size_t input_buffer_length,
             scpi_error_t * error_queue_data, int16_t error_queue_size);
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
     void SCPI_InitHeap(scpi_t * context, char * error_info_heap, size_t error_info_heap_length);
@@ -74,7 +74,7 @@ extern "C" {
     size_t SCPI_ResultFloat(scpi_t * context, float val);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
-	size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error);
+    size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error);
     size_t SCPI_ResultArbitraryBlock(scpi_t * context, const void * data, size_t len);
     size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len);
     size_t SCPI_ResultArbitraryBlockData(scpi_t * context, const void * data, size_t len);
@@ -117,6 +117,13 @@ extern "C" {
     scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t mandatory);
     scpi_bool_t SCPI_ParamChoice(scpi_t * context, const scpi_choice_def_t * options, int32_t * value, scpi_bool_t mandatory);
 
+    scpi_bool_t SCPI_ParamArrayInt32(scpi_t * context, int32_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamArrayUInt32(scpi_t * context, uint32_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamArrayInt64(scpi_t * context, int64_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamArrayUInt64(scpi_t * context, uint64_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamArrayFloat(scpi_t * context, float *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
+    scpi_bool_t SCPI_ParamArrayDouble(scpi_t * context, double *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory);
+
     scpi_bool_t SCPI_IsCmd(scpi_t * context, const char * cmd);
 #if USE_COMMAND_TAGS
     int32_t SCPI_CmdTag(scpi_t * context);
@@ -134,9 +141,9 @@ extern "C" {
 #define SCPI_ParamUnsignedInt(context, value, mandatory) SCPI_ParamUInt32((context), (value), (mandatory))
 #endif /* USE_DEPRECATED_FUNCTIONS */
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* SCPI_PARSER_H */
+#endif /* SCPI_PARSER_H */
 

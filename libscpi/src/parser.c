@@ -222,7 +222,7 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
                 /* place undefined header with error */
                 /* calculate length of errornouse header and trim \r\n */
                 size_t r2 = r;
-                while(r2 > 0 && (data[r2 - 1] == '\r' || data[r2 - 1] == '\n')) r2--;
+                while (r2 > 0 && (data[r2 - 1] == '\r' || data[r2 - 1] == '\n')) r2--;
                 SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data, r2);
                 result = FALSE;
             }
@@ -280,6 +280,7 @@ void SCPI_Init(scpi_t * context,
 }
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+
 /**
  * Initialize context's
  * @param context
@@ -1545,7 +1546,7 @@ scpi_bool_t SCPI_ParamErrorOccurred(scpi_t * context) {
  * @param format
  * @return
  */
-static size_t parserResultArrayBinary(scpi_t * context, const void * array, size_t count, size_t item_size, scpi_array_format_t format) {
+static size_t produceResultArrayBinary(scpi_t * context, const void * array, size_t count, size_t item_size, scpi_array_format_t format) {
 
     if (SCPI_GetNativeFormat() == format) {
         switch (item_size) {
@@ -1610,7 +1611,7 @@ static size_t parserResultArrayBinary(scpi_t * context, const void * array, size
             result += func(context, array[i]);\
         }\
     } else {\
-        result = parserResultArrayBinary(context, array, count, sizeof(*array), format);\
+        result = produceResultArrayBinary(context, array, count, sizeof(*array), format);\
     }\
     return result;\
 } while(0)
@@ -1733,4 +1734,96 @@ size_t SCPI_ResultArrayFloat(scpi_t * context, const float * array, size_t count
  */
 size_t SCPI_ResultArrayDouble(scpi_t * context, const double * array, size_t count, scpi_array_format_t format) {
     RESULT_ARRAY(SCPI_ResultDouble);
+}
+
+/*
+ * Template macro to generate all SCPI_ParamArrayXYZ function
+ */
+#define PARAM_ARRAY_TEMPLATE(func) do{\
+    if (format != SCPI_FORMAT_ASCII) return FALSE;\
+    for (*o_count = 0; *o_count < i_count; (*o_count)++) {\
+        if (!func(context, &data[*o_count], mandatory)) {\
+            break;\
+        }\
+        mandatory = FALSE;\
+    }\
+    return mandatory ? FALSE : TRUE;\
+}while(0)
+
+/**
+ * Read list of values up to i_count
+ * @param context
+ * @param data - array to fill
+ * @param i_count - number of elements of data
+ * @param o_count - real number of filled elements
+ * @param mandatory
+ * @return TRUE on success
+ */
+scpi_bool_t SCPI_ParamArrayInt32(scpi_t * context, int32_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory) {
+    PARAM_ARRAY_TEMPLATE(SCPI_ParamInt32);
+}
+
+/**
+ * Read list of values up to i_count
+ * @param context
+ * @param data - array to fill
+ * @param i_count - number of elements of data
+ * @param o_count - real number of filled elements
+ * @param mandatory
+ * @return TRUE on success
+ */
+scpi_bool_t SCPI_ParamArrayUInt32(scpi_t * context, uint32_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory) {
+    PARAM_ARRAY_TEMPLATE(SCPI_ParamUInt32);
+}
+
+/**
+ * Read list of values up to i_count
+ * @param context
+ * @param data - array to fill
+ * @param i_count - number of elements of data
+ * @param o_count - real number of filled elements
+ * @param mandatory
+ * @return TRUE on success
+ */
+scpi_bool_t SCPI_ParamArrayInt64(scpi_t * context, int64_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory) {
+    PARAM_ARRAY_TEMPLATE(SCPI_ParamInt64);
+}
+
+/**
+ * Read list of values up to i_count
+ * @param context
+ * @param data - array to fill
+ * @param i_count - number of elements of data
+ * @param o_count - real number of filled elements
+ * @param mandatory
+ * @return TRUE on success
+ */
+scpi_bool_t SCPI_ParamArrayUInt64(scpi_t * context, uint64_t *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory) {
+    PARAM_ARRAY_TEMPLATE(SCPI_ParamUInt64);
+}
+
+/**
+ * Read list of values up to i_count
+ * @param context
+ * @param data - array to fill
+ * @param i_count - number of elements of data
+ * @param o_count - real number of filled elements
+ * @param mandatory
+ * @return TRUE on success
+ */
+scpi_bool_t SCPI_ParamArrayFloat(scpi_t * context, float *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory) {
+    PARAM_ARRAY_TEMPLATE(SCPI_ParamFloat);
+}
+
+/**
+ * Read list of values up to i_count
+ * @param context
+ * @param data - array to fill
+ * @param i_count - number of elements of data
+ * @param o_count - real number of filled elements
+ * @param mandatory
+ * @return TRUE on success
+ */
+scpi_bool_t SCPI_ParamArrayDouble(scpi_t * context, double *data, size_t i_count, size_t *o_count, scpi_array_format_t format, scpi_bool_t mandatory) {
+    PARAM_ARRAY_TEMPLATE(SCPI_ParamDouble);
 }

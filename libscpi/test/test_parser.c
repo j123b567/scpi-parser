@@ -1325,6 +1325,90 @@ static void testResultArray(void) {
     TEST_Result(ArrayDoubleSWAPPED, double_arr, "#216" "\x40\x8c\x16\xd3\x66\x67\xd1\x42" "\x1c\xbc\x6e\xf2\x54\x8b\x11\x43");
 }
 
+#define _countof(a) (sizeof(a)/sizeof(*(a)))
+
+#define TEST_ParamArrayDouble(T, func, data, mandatory, _expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    T value[10];                                                                        \
+    scpi_bool_t result;                                                                 \
+    scpi_error_t errCode;                                                               \
+    T expected_value[] = {NOPAREN _expected_value};                                     \
+    size_t o_count;                                                                     \
+    size_t i_count = _countof(expected_value);                                          \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = func(&scpi_context, value, 10, &o_count, SCPI_FORMAT_ASCII, mandatory);    \
+                                                                                        \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(i_count, o_count);                                              \
+        size_t i;                                                                       \
+        for(i = 0; i < o_count; i++) {                                                  \
+            CU_ASSERT_DOUBLE_EQUAL(value[i], expected_value[i], 0.000001);              \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
+}
+
+#define TEST_ParamArrayInt(T, func, data, mandatory, _expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    T value[10];                                                                        \
+    scpi_bool_t result;                                                                 \
+    scpi_error_t errCode;                                                               \
+    T expected_value[] = {NOPAREN _expected_value};                                     \
+    size_t o_count;                                                                     \
+    size_t i_count = _countof(expected_value);                                          \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = func(&scpi_context, value, 10, &o_count, SCPI_FORMAT_ASCII, mandatory);    \
+                                                                                        \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(i_count, o_count);                                              \
+        size_t i;                                                                       \
+        for(i = 0; i < o_count; i++) {                                                  \
+            CU_ASSERT_EQUAL(value[i], expected_value[i]);                               \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
+}
+
+static void testParamArray(void) {
+    TEST_ParamArrayDouble(double, SCPI_ParamArrayDouble, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayDouble(double, SCPI_ParamArrayDouble, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayDouble(double, SCPI_ParamArrayDouble, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayDouble(float, SCPI_ParamArrayFloat, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayDouble(float, SCPI_ParamArrayFloat, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayDouble(float, SCPI_ParamArrayFloat, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(int32_t, SCPI_ParamArrayInt32, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(int32_t, SCPI_ParamArrayInt32, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(int32_t, SCPI_ParamArrayInt32, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(uint32_t, SCPI_ParamArrayUInt32, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(uint32_t, SCPI_ParamArrayUInt32, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(uint32_t, SCPI_ParamArrayUInt32, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(int64_t, SCPI_ParamArrayInt64, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(int64_t, SCPI_ParamArrayInt64, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(int64_t, SCPI_ParamArrayInt64, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(uint64_t, SCPI_ParamArrayUInt64, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(uint64_t, SCPI_ParamArrayUInt64, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(uint64_t, SCPI_ParamArrayUInt64, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+}
+
 static void testNumberToStr(void) {
 
 #define TEST_SCPI_NumberToStr(_special, _value, _unit, expected_result) do {\
@@ -1551,6 +1635,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultText", testResultText))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamArray", testParamArray))
             || (NULL == CU_add_test(pSuite, "SCPI_NumberToStr", testNumberToStr))
             || (NULL == CU_add_test(pSuite, "SCPI_ErrorQueue", testErrorQueue))
             || (NULL == CU_add_test(pSuite, "Incomplete arbitrary parameter", testIncompleteArbitraryParameter))
