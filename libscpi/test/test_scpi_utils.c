@@ -744,6 +744,61 @@ static void test_swap(void) {
     TEST_SWAP(64, 0x123456789ABCDEF0ull, 0xF0DEBC9A78563412ull);
 }
 
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+
+static void test_heap(void) {
+
+#define ERROR_INFO_HEAP_LENGTH  16
+    scpi_error_info_heap_t heap;
+    char error_info_heap[ERROR_INFO_HEAP_LENGTH];
+
+    scpiheap_init(&heap, error_info_heap, ERROR_INFO_HEAP_LENGTH);
+    CU_ASSERT_EQUAL(heap.size, ERROR_INFO_HEAP_LENGTH);
+    CU_ASSERT_EQUAL(heap.data, error_info_heap);
+    CU_ASSERT_EQUAL(heap.count, heap.size);
+
+    char * ptr1 = scpiheap_strndup(&heap, "abcd", 4);
+    CU_ASSERT_STRING_EQUAL(ptr1, "abcd");
+
+    char * ptr2 = scpiheap_strndup(&heap, "xyz", 3);
+    CU_ASSERT_STRING_EQUAL(ptr2, "xyz");
+
+    char * ptr3 = scpiheap_strndup(&heap, "ghijklmnop", 10);
+    CU_ASSERT_EQUAL(ptr3, NULL);
+
+    scpiheap_free(&heap, ptr1, false);
+
+    char * ptr4 = scpiheap_strndup(&heap, "ghijklmnop", 10);
+    CU_ASSERT_NOT_EQUAL(ptr4, NULL);
+
+    const char * ptr5;
+    size_t len1, len2;
+    CU_ASSERT_EQUAL(scpiheap_get_parts(&heap, ptr4, &len1, &ptr5, &len2), TRUE);
+    CU_ASSERT_EQUAL(len1, 7);
+    CU_ASSERT_EQUAL(len2, 3);
+    CU_ASSERT_STRING_EQUAL(ptr5, "nop");
+    CU_ASSERT_EQUAL(memcmp(ptr4, "ghijklm", len1), 0);
+
+    scpiheap_free(&heap, ptr2, false);
+
+    char * ptr6 = scpiheap_strndup(&heap, "abcd", 4);
+    CU_ASSERT_STRING_EQUAL(ptr6, "abcd");
+
+    scpiheap_free(&heap, ptr6, true);
+
+    char * ptr7 = scpiheap_strndup(&heap, "123456789", 9);
+    CU_ASSERT_EQUAL(ptr7, NULL);
+
+    char * ptr8 = scpiheap_strndup(&heap, "123456789", 4);
+    CU_ASSERT_STRING_EQUAL(ptr8, "1234");
+
+    scpiheap_free(&heap, ptr4, false);
+    scpiheap_free(&heap, ptr8, false);
+    CU_ASSERT_EQUAL(heap.count, heap.size);
+
+}
+#endif
+
 int main() {
     unsigned int result;
     CU_pSuite pSuite = NULL;
@@ -780,6 +835,9 @@ int main() {
             || (NULL == CU_add_test(pSuite, "matchCommand", test_matchCommand))
             || (NULL == CU_add_test(pSuite, "composeCompoundCommand", test_composeCompoundCommand))
             || (NULL == CU_add_test(pSuite, "swap", test_swap))
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+            || (NULL == CU_add_test(pSuite, "heap", test_heap))
+#endif
             ) {
         CU_cleanup_registry();
         return CU_get_error();

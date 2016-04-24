@@ -127,12 +127,13 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
     return result;
 }
 
-static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info) {
+static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info, size_t info_len) {
     scpi_error_t error_value;
-    SCPI_ERROR_SETVAL(&error_value, err, info);
+    SCPI_ERROR_SETVAL(&error_value, err, SCPIDEFINE_strndup(&context->error_info_heap, info, info_len));
     if (!fifo_add(&context->error_queue, &error_value)) {
+        SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, true);
         fifo_remove_last(&context->error_queue, &error_value);
-        SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, false);
+        SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, true);
         SCPI_ERROR_SETVAL(&error_value, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
         fifo_add(&context->error_queue, &error_value);
         return FALSE;
@@ -167,15 +168,7 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
  */
 void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_len) {
     int i;
-    char * info_ptr = NULL;
-
-#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-    if (info) {
-        info_ptr = SCPIDEFINE_strndup(&context->error_info_heap, info, info_len);
-    }
-#endif
-
-    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info_ptr);
+    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info, info_len);
 
     for (i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {
@@ -186,9 +179,6 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_le
     SCPI_ErrorEmit(context, err);
     if (queue_overflow) {
         SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
-#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-        SCPIDEFINE_free(&context->error_info_heap, info_ptr, true);
-#endif
     }
 
     if (context) {
