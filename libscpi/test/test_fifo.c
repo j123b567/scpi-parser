@@ -25,14 +25,15 @@ static int clean_suite(void) {
 
 static void testFifo() {
     scpi_fifo_t fifo;
-    int16_t fifo_data[4];
+    scpi_error_t fifo_data[4];
     fifo_init(&fifo, fifo_data, 4);
-    int16_t value;
+    scpi_error_t value;
+    int16_t count_value;
 
 #define TEST_FIFO_COUNT(n)                      \
     do {                                        \
-        fifo_count(&fifo, &value);              \
-        CU_ASSERT_EQUAL(value, n);              \
+        fifo_count(&fifo, &count_value);        \
+        CU_ASSERT_EQUAL(count_value, n);        \
     } while(0)                                  \
 
 
@@ -40,95 +41,103 @@ static void testFifo() {
     CU_ASSERT_TRUE(fifo_is_empty(&fifo));
     CU_ASSERT_FALSE(fifo_is_full(&fifo));
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 1));
+    value.error_code = 1;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(1);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_FALSE(fifo_is_full(&fifo));
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 2));
+    value.error_code = 2;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(2);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_FALSE(fifo_is_full(&fifo));
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 3));
+    value.error_code = 3;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(3);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_FALSE(fifo_is_full(&fifo));
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 4));
+    value.error_code = 4;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(4);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_TRUE(fifo_is_full(&fifo));
 
-    CU_ASSERT_EQUAL(fifo.data[0], 1);
-    CU_ASSERT_EQUAL(fifo.data[1], 2);
-    CU_ASSERT_EQUAL(fifo.data[2], 3);
-    CU_ASSERT_EQUAL(fifo.data[3], 4);
+    CU_ASSERT_EQUAL(fifo.data[0].error_code, 1);
+    CU_ASSERT_EQUAL(fifo.data[1].error_code, 2);
+    CU_ASSERT_EQUAL(fifo.data[2].error_code, 3);
+    CU_ASSERT_EQUAL(fifo.data[3].error_code, 4);
 
-
-    CU_ASSERT_FALSE(fifo_add(&fifo, 5));
+    value.error_code = 5;
+    CU_ASSERT_FALSE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(4);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_TRUE(fifo_is_full(&fifo));
 
-    CU_ASSERT_EQUAL(fifo.data[0], 1);
-    CU_ASSERT_EQUAL(fifo.data[1], 2);
-    CU_ASSERT_EQUAL(fifo.data[2], 3);
-    CU_ASSERT_EQUAL(fifo.data[3], 4);
+    CU_ASSERT_EQUAL(fifo.data[0].error_code, 1);
+    CU_ASSERT_EQUAL(fifo.data[1].error_code, 2);
+    CU_ASSERT_EQUAL(fifo.data[2].error_code, 3);
+    CU_ASSERT_EQUAL(fifo.data[3].error_code, 4);
 
     CU_ASSERT_TRUE(fifo_remove_last(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 4);
+    CU_ASSERT_EQUAL(value.error_code, 4);
     TEST_FIFO_COUNT(3);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_FALSE(fifo_is_full(&fifo));
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 6));
+    value.error_code = 6;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(4);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_TRUE(fifo_is_full(&fifo));
 
-    CU_ASSERT_EQUAL(fifo.data[0], 1);
-    CU_ASSERT_EQUAL(fifo.data[1], 2);
-    CU_ASSERT_EQUAL(fifo.data[2], 3);
-    CU_ASSERT_EQUAL(fifo.data[3], 6);
+    CU_ASSERT_EQUAL(fifo.data[0].error_code, 1);
+    CU_ASSERT_EQUAL(fifo.data[1].error_code, 2);
+    CU_ASSERT_EQUAL(fifo.data[2].error_code, 3);
+    CU_ASSERT_EQUAL(fifo.data[3].error_code, 6);
 
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 1);
+    CU_ASSERT_EQUAL(value.error_code, 1);
     TEST_FIFO_COUNT(3);
     CU_ASSERT_FALSE(fifo_is_empty(&fifo));
     CU_ASSERT_FALSE(fifo_is_full(&fifo));
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 7));
+    value.error_code = 7;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(4);
 
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 2);
+    CU_ASSERT_EQUAL(value.error_code, 2);
     TEST_FIFO_COUNT(3);
 
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 3);
+    CU_ASSERT_EQUAL(value.error_code, 3);
     TEST_FIFO_COUNT(2);
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 10));
+    value.error_code = 10;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(3);
 
-    CU_ASSERT_TRUE(fifo_add(&fifo, 11));
+    value.error_code = 11;
+    CU_ASSERT_TRUE(fifo_add(&fifo, &value));
     TEST_FIFO_COUNT(4);
 
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 6);
+    CU_ASSERT_EQUAL(value.error_code, 6);
     TEST_FIFO_COUNT(3);
 
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 7);
+    CU_ASSERT_EQUAL(value.error_code, 7);
     TEST_FIFO_COUNT(2);
 
     CU_ASSERT_TRUE(fifo_remove_last(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 11);
+    CU_ASSERT_EQUAL(value.error_code, 11);
     TEST_FIFO_COUNT(1);
 
     CU_ASSERT_TRUE(fifo_remove(&fifo, &value));
-    CU_ASSERT_EQUAL(value, 10);
+    CU_ASSERT_EQUAL(value.error_code, 10);
     TEST_FIFO_COUNT(0);
 
     CU_ASSERT_FALSE(fifo_remove(&fifo, &value));

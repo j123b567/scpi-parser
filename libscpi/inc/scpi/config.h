@@ -89,6 +89,16 @@ extern "C" {
 #define USE_USER_ERROR_LIST 0
 #endif
 
+#ifndef USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+#define USE_DEVICE_DEPENDENT_ERROR_INFORMATION SYSTEM_TYPE
+#endif
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+#ifndef USE_MEMORY_ALLOCATION_FREE
+#define USE_MEMORY_ALLOCATION_FREE 1
+#endif
+#endif
+
 #ifndef USE_COMMAND_TAGS
 #define USE_COMMAND_TAGS 1
 #endif
@@ -206,8 +216,10 @@ extern "C" {
 /* PIC32mx */
 #if defined(__C32__)
 #define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        1
+#define HAVE_STRNCASECMP        0
 #define HAVE_STRNICMP           0
+#define isfinite                finite
+#define signbit(x)              ((x)<0)
 #endif
 
 /* AVR libc */
@@ -265,6 +277,25 @@ extern "C" {
 #define SCPIDEFINE_doubleToStr(v, s, l) snprintf((s), (l), "%.15lg", (v))
 #endif
 
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+
+#if USE_MEMORY_ALLOCATION_FREE
+#include <stdlib.h>
+#include <string.h>
+#define SCPIDEFINE_DESCRIPTION_MAX_PARTS		2
+#define SCPIDEFINE_strndup(h, s, l)                     strndup((s), (l))
+#define SCPIDEFINE_free(h, s, r)                        free((s))
+#else
+#define SCPIDEFINE_DESCRIPTION_MAX_PARTS                3
+#define SCPIDEFINE_strndup(h, s, l)                     scpiheap_strndup((h), (s), (l))
+#define SCPIDEFINE_free(h, s, r)                        scpiheap_free((h), (s), (r))
+#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)          scpiheap_get_parts((h), (s), (l1), (s2), (l2))
+#endif
+#else
+#define SCPIDEFINE_DESCRIPTION_MAX_PARTS                1
+#define SCPIDEFINE_strndup(h, s, l)                     NULL
+#define SCPIDEFINE_free(h, s, r)
+#endif
 
 #ifdef	__cplusplus
 }

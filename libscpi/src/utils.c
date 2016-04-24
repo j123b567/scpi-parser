@@ -184,7 +184,7 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
             case 8:
                 x = 0x8000000000000000ULL;
                 break;
-	    default:
+            default:
             case 10:
                 x = 10000000000000000000ULL;
                 base = 10;
@@ -750,6 +750,145 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 }
 #endif
 
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+
+/**
+ * Initialize heap structure
+ * @param heap - pointer to manual allocated heap buffer
+ * @param error_info_heap - buffer for the heap
+ * @param error_info_heap_length - length of the heap
+ */
+void scpiheap_init(scpi_error_info_heap_t * heap, char * error_info_heap, size_t error_info_heap_length)
+{
+    heap->data = error_info_heap;
+    heap->wr = 0;
+    heap->size = error_info_heap_length;
+    heap->count = heap->size;
+    memset(heap->data, 0, heap->size);
+}
+
+/**
+ * Duplicate string if "strdup" ("malloc/free") not supported on system.
+ * Allocate space in heap if it possible
+ *
+ * @param heap - pointer to manual allocated heap buffer
+ * @param s - current pointer of duplication string
+ * @return - pointer of duplicated string or NULL, if duplicate is not possible.
+ */
+char * scpiheap_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) {
+    if (!s || !heap || !heap->size) {
+        return NULL;
+    }
+
+    if (heap->data[heap->wr] != '\0') {
+        return NULL;
+    }
+
+    if (*s == '\0') {
+        return NULL;
+    }
+
+    size_t len = SCPIDEFINE_strnlen(s, n) + 1; // additional '\0' at end
+    if (len > heap->count) {
+        return NULL;
+    }
+    const char * ptrs = s;
+    char * head = &heap->data[heap->wr];
+    size_t rem = heap->size - (&heap->data[heap->wr] - heap->data);
+
+    if (len >= rem) {
+        memcpy(&heap->data[heap->wr], s, rem);
+        len = len - rem;
+        ptrs += rem;
+        heap->wr = 0;
+        heap->count -= rem;
+    }
+
+    memcpy(&heap->data[heap->wr], ptrs, len);
+    heap->wr += len;
+    heap->count -= len;
+
+    // ensure '\0' a the end
+    if (heap->wr > 0) {
+        heap->data[heap->wr - 1] = '\0';
+    } else {
+        heap->data[heap->size - 1] = '\0';
+    }
+    return head;
+}
+
+/**
+ * Return pointers and lengths two parts of string in the circular buffer from heap
+ *
+ * @param heap - pointer to manual allocated heap buffer
+ * @param s - pointer of duplicate string.
+ * @return len1 - lenght of first part of string.
+ * @return s2 - pointer of second part of string, if string splited .
+ * @return len2 - lenght of second part of string.
+ */
+scpi_bool_t scpiheap_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t * len1, const char ** s2, size_t * len2) {
+    if (!heap || !s || !len1 || !s2 || !len2) {
+        return FALSE;
+    }
+
+    if (*s == '\0') {
+        return FALSE;
+    }
+
+    *len1 = 0;
+    size_t rem = heap->size - (s - heap->data);
+    *len1 = strnlen(s, rem);
+
+    if (&s[*len1 - 1] == &heap->data[heap->size - 1]) {
+        *s2 = heap->data;
+        *len2 = strnlen(*s2, heap->size);
+    } else {
+        *s2 = NULL;
+        *len2 = 0;
+    }
+    return TRUE;
+}
+
+/**
+ * Frees space in heap, if "malloc/free" not supported on system, or nothing.
+ *
+ * @param heap - pointer to manual allocated heap buffer
+ * @param s - pointer of duplicate string
+ * @param rollback - backward write pointer in heap
+ */
+void scpiheap_free(scpi_error_info_heap_t * heap, char * s, scpi_bool_t rollback) {
+
+    if (!s) return;
+
+    char * data_add;
+    size_t len[2];
+
+    if (!scpiheap_get_parts(heap, s, &len[0], (const char **)&data_add, &len[1])) return;
+
+    if (data_add) {
+        len[1]++;
+        memset(data_add, 0, len[1]);
+        heap->count += len[1];
+    } else {
+        len[0]++;
+    }
+    memset(s, 0, len[0]);
+    heap->count += len[0];
+    if (heap->count == heap->size) {
+        heap->wr = 0;
+        return;
+    }
+    if (rollback) {
+        size_t rb = len[0] + len[1];
+        if (rb > heap->wr) {
+            heap->wr += heap->size;
+        }
+        heap->wr -= rb;
+    }
+}
+
+#endif
+
 // Floating point to string conversion routines
 //
 // Copyright (C) 2002 Michael Ringgaard. All rights reserved.
@@ -810,7 +949,7 @@ static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf
             buf[--w2] = (int) ((fj + .03) * 10) + '0';
             r2++;
         }
-        while (w2 < (int)bufsize) buf[w1++] = buf[w2++];
+        while (w2 < (int) bufsize) buf[w1++] = buf[w2++];
     } else if (arg > 0) {
         while ((fj = arg * 10) < 1) {
             arg = fj;
@@ -823,12 +962,12 @@ static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf
         buf[0] = '\0';
         return buf;
     }
-    while (w1 <= w2 && w1 < (int)bufsize) {
+    while (w1 <= w2 && w1 < (int) bufsize) {
         arg *= 10;
         arg = modf(arg, &fj);
         buf[w1++] = (int) fj + '0';
     }
-    if (w2 >= (int)bufsize) {
+    if (w2 >= (int) bufsize) {
         buf[bufsize - 1] = '\0';
         return buf;
     }
@@ -934,9 +1073,10 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
 
 /**
  * Get native CPU endiannes
- * @return 
+ * @return
  */
 scpi_array_format_t SCPI_GetNativeFormat(void) {
+
     union {
         uint32_t i;
         char c[4];
@@ -948,17 +1088,17 @@ scpi_array_format_t SCPI_GetNativeFormat(void) {
 /**
  * Swap 16bit number
  * @param val
- * @return 
+ * @return
  */
 uint16_t SCPI_Swap16(uint16_t val) {
-    return ((val & 0x00FF) << 8) | 
+    return ((val & 0x00FF) << 8) |
             ((val & 0xFF00) >> 8);
 }
 
 /**
  * Swap 32bit number
  * @param val
- * @return 
+ * @return
  */
 uint32_t SCPI_Swap32(uint32_t val) {
     return ((val & 0x000000FF) << 24) |
@@ -970,7 +1110,7 @@ uint32_t SCPI_Swap32(uint32_t val) {
 /**
  * Swap 64bit number
  * @param val
- * @return 
+ * @return
  */
 uint64_t SCPI_Swap64(uint64_t val) {
     return ((val & 0x00000000000000FFul) << 56) |

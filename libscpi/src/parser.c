@@ -265,7 +265,11 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
                 result &= processCommand(context);
                 cmd_prev = state->programHeader;
             } else {
-                SCPI_ErrorPush(context, SCPI_ERROR_UNDEFINED_HEADER);
+                /* place undefined header with error */
+                /* calculate length of errornouse header and trim \r\n */
+                size_t r2 = r;
+                while(r2 > 0 && (data[r2 - 1] == '\r' || data[r2 - 1] == '\n')) r2--;
+                SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data, r2);
                 result = FALSE;
             }
         }
@@ -288,18 +292,26 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
 /**
  * Initialize SCPI context structure
  * @param context
- * @param command_list
- * @param buffer
+ * @param commands
  * @param interface
+ * @param units
+ * @param idn1
+ * @param idn2
+ * @param idn3
+ * @param idn4
+ * @param input_buffer
+ * @param input_buffer_length
+ * @param error_queue_data
+ * @param error_queue_size
  */
-void SCPI_Init(scpi_t * context, 
+void SCPI_Init(scpi_t * context,
         const scpi_command_t * commands,
         scpi_interface_t * interface,
         const scpi_unit_def_t * units,
         const char * idn1, const char * idn2, const char * idn3, const char * idn4,
-        char * input_buffer, size_t input_buffer_length, 
-        int16_t * error_queue_data, int16_t error_queue_size) {
-    memset(context, 0, sizeof(*context));
+        char * input_buffer, size_t input_buffer_length,
+        scpi_error_t * error_queue_data, int16_t error_queue_size) {
+    memset(context, 0, sizeof (*context));
     context->cmdlist = commands;
     context->interface = interface;
     context->units = units;
@@ -317,6 +329,20 @@ void SCPI_Init(scpi_t * context,
     context->param_list.cmd = &context->param_list.cmd_s;
 #endif
 }
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+/**
+ * Initialize context's
+ * @param context
+ * @param data
+ * @param len
+ * @return
+ */
+void SCPI_InitHeap(scpi_t * context,
+        char * error_info_heap, size_t error_info_heap_length) {
+    scpiheap_init(&context->error_info_heap, error_info_heap, error_info_heap_length);
+}
+#endif
 
 /**
  * Interface to the application. Adds data to system buffer and try to search
@@ -548,6 +574,76 @@ size_t SCPI_ResultText(scpi_t * context, const char * data) {
     result += writeData(context, data, len);
     result += writeData(context, "\"", 1);
     context->output_count++;
+    return result;
+}
+
+/**
+ * SCPI-99:21.8 Device-dependent error information.
+ * Write error information with the following syntax:
+ * <Error/event_number>,"<Error/event_description>[;<Device-dependent_info>]"
+ * The maximum string length of <Error/event_description> plus <Device-dependent_info>
+ * is SCPI_STD_ERROR_DESC_MAX_STRING_LENGTH (255) characters.
+ *
+ * @param context
+ * @param error
+ * @return
+ */
+size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
+    size_t result = 0;
+    size_t outputlimit = SCPI_STD_ERROR_DESC_MAX_STRING_LENGTH;
+    size_t step = 0;
+    const char * quote;
+
+    const char * data[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
+    size_t len[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
+    size_t i;
+
+    data[0] = SCPI_ErrorTranslate(error->error_code);
+    len[0] = strlen(data[0]);
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    data[1] = error->device_dependent_info;
+#if USE_MEMORY_ALLOCATION_FREE
+    len[1] = error->device_dependent_info ? strlen(data[1]) : 0;
+#else
+    SCPIDEFINE_get_parts(&context->error_info_heap, data[1], &len[1], &data[2], &len[2]);
+#endif
+#endif
+
+    result += SCPI_ResultInt32(context, error->error_code);
+    result += writeDelimiter(context);
+    result += writeData(context, "\"", 1);
+
+    for (i = 0; (i < SCPIDEFINE_DESCRIPTION_MAX_PARTS) && data[i] && outputlimit; i++) {
+        if (i == 1) {
+            result += writeSemicolon(context);
+            outputlimit -= 1;
+        }
+        if (len[i] > outputlimit) {
+            len[i] = outputlimit;
+        }
+
+        while ((quote = strnpbrk(data[i], len[i], "\""))) {
+            if ((step = quote - data[i] + 1) >= outputlimit) {
+                len[i] -= 1;
+                outputlimit -= 1;
+                break;
+            }
+            result += writeData(context, data[i], step);
+            result += writeData(context, "\"", 1);
+            len[i] -= step;
+            outputlimit -= step + 1;
+            data[i] = quote + 1;
+            if (len[i] > outputlimit) {
+                len[i] = outputlimit;
+            }
+        }
+
+        result += writeData(context, data[i], len[i]);
+        outputlimit -= len[i];
+    }
+    result += writeData(context, "\"", 1);
+
     return result;
 }
 

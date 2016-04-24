@@ -44,9 +44,10 @@
 extern "C" {
 #endif
 
-    void SCPI_ErrorInit(scpi_t * context, int16_t * data, int16_t size);
+    void SCPI_ErrorInit(scpi_t * context, scpi_error_t * data, int16_t size);
     void SCPI_ErrorClear(scpi_t * context);
-    int16_t SCPI_ErrorPop(scpi_t * context);
+    scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error);
+    void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_len);
     void SCPI_ErrorPush(scpi_t * context, int16_t err);
     int32_t SCPI_ErrorCount(scpi_t * context);
     const char * SCPI_ErrorTranslate(int16_t err);
@@ -59,6 +60,7 @@ extern "C" {
      * XE macro is for full set of SCPI errors available to user application
      */
 #define LIST_OF_ERRORS \
+    X(SCPI_ERROR_NO_ERROR,                         0, "No error")                                     \
     XE(SCPI_ERROR_COMMAND,                      -100, "Command error")                                \
     X(SCPI_ERROR_INVALID_CHARACTER,             -101, "Invalid character")                            \
     XE(SCPI_ERROR_SYNTAX,                       -102, "Syntax error")                                 \

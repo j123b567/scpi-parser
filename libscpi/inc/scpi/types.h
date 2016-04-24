@@ -205,12 +205,29 @@ extern "C" {
 
     typedef scpi_result_t(*scpi_command_callback_t)(scpi_t *);
 
+    struct _scpi_error_info_heap_t {
+        size_t wr;
+        //size_t rd;
+        size_t count;
+        size_t size;
+        char * data;
+    };
+    typedef struct _scpi_error_info_heap_t scpi_error_info_heap_t;
+
+    struct _scpi_error_t {
+        int16_t error_code;
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+        char * device_dependent_info;
+#endif
+    };
+    typedef struct _scpi_error_t scpi_error_t;
+
     struct _scpi_fifo_t {
         int16_t wr;
         int16_t rd;
         int16_t count;
         int16_t size;
-        int16_t * data;
+        scpi_error_t * data;
     };
     typedef struct _scpi_fifo_t scpi_fifo_t;
 
@@ -363,6 +380,9 @@ extern "C" {
         int_fast16_t input_count;
         scpi_bool_t cmd_error;
         scpi_fifo_t error_queue;
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+        scpi_error_info_heap_t error_info_heap;
+#endif
         scpi_reg_val_t registers[SCPI_REG_COUNT];
         const scpi_unit_def_t * units;
         void * user_context;
