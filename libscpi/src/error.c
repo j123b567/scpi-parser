@@ -123,9 +123,15 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
 }
 
 static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info) {
-    if (!fifo_add(&context->error_queue, err, info)) {
-        fifo_remove_last(&context->error_queue, NULL);
-        fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
+    scpi_error_t error_value;
+    error_value.error_code = err;
+    error_value.device_dependent_info = info;
+    if (!fifo_add(&context->error_queue, &error_value)) {
+        fifo_remove_last(&context->error_queue, &error_value);
+        // TODO free device_dependent_info
+        error_value.error_code = SCPI_ERROR_QUEUE_OVERFLOW;
+        error_value.device_dependent_info = NULL;
+        fifo_add(&context->error_queue, &error_value);
         return FALSE;
     }
     return TRUE;

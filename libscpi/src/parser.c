@@ -527,8 +527,9 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
     size_t step = 0;
     const char * quote;
 
-    char * data[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
+    const char * data[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
     size_t len[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
+    size_t i;
 
     data[0] = SCPI_ErrorTranslate(error->error_code);
     len[0] = strlen(data[0]);
@@ -546,7 +547,7 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
     result += writeDelimiter(context);
     result += writeData(context, "\"", 1);
 
-    for (size_t i = 0; data[i] && outputlimit && (i < SCPIDEFINE_DESCRIPTION_MAX_PARTS); i++) {
+    for (i = 0; data[i] && outputlimit && (i < SCPIDEFINE_DESCRIPTION_MAX_PARTS); i++) {
         if (i == 1) {
             result += writeSemicolon(context);
             outputlimit -= 1;

@@ -48,14 +48,16 @@ scpi_bool_t fifo_is_full(scpi_fifo_t * fifo) {
  * @param info
  * @return
  */
-scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t err, char * info) {
+scpi_bool_t fifo_add(scpi_fifo_t * fifo, const scpi_error_t * value) {
     /* FIFO full? */
     if (fifo_is_full(fifo)) {
         return FALSE;
     }
+    if (!value) {
+        return FALSE;
+    }
 
-    fifo->data[fifo->wr].error_code = err;
-    fifo->data[fifo->wr].device_dependent_info = info;
+    fifo->data[fifo->wr] = *value;
     fifo->wr = (fifo->wr + 1) % (fifo->size);
     fifo->count += 1;
     return TRUE;
