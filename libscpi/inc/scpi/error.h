@@ -60,6 +60,7 @@ extern "C" {
      * XE macro is for full set of SCPI errors available to user application
      */
 #define LIST_OF_ERRORS \
+    X(SCPI_ERROR_NO_ERROR,                         0, "No error")                                     \
     XE(SCPI_ERROR_COMMAND,                      -100, "Command error")                                \
     X(SCPI_ERROR_INVALID_CHARACTER,             -101, "Invalid character")                            \
     XE(SCPI_ERROR_SYNTAX,                       -102, "Syntax error")                                 \

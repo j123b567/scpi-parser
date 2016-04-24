@@ -211,7 +211,6 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
  */
 const char * SCPI_ErrorTranslate(int16_t err) {
     switch (err) {
-        case 0: return "No error";
 #define X(def, val, str) case def: return str;
 #if USE_FULL_ERROR_LIST
 #define XE X
