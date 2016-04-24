@@ -40,12 +40,19 @@
 #include "scpi/ieee488.h"
 #include "scpi/error.h"
 #include "fifo_private.h"
+#include "scpi/constants.h"
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+#define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); (e)->device_dependent_info = (i); } while(0)
+#else
+#define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); } while(0)
+#endif
 
 /**
  * Initialize error queue
  * @param context - scpi context
  */
-void SCPI_ErrorInit(scpi_t * context, int16_t * data, int16_t size) {
+void SCPI_ErrorInit(scpi_t * context, scpi_error_t * data, int16_t size) {
     fifo_init(&context->error_queue, data, size);
 }
 
@@ -81,6 +88,12 @@ static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
  * @param context - scpi context
  */
 void SCPI_ErrorClear(scpi_t * context) {
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    scpi_error_t error;
+    while (fifo_remove(&context->error_queue, &error)) {
+        SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info, false);
+    }
+#endif
     fifo_clear(&context->error_queue);
 
     SCPI_ErrorEmitEmpty(context);
@@ -89,16 +102,17 @@ void SCPI_ErrorClear(scpi_t * context) {
 /**
  * Pop error from queue
  * @param context - scpi context
- * @return error number
+ * @param error
+ * @return
  */
-int16_t SCPI_ErrorPop(scpi_t * context) {
-    int16_t result = 0;
-
-    fifo_remove(&context->error_queue, &result);
+scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error) {
+    if (!error || !context) return FALSE;
+    SCPI_ERROR_SETVAL(error, 0, NULL);
+    fifo_remove(&context->error_queue, error);
 
     SCPI_ErrorEmitEmpty(context);
 
-    return result;
+    return TRUE;
 }
 
 /**
@@ -114,10 +128,16 @@ int32_t SCPI_ErrorCount(scpi_t * context) {
     return result;
 }
 
-static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err) {
-    if (!fifo_add(&context->error_queue, err)) {
-        fifo_remove_last(&context->error_queue, NULL);
-        fifo_add(&context->error_queue, SCPI_ERROR_QUEUE_OVERFLOW);
+static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * info, size_t info_len) {
+    scpi_error_t error_value;
+    char * info_ptr = info ? SCPIDEFINE_strndup(&context->error_info_heap, info, info_len) : NULL;
+    SCPI_ERROR_SETVAL(&error_value, err, info_ptr);
+    if (!fifo_add(&context->error_queue, &error_value)) {
+        SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, true);
+        fifo_remove_last(&context->error_queue, &error_value);
+        SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, true);
+        SCPI_ERROR_SETVAL(&error_value, SCPI_ERROR_QUEUE_OVERFLOW, NULL);
+        fifo_add(&context->error_queue, &error_value);
         return FALSE;
     }
     return TRUE;
@@ -129,7 +149,7 @@ struct error_reg {
     scpi_reg_val_t esrBit;
 };
 
-#define ERROR_DEFS_N	9
+#define ERROR_DEFS_N 9
 
 static const struct error_reg errs[ERROR_DEFS_N] = {
     {-100, -199, ESR_CER}, /* Command error (e.g. syntax error) ch 21.8.9    */
@@ -145,14 +165,18 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
 
 /**
  * Push error to queue
- * @param context - scpi context
+ * @param context
  * @param err - error number
+ * @param info - additional text information or NULL for no text
+ * @param info_len - length of text or 0 for automatic length
  */
-void SCPI_ErrorPush(scpi_t * context, int16_t err) {
-
+void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_len) {
     int i;
-
-    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err);
+    /* automatic calculation of length */
+    if (info && info_len == 0) {
+        info_len = SCPIDEFINE_strnlen(info, SCPI_STD_ERROR_DESC_MAX_STRING_LENGTH);
+    }
+    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info, info_len);
 
     for (i = 0; i < ERROR_DEFS_N; i++) {
         if ((err <= errs[i].from) && (err >= errs[i].to)) {
@@ -168,6 +192,16 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
     if (context) {
         context->cmd_error = TRUE;
     }
+}
+
+/**
+ * Push error to queue
+ * @param context - scpi context
+ * @param err - error number
+ */
+void SCPI_ErrorPush(scpi_t * context, int16_t err) {
+    SCPI_ErrorPushEx(context, err, NULL, 0);
+    return;
 }
 
 /**

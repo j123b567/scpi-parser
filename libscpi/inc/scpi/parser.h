@@ -49,7 +49,10 @@ extern "C" {
             const scpi_unit_def_t * units,
             const char * idn1, const char * idn2, const char * idn3, const char * idn4,
             char * input_buffer, size_t input_buffer_length, 
-            int16_t * error_queue_data, int16_t error_queue_size);
+            scpi_error_t * error_queue_data, int16_t error_queue_size);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+    void SCPI_InitHeap(scpi_t * context, char * error_info_heap, size_t error_info_heap_length);
+#endif
 
     scpi_bool_t SCPI_Input(scpi_t * context, const char * data, int len);
     scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len);
@@ -71,6 +74,7 @@ extern "C" {
     size_t SCPI_ResultFloat(scpi_t * context, float val);
     size_t SCPI_ResultDouble(scpi_t * context, double val);
     size_t SCPI_ResultText(scpi_t * context, const char * data);
+	size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error);
     size_t SCPI_ResultArbitraryBlock(scpi_t * context, const void * data, size_t len);
     size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len);
     size_t SCPI_ResultArbitraryBlockData(scpi_t * context, const void * data, size_t len);

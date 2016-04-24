@@ -184,7 +184,10 @@ static scpi_interface_t scpi_interface = {
 static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 
 #define SCPI_ERROR_QUEUE_SIZE 4
-static int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+static scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+
+#define SCPI_ERROR_INFO_HEAP_SIZE 16
+static char error_info_heap[SCPI_ERROR_INFO_HEAP_SIZE];
 
 static int init_suite(void) {
     SCPI_Init(&scpi_context,
@@ -194,6 +197,10 @@ static int init_suite(void) {
             "MA", "IN", NULL, "VER",
             scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
             scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+    SCPI_InitHeap(&scpi_context,
+            error_info_heap, SCPI_ERROR_INFO_HEAP_SIZE);
+#endif
 
     return 0;
 }
@@ -285,6 +292,55 @@ static void testErrorHandling(void) {
     error_buffer_clear();
 }
 
+static void testErrorHandlingDeviceDependent(void) {
+#define TEST_CMDERR(output) {\
+    SCPI_Input(&scpi_context, "SYST:ERR:NEXT?\r\n", strlen("SYST:ERR:NEXT?\r\n"));\
+    CU_ASSERT_STRING_EQUAL(output, output_buffer);\
+    output_buffer_clear();\
+}
+
+    output_buffer_clear();
+    error_buffer_clear();
+
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test1", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, NULL, 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, NULL, 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test4", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test5", 0);
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_CMDERR("-101,\"Invalid character;Test1\"\r\n");
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-350,\"Queue overflow\"\r\n");
+    TEST_CMDERR("0,\"No error\"\r\n");
+
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test6", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test7", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test8", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test9", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test10", 0);
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_CMDERR("-101,\"Invalid character;Test6\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character;Test7\"\r\n");
+#if USE_MEMORY_ALLOCATION_FREE
+    TEST_CMDERR("-101,\"Invalid character;Test8\"\r\n");
+#else /* USE_MEMORY_ALLOCATION_FREE */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+#endif /* USE_MEMORY_ALLOCATION_FREE */
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-350,\"Queue overflow\"\r\n");
+    TEST_CMDERR("0,\"No error\"\r\n");
+}
+
 static void testIEEE4882(void) {
 #define TEST_IEEE4882(data, output) {                           \
     SCPI_Input(&scpi_context, data, strlen(data));              \
@@ -327,7 +383,11 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("*ESR?\r\n", "0\r\n");
 
     TEST_IEEE4882("SYST:ERR:COUNT?\r\n", "1\r\n");
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header;ABCD\"\r\n");
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "0,\"No error\"\r\n");
 
     TEST_IEEE4882("*STB?\r\n", "0\r\n"); /* Error queue is now empty */
@@ -338,7 +398,11 @@ static void testIEEE4882(void) {
     CU_ASSERT_EQUAL(srq_val, 0); /* no control callback */
     TEST_IEEE4882("*STB?\r\n", "100\r\n"); /* Event status register + Service request */
     TEST_IEEE4882("*ESR?\r\n", "32\r\n"); /* Command error */
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header;ABCD\"\r\n");
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     TEST_IEEE4882("SYST:ERR:NEXT?\r\n", "-113,\"Undefined header\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
     scpi_context.interface->control = SCPI_Control;
 
     RST_executed = FALSE;
@@ -387,7 +451,7 @@ static void testIEEE4882(void) {
 {                                                                                       \
     int32_t value;                                                                      \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -396,12 +460,12 @@ static void testIEEE4882(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamInt32(&scpi_context, &value, mandatory);                         \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value, expected_value);                                         \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamInt32(void) {
@@ -426,7 +490,7 @@ static void testSCPI_ParamInt32(void) {
 {                                                                                       \
     uint32_t value;                                                                     \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -435,12 +499,12 @@ static void testSCPI_ParamInt32(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamUInt32(&scpi_context, &value, mandatory);                        \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value, expected_value);                                         \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamUInt32(void) {
@@ -465,7 +529,7 @@ static void testSCPI_ParamUInt32(void) {
 {                                                                                       \
     int64_t value;                                                                      \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -474,12 +538,12 @@ static void testSCPI_ParamUInt32(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamInt64(&scpi_context, &value, mandatory);                         \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value, expected_value);                                         \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamInt64(void) {
@@ -506,7 +570,7 @@ static void testSCPI_ParamInt64(void) {
 {                                                                                       \
     uint64_t value;                                                                     \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -515,12 +579,12 @@ static void testSCPI_ParamInt64(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamUInt64(&scpi_context, &value, mandatory);                        \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value, expected_value);                                         \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamUInt64(void) {
@@ -548,7 +612,7 @@ static void testSCPI_ParamUInt64(void) {
 {                                                                                       \
     float value;                                                                        \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -557,12 +621,12 @@ static void testSCPI_ParamUInt64(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamFloat(&scpi_context, &value, mandatory);                         \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_DOUBLE_EQUAL(value, expected_value, 0.000001);                        \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamFloat(void) {
@@ -584,7 +648,7 @@ static void testSCPI_ParamFloat(void) {
 {                                                                                       \
     double value;                                                                       \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -593,12 +657,12 @@ static void testSCPI_ParamFloat(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamDouble(&scpi_context, &value, mandatory);                        \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_DOUBLE_EQUAL(value, expected_value, 0.000001);                        \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamDouble(void) {
@@ -621,7 +685,7 @@ static void testSCPI_ParamDouble(void) {
     const char * value;                                                                 \
     size_t value_len;                                                                   \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -630,12 +694,12 @@ static void testSCPI_ParamDouble(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamCharacters(&scpi_context, &value, &value_len, mandatory);        \
     /*printf("%.*s\r\n",  (int)value_len, value);*/                                     \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_NSTRING_EQUAL(value, expected_value, value_len);                      \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamCharacters(void) {
@@ -653,7 +717,7 @@ static void testSCPI_ParamCharacters(void) {
     char value[100];                                                                    \
     size_t value_len;                                                                   \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -662,13 +726,13 @@ static void testSCPI_ParamCharacters(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamCopyText(&scpi_context, value, sizeof(value), &value_len, mandatory);\
     /*printf("%.*s\r\n",  (int)value_len, value);*/                                     \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_STRING_EQUAL(value, expected_value);                                  \
         CU_ASSERT_EQUAL(value_len, expected_len);                                       \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testSCPI_ParamCopyText(void) {
@@ -689,21 +753,21 @@ static void testSCPI_ParamCopyText(void) {
     const char * value;                                                                 \
     size_t value_len;                                                                   \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
     scpi_context.param_list.lex_state.buffer = data;                                    \
     scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
-    result = SCPI_ParamArbitraryBlock(&scpi_context, &value, &value_len, mandatory);        \
+    result = SCPI_ParamArbitraryBlock(&scpi_context, &value, &value_len, mandatory);    \
     /*printf("%.*s\r\n",  (int)value_len, value);*/                                     \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_NSTRING_EQUAL(value, expected_value, value_len);                      \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 static void testSCPI_ParamArbitraryBlock(void) {
     TEST_ParamArbitraryBlock("#204ABCD", TRUE, "ABCD", TRUE, 0);
@@ -714,21 +778,21 @@ static void testSCPI_ParamArbitraryBlock(void) {
 {                                                                                       \
     scpi_bool_t value;                                                                  \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
     scpi_context.param_list.lex_state.buffer = data;                                    \
     scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
-    result = SCPI_ParamBool(&scpi_context, &value, mandatory);                         \
+    result = SCPI_ParamBool(&scpi_context, &value, mandatory);                          \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value, expected_value);                                         \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 static void testSCPI_ParamBool(void) {
     TEST_ParamBool("ON", TRUE, TRUE, TRUE, 0);
@@ -743,7 +807,7 @@ static void testSCPI_ParamBool(void) {
 {                                                                                       \
     int32_t value;                                                                      \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -752,12 +816,12 @@ static void testSCPI_ParamBool(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamChoice(&scpi_context, test_options, &value, mandatory);          \
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value, expected_value);                                         \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 static void testSCPI_ParamChoice(void) {
     scpi_choice_def_t test_options[] = {
@@ -778,7 +842,7 @@ static void testSCPI_ParamChoice(void) {
 {                                                                                       \
     scpi_bool_t result;                                                                 \
     scpi_expr_result_t result2;                                                         \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
     scpi_parameter_t param;                                                             \
     int32_t val_from, val_to;                                                           \
     scpi_bool_t val_range;                                                              \
@@ -790,7 +854,7 @@ static void testSCPI_ParamChoice(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_Parameter(&scpi_context, &param, TRUE);                               \
     result2 = SCPI_ExprNumericListEntryInt(&scpi_context, &param, index, &val_range, &val_from, &val_to);\
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result2, expected_result);                                          \
     if (expected_result == SCPI_EXPR_OK) {                                              \
         CU_ASSERT_EQUAL(val_range, expected_range);                                     \
@@ -799,14 +863,14 @@ static void testSCPI_ParamChoice(void) {
             CU_ASSERT_EQUAL(val_to, expected_to);                                       \
         }                                                                               \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 #define TEST_NumericListDouble(data, index, expected_range, expected_from, expected_to, expected_result, expected_error_code) \
 {                                                                                       \
     scpi_bool_t result;                                                                 \
     scpi_expr_result_t result2;                                                         \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
     scpi_parameter_t param;                                                             \
     double val_from, val_to;                                                            \
     scpi_bool_t val_range;                                                              \
@@ -818,7 +882,7 @@ static void testSCPI_ParamChoice(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_Parameter(&scpi_context, &param, TRUE);                               \
     result2 = SCPI_ExprNumericListEntryDouble(&scpi_context, &param, index, &val_range, &val_from, &val_to);\
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result2, expected_result);                                          \
     if (expected_result == SCPI_EXPR_OK) {                                              \
         CU_ASSERT_EQUAL(val_range, expected_range);                                     \
@@ -827,7 +891,7 @@ static void testSCPI_ParamChoice(void) {
             CU_ASSERT_DOUBLE_EQUAL(val_to, expected_to, 0.0001);                        \
         }                                                                               \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testNumericList(void) {
@@ -864,7 +928,7 @@ static void testNumericList(void) {
 {                                                                                       \
     scpi_bool_t result;                                                                 \
     scpi_expr_result_t result2;                                                         \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
     scpi_parameter_t param;                                                             \
     int32_t val_from[val_len], val_to[val_len];                                         \
     scpi_bool_t val_range;                                                              \
@@ -879,7 +943,7 @@ static void testNumericList(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_Parameter(&scpi_context, &param, TRUE);                               \
     result2 = SCPI_ExprChannelListEntry(&scpi_context, &param, index, &val_range, val_from, val_to, val_len, &val_dimensions);\
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result2, expected_result);                                          \
     if (expected_result == SCPI_EXPR_OK) {                                              \
         CU_ASSERT_EQUAL(val_dimensions, expected_dimensions);                           \
@@ -893,7 +957,7 @@ static void testNumericList(void) {
             }}                                                                          \
         }                                                                               \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testChannelList(void) {
@@ -935,7 +999,7 @@ static void testChannelList(void) {
 {                                                                                       \
     scpi_number_t value;                                                                \
     scpi_bool_t result;                                                                 \
-    int16_t errCode;                                                                    \
+    scpi_error_t errCode;                                                               \
                                                                                         \
     SCPI_CoreCls(&scpi_context);                                                        \
     scpi_context.input_count = 0;                                                       \
@@ -944,7 +1008,7 @@ static void testChannelList(void) {
     scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
     result = SCPI_ParamNumber(&scpi_context, scpi_special_numbers_def, &value, mandatory);\
                                                                                         \
-    errCode = SCPI_ErrorPop(&scpi_context);                                             \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value.special, expected_special);                               \
@@ -953,7 +1017,7 @@ static void testChannelList(void) {
         CU_ASSERT_EQUAL(value.unit, expected_unit);                                     \
         CU_ASSERT_EQUAL(value.base, expected_base);                                     \
     }                                                                                   \
-    CU_ASSERT_EQUAL(errCode, expected_error_code);                                      \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
 }
 
 static void testParamNumber(void) {
@@ -1282,6 +1346,7 @@ static void testNumberToStr(void) {
 }
 
 static void testErrorQueue(void) {
+    scpi_error_t val;
     SCPI_ErrorClear(&scpi_context);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
     SCPI_ErrorPush(&scpi_context, -1);
@@ -1297,15 +1362,20 @@ static void testErrorQueue(void) {
     SCPI_ErrorPush(&scpi_context, -6);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 4);
 
-    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -1);
+    SCPI_ErrorPop(&scpi_context, &val);
+    CU_ASSERT_EQUAL(val.error_code, -1);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 3);
-    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -2);
+    SCPI_ErrorPop(&scpi_context, &val);
+    CU_ASSERT_EQUAL(val.error_code, -2);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 2);
-    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), -3);
+    SCPI_ErrorPop(&scpi_context, &val);
+    CU_ASSERT_EQUAL(val.error_code, -3);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 1);
-    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), SCPI_ERROR_QUEUE_OVERFLOW);
+    SCPI_ErrorPop(&scpi_context, &val);
+    CU_ASSERT_EQUAL(val.error_code, SCPI_ERROR_QUEUE_OVERFLOW);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
-    CU_ASSERT_EQUAL(SCPI_ErrorPop(&scpi_context), 0);
+    SCPI_ErrorPop(&scpi_context, &val);
+    CU_ASSERT_EQUAL(val.error_code, 0);
     CU_ASSERT_EQUAL(SCPI_ErrorCount(&scpi_context), 0);
 
     SCPI_ErrorClear(&scpi_context);
@@ -1461,6 +1531,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ParamChoice", testSCPI_ParamChoice))
             || (NULL == CU_add_test(pSuite, "Commands handling", testCommandsHandling))
             || (NULL == CU_add_test(pSuite, "Error handling", testErrorHandling))
+            || (NULL == CU_add_test(pSuite, "Device dependent error handling", testErrorHandlingDeviceDependent))
             || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
             || (NULL == CU_add_test(pSuite, "Numeric list", testNumericList))
             || (NULL == CU_add_test(pSuite, "Channel list", testChannelList))

@@ -412,6 +412,6 @@ scpi_interface_t scpi_interface = {
 };
 
 char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
-int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 
 scpi_t scpi_context;
