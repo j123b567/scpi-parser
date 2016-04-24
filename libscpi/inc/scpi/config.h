@@ -199,8 +199,10 @@ extern "C" {
 /* PIC32mx */
 #if defined(__C32__)
 #define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        1
+#define HAVE_STRNCASECMP        0
 #define HAVE_STRNICMP           0
+#define isfinite                finite
+#define signbit(x)              ((x)<0)
 #endif
 
 /* AVR libc */
