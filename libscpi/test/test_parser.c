@@ -186,7 +186,7 @@ static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
 #define SCPI_ERROR_QUEUE_SIZE 4
 static scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 
-#define SCPI_ERROR_INFO_HEAP_SIZE 100
+#define SCPI_ERROR_INFO_HEAP_SIZE 16
 static char error_info_heap[SCPI_ERROR_INFO_HEAP_SIZE];
 
 static int init_suite(void) {
@@ -290,6 +290,55 @@ static void testErrorHandling(void) {
 
     output_buffer_clear();
     error_buffer_clear();
+}
+
+static void testErrorHandlingDeviceDependent(void) {
+#define TEST_CMDERR(output) {\
+    SCPI_Input(&scpi_context, "SYST:ERR:NEXT?\r\n", strlen("SYST:ERR:NEXT?\r\n"));\
+    CU_ASSERT_STRING_EQUAL(output, output_buffer);\
+    output_buffer_clear();\
+}
+
+    output_buffer_clear();
+    error_buffer_clear();
+
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test1", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, NULL, 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, NULL, 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test4", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test5", 0);
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_CMDERR("-101,\"Invalid character;Test1\"\r\n");
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-350,\"Queue overflow\"\r\n");
+    TEST_CMDERR("0,\"No error\"\r\n");
+
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test6", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test7", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test8", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test9", 0);
+    SCPI_ErrorPushEx(&scpi_context, SCPI_ERROR_INVALID_CHARACTER, "Test10", 0);
+
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+    TEST_CMDERR("-101,\"Invalid character;Test6\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character;Test7\"\r\n");
+#if USE_MEMORY_ALLOCATION_FREE
+    TEST_CMDERR("-101,\"Invalid character;Test8\"\r\n");
+#else /* USE_MEMORY_ALLOCATION_FREE */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+#endif /* USE_MEMORY_ALLOCATION_FREE */
+#else /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+    TEST_CMDERR("-101,\"Invalid character\"\r\n");
+#endif /* USE_DEVICE_DEPENDENT_ERROR_INFORMATION */
+    TEST_CMDERR("-350,\"Queue overflow\"\r\n");
+    TEST_CMDERR("0,\"No error\"\r\n");
 }
 
 static void testIEEE4882(void) {
@@ -1482,6 +1531,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ParamChoice", testSCPI_ParamChoice))
             || (NULL == CU_add_test(pSuite, "Commands handling", testCommandsHandling))
             || (NULL == CU_add_test(pSuite, "Error handling", testErrorHandling))
+            || (NULL == CU_add_test(pSuite, "Device dependent error handling", testErrorHandlingDeviceDependent))
             || (NULL == CU_add_test(pSuite, "IEEE 488.2 Mandatory commands", testIEEE4882))
             || (NULL == CU_add_test(pSuite, "Numeric list", testNumericList))
             || (NULL == CU_add_test(pSuite, "Channel list", testChannelList))
