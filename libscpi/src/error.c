@@ -82,11 +82,11 @@ static void SCPI_ErrorEmit(scpi_t * context, int16_t err) {
  */
 void SCPI_ErrorClear(scpi_t * context) {
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-	scpi_error_t error;
-	while(fifo_remove(&context->error_queue, &error)){
-		SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info, false);
-	}
-#endif	
+    scpi_error_t error;
+    while (fifo_remove(&context->error_queue, &error)) {
+        SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info, false);
+    }
+#endif
     fifo_clear(&context->error_queue);
 
     SCPI_ErrorEmitEmpty(context);
@@ -96,17 +96,17 @@ void SCPI_ErrorClear(scpi_t * context) {
  * Pop error from queue
  * @param context - scpi context
  * @param error
- * @return 
+ * @return
  */
 scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error) {
-	if(!error || !context) return FALSE;
-	error->error_code = 0;
-	error->device_dependent_info = NULL;
-	fifo_remove(&context->error_queue, error);
+    if (!error || !context) return FALSE;
+    error->error_code = 0;
+    error->device_dependent_info = NULL;
+    fifo_remove(&context->error_queue, error);
 
-	SCPI_ErrorEmitEmpty(context);
+    SCPI_ErrorEmitEmpty(context);
 
-	return TRUE;
+    return TRUE;
 }
 
 /**
@@ -137,7 +137,7 @@ struct error_reg {
     scpi_reg_val_t bit;
 };
 
-#define ERROR_DEFS_N	9
+#define ERROR_DEFS_N 9
 
 static const struct error_reg errs[ERROR_DEFS_N] = {
     {-100, -199, ESR_CER}, /* Command error (e.g. syntax error) ch 21.8.9    */
@@ -157,34 +157,34 @@ static const struct error_reg errs[ERROR_DEFS_N] = {
  * @param err - error number
  */
 void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
-	int i;
-	char * info_ptr = NULL;
-	
+    int i;
+    char * info_ptr = NULL;
+
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
-	if (info){
-		info_ptr = SCPIDEFINE_strdup(&context->error_info_heap, info);
-	}
+    if (info) {
+        info_ptr = SCPIDEFINE_strdup(&context->error_info_heap, info);
+    }
 #endif
 
-	scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info_ptr);
+    scpi_bool_t queue_overflow = !SCPI_ErrorAddInternal(context, err, info_ptr);
 
-	for (i = 0; i < ERROR_DEFS_N; i++) {
-		if ((err <= errs[i].from) && (err >= errs[i].to)) {
-			SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
-		}
-	}
+    for (i = 0; i < ERROR_DEFS_N; i++) {
+        if ((err <= errs[i].from) && (err >= errs[i].to)) {
+            SCPI_RegSetBits(context, SCPI_REG_ESR, errs[i].bit);
+        }
+    }
 
-	SCPI_ErrorEmit(context, err);
-	if (queue_overflow) {
-		SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
-#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION		
-		SCPIDEFINE_free(&context->error_info_heap, info_ptr, true);
+    SCPI_ErrorEmit(context, err);
+    if (queue_overflow) {
+        SCPI_ErrorEmit(context, SCPI_ERROR_QUEUE_OVERFLOW);
+#if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+        SCPIDEFINE_free(&context->error_info_heap, info_ptr, true);
 #endif
-	}
+    }
 
-	if (context) {
-		context->cmd_error = TRUE;
-	}
+    if (context) {
+        context->cmd_error = TRUE;
+    }
 }
 
 /**
@@ -193,8 +193,8 @@ void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info) {
  * @param err - error number
  */
 void SCPI_ErrorPush(scpi_t * context, int16_t err) {
-	SCPI_ErrorPushEx(context, err, NULL);
-	return;
+    SCPI_ErrorPushEx(context, err, NULL);
+    return;
 }
 
 /**
@@ -211,14 +211,14 @@ const char * SCPI_ErrorTranslate(int16_t err) {
 #else
 #define XE(def, val, str)
 #endif
-        LIST_OF_ERRORS
+            LIST_OF_ERRORS
 
 #if USE_USER_ERROR_LIST
-        LIST_OF_USER_ERRORS
+                    LIST_OF_USER_ERRORS
 #endif
 #undef X
 #undef XE
-        default: return "Unknown error";
+                default: return "Unknown error";
     }
 }
 

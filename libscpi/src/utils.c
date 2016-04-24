@@ -184,7 +184,7 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
             case 8:
                 x = 0x8000000000000000ULL;
                 break;
-	    default:
+            default:
             case 10:
                 x = 10000000000000000000ULL;
                 base = 10;
@@ -751,6 +751,7 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 #endif
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
+
 /**
  * Duplicate string if "strdup" ("malloc/free") not supported on system.
  * Allocate space in heap if it possible
@@ -760,40 +761,40 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
  * @return - pointer of duplicated string or NULL, if duplicate is not possible.
  */
 char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
-	if(!s || !heap) {
-		return NULL;
-	}
+    if (!s || !heap) {
+        return NULL;
+    }
 
-	if(heap->data[heap->wr]!='\0'){
-		return NULL;
-	}
-	
-	if( *s == '\0' ){
-		return NULL;
-	}
-	
-	size_t len=strlen(s) + 1;	// additional '\0' at end
-	if( len > heap->count ) {
-		return NULL;
-	}
-	char * ptrs = s;
-	char * head = &heap->data[heap->wr];
-	size_t rem = heap->size - (&heap->data[heap->wr]-heap->data);
-	size_t sstp = 0;
-	
-	if(len >= rem){
-		memcpy(&heap->data[heap->wr],s,rem);
-		len = len - rem;
-		ptrs += rem;
-		heap->wr = 0;
-		heap->count -= rem;
-	}
-	
-	memcpy(&heap->data[heap->wr],ptrs,len);
-	heap->wr += len;
-	heap->count -= len;
-	
-	return head;
+    if (heap->data[heap->wr] != '\0') {
+        return NULL;
+    }
+
+    if (*s == '\0') {
+        return NULL;
+    }
+
+    size_t len = strlen(s) + 1; // additional '\0' at end
+    if (len > heap->count) {
+        return NULL;
+    }
+    char * ptrs = s;
+    char * head = &heap->data[heap->wr];
+    size_t rem = heap->size - (&heap->data[heap->wr] - heap->data);
+    size_t sstp = 0;
+
+    if (len >= rem) {
+        memcpy(&heap->data[heap->wr], s, rem);
+        len = len - rem;
+        ptrs += rem;
+        heap->wr = 0;
+        heap->count -= rem;
+    }
+
+    memcpy(&heap->data[heap->wr], ptrs, len);
+    heap->wr += len;
+    heap->count -= len;
+
+    return head;
 }
 
 /**
@@ -806,26 +807,26 @@ char * OUR_strdup(scpi_error_info_heap_t * heap, const char *s) {
  * @return len2 - lenght of second part of string.
  */
 scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t * len1, const char ** s2, size_t * len2) {
-	if(!heap || !s || !len1 || !s2 || !len2) {
-		return FALSE;
-	}
-	
-	if(*s == '\0') {
-		return FALSE;
-	}
-	
-	*len1 = 0;
-	size_t rem = heap->size - (s - heap->data);
-	*len1 = strnlen(s, rem);
+    if (!heap || !s || !len1 || !s2 || !len2) {
+        return FALSE;
+    }
 
-	if(&s[*len1-1] == &heap->data[heap->size-1]){
-		*s2 = heap->data;
-		*len2 = strnlen(*s2, heap->size);
-	}else{
-		*s2 = NULL;
-		*len2 = 0;	
-	}
-	return TRUE;
+    if (*s == '\0') {
+        return FALSE;
+    }
+
+    *len1 = 0;
+    size_t rem = heap->size - (s - heap->data);
+    *len1 = strnlen(s, rem);
+
+    if (&s[*len1 - 1] == &heap->data[heap->size - 1]) {
+        *s2 = heap->data;
+        *len2 = strnlen(*s2, heap->size);
+    } else {
+        *s2 = NULL;
+        *len2 = 0;
+    }
+    return TRUE;
 }
 
 /**
@@ -836,34 +837,34 @@ scpi_bool_t OUR_get_parts(scpi_error_info_heap_t * heap, const char * s, size_t 
  * @param rollback - backward write pointer in heap
  */
 void OUR_free(scpi_error_info_heap_t * heap, const char * s, scpi_bool_t rollback) {
-	
-	if(!s) return;
-	
-	char * data_add;
-	size_t len[2];
-		
-	if( !OUR_get_parts( heap, s, &len[0], &data_add, &len[1] ) ) return;
-	
-	if(data_add) {
-		len[1]++;
-		memset(data_add,0,len[1]);
-		heap->count += len[1];
-	} else {
-		len[0]++;
-	}
-	memset(s,0,len[0]);
-	heap->count += len[0];
-	if( heap->count == heap->size){
-		heap->wr = 0;
-		return;
-	}
-	if(rollback){
-		size_t rb = len[0] + len[1];
-		if( rb > heap->wr){
-			heap->wr += heap->size; 
-		}
-		heap->wr -= rb;
-	}
+
+    if (!s) return;
+
+    char * data_add;
+    size_t len[2];
+
+    if (!OUR_get_parts(heap, s, &len[0], &data_add, &len[1])) return;
+
+    if (data_add) {
+        len[1]++;
+        memset(data_add, 0, len[1]);
+        heap->count += len[1];
+    } else {
+        len[0]++;
+    }
+    memset(s, 0, len[0]);
+    heap->count += len[0];
+    if (heap->count == heap->size) {
+        heap->wr = 0;
+        return;
+    }
+    if (rollback) {
+        size_t rb = len[0] + len[1];
+        if (rb > heap->wr) {
+            heap->wr += heap->size;
+        }
+        heap->wr -= rb;
+    }
 }
 
 #endif
@@ -928,7 +929,7 @@ static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf
             buf[--w2] = (int) ((fj + .03) * 10) + '0';
             r2++;
         }
-        while (w2 < (int)bufsize) buf[w1++] = buf[w2++];
+        while (w2 < (int) bufsize) buf[w1++] = buf[w2++];
     } else if (arg > 0) {
         while ((fj = arg * 10) < 1) {
             arg = fj;
@@ -941,12 +942,12 @@ static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf
         buf[0] = '\0';
         return buf;
     }
-    while (w1 <= w2 && w1 < (int)bufsize) {
+    while (w1 <= w2 && w1 < (int) bufsize) {
         arg *= 10;
         arg = modf(arg, &fj);
         buf[w1++] = (int) fj + '0';
     }
-    if (w2 >= (int)bufsize) {
+    if (w2 >= (int) bufsize) {
         buf[bufsize - 1] = '\0';
         return buf;
     }
@@ -1052,9 +1053,10 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
 
 /**
  * Get native CPU endiannes
- * @return 
+ * @return
  */
 scpi_array_format_t SCPI_GetNativeFormat(void) {
+
     union {
         uint32_t i;
         char c[4];
@@ -1066,17 +1068,17 @@ scpi_array_format_t SCPI_GetNativeFormat(void) {
 /**
  * Swap 16bit number
  * @param val
- * @return 
+ * @return
  */
 uint16_t SCPI_Swap16(uint16_t val) {
-    return ((val & 0x00FF) << 8) | 
+    return ((val & 0x00FF) << 8) |
             ((val & 0xFF00) >> 8);
 }
 
 /**
  * Swap 32bit number
  * @param val
- * @return 
+ * @return
  */
 uint32_t SCPI_Swap32(uint32_t val) {
     return ((val & 0x000000FF) << 24) |
@@ -1088,7 +1090,7 @@ uint32_t SCPI_Swap32(uint32_t val) {
 /**
  * Swap 64bit number
  * @param val
- * @return 
+ * @return
  */
 uint64_t SCPI_Swap64(uint64_t val) {
     return ((val & 0x00000000000000FFul) << 56) |

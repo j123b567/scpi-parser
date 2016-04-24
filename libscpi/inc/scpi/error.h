@@ -46,8 +46,8 @@ extern "C" {
 
     void SCPI_ErrorInit(scpi_t * context, scpi_error_t * data, int16_t size);
     void SCPI_ErrorClear(scpi_t * context);
-	scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error);
-	void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info);
+    scpi_bool_t SCPI_ErrorPop(scpi_t * context, scpi_error_t * error);
+    void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info);
     void SCPI_ErrorPush(scpi_t * context, int16_t err);
     int32_t SCPI_ErrorCount(scpi_t * context);
     const char * SCPI_ErrorTranslate(int16_t err);
