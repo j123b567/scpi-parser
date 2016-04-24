@@ -55,7 +55,7 @@ scpi_bool_t fifo_add(scpi_fifo_t * fifo, int16_t err, char * info) {
     }
 
     fifo->data[fifo->wr].error_code = err;
-	fifo->data[fifo->wr].device_dependent_info = info;
+    fifo->data[fifo->wr].device_dependent_info = info;
     fifo->wr = (fifo->wr + 1) % (fifo->size);
     fifo->count += 1;
     return TRUE;

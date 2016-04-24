@@ -211,14 +211,14 @@ const char * SCPI_ErrorTranslate(int16_t err) {
 #else
 #define XE(def, val, str)
 #endif
-            LIST_OF_ERRORS
+        LIST_OF_ERRORS
 
 #if USE_USER_ERROR_LIST
-                    LIST_OF_USER_ERRORS
+        LIST_OF_USER_ERRORS
 #endif
 #undef X
 #undef XE
-                default: return "Unknown error";
+        default: return "Unknown error";
     }
 }
 

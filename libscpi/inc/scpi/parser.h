@@ -50,7 +50,7 @@ extern "C" {
             const char * idn1, const char * idn2, const char * idn3, const char * idn4,
             char * input_buffer, size_t input_buffer_length, 
             scpi_error_t * error_queue_data, int16_t error_queue_size,
-			char * error_info_heap, size_t error_info_heap_length);
+            char * error_info_heap, size_t error_info_heap_length);
 
     scpi_bool_t SCPI_Input(scpi_t * context, const char * data, int len);
     scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len);
