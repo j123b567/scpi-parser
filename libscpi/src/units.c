@@ -469,7 +469,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
  * @param context
  * @param value number value
  * @param str target string
- * @param len max length of string
+ * @param len max length of string including null-character termination
  * @return number of chars written to string
  */
 size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scpi_number_t * value, char * str, size_t len) {
@@ -477,28 +477,34 @@ size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scp
     const char * unit;
     size_t result;
 
-    if (!value || !str) {
+    if (!value || !str || len==0) {
         return 0;
     }
 
     if (value->special) {
         if (SCPI_ChoiceToName(special, value->tag, &type)) {
             strncpy(str, type, len);
-            return min(strlen(type), len);
+            result = SCPIDEFINE_strnlen(str, len - 1);
+            str[result] = '\0';
+            return result;
         } else {
-            str[0] = 0;
+            str[0] = '\0';
             return 0;
         }
     }
 
     result = SCPI_DoubleToStr(value->value, str, len);
 
-    unit = translateUnitInverse(context->units, value->unit);
+    if (result + 1 < len) {
+        unit = translateUnitInverse(context->units, value->unit);
 
-    if (unit) {
-        strncat(str, " ", len);
-        strncat(str, unit, len);
-        result += strlen(unit) + 1;
+        if (unit) {
+            strncat(str, " ", len - result);
+            if (result + 2 < len) {
+                strncat(str, unit, len - result - 1);
+            }
+            result = strlen(str);
+        }
     }
 
     return result;

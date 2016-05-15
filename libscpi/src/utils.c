@@ -249,7 +249,8 @@ size_t SCPI_UInt64ToStrBase(uint64_t val, char * str, size_t len, int8_t base) {
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_FloatToStr(float val, char * str, size_t len) {
-    return SCPIDEFINE_floatToStr(val, str, len);
+    SCPIDEFINE_floatToStr(val, str, len);
+    return strlen(str);
 }
 
 /**
@@ -260,7 +261,8 @@ size_t SCPI_FloatToStr(float val, char * str, size_t len) {
  * @return number of bytes written to str (without '\0')
  */
 size_t SCPI_DoubleToStr(double val, char * str, size_t len) {
-    return SCPIDEFINE_doubleToStr(val, str, len);
+    SCPIDEFINE_doubleToStr(val, str, len);
+    return strlen(str);
 }
 
 /**

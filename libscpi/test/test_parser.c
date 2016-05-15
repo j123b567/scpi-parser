@@ -1424,9 +1424,62 @@ static void testNumberToStr(void) {
     CU_ASSERT_EQUAL(res_len, strlen(expected_result));\
 } while(0)
 
+#define TEST_SCPI_NumberToStr_limited(_special, _value, _unit, expected_result, limit) do {\
+    scpi_number_t number;\
+    number.base = 10;\
+    number.special = (_special);\
+    number.unit = (_unit);\
+    if (number.special) { number.tag = (int)(_value); } else { number.value = (_value); }\
+    char buffer[100];\
+    memset(buffer, 0xaa, 100);\
+    size_t res_len;\
+    res_len = SCPI_NumberToStr(&scpi_context, scpi_special_numbers_def, &number, buffer, limit);\
+    size_t expected_len = strnlen(expected_result, limit - 1);\
+    CU_ASSERT_NSTRING_EQUAL(buffer, expected_result, expected_len);\
+    CU_ASSERT_EQUAL(buffer[expected_len], 0);\
+    CU_ASSERT_EQUAL((unsigned char)buffer[limit], 0xaa);\
+    CU_ASSERT_EQUAL(res_len, expected_len);\
+} while(0)
+
     TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_NONE, "10.5");
     TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V");
     TEST_SCPI_NumberToStr(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault");
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 1);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 1);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 1);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 2);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 2);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 2);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 3);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 3);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 3);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 4);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 4);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 4);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 5);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 5);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 5);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 6);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 6);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 6);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 7);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 7);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 7);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 8);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 8);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 8);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 9);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 9);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 9);
 }
 
 static void testErrorQueue(void) {

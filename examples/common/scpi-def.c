@@ -181,9 +181,9 @@ static scpi_result_t TEST_ArbQ(scpi_t * context) {
     const char * data;
     size_t len;
 
-    SCPI_ParamArbitraryBlock(context, &data, &len, FALSE);
-
-    SCPI_ResultArbitraryBlock(context, data, len);
+    if (SCPI_ParamArbitraryBlock(context, &data, &len, FALSE)) {
+        SCPI_ResultArbitraryBlock(context, data, len);
+    }
 
     return SCPI_RES_OK;
 }
