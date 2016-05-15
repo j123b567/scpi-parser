@@ -2,7 +2,7 @@
  * Copyright (c) 2012-2013 Jan Breuer,
  *
  * All Rights Reserved
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -11,7 +11,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,10 +28,10 @@
 /**
  * @file   scpi-def.c
  * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
+ *
  * @brief  SCPI parser test
- * 
- * 
+ *
+ *
  */
 
 #include <stdio.h>
@@ -43,7 +43,7 @@
 static scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
-    fprintf(stderr, "meas:volt:dc\r\n"); // debug command name   
+    fprintf(stderr, "meas:volt:dc\r\n"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, FALSE)) {
@@ -71,7 +71,7 @@ static scpi_result_t DMM_MeasureVoltageDcQ(scpi_t * context) {
 static scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
     scpi_number_t param1, param2;
     char bf[15];
-    fprintf(stderr, "meas:volt:ac\r\n"); // debug command name   
+    fprintf(stderr, "meas:volt:ac\r\n"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamNumber(context, scpi_special_numbers_def, &param1, FALSE)) {
@@ -98,7 +98,7 @@ static scpi_result_t DMM_MeasureVoltageAcQ(scpi_t * context) {
 
 static scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
     double param1, param2;
-    fprintf(stderr, "conf:volt:dc\r\n"); // debug command name   
+    fprintf(stderr, "conf:volt:dc\r\n"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamDouble(context, &param1, TRUE)) {
@@ -118,7 +118,7 @@ static scpi_result_t DMM_ConfigureVoltageDc(scpi_t * context) {
 
 static scpi_result_t TEST_Bool(scpi_t * context) {
     scpi_bool_t param1;
-    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name   
+    fprintf(stderr, "TEST:BOOL\r\n"); // debug command name
 
     // read first parameter if present
     if (!SCPI_ParamBool(context, &param1, TRUE)) {
@@ -195,22 +195,22 @@ struct _scpi_channel_value_t {
 typedef struct _scpi_channel_value_t scpi_channel_value_t;
 
 /**
- * @brief 
+ * @brief
  * parses lists
  * channel numbers > 0.
  * no checks yet.
  * valid: (@1), (@3!1:1!3), ...
  * (@1!1:3!2) would be 1!1, 1!2, 2!1, 2!2, 3!1, 3!2.
  * (@3!1:1!3) would be 3!1, 3!2, 3!3, 2!1, 2!2, 2!3, ... 1!3.
- * 
+ *
  * @param channel_list channel list, compare to SCPI99 Vol 1 Ch. 8.3.2
  */
 static scpi_result_t TEST_Chanlst(scpi_t *context) {
     scpi_parameter_t channel_list_param;
-#define maxrow 2    //maximum number of rows
-#define maxcol 6    //maximum number of columns
-#define maxdim 2    //maximum number of dimensions
-    scpi_channel_value_t array[maxrow * maxcol]; //array which holds values in order (2D)
+#define MAXROW 2    //maximum number of rows
+#define MAXCOL 6    //maximum number of columns
+#define MAXDIM 2    //maximum number of dimensions
+    scpi_channel_value_t array[MAXROW * MAXCOL]; //array which holds values in order (2D)
     size_t chanlst_idx; //index for channel list
     size_t arr_idx = 0; //index for array
     size_t n, m = 1; //counters for row (n) and columns (m)
@@ -219,8 +219,8 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
     if (SCPI_Parameter(context, &channel_list_param, TRUE)) {
         scpi_expr_result_t res;
         scpi_bool_t is_range;
-        int32_t values_from[maxdim];
-        int32_t values_to[maxdim];
+        int32_t values_from[MAXDIM];
+        int32_t values_to[MAXDIM];
         size_t dimensions;
 
         bool for_stop_row = false; //true if iteration for rows has to stop
@@ -251,9 +251,11 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                         array[arr_idx].col = values_from[1];
                     } else {
                         return SCPI_RES_ERR;
-                        break;
                     }
                     arr_idx++; //inkrement array where we want to save our values to, not neccessary otherwise
+                    if (arr_idx >= MAXROW * MAXCOL) {
+                        return SCPI_RES_ERR;
+                    }
                 } else if (is_range == true) {
                     if (values_from[0] > values_to[0]) {
                         dir_row = -1; //we have to decrement from values_from
@@ -283,6 +285,9 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                                 array[arr_idx].row = n;
                                 array[arr_idx].col = m;
                                 arr_idx++;
+                                if (arr_idx >= MAXROW * MAXCOL) {
+                                    return SCPI_RES_ERR;
+                                }
                                 if (m == (size_t)values_to[1]) {
                                     //endpoint reached, stop column for-loop
                                     for_stop_col = true;
@@ -297,6 +302,9 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                             array[arr_idx].row = n;
                             array[arr_idx].col = 0;
                             arr_idx++;
+                            if (arr_idx >= MAXROW * MAXCOL) {
+                                return SCPI_RES_ERR;
+                            }
                         }
                         if (n == (size_t)values_to[0]) {
                             //endpoint reached, stop row for-loop
@@ -307,7 +315,6 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
 
                 } else {
                     return SCPI_RES_ERR;
-                    break;
                 }
                 //increase index
                 chanlst_idx++;
@@ -315,10 +322,10 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
             //while checks, whether incremented index is valid
         }
         //do something at the end if needed
-        array[arr_idx].row = 0;
-        array[arr_idx].col = 0;
+        //array[arr_idx].row = 0;
+        //array[arr_idx].col = 0;
     }
-    
+
     {
         size_t i;
         fprintf(stderr, "TEST_Chanlst: ");
