@@ -103,7 +103,7 @@ static int createServer(int port) {
     struct sockaddr_in servaddr;
 
     /* Configure TCP Server */
-    bzero(&servaddr, sizeof (servaddr));
+    memset(&servaddr, 0, sizeof (servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(port);

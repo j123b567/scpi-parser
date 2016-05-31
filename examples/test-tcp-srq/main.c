@@ -99,7 +99,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     if (context->user_context != NULL) {
         user_data_t * u = (user_data_t *) (context->user_context);
         if (u->control_io >= 0) {
-            snprintf(b, sizeof (b), "SRQ%d\r\n", val);
+            sprintf(b, "SRQ%d\r\n", val);
             return write(u->control_io, b, strlen(b)) > 0 ? SCPI_RES_OK : SCPI_RES_ERR;
         }
     }
@@ -125,7 +125,7 @@ static int createServer(int port) {
     struct sockaddr_in servaddr;
 
     /* Configure TCP Server */
-    bzero(&servaddr, sizeof (servaddr));
+    memset(&servaddr, 0, sizeof (servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(port);
