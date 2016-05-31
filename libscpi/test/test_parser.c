@@ -516,7 +516,7 @@ static void testSCPI_ParamUInt32(void) {
     TEST_ParamUInt32("#H101010", TRUE, 1052688, TRUE, 0);
     TEST_ParamUInt32("#Q10", TRUE, 8, TRUE, 0);
 
-    TEST_ParamUInt32("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter *
+    TEST_ParamUInt32("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
     TEST_ParamUInt32("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamUInt32("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamUInt32("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
