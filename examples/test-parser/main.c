@@ -131,6 +131,7 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("test:text 'a a'\r\n");
     TEST_SCPI_INPUT("test:text 'aa a'\r\n");
     TEST_SCPI_INPUT("test:text 'aaa aaaa'\r\n");
+    TEST_SCPI_INPUT("TEST:CHANnellist (@9!2:3!4,5!6)\r\n");
     //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
     // interactive demo
     //char smbuffer[10];
