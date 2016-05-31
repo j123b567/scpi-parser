@@ -275,6 +275,16 @@ int main(int argc, char** argv) {
     (void) argv;
     int rc;
 
+#ifdef __cplusplus
+    user_data_t user_data = {
+        /*.io_listen =*/ -1,
+        /*.io =*/ -1,
+        /*.control_io_listen =*/ -1,
+        /*.control_io =*/ -1,
+        /*.fio =*/ NULL,
+        /*.fds =*/ 0,
+    };
+#else
     user_data_t user_data = {
         .io_listen = -1,
         .io = -1,
@@ -282,6 +292,7 @@ int main(int argc, char** argv) {
         .control_io = -1,
         .fio = NULL,
     };
+#endif
 
     // user_context will be pointer to socket
     SCPI_Init(&scpi_context,
