@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include "CUnit/Basic.h"
 
@@ -81,7 +82,7 @@ static void test_Int32ToStr() {
     /* test signed conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_Int32ToStr(val[i], str, max);
-        snprintf(ref, max, "%"PRIi32, val[i]);
+        sprintf(ref, "%"PRIi32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -91,7 +92,7 @@ static void test_Int32ToStr() {
     /* test signed conversion to decimal numbers */
     for (i = 0; i < N16; i++) {
         len = SCPI_Int32ToStr((int32_t) val16[i], str, max);
-        snprintf(ref, max, "%"PRIi16, val16[i]);
+        sprintf(ref, "%"PRIi16, val16[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -109,7 +110,7 @@ static void test_UInt32ToStrBase() {
     /* test conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 10);
-        snprintf(ref, max, "%"PRIu32, val[i]);
+        sprintf(ref, "%"PRIu32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -117,7 +118,7 @@ static void test_UInt32ToStrBase() {
     /* test conversion to hexadecimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 16);
-        snprintf(ref, max, "%"PRIX32, val[i]);
+        sprintf(ref, "%"PRIX32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -125,7 +126,7 @@ static void test_UInt32ToStrBase() {
     /* test conversion to octal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 8);
-        snprintf(ref, max, "%"PRIo32, val[i]);
+        sprintf(ref, "%"PRIo32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -164,7 +165,7 @@ static void test_Int64ToStr() {
     /* test conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_Int64ToStr(val[i], str, max);
-        snprintf(ref, max, "%"PRIi64, val[i]);
+        sprintf(ref, "%"PRIi64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -182,7 +183,7 @@ static void test_UInt64ToStrBase() {
     /* test conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 10);
-        snprintf(ref, max, "%"PRIu64, val[i]);
+        sprintf(ref, "%"PRIu64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -190,7 +191,7 @@ static void test_UInt64ToStrBase() {
     /* test conversion to hexadecimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 16);
-        snprintf(ref, max, "%"PRIX64, val[i]);
+        sprintf(ref, "%"PRIX64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -198,7 +199,7 @@ static void test_UInt64ToStrBase() {
     /* test conversion to octal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 8);
-        snprintf(ref, max, "%"PRIo64, val[i]);
+        sprintf(ref, "%"PRIo64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -227,7 +228,11 @@ static void test_UInt64ToStrBase() {
 
 static void test_scpi_dtostre() {
     const size_t strsize = 49 + 1;
-    double val[] = {NAN, INFINITY, -INFINITY, 0,
+    double val[] = {
+#ifdef INFINITY
+        INFINITY, -INFINITY,
+#endif
+        0,
         1, 1.1, 1.01, 1.001, 1.0001, 1.00001, 1.000001, 1.0000001, 1.00000001,
         1.000000001, 1.0000000001, 1.00000000001, 1.000000000001,
         1.0000000000001, 1e-5, 1.1e-5, 1.01e-5, 1.001e-5, 1.0001e-5, 1.00001e-5,
@@ -260,10 +265,38 @@ static void test_scpi_dtostre() {
 
     for (i = 0; i < N; i++) {
         len = strlen(SCPI_dtostre(val[i], str, strsize, 15, 0));
-        snprintf(ref, strsize, "%.15lg", val[i]);
+        sprintf(ref, "%.15lg", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
+
+    for (i = 0; i < N; i++) {
+        len = strlen(SCPI_dtostre(val[i], str, 2, 15, 0));
+        snprintf(ref, 2, "%.15lg", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
+
+    for (i = 0; i < N; i++) {
+        len = strlen(SCPI_dtostre(val[i], str, 12, 15, 0));
+        snprintf(ref, 12, "%.15lg", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
+
+#ifdef NAN
+    len = strlen(SCPI_dtostre(NAN, str, strsize, 15, 0));
+    strncpy(ref, "nan", strsize);
+    CU_ASSERT(len == strlen(ref));
+    CU_ASSERT_STRING_EQUAL(str, ref);
+
+    len = strlen(SCPI_dtostre(NAN, str, 2, 15, 0));
+    strncpy(ref, "nan", 2);
+    ref[2 - 1] = '\0';
+    CU_ASSERT(len == strlen(ref));
+    CU_ASSERT_STRING_EQUAL(str, ref);
+#endif
+
 }
 
 static void test_floatToStr() {
@@ -277,7 +310,7 @@ static void test_floatToStr() {
 
     for (i = 0; i < N; i++) {
         len = SCPI_FloatToStr(val[i], str, max);
-        snprintf(ref, max, "%g", val[i]);
+        sprintf(ref, "%g", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -294,7 +327,7 @@ static void test_doubleToStr() {
 
     for (i = 0; i < N; i++) {
         len = SCPI_DoubleToStr(val[i], str, max);
-        snprintf(ref, max, "%.15lg", val[i]);
+        sprintf(ref, "%.15lg", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }

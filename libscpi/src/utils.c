@@ -297,7 +297,7 @@ size_t strBaseToUInt32(const char * str, uint32_t * val, int8_t base) {
  */
 size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) {
     char * endptr;
-    *val = strtoll(str, &endptr, base);
+    *val = SCPIDEFINE_strtoll(str, &endptr, base);
     return endptr - str;
 }
 
@@ -309,7 +309,7 @@ size_t strBaseToInt64(const char * str, int64_t * val, int8_t base) {
  */
 size_t strBaseToUInt64(const char * str, uint64_t * val, int8_t base) {
     char * endptr;
-    *val = strtoull(str, &endptr, base);
+    *val = SCPIDEFINE_strtoull(str, &endptr, base);
     return endptr - str;
 }
 
@@ -321,7 +321,7 @@ size_t strBaseToUInt64(const char * str, uint64_t * val, int8_t base) {
  */
 size_t strToFloat(const char * str, float * val) {
     char * endptr;
-    *val = strtof(str, &endptr);
+    *val = SCPIDEFINE_strtof(str, &endptr);
     return endptr - str;
 }
 
@@ -752,6 +752,19 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 }
 #endif
 
+#if !HAVE_STRNDUP
+char *OUR_strndup(const char *s, size_t n) {
+    size_t len = SCPIDEFINE_strnlen(s, n);
+    char * result = malloc(len + 1);
+    if (!result) {
+        return NULL;
+    }
+    memcpy(result, s, len);
+    result[len] = '\0';
+    return result;
+}
+#endif
+
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
 
 /**
@@ -995,14 +1008,14 @@ static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf
 char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __prec, unsigned char __flags) {
     char buffer[SCPI_DTOSTRE_BUFFER_SIZE];
 
-    int sign = signbit(__val);
+    int sign = SCPIDEFINE_signbit(__val);
     char * s = buffer;
     int decpt;
     if (sign) {
         __val = -__val;
         s[0] = '-';
         s++;
-    } else if (!isnan(__val)) {
+    } else if (!SCPIDEFINE_isnan(__val)) {
         if (SCPI_DTOSTRE_PLUS_SIGN & __flags) {
             s[0] = '+';
             s++;
@@ -1012,13 +1025,14 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
         }
     }
 
-    if (!isfinite(__val)) {
-        if (isnan(__val)) {
+    if (!SCPIDEFINE_isfinite(__val)) {
+        if (SCPIDEFINE_isnan(__val)) {
             strcpy(s, (__flags & SCPI_DTOSTRE_UPPERCASE) ? "NAN" : "nan");
         } else {
             strcpy(s, (__flags & SCPI_DTOSTRE_UPPERCASE) ? "INF" : "inf");
         }
         strncpy(__s, buffer, __ssize);
+        __s[__ssize - 1] = '\0';
         return __s;
     }
 
@@ -1072,6 +1086,7 @@ char * SCPI_dtostre(double __val, char * __s, size_t __ssize, unsigned char __pr
     }
 
     strncpy(__s, buffer, __ssize);
+    __s[__ssize - 1] = '\0';
     return __s;
 }
 
