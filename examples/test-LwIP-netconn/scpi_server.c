@@ -69,8 +69,8 @@ typedef struct {
     struct netconn *io;
     struct netconn *control_io;
     xQueueHandle evtQueue;
-    //FILE * fio;
-    //fd_set fds;
+    /* FILE * fio; */
+    /* fd_set fds; */
 } user_data_t;
 
 struct _queue_event_t {
@@ -112,7 +112,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
-    // BEEP
+    /* BEEP */
     iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     if (err != 0) {
         /* New error */
@@ -237,11 +237,11 @@ static int processIoListen(user_data_t * user_data) {
 
     if (netconn_accept(user_data->io_listen, &newconn) == ERR_OK) {
         if (user_data->io) {
-            // Close unwanted connection
+            /* Close unwanted connection */
             netconn_close(newconn);
             netconn_delete(newconn);
         } else {
-            // connection established
+            /* connection established */
             iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
             user_data->io = newconn;
         }
@@ -258,7 +258,7 @@ static int processSrqIoListen(user_data_t * user_data) {
             netconn_close(newconn);
             netconn_delete(newconn);
         } else {
-            // control connection established
+            /* control connection established */
             iprintf("***Control Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
             user_data->control_io = newconn;
         }
@@ -268,7 +268,7 @@ static int processSrqIoListen(user_data_t * user_data) {
 }
 
 static void closeIo(user_data_t * user_data) {
-    // connection closed
+    /* connection closed */
     netconn_close(user_data->io);
     netconn_delete(user_data->io);
     user_data->io = NULL;
@@ -276,7 +276,7 @@ static void closeIo(user_data_t * user_data) {
 }
 
 static void closeSrqIo(user_data_t * user_data) {
-    // control connection closed
+    /* control connection closed */
     netconn_close(user_data->control_io);
     netconn_delete(user_data->control_io);
     user_data->control_io = NULL;
@@ -300,7 +300,7 @@ static int processIo(user_data_t * user_data) {
     if (buflen > 0) {
         SCPI_Input(&scpi_context, buf, buflen);
     } else {
-        //goto fail2;
+        /* goto fail2; */
     }
 
     netbuf_delete(inbuf);
@@ -330,9 +330,9 @@ static int processSrqIo(user_data_t * user_data) {
     netbuf_data(inbuf, (void**) &buf, &buflen);
 
     if (buflen > 0) {
-        // TODO process control
+        /* TODO process control */
     } else {
-        //goto fail2;
+        /* goto fail2; */
     }
 
     netbuf_delete(inbuf);
@@ -357,7 +357,7 @@ static void scpi_server_thread(void *arg) {
 
     user_data.evtQueue = xQueueCreate(10, sizeof (queue_event_t));
 
-    // user_context will be pointer to socket
+    /* user_context will be pointer to socket */
     SCPI_Init(&scpi_context,
             scpi_commands,
             &scpi_interface,
@@ -374,7 +374,7 @@ static void scpi_server_thread(void *arg) {
     while (1) {
         waitServer(&user_data, &evt);
 
-        if (evt.cmd == SCPI_MSG_TIMEOUT) { // timeout
+        if (evt.cmd == SCPI_MSG_TIMEOUT) { /* timeout */
             SCPI_Input(&scpi_context, NULL, 0);
         }
 

@@ -160,7 +160,7 @@ static int isE(int c) {
 
 /* skip characters */
 /* 7.4.1 <PROGRAM MESSAGE UNIT SEPARATOR>*/
-// TODO: static int skipProgramMessageUnitSeparator(lex_state_t * state)
+/* TODO: static int skipProgramMessageUnitSeparator(lex_state_t * state) */
 
 /**
  * Skip all whitespaces
@@ -178,10 +178,10 @@ static int skipWs(lex_state_t * state) {
 }
 
 /* 7.4.2 <PROGRAM DATA SEPARATOR> */
-// static int skipProgramDataSeparator(lex_state_t * state)
+/* static int skipProgramDataSeparator(lex_state_t * state) */
 
 /* 7.5.2 <PROGRAM MESSAGE TERMINATOR> */
-// static int skipProgramMessageTerminator(lex_state_t * state)
+/* static int skipProgramMessageTerminator(lex_state_t * state) */
 
 /**
  * Skip decimal digit
@@ -535,7 +535,7 @@ int scpiLex_SuffixProgramData(lex_state_t * state, scpi_token_t * token) {
 
     skipChr(state, '/');
 
-    // TODO: strict parsing  : SLASH? (ALPHA+ (MINUS? DIGIT)?) ((SLASH | DOT) (ALPHA+ (MINUS? DIGIT)?))*
+    /* TODO: strict parsing  : SLASH? (ALPHA+ (MINUS? DIGIT)?) ((SLASH | DOT) (ALPHA+ (MINUS? DIGIT)?))* */
     if (skipAlpha(state)) {
         skipChr(state, '-');
         skipDigit(state);
@@ -615,7 +615,7 @@ int scpiLex_NondecimalNumericData(lex_state_t * state, scpi_token_t * token) {
     }
 
     if (someNumbers) {
-        token->ptr += 2; // ignore number prefix
+        token->ptr += 2; /* ignore number prefix */
         token->len = state->pos - token->ptr;
     } else {
         token->type = SCPI_TOKEN_UNKNOWN;
@@ -692,8 +692,8 @@ int scpiLex_StringProgramData(lex_state_t * state, scpi_token_t * token) {
     token->len = state->pos - token->ptr;
 
     if ((token->len > 0)) {
-        //token->ptr++;
-        //token->len -= 2;
+        /* token->ptr++;
+         * token->len -= 2; */
     } else {
         token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
@@ -755,15 +755,15 @@ int scpiLex_ArbitraryBlockProgramData(lex_state_t * state, scpi_token_t * token)
     }
 
     if (validData == 1) {
-        // valid
+        /* valid */
         token->type = SCPI_TOKEN_ARBITRARY_BLOCK_PROGRAM_DATA;
     } else if (validData == 0) {
-        // incomplete
+        /* incomplete */
         token->type = SCPI_TOKEN_UNKNOWN;
         token->len = 0;
         state->pos = state->buffer + state->len;
     } else {
-        // invalid
+        /* invalid */
         token->type = SCPI_TOKEN_UNKNOWN;
         state->pos = token->ptr;
         token->len = 0;
@@ -794,7 +794,7 @@ static void skipProgramExpression(lex_state_t * state) {
     }
 }
 
-// TODO: 7.7.7.2-2 recursive - any program data
+/* TODO: 7.7.7.2-2 recursive - any program data */
 
 /**
  * Detect token Expression

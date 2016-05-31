@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
             scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
             scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
-    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
+    /* printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b"); */
     printf("SCPI Interactive demo\r\n");
     char smbuffer[10];
     while (1) {

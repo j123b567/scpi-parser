@@ -67,7 +67,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
-    // BEEP
+    /* BEEP */
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
     int listenfd;
     char smbuffer[10];
 
-    // user_context will be pointer to socket
+    /* user_context will be pointer to socket */
     scpi_context.user_context = NULL;
 
     SCPI_Init(&scpi_context,
@@ -208,14 +208,14 @@ int main(int argc, char** argv) {
 
         while (1) {
             rc = waitServer(clifd);
-            if (rc < 0) { // failed
+            if (rc < 0) { /* failed */
                 perror("  recv() failed");
                 break;
             }
-            if (rc == 0) { // timeout
+            if (rc == 0) { /* timeout */
                 SCPI_Input(&scpi_context, NULL, 0);
             }
-            if (rc > 0) { // something to read
+            if (rc > 0) { /* something to read */
                 rc = recv(clifd, smbuffer, sizeof (smbuffer), 0);
                 if (rc < 0) {
                     if (errno != EWOULDBLOCK) {

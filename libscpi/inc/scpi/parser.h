@@ -132,7 +132,7 @@ extern "C" {
     scpi_bool_t SCPI_CommandNumbers(scpi_t * context, int32_t * numbers, size_t len, int32_t default_value);
 
 #if USE_DEPRECATED_FUNCTIONS
-    // deprecated finction, should be removed later
+    /* deprecated finction, should be removed later */
 #define SCPI_ResultIntBase(context, val, base) SCPI_ResultInt32Base ((context), (val), (base), TRUE)
 #define SCPI_ResultInt(context, val) SCPI_ResultInt32 ((context), (val))
 #define SCPI_ParamToInt(context, parameter, value) SCPI_ParamToInt32((context), (parameter), (value))

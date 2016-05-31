@@ -699,7 +699,7 @@ scpi_bool_t SCPI_Parameter(scpi_t * context, scpi_parameter_t * parameter, scpi_
         if (mandatory) {
             SCPI_ErrorPush(context, SCPI_ERROR_MISSING_PARAMETER);
         } else {
-            parameter->type = SCPI_TOKEN_PROGRAM_MNEMONIC; // TODO: select something different
+            parameter->type = SCPI_TOKEN_PROGRAM_MNEMONIC; /* TODO: select something different */
         }
         return FALSE;
     }
@@ -1134,7 +1134,7 @@ scpi_bool_t SCPI_ParamCharacters(scpi_t * context, const char ** value, size_t *
                 break;
         }
 
-        // TODO: return also parameter type (ProgramMnemonic, ArbitraryBlockProgramData, SingleQuoteProgramData, DoubleQuoteProgramData
+        /* TODO: return also parameter type (ProgramMnemonic, ArbitraryBlockProgramData, SingleQuoteProgramData, DoubleQuoteProgramData */
     }
 
     return result;

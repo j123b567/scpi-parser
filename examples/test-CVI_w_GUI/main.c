@@ -83,7 +83,7 @@ void removeTrailingEndcodes(char *buf) {
                 buf[len] = '\0';
                 break;
             default:
-                len = 0; // stop loop
+                len = 0; /* stop loop */
                 break;
         }
     }
@@ -113,19 +113,19 @@ void debug_output(char *buf) {
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     if ((SCPI_outputBuffer_idx + len) > (SCPI_OUPUT_BUFFER_SIZE - 1)) {
-        len = (SCPI_OUPUT_BUFFER_SIZE - 1) - SCPI_outputBuffer_idx; // limit length to left over space
-        // apparently there is no mechanism to cope with buffers that are too small
+        len = (SCPI_OUPUT_BUFFER_SIZE - 1) - SCPI_outputBuffer_idx; /* limit length to left over space */
+        /* apparently there is no mechanism to cope with buffers that are too small */
     }
     memcpy(&SCPI_outputBuffer[SCPI_outputBuffer_idx], data, len);
     SCPI_outputBuffer_idx += len;
 
     SCPI_outputBuffer[SCPI_outputBuffer_idx] = '\0';
-    // return fwrite(data, 1, len, stdout);
+    /* return fwrite(data, 1, len, stdout); */
     return len;
 }
 
 scpi_result_t SCPI_Flush(scpi_t * context) {
-    // fwrite(SCPI_outputBuffer, 1, SCPI_outputBuffer_idx, stdout);
+    /* fwrite(SCPI_outputBuffer, 1, SCPI_outputBuffer_idx, stdout); */
     removeTrailingEndcodes(SCPI_outputBuffer);
     InsertTextBoxLine(panelHandle, PANEL_OUTPUT, -1, SCPI_outputBuffer);
     SCPI_outputBuffer_idx = 0;
@@ -135,7 +135,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     char buf[512];
 
-    //  fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
+    /*  fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err)); */
     sprintf(buf, "**ERROR: %d, \"%s\"", (int16_t) err, SCPI_ErrorTranslate(err));
     InsertTextBoxLine(panelHandle, PANEL_OUTPUTERR, -1, buf);
     return 0;
@@ -143,7 +143,7 @@ int SCPI_Error(scpi_t * context, int_fast16_t err) {
 
 scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
     if (SCPI_CTRL_SRQ == ctrl) {
-        //  fprintf(stderr, "**SRQ: 0x%X (%d)\r\n", val, val);
+        /*  fprintf(stderr, "**SRQ: 0x%X (%d)\r\n", val, val); */
         SetCtrlVal(panelHandle, PANEL_LEDSRQ, 1);
     } else {
         fprintf(stderr, "**CTRL %02x: 0x%X (%d)\r\n", ctrl, val, val);
@@ -153,7 +153,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
 
 scpi_result_t SCPI_Reset(scpi_t * context) {
     char buf[256];
-    //  fprintf(stderr, "**Reset\r\n");
+    /*  fprintf(stderr, "**Reset\r\n"); */
     sprintf(buf, "**Reset\r\n");
     debug_output(buf);
     return SCPI_RES_OK;

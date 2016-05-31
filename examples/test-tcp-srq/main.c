@@ -82,7 +82,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
-    // BEEP
+    /* BEEP */
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
@@ -263,7 +263,7 @@ static void processSrqIo(user_data_t * user_data) {
         closeSrqIo(user_data);
         printf("Control Connection closed\r\n");
     } else {
-        // nothing to do
+        /* nothing to do */
     }
 }
 
@@ -294,7 +294,7 @@ int main(int argc, char** argv) {
     };
 #endif
 
-    // user_context will be pointer to socket
+    /* user_context will be pointer to socket */
     SCPI_Init(&scpi_context,
             scpi_commands,
             &scpi_interface,
@@ -310,12 +310,12 @@ int main(int argc, char** argv) {
     while (1) {
         rc = waitServer(&user_data);
 
-        if (rc < 0) { // failed
+        if (rc < 0) { /* failed */
             perror("select failed");
             exit(-1);
         }
 
-        if (rc == 0) { // timeout
+        if (rc == 0) { /* timeout */
             SCPI_Input(&scpi_context, NULL, 0);
         }
 

@@ -108,13 +108,13 @@ size_t UInt32ToStrBaseSign(uint32_t val, char * str, size_t len, int8_t base, sc
                 break;
         }
 
-        // add sign for numbers in base 10
+        /* add sign for numbers in base 10 */
         if (sign && ((int32_t) val < 0) && (base == 10)) {
             uval = -val;
             ADD_CHAR('-');
         }
 
-        // remove leading zeros
+        /* remove leading zeros */
         while ((uval / x) == 0) {
             x /= base;
         }
@@ -194,13 +194,13 @@ size_t UInt64ToStrBaseSign(uint64_t val, char * str, size_t len, int8_t base, sc
                 break;
         }
 
-        // add sign for numbers in base 10
+        /* add sign for numbers in base 10 */
         if (sign && ((int64_t) val < 0) && (base == 10)) {
             uval = -val;
             ADD_CHAR('-');
         }
 
-        // remove leading zeros
+        /* remove leading zeros */
         while ((uval / x) == 0) {
             x /= base;
         }
@@ -378,7 +378,7 @@ scpi_bool_t compareStrAndNum(const char * str1, size_t len1, const char * str2, 
 
         if (num) {
             if (len1 == len2) {
-                //*num = 1;
+                /* *num = 1; */
             } else {
                 int32_t tmpNum;
                 i = len1 + strBaseToInt32(str2 + len1, &tmpNum, 10);
@@ -530,11 +530,11 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
     }
 
     /* now support optional keywords in pattern style, e.g. [:MEASure]:VOLTage:DC? */
-    if (pattern_ptr[0] == '[') { // skip first '['
+    if (pattern_ptr[0] == '[') { /* skip first '[' */
         SKIP_PATTERN(1);
         brackets++;
     }
-    if (pattern_ptr[0] == ':') { // skip first ':'
+    if (pattern_ptr[0] == ':') { /* skip first ':' */
         SKIP_PATTERN(1);
     }
 
@@ -557,7 +557,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
         if ((pattern_sep_pos > 0) && pattern_ptr[pattern_sep_pos - 1] == '#') {
             if (numbers && (numbers_idx < numbers_len)) {
                 number_ptr = numbers + numbers_idx;
-                *number_ptr = default_value; // default value
+                *number_ptr = default_value; /* default value */
             } else {
                 number_ptr = NULL;
             }
@@ -584,7 +584,7 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
 
             /* command complete, but pattern not */
             if (cmd_len == 0) {
-                // verify all subsequent pattern parts are also optional
+                /* verify all subsequent pattern parts are also optional */
                 while (pattern_len) {
                     pattern_sep_pos = patternSeparatorPos(pattern_ptr, pattern_len);
                     switch (pattern_ptr[pattern_sep_pos]) {
@@ -622,14 +622,14 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
                     && (pattern_ptr[1] == cmd_ptr[0])
                     && (pattern_ptr[0] == '[')
                     && (pattern_ptr[1] == ':')) {
-                SKIP_PATTERN(2); // for skip '[' in "[:"
+                SKIP_PATTERN(2); /* for skip '[' in "[:" */
                 SKIP_CMD(1);
                 brackets++;
             } else if ((pattern_len > 1)
                     && (pattern_ptr[1] == cmd_ptr[0])
                     && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == ':')) {
-                SKIP_PATTERN(2); // for skip ']' in "]:"
+                SKIP_PATTERN(2); /* for skip ']' in "]:" */
                 SKIP_CMD(1);
                 brackets--;
             } else if ((pattern_len > 2)
@@ -637,10 +637,10 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
                     && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == '[')
                     && (pattern_ptr[2] == ':')) {
-                SKIP_PATTERN(3); // for skip '][' in "][:"
+                SKIP_PATTERN(3); /* for skip '][' in "][:" */
                 SKIP_CMD(1);
-                //brackets++;
-                //brackets--;
+                /* brackets++; */
+                /* brackets--; */
             } else {
                 result = FALSE;
                 break;
@@ -648,14 +648,14 @@ scpi_bool_t matchCommand(const char * pattern, const char * cmd, size_t len, int
         } else {
             SKIP_PATTERN(pattern_sep_pos);
             if ((pattern_ptr[0] == ']') && (pattern_ptr[1] == ':')) {
-                SKIP_PATTERN(2); // for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged
+                SKIP_PATTERN(2); /* for skip ']' in "]:" , pattern_ptr continue, while cmd_ptr remain unchanged */
                 brackets--;
             } else if ((pattern_len > 2) && (pattern_ptr[0] == ']')
                     && (pattern_ptr[1] == '[')
                     && (pattern_ptr[2] == ':')) {
-                SKIP_PATTERN(3); // for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged
-                //brackets++;
-                //brackets--;
+                SKIP_PATTERN(3); /* for skip ']' in "][:" , pattern_ptr continue, while cmd_ptr remain unchanged */
+                /* brackets++; */
+                /* brackets--; */
             } else {
                 result = FALSE;
                 break;
@@ -790,7 +790,7 @@ char * scpiheap_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) 
         return NULL;
     }
 
-    size_t len = SCPIDEFINE_strnlen(s, n) + 1; // additional '\0' at end
+    size_t len = SCPIDEFINE_strnlen(s, n) + 1; /* additional '\0' at end */
     if (len > heap->count) {
         return NULL;
     }
@@ -810,7 +810,7 @@ char * scpiheap_strndup(scpi_error_info_heap_t * heap, const char *s, size_t n) 
     heap->wr += len;
     heap->count -= len;
 
-    // ensure '\0' a the end
+    /* ensure '\0' a the end */
     if (heap->wr > 0) {
         heap->data[heap->wr - 1] = '\0';
     } else {
@@ -891,34 +891,36 @@ void scpiheap_free(scpi_error_info_heap_t * heap, char * s, scpi_bool_t rollback
 
 #endif
 
-// Floating point to string conversion routines
-//
-// Copyright (C) 2002 Michael Ringgaard. All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//
-// 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-// 3. Neither the name of the project nor the names of its contributors
-//    may be used to endorse or promote products derived from this software
-//    without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-// SUCH DAMAGE.
+/*
+ * Floating point to string conversion routines
+ *
+ * Copyright (C) 2002 Michael Ringgaard. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the project nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
 static char *scpi_ecvt(double arg, int ndigits, int *decpt, int *sign, char *buf, size_t bufsize) {
     int r1, r2;

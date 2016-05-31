@@ -207,7 +207,7 @@ static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int
     if (i == 0) {
         return SCPI_EXPR_NO_MORE;
     } else {
-        // there was at least one number followed by !, but after ! was not another number
+        /* there was at least one number followed by !, but after ! was not another number */
         return SCPI_EXPR_ERROR;
     }
 }
@@ -283,7 +283,7 @@ scpi_expr_result_t SCPI_ExprChannelListEntry(scpi_t * context, scpi_parameter_t 
     lex.pos = lex.buffer;
     lex.len = param->len - 2;
 
-    // detect channel list expression
+    /* detect channel list expression */
     if (!scpiLex_SpecificCharacter(&lex, &token, '@')) {
         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
         return SCPI_EXPR_ERROR;
