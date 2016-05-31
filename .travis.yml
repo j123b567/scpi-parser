@@ -27,6 +27,10 @@ script:
   - CC=clang CFLAGS="-g -O0 -fsanitize=address -DUSE_DEVICE_DEPENDENT_ERROR_INFORMATION=0" LDFLAGS="-g -fsanitize=address" make clean test
   - CC=clang CFLAGS="-g -O0 -fsanitize=address -DUSE_MEMORY_ALLOCATION_FREE=0" LDFLAGS="-g -fsanitize=address" make clean test
   - CFLAGS="-m32" LDFLAGS="-m32 -L$PWD/CUnit/CUnit/Sources/.libs/" make clean test
+  - CFLAGS="-m32 -std=c89" LDFLAGS="-m32 -L$PWD/CUnit/CUnit/Sources/.libs/" make clean test
+  - CFLAGS="-m32 -std=c90" LDFLAGS="-m32 -L$PWD/CUnit/CUnit/Sources/.libs/" make clean test
+  - CFLAGS="-m32 -std=c99" LDFLAGS="-m32 -L$PWD/CUnit/CUnit/Sources/.libs/" make clean test
+  - CFLAGS="-m32 -std=gnu11" LDFLAGS="-m32 -L$PWD/CUnit/CUnit/Sources/.libs/" make clean test
   - LDFLAGS="-lgcov" CFLAGS="-fprofile-arcs -ftest-coverage" make clean all test
 
 after_success:
