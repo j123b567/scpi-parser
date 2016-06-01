@@ -235,10 +235,10 @@ extern "C" {
   #define SCPIDEFINE_signbit(n)                         ((n)<0)
 #endif
 
-#if HAVE_ISFINITE
-  #define SCPIDEFINE_isfinite(n)                        isfinite(n)
-#elif HAVE_FINITE
+#if HAVE_FINITE
   #define SCPIDEFINE_isfinite(n)                        finite(n)
+#elif HAVE_ISFINITE
+  #define SCPIDEFINE_isfinite(n)                        isfinite(n)
 #else
   #define SCPIDEFINE_isfinite(n)                        (!SCPIDEFINE_isnan((n)) && ((n) < INFINITY) && ((n) > -INFINITY))
 #endif
