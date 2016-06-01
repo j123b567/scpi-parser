@@ -1120,10 +1120,10 @@ uint16_t SCPI_Swap16(uint16_t val) {
  * @return
  */
 uint32_t SCPI_Swap32(uint32_t val) {
-    return ((val & 0x000000FF) << 24) |
-            ((val & 0x0000FF00) << 8) |
-            ((val & 0x00FF0000) >> 8) |
-            ((val & 0xFF000000) >> 24);
+    return ((val & 0x000000FFul) << 24) |
+            ((val & 0x0000FF00ul) << 8) |
+            ((val & 0x00FF0000ul) >> 8) |
+            ((val & 0xFF000000ul) >> 24);
 }
 
 /**
@@ -1132,12 +1132,12 @@ uint32_t SCPI_Swap32(uint32_t val) {
  * @return
  */
 uint64_t SCPI_Swap64(uint64_t val) {
-    return ((val & 0x00000000000000FFul) << 56) |
-            ((val & 0x000000000000FF00ul) << 40) |
-            ((val & 0x0000000000FF0000ul) << 24) |
-            ((val & 0x00000000FF000000ul) << 8) |
-            ((val & 0x000000FF00000000ul) >> 8) |
-            ((val & 0x0000FF0000000000ul) >> 24) |
-            ((val & 0x00FF000000000000ul) >> 40) |
-            ((val & 0xFF00000000000000ul) >> 56);
+    return ((val & 0x00000000000000FFull) << 56) |
+            ((val & 0x000000000000FF00ull) << 40) |
+            ((val & 0x0000000000FF0000ull) << 24) |
+            ((val & 0x00000000FF000000ull) << 8) |
+            ((val & 0x000000FF00000000ull) >> 8) |
+            ((val & 0x0000FF0000000000ull) >> 24) |
+            ((val & 0x00FF000000000000ull) >> 40) |
+            ((val & 0xFF00000000000000ull) >> 56);
 }
