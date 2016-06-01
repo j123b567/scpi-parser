@@ -411,11 +411,11 @@ const scpi_command_t scpi_commands[] = {
 };
 
 scpi_interface_t scpi_interface = {
-    .error = SCPI_Error,
-    .write = SCPI_Write,
-    .control = SCPI_Control,
-    .flush = SCPI_Flush,
-    .reset = SCPI_Reset,
+    /*.error = */ SCPI_Error,
+    /*.write = */ SCPI_Write,
+    /*.control = */ SCPI_Control,
+    /*.flush = */ SCPI_Flush,
+    /*.reset = */ SCPI_Reset,
 };
 
 char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
