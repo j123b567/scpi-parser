@@ -223,8 +223,8 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
         int32_t values_to[MAXDIM];
         size_t dimensions;
 
-        bool for_stop_row = false; /* true if iteration for rows has to stop */
-        bool for_stop_col = false; /* true if iteration for columns has to stop */
+        bool for_stop_row = FALSE; /* true if iteration for rows has to stop */
+        bool for_stop_col = FALSE; /* true if iteration for columns has to stop */
         int32_t dir_row = 1; /* direction of counter for rows, +/-1 */
         int32_t dir_col = 1; /* direction of counter for columns, +/-1 */
 
@@ -234,7 +234,7 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
             arr_idx = 0; /* set arr_idx to 0 */
             do { /* if valid, iterate over channel_list_param index while res == valid (do-while cause we have to do it once) */
                 res = SCPI_ExprChannelListEntry(context, &channel_list_param, chanlst_idx, &is_range, values_from, values_to, 4, &dimensions);
-                if (is_range == false) { /* still can have multiple dimensions */
+                if (is_range == FALSE) { /* still can have multiple dimensions */
                     if (dimensions == 1) {
                         /* here we have our values
                          * row == values_from[0]
@@ -256,7 +256,7 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                     if (arr_idx >= MAXROW * MAXCOL) {
                         return SCPI_RES_ERR;
                     }
-                } else if (is_range == true) {
+                } else if (is_range == TRUE) {
                     if (values_from[0] > values_to[0]) {
                         dir_row = -1; /* we have to decrement from values_from */
                     } else { /* if (values_from[0] < values_to[0]) */
@@ -265,8 +265,8 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
 
                     /* iterating over rows, do it once -> set for_stop_row = false
                      * needed if there is channel list index isn't at end yet */
-                    for_stop_row = false;
-                    for (n = values_from[0]; for_stop_row == false; n += dir_row) {
+                    for_stop_row = FALSE;
+                    for (n = values_from[0]; for_stop_row == FALSE; n += dir_row) {
                         /* usual case for ranges, 2 dimensions */
                         if (dimensions == 2) {
                             if (values_from[1] > values_to[1]) {
@@ -276,8 +276,8 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                             }
                             /* iterating over columns, do it at least once -> set for_stop_col = false
                              * needed if there is channel list index isn't at end yet */
-                            for_stop_col = false;
-                            for (m = values_from[1]; for_stop_col == false; m += dir_col) {
+                            for_stop_col = FALSE;
+                            for (m = values_from[1]; for_stop_col == FALSE; m += dir_col) {
                                 /* here we have our values
                                  * row == n
                                  * col == m
@@ -290,7 +290,7 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                                 }
                                 if (m == (size_t)values_to[1]) {
                                     /* endpoint reached, stop column for-loop */
-                                    for_stop_col = true;
+                                    for_stop_col = TRUE;
                                 }
                             }
                             /* special case for range, example: (@2!1) */
@@ -308,7 +308,7 @@ static scpi_result_t TEST_Chanlst(scpi_t *context) {
                         }
                         if (n == (size_t)values_to[0]) {
                             /* endpoint reached, stop row for-loop */
-                            for_stop_row = true;
+                            for_stop_row = TRUE;
                         }
                     }
 
