@@ -59,11 +59,11 @@ extern "C" {
 #endif
 
 #if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L || C99
-#define HAVE_SNPRINTF 1
+    #define HAVE_SNPRINTF 1
 #endif
 
 #if _POSIX_C_SOURCE >= 200112L
-#define HAVE_STRNCASECMP 1
+    #define HAVE_STRNCASECMP 1
 #endif
 
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L || C99
@@ -83,6 +83,10 @@ extern "C" {
     #define HAVE_STRTOF 1
 #endif
 
+#if _ISOC99_SOURCE || C99
+    #define HAVE_STDBOOL 1
+#endif
+
 /* Compiler specific */
 /* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
 #if defined(__CC_ARM)
@@ -92,7 +96,6 @@ extern "C" {
 /* National Instruments (R) CVI x86/x64 PC platform */
 #if defined(_CVI_)
 #define HAVE_STRNICMP           1
-#define HAVE_STDBOOL            0
 #endif
 
 /* 8bit PIC - PIC16, etc */
@@ -115,6 +118,7 @@ extern "C" {
 #define HAVE_DTOSTRE            1
 #endif
 
+/* default values */
 #ifndef HAVE_STRNLEN
 #define HAVE_STRNLEN            0
 #endif
@@ -128,35 +132,39 @@ extern "C" {
 #endif
 
 #ifndef HAVE_STDBOOL
-#define HAVE_STDBOOL            1
+#define HAVE_STDBOOL            0
 #endif
 
 #ifndef HAVE_SNPRINTF
-#define HAVE_SNPRINTF 0
+#define HAVE_SNPRINTF           0
 #endif
 
 #ifndef HAVE_STRNCASECMP
-#define HAVE_STRNCASECMP 0
+#define HAVE_STRNCASECMP        0
 #endif
 
 #ifndef HAVE_ISNAN
-#define HAVE_ISNAN 0
+#define HAVE_ISNAN              0
 #endif
 
 #ifndef HAVE_ISFINITE
-#define HAVE_ISFINITE 0
+#define HAVE_ISFINITE           0
+#endif
+
+#ifndef HAVE_FINITE
+#define HAVE_FINITE             0
 #endif
 
 #ifndef HAVE_SIGNBIT
-#define HAVE_SIGNBIT 0
+#define HAVE_SIGNBIT            0
 #endif
 
 #ifndef HAVE_STRTOLL
-#define HAVE_STRTOLL 0
+#define HAVE_STRTOLL            0
 #endif
 
 #ifndef HAVE_STRTOF
-#define HAVE_STRTOF 0
+#define HAVE_STRTOF             0
 #endif
 
 #ifdef	__cplusplus
