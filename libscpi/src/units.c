@@ -355,7 +355,7 @@ static scpi_bool_t transformNumber(scpi_t * context, const char * unit, size_t l
         return FALSE;
     }
 
-    value->value *= unitDef->mult;
+    value->content.value *= unitDef->mult;
     value->unit = unitDef->unit;
 
     return TRUE;
@@ -426,23 +426,23 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
 
     switch (param.type) {
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA:
-            SCPI_ParamToDouble(context, &param, &(value->value));
+            SCPI_ParamToDouble(context, &param, &(value->content.value));
             break;
         case SCPI_TOKEN_HEXNUM:
-            SCPI_ParamToDouble(context, &param, &(value->value));
+            SCPI_ParamToDouble(context, &param, &(value->content.value));
             break;
         case SCPI_TOKEN_OCTNUM:
-            SCPI_ParamToDouble(context, &param, &(value->value));
+            SCPI_ParamToDouble(context, &param, &(value->content.value));
             break;
         case SCPI_TOKEN_BINNUM:
-            SCPI_ParamToDouble(context, &param, &(value->value));
+            SCPI_ParamToDouble(context, &param, &(value->content.value));
             break;
         case SCPI_TOKEN_DECIMAL_NUMERIC_PROGRAM_DATA_WITH_SUFFIX:
             scpiLex_DecimalNumericProgramData(&state, &token);
             scpiLex_WhiteSpace(&state, &token);
             scpiLex_SuffixProgramData(&state, &token);
 
-            SCPI_ParamToDouble(context, &param, &(value->value));
+            SCPI_ParamToDouble(context, &param, &(value->content.value));
 
             result = transformNumber(context, token.ptr, token.len, value);
             break;
@@ -454,7 +454,7 @@ scpi_bool_t SCPI_ParamNumber(scpi_t * context, const scpi_choice_def_t * special
             result = SCPI_ParamToChoice(context, &token, special, &tag);
 
             value->special = TRUE;
-            value->tag = tag;
+            value->content.tag = tag;
 
             break;
         default:
@@ -482,7 +482,7 @@ size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scp
     }
 
     if (value->special) {
-        if (SCPI_ChoiceToName(special, value->tag, &type)) {
+        if (SCPI_ChoiceToName(special, value->content.tag, &type)) {
             strncpy(str, type, len);
             result = SCPIDEFINE_strnlen(str, len - 1);
             str[result] = '\0';
@@ -493,7 +493,7 @@ size_t SCPI_NumberToStr(scpi_t * context, const scpi_choice_def_t * special, scp
         }
     }
 
-    result = SCPI_DoubleToStr(value->value, str, len);
+    result = SCPI_DoubleToStr(value->content.value, str, len);
 
     if (result + 1 < len) {
         unit = translateUnitInverse(context->units, value->unit);
