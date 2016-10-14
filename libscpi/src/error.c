@@ -45,7 +45,7 @@
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 #define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); (e)->device_dependent_info = (i); } while(0)
 #else
-#define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); } while(0)
+#define SCPI_ERROR_SETVAL(e, c, i) do { (e)->error_code = (c); (void)(i);} while(0)
 #endif
 
 /**
