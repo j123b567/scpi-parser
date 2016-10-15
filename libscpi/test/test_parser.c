@@ -1013,8 +1013,8 @@ static void testChannelList(void) {
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value.special, expected_special);                               \
-        if (value.special) CU_ASSERT_EQUAL(value.tag, expected_tag);                    \
-        if (!value.special) CU_ASSERT_DOUBLE_EQUAL(value.value, expected_value, 0.000001);\
+        if (value.special) CU_ASSERT_EQUAL(value.content.tag, expected_tag);                    \
+        if (!value.special) CU_ASSERT_DOUBLE_EQUAL(value.content.value, expected_value, 0.000001);\
         CU_ASSERT_EQUAL(value.unit, expected_unit);                                     \
         CU_ASSERT_EQUAL(value.base, expected_base);                                     \
     }                                                                                   \
@@ -1419,7 +1419,7 @@ static void testNumberToStr(void) {
     number.base = 10;\
     number.special = (_special);\
     number.unit = (_unit);\
-    if (number.special) { number.tag = (int)(_value); } else { number.value = (_value); }\
+    if (number.special) { number.content.tag = (int)(_value); } else { number.content.value = (_value); }\
     char buffer[100 + 1];\
     size_t res_len;\
     res_len = SCPI_NumberToStr(&scpi_context, scpi_special_numbers_def, &number, buffer, 100);\
@@ -1432,7 +1432,7 @@ static void testNumberToStr(void) {
     number.base = 10;\
     number.special = (_special);\
     number.unit = (_unit);\
-    if (number.special) { number.tag = (int)(_value); } else { number.value = (_value); }\
+    if (number.special) { number.content.tag = (int)(_value); } else { number.content.value = (_value); }\
     char buffer[100];\
     memset(buffer, 0xaa, 100);\
     size_t res_len;\
