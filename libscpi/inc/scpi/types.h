@@ -328,7 +328,7 @@ extern "C" {
         union {
             double value;
             int32_t tag;
-        };
+        } content;
         scpi_unit_t unit;
         int8_t base;
     };
