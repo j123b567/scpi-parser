@@ -116,6 +116,8 @@ extern "C" {
 #if defined(__AVR__)
 #include <stdlib.h>
 #define HAVE_DTOSTRE            1
+#undef HAVE_STRTOF
+#define HAVE_STRTOF				0
 #endif
 
 /* default values */
