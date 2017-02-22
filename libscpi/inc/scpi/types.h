@@ -113,7 +113,12 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
-#define SCPI_CMD_LIST_END       {NULL, NULL, 0}
+#if USE_COMMAND_TAGS
+	#define SCPI_CMD_LIST_END       {NULL, NULL, 0}
+#else
+	#define SCPI_CMD_LIST_END       {NULL, NULL}
+#endif
+
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
