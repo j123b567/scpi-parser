@@ -107,14 +107,14 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("SYST:VERS?");
     TEST_SCPI_INPUT("\r\n*ID");
     TEST_SCPI_INPUT("N?");
-    TEST_SCPI_INPUT(""); // emulate command timeout
+    TEST_SCPI_INPUT(""); /* emulate command timeout */
 
-    TEST_SCPI_INPUT("*ESE\r\n"); // cause error -109, missing parameter
+    TEST_SCPI_INPUT("*ESE\r\n"); /* cause error -109, missing parameter */
     TEST_SCPI_INPUT("*ESE #H20\r\n");
 
     TEST_SCPI_INPUT("*SRE #HFF\r\n");
 
-    TEST_SCPI_INPUT("IDN?\r\n"); // cause error -113, undefined header
+    TEST_SCPI_INPUT("IDN?\r\n"); /* cause error -113, undefined header */
 
     TEST_SCPI_INPUT("SYST:ERR?\r\n");
     TEST_SCPI_INPUT("SYST:ERR?\r\n");
@@ -131,13 +131,15 @@ int main(int argc, char** argv) {
     TEST_SCPI_INPUT("test:text 'a a'\r\n");
     TEST_SCPI_INPUT("test:text 'aa a'\r\n");
     TEST_SCPI_INPUT("test:text 'aaa aaaa'\r\n");
-    //printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
-    // interactive demo
-    //char smbuffer[10];
-    //while (1) {
-    //     fgets(smbuffer, 10, stdin);
-    //     SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
-    //}
+    TEST_SCPI_INPUT("TEST:CHANnellist (@9!2:3!4,5!6)\r\n");
+    /* printf("%.*s %s\r\n",  3, "asdadasdasdasdas", "b");
+     * interactive demo
+     * char smbuffer[10];
+     * while (1) {
+     *     fgets(smbuffer, 10, stdin);
+     *     SCPI_Input(&scpi_context, smbuffer, strlen(smbuffer));
+     * }
+     */
 
 
     return (EXIT_SUCCESS);

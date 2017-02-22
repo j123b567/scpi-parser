@@ -117,7 +117,12 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
-#define SCPI_CMD_LIST_END       {}
+#if USE_COMMAND_TAGS
+	#define SCPI_CMD_LIST_END       {NULL, NULL, 0}
+#else
+	#define SCPI_CMD_LIST_END       {NULL, NULL}
+#endif
+
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
@@ -207,7 +212,7 @@ extern "C" {
 
     struct _scpi_error_info_heap_t {
         size_t wr;
-        //size_t rd;
+        /* size_t rd; */
         size_t count;
         size_t size;
         char * data;
@@ -344,7 +349,7 @@ extern "C" {
         union {
             double value;
             int32_t tag;
-        };
+        } content;
         scpi_unit_t unit;
         int8_t base;
     };

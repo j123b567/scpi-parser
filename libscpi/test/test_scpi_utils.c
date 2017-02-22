@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include "CUnit/Basic.h"
 
@@ -78,20 +79,20 @@ static void test_Int32ToStr() {
     char ref[max];
     size_t len;
 
-    // test signed conversion to decimal numbers
+    /* test signed conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_Int32ToStr(val[i], str, max);
-        snprintf(ref, max, "%"PRIi32, val[i]);
+        sprintf(ref, "%"PRIi32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
     int16_t val16[] = {0, 1, -1, INT16_MIN, INT16_MAX, 0x0123, 0x4567, 0x89ab, 0xcdef};
     int N16 = sizeof (val16) / sizeof (int16_t);
-    // test signed conversion to decimal numbers
+    /* test signed conversion to decimal numbers */
     for (i = 0; i < N16; i++) {
         len = SCPI_Int32ToStr((int32_t) val16[i], str, max);
-        snprintf(ref, max, "%"PRIi16, val16[i]);
+        sprintf(ref, "%"PRIi16, val16[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -106,31 +107,31 @@ static void test_UInt32ToStrBase() {
     char ref[max];
     size_t len;
 
-    // test conversion to decimal numbers
+    /* test conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 10);
-        snprintf(ref, max, "%"PRIu32, val[i]);
+        sprintf(ref, "%"PRIu32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    // test conversion to hexadecimal numbers
+    /* test conversion to hexadecimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 16);
-        snprintf(ref, max, "%"PRIX32, val[i]);
+        sprintf(ref, "%"PRIX32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    // test conversion to octal numbers
+    /* test conversion to octal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt32ToStrBase(val[i], str, max, 8);
-        snprintf(ref, max, "%"PRIo32, val[i]);
+        sprintf(ref, "%"PRIo32, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    // test conversion to binary numbers
+    /* test conversion to binary numbers */
     len = SCPI_UInt32ToStrBase(0, str, max, 2);
     CU_ASSERT(len == 1);
     CU_ASSERT_STRING_EQUAL(str, "0");
@@ -161,10 +162,10 @@ static void test_Int64ToStr() {
     char ref[max];
     size_t len;
 
-    // test conversion to decimal numbers
+    /* test conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_Int64ToStr(val[i], str, max);
-        snprintf(ref, max, "%"PRIi64, val[i]);
+        sprintf(ref, "%"PRIi64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -179,31 +180,31 @@ static void test_UInt64ToStrBase() {
     char ref[max];
     size_t len;
 
-    // test conversion to decimal numbers
+    /* test conversion to decimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 10);
-        snprintf(ref, max, "%"PRIu64, val[i]);
+        sprintf(ref, "%"PRIu64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    // test conversion to hexadecimal numbers
+    /* test conversion to hexadecimal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 16);
-        snprintf(ref, max, "%"PRIX64, val[i]);
+        sprintf(ref, "%"PRIX64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    // test conversion to octal numbers
+    /* test conversion to octal numbers */
     for (i = 0; i < N; i++) {
         len = SCPI_UInt64ToStrBase(val[i], str, max, 8);
-        snprintf(ref, max, "%"PRIo64, val[i]);
+        sprintf(ref, "%"PRIo64, val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    // test conversion to binary numbers
+    /* test conversion to binary numbers */
     len = SCPI_UInt64ToStrBase(0, str, max, 2);
     CU_ASSERT(len == 1);
     CU_ASSERT_STRING_EQUAL(str, "0");
@@ -227,7 +228,11 @@ static void test_UInt64ToStrBase() {
 
 static void test_scpi_dtostre() {
     const size_t strsize = 49 + 1;
-    double val[] = {NAN, INFINITY, -INFINITY, 0,
+    double val[] = {
+#ifdef INFINITY
+        INFINITY, -INFINITY,
+#endif
+        0,
         1, 1.1, 1.01, 1.001, 1.0001, 1.00001, 1.000001, 1.0000001, 1.00000001,
         1.000000001, 1.0000000001, 1.00000000001, 1.000000000001,
         1.0000000000001, 1e-5, 1.1e-5, 1.01e-5, 1.001e-5, 1.0001e-5, 1.00001e-5,
@@ -260,10 +265,38 @@ static void test_scpi_dtostre() {
 
     for (i = 0; i < N; i++) {
         len = strlen(SCPI_dtostre(val[i], str, strsize, 15, 0));
-        snprintf(ref, strsize, "%.15lg", val[i]);
+        sprintf(ref, "%.15lg", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
+
+    for (i = 0; i < N; i++) {
+        len = strlen(SCPI_dtostre(val[i], str, 2, 15, 0));
+        snprintf(ref, 2, "%.15lg", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
+
+    for (i = 0; i < N; i++) {
+        len = strlen(SCPI_dtostre(val[i], str, 12, 15, 0));
+        snprintf(ref, 12, "%.15lg", val[i]);
+        CU_ASSERT(len == strlen(ref));
+        CU_ASSERT_STRING_EQUAL(str, ref);
+    }
+
+#ifdef NAN
+    len = strlen(SCPI_dtostre(NAN, str, strsize, 15, 0));
+    strncpy(ref, "nan", strsize);
+    CU_ASSERT(len == strlen(ref));
+    CU_ASSERT_STRING_EQUAL(str, ref);
+
+    len = strlen(SCPI_dtostre(NAN, str, 2, 15, 0));
+    strncpy(ref, "nan", 2);
+    ref[2 - 1] = '\0';
+    CU_ASSERT(len == strlen(ref));
+    CU_ASSERT_STRING_EQUAL(str, ref);
+#endif
+
 }
 
 static void test_floatToStr() {
@@ -277,7 +310,7 @@ static void test_floatToStr() {
 
     for (i = 0; i < N; i++) {
         len = SCPI_FloatToStr(val[i], str, max);
-        snprintf(ref, max, "%g", val[i]);
+        sprintf(ref, "%g", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -294,7 +327,7 @@ static void test_doubleToStr() {
 
     for (i = 0; i < N; i++) {
         len = SCPI_DoubleToStr(val[i], str, max);
-        snprintf(ref, max, "%.15lg", val[i]);
+        sprintf(ref, "%.15lg", val[i]);
         CU_ASSERT(len == strlen(ref));
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
@@ -311,7 +344,7 @@ static void test_strBaseToInt32() {
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
 
-    // TODO: extend to corner cases, use scanf as reference
+    /* TODO: extend to corner cases, use scanf as reference */
     TEST_STR_TO_INT32("", 0, 0, 10);
     TEST_STR_TO_INT32("1", 1, 1, 10);
     TEST_STR_TO_INT32("10", 2, 10, 10);
@@ -320,10 +353,10 @@ static void test_strBaseToInt32() {
     TEST_STR_TO_INT32("MHz", 0, 0, 10);
     TEST_STR_TO_INT32("1.4", 1, 1, 10);
     TEST_STR_TO_INT32(" 1", 2, 1, 10);
-    TEST_STR_TO_INT32(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_INT32("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_INT32("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_INT32("18", 1, 1, 8); // octal 1, 8 is ignored
+    TEST_STR_TO_INT32(" +100", 5, 100, 10); /* space and + */
+    TEST_STR_TO_INT32("FF", 2, 255, 16); /* hexadecimal FF */
+    TEST_STR_TO_INT32("77", 2, 63, 8); /* octal 77 */
+    TEST_STR_TO_INT32("18", 1, 1, 8); /* octal 1, 8 is ignored */
 }
 
 static void test_strBaseToUInt32() {
@@ -337,7 +370,7 @@ static void test_strBaseToUInt32() {
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
 
-    // TODO: extend to corner cases, use scanf as reference
+    /* TODO: extend to corner cases, use scanf as reference */
     TEST_STR_TO_UINT32("", 0, 0, 10);
     TEST_STR_TO_UINT32("1", 1, 1, 10);
     TEST_STR_TO_UINT32("10", 2, 10, 10);
@@ -345,11 +378,11 @@ static void test_strBaseToUInt32() {
     TEST_STR_TO_UINT32("MHz", 0, 0, 10);
     TEST_STR_TO_UINT32("1.4", 1, 1, 10);
     TEST_STR_TO_UINT32(" 1", 2, 1, 10);
-    TEST_STR_TO_UINT32(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_UINT32("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_UINT32("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_UINT32("18", 1, 1, 8); // octal 1, 8 is ignored
-    TEST_STR_TO_UINT32("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
+    TEST_STR_TO_UINT32(" +100", 5, 100, 10); /* space and + */
+    TEST_STR_TO_UINT32("FF", 2, 255, 16); /* hexadecimal FF */
+    TEST_STR_TO_UINT32("77", 2, 63, 8); /* octal 77 */
+    TEST_STR_TO_UINT32("18", 1, 1, 8); /* octal 1, 8 is ignored */
+    TEST_STR_TO_UINT32("FFFFFFFF", 8, 0xffffffffu, 16); /* octal 1, 8 is ignored */
 }
 
 static void test_strBaseToInt64() {
@@ -363,7 +396,7 @@ static void test_strBaseToInt64() {
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
 
-    // TODO: extend to corner cases, use scanf as reference
+    /* TODO: extend to corner cases, use scanf as reference */
     TEST_STR_TO_INT64("", 0, 0, 10);
     TEST_STR_TO_INT64("1", 1, 1, 10);
     TEST_STR_TO_INT64("10", 2, 10, 10);
@@ -372,10 +405,10 @@ static void test_strBaseToInt64() {
     TEST_STR_TO_INT64("MHz", 0, 0, 10);
     TEST_STR_TO_INT64("1.4", 1, 1, 10);
     TEST_STR_TO_INT64(" 1", 2, 1, 10);
-    TEST_STR_TO_INT64(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_INT64("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_INT64("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_INT64("18", 1, 1, 8); // octal 1, 8 is ignored
+    TEST_STR_TO_INT64(" +100", 5, 100, 10); /* space and + */
+    TEST_STR_TO_INT64("FF", 2, 255, 16); /* hexadecimal FF */
+    TEST_STR_TO_INT64("77", 2, 63, 8); /* octal 77 */
+    TEST_STR_TO_INT64("18", 1, 1, 8); /* octal 1, 8 is ignored */
 }
 
 static void test_strBaseToUInt64() {
@@ -389,7 +422,7 @@ static void test_strBaseToUInt64() {
         CU_ASSERT_EQUAL(result, r);                     \
     } while(0)                                          \
 
-    // TODO: extend to corner cases, use scanf as reference
+    /* TODO: extend to corner cases, use scanf as reference */
     TEST_STR_TO_UINT64("", 0, 0, 10);
     TEST_STR_TO_UINT64("1", 1, 1, 10);
     TEST_STR_TO_UINT64("10", 2, 10, 10);
@@ -397,11 +430,11 @@ static void test_strBaseToUInt64() {
     TEST_STR_TO_UINT64("MHz", 0, 0, 10);
     TEST_STR_TO_UINT64("1.4", 1, 1, 10);
     TEST_STR_TO_UINT64(" 1", 2, 1, 10);
-    TEST_STR_TO_UINT64(" +100", 5, 100, 10); // space and +
-    TEST_STR_TO_UINT64("FF", 2, 255, 16); // hexadecimal FF
-    TEST_STR_TO_UINT64("77", 2, 63, 8); // octal 77
-    TEST_STR_TO_UINT64("18", 1, 1, 8); // octal 1, 8 is ignored
-    TEST_STR_TO_UINT64("FFFFFFFF", 8, 0xffffffffu, 16); // octal 1, 8 is ignored
+    TEST_STR_TO_UINT64(" +100", 5, 100, 10); /* space and + */
+    TEST_STR_TO_UINT64("FF", 2, 255, 16); /* hexadecimal FF */
+    TEST_STR_TO_UINT64("77", 2, 63, 8); /* octal 77 */
+    TEST_STR_TO_UINT64("18", 1, 1, 8); /* octal 1, 8 is ignored */
+    TEST_STR_TO_UINT64("FFFFFFFF", 8, 0xffffffffu, 16); /* octal 1, 8 is ignored */
 }
 
 static void test_strToDouble() {
@@ -541,88 +574,88 @@ static void test_matchCommand() {
     TEST_MATCH_COMMAND("A?", "A?", TRUE);
     TEST_MATCH_COMMAND("A", "A?", FALSE);
     TEST_MATCH_COMMAND("A?", "A", FALSE);
-    TEST_MATCH_COMMAND("[:ABcc]:AACddd", ":ab:aac", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:AACddd", "aac", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:AACddd", "aac?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", ":ab:aac?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", "aac?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", "aac", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:bcc:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:cdefg?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:bcc:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:cdefg", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd", ":ab:aac", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd", "aac", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd", "aac?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", ":ab:aac?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", "aac?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:AACddd?", "aac", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:bcc:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee", "ab:cdefg?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:bcc:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd]:CDEFGeeeee?", "ab:cdefg", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]", "ab:bcc?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc:BCCdddd[:CDEFGeeeee]?", "ab:bcc", FALSE); /* test optional keyword */
 
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "bcc:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "bcc:cdefg?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "bcc:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "bcc:cdefg", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "bcc:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "ab:bcc?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]", "bcc:cdefg?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "bcc:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "ab:bcc", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("[:ABcc]:BCCdddd[:CDEFGeeeee]?", "bcc:cdefg", FALSE); /* test optional keyword */
 
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:cdefg?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:cdefg", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:bcc?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]", "ab:cdefg?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:bcc", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee]?", "ab:cdefg", FALSE); /* test optional keyword */
 
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:defffffffff", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:deffffffffffffffffffff", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:de", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:defffffffff", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg:defffffffff", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:defffffffff", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:defffffffff?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg:defffffffff?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:defffffffff?", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab?", FALSE); // test optional keyword
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:defffffffff", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:deffffffffffffffffffff", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg:de", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:defffffffff", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg:defffffffff", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:defffffffff", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:cdefg?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc:defffffffff?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg:defffffffff?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:bcc?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:cdefg?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab:defffffffff?", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]", "ab?", FALSE); /* test optional keyword */
 
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg:defffffffff?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:defffffffff?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg:defffffffff?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:defffffffff?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab?", TRUE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:defffffffff", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg:defffffffff", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:defffffffff", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab", FALSE); // test optional keyword
-    TEST_MATCH_COMMAND("*IDN?", "idn", FALSE); // common command
-    TEST_MATCH_COMMAND("*IDN?", "idn?", FALSE); // common command
-    TEST_MATCH_COMMAND("*IDN?", "*idn", FALSE); // common command
-    TEST_MATCH_COMMAND("*IDN?", "*idn?", TRUE); // common command
-    TEST_MATCH_COMMAND("*IDN?", ":idn", FALSE); // common command
-    TEST_MATCH_COMMAND("*IDN?", ":idn?", FALSE); // common command
-    TEST_MATCH_COMMAND("*IDN?", ":*idn", FALSE); // common command
-    TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); // common command
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg:defffffffff?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:defffffffff?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg:defffffffff?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:defffffffff?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab?", TRUE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:cdefg", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc:defffffffff", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg:defffffffff", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:bcc", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:cdefg", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab:defffffffff", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("ABcc[:BCCdddd][:CDEFGeeeee][:DEFFFFFFFFFfffffffffff]?", "ab", FALSE); /* test optional keyword */
+    TEST_MATCH_COMMAND("*IDN?", "idn", FALSE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", "idn?", FALSE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", "*idn", FALSE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", "*idn?", TRUE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", ":idn", FALSE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", ":idn?", FALSE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", ":*idn", FALSE); /* common command */
+    TEST_MATCH_COMMAND("*IDN?", ":*idn?", FALSE); /* common command */
 
     TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", ":MEAS?", FALSE);
     TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]?", "MEAS?", FALSE);
@@ -650,48 +683,48 @@ static void test_matchCommand() {
     TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]", ":MEAS:CURR:DC", TRUE);
     TEST_MATCH_COMMAND("MEASure[:SCALar]:CURRent[:DC]", "MEAS:CURR:DC", TRUE);
 
-    TEST_MATCH_COMMAND("ABCdef#", "abc", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("ABCdef#", "abc1324", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("ABCdef#", "abcDef1324", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("ABCdef#", "abcDef124b", FALSE); // test numeric parameter
+    TEST_MATCH_COMMAND("ABCdef#", "abc", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("ABCdef#", "abc1324", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("ABCdef#", "abcDef1324", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("ABCdef#", "abcDef124b", FALSE); /* test numeric parameter */
 
-    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "abc", FALSE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10:fm", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output1:mod10:fm", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:modulation:fm5", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10a:fm", FALSE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:mod10:fm", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm2", TRUE); // test numeric parameter
-    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE); // test numeric parameter
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "abc", FALSE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10:fm", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output1:mod10:fm", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:modulation:fm5", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#:MODulation#:FM#", "outp1:mod10a:fm", FALSE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:mod10:fm", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "outp1:fm2", TRUE); /* test numeric parameter */
+    TEST_MATCH_COMMAND("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE); /* test numeric parameter */
 
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp3:mod10:fm", TRUE, (3, 10, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output3:mod10:fm", TRUE, (3, 10, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp30:modulation:fm5", TRUE, (30, -1, 5)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE, (-1, -1, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm", TRUE, (3, -1, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:mod10:fm", TRUE, (3, 10, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm2", TRUE, (3, -1, 2)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE, (-1, -1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp3:mod10:fm", TRUE, (3, 10, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output3:mod10:fm", TRUE, (3, 10, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "outp30:modulation:fm5", TRUE, (30, -1, 5)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM#", "output:mod:fm", TRUE, (-1, -1, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm", TRUE, (3, -1, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:mod10:fm", TRUE, (3, 10, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "outp3:fm2", TRUE, (3, -1, 2)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM#", "output:fm", TRUE, (-1, -1, -1)); /* test numeric parameter */
 
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp3:mod:fm", TRUE, (3, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output3:mod:fm", TRUE, (3, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp30:modulation:fm5", TRUE, (30, 5)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output:mod:fm", TRUE, (-1, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm", TRUE, (3, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:mod:fm", TRUE, (3, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm2", TRUE, (3, 2)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "output:fm", TRUE, (-1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp3:mod:fm", TRUE, (3, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output3:mod:fm", TRUE, (3, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "outp30:modulation:fm5", TRUE, (30, 5)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation:FM#", "output:mod:fm", TRUE, (-1, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm", TRUE, (3, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:mod:fm", TRUE, (3, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "outp3:fm2", TRUE, (3, 2)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation]:FM#", "output:fm", TRUE, (-1, -1)); /* test numeric parameter */
 
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp3:mod10:fm", TRUE, (3, 10)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output3:mod10:fm", TRUE, (3, 10)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp30:modulation:fm", TRUE, (30, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output:mod:fm", TRUE, (-1, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:mod10:fm", TRUE, (3, 10)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, -1)); // test numeric parameter
-    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "output:fm", TRUE, (-1, -1)); // test numeric parameter
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp3:mod10:fm", TRUE, (3, 10)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output3:mod10:fm", TRUE, (3, 10)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "outp30:modulation:fm", TRUE, (30, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#:MODulation#:FM", "output:mod:fm", TRUE, (-1, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:mod10:fm", TRUE, (3, 10)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "outp3:fm", TRUE, (3, -1)); /* test numeric parameter */
+    TEST_MATCH_COMMAND2("OUTPut#[:MODulation#]:FM", "output:fm", TRUE, (-1, -1)); /* test numeric parameter */
 }
 
 static void test_composeCompoundCommand(void) {

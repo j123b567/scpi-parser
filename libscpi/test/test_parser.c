@@ -282,11 +282,12 @@ static void testErrorHandling(void) {
 
 
 
-    // TODO: SCPI_ERROR_INVALID_SEPARATOR
-    // TODO: SCPI_ERROR_INVALID_SUFFIX
-    // TODO: SCPI_ERROR_SUFFIX_NOT_ALLOWED
-    // TODO: SCPI_ERROR_EXECUTION_ERROR
-    // TODO: SCPI_ERROR_ILLEGAL_PARAMETER_VALUE
+    /* TODO: SCPI_ERROR_INVALID_SEPARATOR
+     * TODO: SCPI_ERROR_INVALID_SUFFIX
+     * TODO: SCPI_ERROR_SUFFIX_NOT_ALLOWED
+     * TODO: SCPI_ERROR_EXECUTION_ERROR
+     * TODO: SCPI_ERROR_ILLEGAL_PARAMETER_VALUE
+     */
 
     output_buffer_clear();
     error_buffer_clear();
@@ -349,7 +350,7 @@ static void testIEEE4882(void) {
 }
 
 #define TEST_IEEE4882_REG(reg, expected) {                                     \
-    CU_ASSERT_EQUAL(SCPI_RegGet(&scpi_context, reg), expected);                \
+    CU_ASSERT_EQUAL(SCPI_RegGet(&scpi_context, (scpi_reg_name_t)(reg)), expected);\
 }
 
 
@@ -471,17 +472,17 @@ static void testIEEE4882(void) {
 static void testSCPI_ParamInt32(void) {
     TEST_ParamInt32("10", TRUE, 10, TRUE, 0);
     TEST_ParamInt32("", FALSE, 0, FALSE, 0);
-    TEST_ParamInt32("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamInt32("10.5", TRUE, 10, TRUE, 0); /* TODO: should be FALSE, -104 */
     TEST_ParamInt32("#B101010", TRUE, 42, TRUE, 0);
     TEST_ParamInt32("#H101010", TRUE, 1052688, TRUE, 0);
     TEST_ParamInt32("#Q10", TRUE, 8, TRUE, 0);
 
-    TEST_ParamInt32("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); // missing parameter
-    TEST_ParamInt32("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); // Data type error
+    TEST_ParamInt32("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
+    TEST_ParamInt32("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamInt32("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamInt32("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
 
-    // test range
+    /* test range */
     TEST_ParamInt32("2147483647", TRUE, 2147483647, TRUE, 0);
     TEST_ParamInt32("-2147483647", TRUE, -2147483647, TRUE, 0);
 }
@@ -510,17 +511,17 @@ static void testSCPI_ParamInt32(void) {
 static void testSCPI_ParamUInt32(void) {
     TEST_ParamUInt32("10", TRUE, 10, TRUE, 0);
     TEST_ParamUInt32("", FALSE, 0, FALSE, 0);
-    TEST_ParamUInt32("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamUInt32("10.5", TRUE, 10, TRUE, 0); /* TODO: should be FALSE, -104 */
     TEST_ParamUInt32("#B101010", TRUE, 42, TRUE, 0);
     TEST_ParamUInt32("#H101010", TRUE, 1052688, TRUE, 0);
     TEST_ParamUInt32("#Q10", TRUE, 8, TRUE, 0);
 
-    TEST_ParamUInt32("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); // missing parameter
-    TEST_ParamUInt32("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); // Data type error
+    TEST_ParamUInt32("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
+    TEST_ParamUInt32("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamUInt32("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamUInt32("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
 
-    // test range
+    /* test range */
     TEST_ParamUInt32("2147483647", TRUE, 2147483647ULL, TRUE, 0);
     TEST_ParamUInt32("4294967295", TRUE, 4294967295ULL, TRUE, 0);
 }
@@ -549,17 +550,17 @@ static void testSCPI_ParamUInt32(void) {
 static void testSCPI_ParamInt64(void) {
     TEST_ParamInt64("10", TRUE, 10, TRUE, 0);
     TEST_ParamInt64("", FALSE, 0, FALSE, 0);
-    TEST_ParamInt64("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamInt64("10.5", TRUE, 10, TRUE, 0); /* TODO: should be FALSE, -104 */
     TEST_ParamInt64("#B101010", TRUE, 42, TRUE, 0);
     TEST_ParamInt64("#H101010", TRUE, 1052688, TRUE, 0);
     TEST_ParamInt64("#Q10", TRUE, 8, TRUE, 0);
 
-    TEST_ParamInt64("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); // missing parameter
-    TEST_ParamInt64("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); // Data type error
+    TEST_ParamInt64("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
+    TEST_ParamInt64("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamInt64("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamInt64("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
 
-    // test range
+    /* test range */
     TEST_ParamInt64("2147483647", TRUE, 2147483647LL, TRUE, 0);
     TEST_ParamInt64("-2147483647", TRUE, -2147483647LL, TRUE, 0);
     TEST_ParamInt64("9223372036854775807", TRUE, 9223372036854775807LL, TRUE, 0);
@@ -590,17 +591,17 @@ static void testSCPI_ParamInt64(void) {
 static void testSCPI_ParamUInt64(void) {
     TEST_ParamUInt64("10", TRUE, 10, TRUE, 0);
     TEST_ParamUInt64("", FALSE, 0, FALSE, 0);
-    TEST_ParamUInt64("10.5", TRUE, 10, TRUE, 0); // TODO: should be FALSE, -104
+    TEST_ParamUInt64("10.5", TRUE, 10, TRUE, 0); /* TODO: should be FALSE, -104 */
     TEST_ParamUInt64("#B101010", TRUE, 42, TRUE, 0);
     TEST_ParamUInt64("#H101010", TRUE, 1052688, TRUE, 0);
     TEST_ParamUInt64("#Q10", TRUE, 8, TRUE, 0);
 
-    TEST_ParamUInt64("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); // missing parameter
-    TEST_ParamUInt64("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); // Data type error
+    TEST_ParamUInt64("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
+    TEST_ParamUInt64("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamUInt64("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamUInt64("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
 
-    // test range
+    /* test range */
     TEST_ParamUInt64("2147483647", TRUE, 2147483647ULL, TRUE, 0);
     TEST_ParamUInt64("4294967295", TRUE, 4294967295ULL, TRUE, 0);
     TEST_ParamUInt64("9223372036854775807", TRUE, 9223372036854775807ULL, TRUE, 0);
@@ -638,8 +639,8 @@ static void testSCPI_ParamFloat(void) {
     TEST_ParamFloat("#Q10", TRUE, 8, TRUE, 0);
     TEST_ParamFloat("#HFFFFFF", TRUE, 0xFFFFFFu, TRUE, 0);
 
-    TEST_ParamFloat("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); // missing parameter
-    TEST_ParamFloat("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); // Data type error
+    TEST_ParamFloat("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
+    TEST_ParamFloat("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamFloat("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamFloat("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
 }
@@ -674,8 +675,8 @@ static void testSCPI_ParamDouble(void) {
     TEST_ParamDouble("#Q10", TRUE, 8, TRUE, 0);
     TEST_ParamDouble("#HFFFFFFFF", TRUE, 0xFFFFFFFFu, TRUE, 0);
 
-    TEST_ParamDouble("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); // missing parameter
-    TEST_ParamDouble("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); // Data type error
+    TEST_ParamDouble("", TRUE, 0, FALSE, SCPI_ERROR_MISSING_PARAMETER); /* missing parameter */
+    TEST_ParamDouble("abcd", TRUE, 0, FALSE, SCPI_ERROR_DATA_TYPE_ERROR); /* Data type error */
     TEST_ParamDouble("10.5V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
     TEST_ParamDouble("10V", TRUE, 0, FALSE, SCPI_ERROR_SUFFIX_NOT_ALLOWED);
 }
@@ -704,11 +705,11 @@ static void testSCPI_ParamDouble(void) {
 
 static void testSCPI_ParamCharacters(void) {
     TEST_ParamCharacters("10", TRUE, "10", TRUE, 0);
-    TEST_ParamCharacters(" ABCD", TRUE, "ABCD", TRUE, 0); // TokProgramMnemonic
-    TEST_ParamCharacters("\"ABCD\"", TRUE, "ABCD", TRUE, 0); // TokDoubleQuoteProgramData
-    TEST_ParamCharacters("\'ABCD\'", TRUE, "ABCD", TRUE, 0); // TokSingleQuoteProgramData
-    TEST_ParamCharacters("#204ABCD", TRUE, "ABCD", TRUE, 0); // TokArbitraryBlockProgramData
-    TEST_ParamCharacters("#210ABCD", TRUE, "", FALSE, SCPI_ERROR_INVALID_STRING_DATA); // invalid Block Data
+    TEST_ParamCharacters(" ABCD", TRUE, "ABCD", TRUE, 0); /* TokProgramMnemonic */
+    TEST_ParamCharacters("\"ABCD\"", TRUE, "ABCD", TRUE, 0); /* TokDoubleQuoteProgramData */
+    TEST_ParamCharacters("\'ABCD\'", TRUE, "ABCD", TRUE, 0); /* TokSingleQuoteProgramData */
+    TEST_ParamCharacters("#204ABCD", TRUE, "ABCD", TRUE, 0); /* TokArbitraryBlockProgramData */
+    TEST_ParamCharacters("#210ABCD", TRUE, "", FALSE, SCPI_ERROR_INVALID_STRING_DATA); /* invalid Block Data */
 }
 
 
@@ -1012,8 +1013,8 @@ static void testChannelList(void) {
     CU_ASSERT_EQUAL(result, expected_result);                                           \
     if (expected_result) {                                                              \
         CU_ASSERT_EQUAL(value.special, expected_special);                               \
-        if (value.special) CU_ASSERT_EQUAL(value.tag, expected_tag);                    \
-        if (!value.special) CU_ASSERT_DOUBLE_EQUAL(value.value, expected_value, 0.000001);\
+        if (value.special) CU_ASSERT_EQUAL(value.content.tag, expected_tag);                    \
+        if (!value.special) CU_ASSERT_DOUBLE_EQUAL(value.content.value, expected_value, 0.000001);\
         CU_ASSERT_EQUAL(value.unit, expected_unit);                                     \
         CU_ASSERT_EQUAL(value.base, expected_base);                                     \
     }                                                                                   \
@@ -1123,7 +1124,7 @@ static void testResultInt32(void) {
     TEST_Result(Int32, 10, "10");
     TEST_Result(Int32, -10, "-10");
     TEST_Result(Int32, 2147483647L, "2147483647");
-    //TEST_Result(Int32, -2147483648L, "-2147483648"); // bug in GCC
+    /* TEST_Result(Int32, -2147483648L, "-2147483648"); bug in GCC */
     TEST_Result(Int32, -2147483647L, "-2147483647");
 }
 
@@ -1131,7 +1132,7 @@ static void testResultUInt32(void) {
     TEST_Result(UInt32, 10, "10");
     TEST_Result(UInt32, -10, "4294967286");
     TEST_Result(UInt32, 2147483647L, "2147483647");
-    //TEST_Result(UInt32, -2147483648L, "2147483648"); // bug in GCC
+    /* TEST_Result(UInt32, -2147483648L, "2147483648"); bug in GCC */
     TEST_Result(UInt32, -2147483647L, "2147483649");
     TEST_Result(UInt32, 4294967295UL, "4294967295");
 
@@ -1148,10 +1149,10 @@ static void testResultInt64(void) {
     TEST_Result(Int64, 32767, "32767");
     TEST_Result(Int64, -32768, "-32768");
     TEST_Result(Int64, 2147483647L, "2147483647");
-    //TEST_Result(Int64, -2147483648, "-2147483648"); // bug in gcc
+    /* TEST_Result(Int64, -2147483648, "-2147483648"); bug in gcc */
     TEST_Result(Int64, -2147483647L, "-2147483647");
     TEST_Result(Int64, 9223372036854775807LL, "9223372036854775807");
-    //TEST_Result(Int64, -9223372036854775808LL, "-9223372036854775808"); bug in GCC
+    /* TEST_Result(Int64, -9223372036854775808LL, "-9223372036854775808"); bug in GCC */
     TEST_Result(Int64, -9223372036854775807LL, "-9223372036854775807");
 }
 
@@ -1163,10 +1164,10 @@ static void testResultUInt64(void) {
     TEST_Result(UInt64, 32767, "32767");
     TEST_Result(UInt64, -32768, "18446744073709518848");
     TEST_Result(UInt64, 2147483647L, "2147483647");
-    //TEST_Result(UInt64, -2147483648L, "18446744071562067968"); // bug in GCC
+    /* TEST_Result(UInt64, -2147483648L, "18446744071562067968"); bug in GCC */
     TEST_Result(UInt64, -2147483647L, "18446744071562067969");
     TEST_Result(UInt64, 9223372036854775807LL, "9223372036854775807");
-    //TEST_Result(Int64, -9223372036854775808LL, "9223372036854775808"); bug in GCC
+    /* TEST_Result(Int64, -9223372036854775808LL, "9223372036854775808"); bug in GCC */
     TEST_Result(UInt64, -9223372036854775807LL, "9223372036854775809");
     TEST_Result(UInt64, 18446744073709551615ULL, "18446744073709551615");
 
@@ -1183,7 +1184,7 @@ static void testResultFloat(void) {
     TEST_Result(Float, 32767, "32767");
     TEST_Result(Float, -32768, "-32768");
     TEST_Result(Float, 2147483647L, "2.14748e+09");
-    //TEST_Result(Float, -2147483648, "-2.14748e+09"); // bug in GCC
+    /* TEST_Result(Float, -2147483648, "-2.14748e+09"); bug in GCC */
     TEST_Result(Float, -2147483647L, "-2.14748e+09");
     TEST_Result(Float, 9223372036854775807LL, "9.22337e+18");
     TEST_Result(Float, -9223372036854775807LL, "-9.22337e+18");
@@ -1200,10 +1201,12 @@ static void testResultDouble(void) {
     TEST_Result(Double, 32767, "32767");
     TEST_Result(Double, -32768, "-32768");
     TEST_Result(Double, 2147483647, "2147483647");
-    //TEST_Result(Double, -2147483648, "-2147483648"); // bug in GCC
+    /* TEST_Result(Double, -2147483648, "-2147483648"); bug in GCC */
     TEST_Result(Double, -2147483647, "-2147483647");
-    TEST_Result(Double, 9223372036854775807LL, "9.22337203685478e+18");
-    TEST_Result(Double, -9223372036854775807LL, "-9.22337203685478e+18");
+    /* TEST_Result(Double, 9223372036854775807LL, "9.22337203685478e+18"); */
+    /* TEST_Result(Double, -9223372036854775807LL, "-9.22337203685478e+18"); */
+    TEST_Result(Double, 9223372036854700000LL, "9.2233720368547e+18");
+    TEST_Result(Double, -9223372036854700000LL, "-9.2233720368547e+18");
 
     TEST_Result(Double, 1.256e-17, "1.256e-17");
     TEST_Result(Double, -1.256e-17, "-1.256e-17");
@@ -1325,6 +1328,90 @@ static void testResultArray(void) {
     TEST_Result(ArrayDoubleSWAPPED, double_arr, "#216" "\x40\x8c\x16\xd3\x66\x67\xd1\x42" "\x1c\xbc\x6e\xf2\x54\x8b\x11\x43");
 }
 
+#define _countof(a) (sizeof(a)/sizeof(*(a)))
+
+#define TEST_ParamArrayDouble(T, func, data, mandatory, _expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    T value[10];                                                                        \
+    scpi_bool_t result;                                                                 \
+    scpi_error_t errCode;                                                               \
+    T expected_value[] = {NOPAREN _expected_value};                                     \
+    size_t o_count;                                                                     \
+    size_t i_count = _countof(expected_value);                                          \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = func(&scpi_context, value, 10, &o_count, SCPI_FORMAT_ASCII, mandatory);    \
+                                                                                        \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(i_count, o_count);                                              \
+        size_t i;                                                                       \
+        for(i = 0; i < o_count; i++) {                                                  \
+            CU_ASSERT_DOUBLE_EQUAL(value[i], expected_value[i], 0.000001);              \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
+}
+
+#define TEST_ParamArrayInt(T, func, data, mandatory, _expected_value, expected_result, expected_error_code) \
+{                                                                                       \
+    T value[10];                                                                        \
+    scpi_bool_t result;                                                                 \
+    scpi_error_t errCode;                                                               \
+    T expected_value[] = {NOPAREN _expected_value};                                     \
+    size_t o_count;                                                                     \
+    size_t i_count = _countof(expected_value);                                          \
+                                                                                        \
+    SCPI_CoreCls(&scpi_context);                                                        \
+    scpi_context.input_count = 0;                                                       \
+    scpi_context.param_list.lex_state.buffer = data;                                    \
+    scpi_context.param_list.lex_state.len = strlen(scpi_context.param_list.lex_state.buffer);\
+    scpi_context.param_list.lex_state.pos = scpi_context.param_list.lex_state.buffer;   \
+    result = func(&scpi_context, value, 10, &o_count, SCPI_FORMAT_ASCII, mandatory);    \
+                                                                                        \
+    SCPI_ErrorPop(&scpi_context, &errCode);                                             \
+    CU_ASSERT_EQUAL(result, expected_result);                                           \
+    if (expected_result) {                                                              \
+        CU_ASSERT_EQUAL(i_count, o_count);                                              \
+        size_t i;                                                                       \
+        for(i = 0; i < o_count; i++) {                                                  \
+            CU_ASSERT_EQUAL(value[i], expected_value[i]);                               \
+        }                                                                               \
+    }                                                                                   \
+    CU_ASSERT_EQUAL(errCode.error_code, expected_error_code);                           \
+}
+
+static void testParamArray(void) {
+    TEST_ParamArrayDouble(double, SCPI_ParamArrayDouble, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayDouble(double, SCPI_ParamArrayDouble, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayDouble(double, SCPI_ParamArrayDouble, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayDouble(float, SCPI_ParamArrayFloat, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayDouble(float, SCPI_ParamArrayFloat, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayDouble(float, SCPI_ParamArrayFloat, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(int32_t, SCPI_ParamArrayInt32, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(int32_t, SCPI_ParamArrayInt32, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(int32_t, SCPI_ParamArrayInt32, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(uint32_t, SCPI_ParamArrayUInt32, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(uint32_t, SCPI_ParamArrayUInt32, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(uint32_t, SCPI_ParamArrayUInt32, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(int64_t, SCPI_ParamArrayInt64, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(int64_t, SCPI_ParamArrayInt64, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(int64_t, SCPI_ParamArrayInt64, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+
+    TEST_ParamArrayInt(uint64_t, SCPI_ParamArrayUInt64, "1, 2, 3", TRUE, (1, 2, 3), TRUE, SCPI_ERROR_NO_ERROR);
+    TEST_ParamArrayInt(uint64_t, SCPI_ParamArrayUInt64, "", TRUE, (0), FALSE, SCPI_ERROR_MISSING_PARAMETER);
+    TEST_ParamArrayInt(uint64_t, SCPI_ParamArrayUInt64, "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11", TRUE, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10), TRUE, SCPI_ERROR_NO_ERROR);
+}
+
 static void testNumberToStr(void) {
 
 #define TEST_SCPI_NumberToStr(_special, _value, _unit, expected_result) do {\
@@ -1332,7 +1419,7 @@ static void testNumberToStr(void) {
     number.base = 10;\
     number.special = (_special);\
     number.unit = (_unit);\
-    if (number.special) { number.tag = (int)(_value); } else { number.value = (_value); }\
+    if (number.special) { number.content.tag = (int)(_value); } else { number.content.value = (_value); }\
     char buffer[100 + 1];\
     size_t res_len;\
     res_len = SCPI_NumberToStr(&scpi_context, scpi_special_numbers_def, &number, buffer, 100);\
@@ -1340,9 +1427,62 @@ static void testNumberToStr(void) {
     CU_ASSERT_EQUAL(res_len, strlen(expected_result));\
 } while(0)
 
+#define TEST_SCPI_NumberToStr_limited(_special, _value, _unit, expected_result, limit) do {\
+    scpi_number_t number;\
+    number.base = 10;\
+    number.special = (_special);\
+    number.unit = (_unit);\
+    if (number.special) { number.content.tag = (int)(_value); } else { number.content.value = (_value); }\
+    char buffer[100];\
+    memset(buffer, 0xaa, 100);\
+    size_t res_len;\
+    res_len = SCPI_NumberToStr(&scpi_context, scpi_special_numbers_def, &number, buffer, limit);\
+    size_t expected_len = SCPIDEFINE_strnlen(expected_result, limit - 1);\
+    CU_ASSERT_NSTRING_EQUAL(buffer, expected_result, expected_len);\
+    CU_ASSERT_EQUAL(buffer[expected_len], 0);\
+    CU_ASSERT_EQUAL((unsigned char)buffer[limit], 0xaa);\
+    CU_ASSERT_EQUAL(res_len, expected_len);\
+} while(0)
+
     TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_NONE, "10.5");
     TEST_SCPI_NumberToStr(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V");
     TEST_SCPI_NumberToStr(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault");
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 1);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 1);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 1);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 2);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 2);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 2);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 3);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 3);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 3);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 4);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 4);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 4);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 5);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 5);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 5);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 6);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 6);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 6);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 7);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 7);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 7);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 8);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 8);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 8);
+
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_NONE, "10.5", 9);
+    TEST_SCPI_NumberToStr_limited(FALSE, 10.5, SCPI_UNIT_VOLT, "10.5 V", 9);
+    TEST_SCPI_NumberToStr_limited(TRUE, SCPI_NUM_DEF, SCPI_UNIT_NONE, "DEFault", 9);
 }
 
 static void testErrorQueue(void) {
@@ -1551,6 +1691,7 @@ int main() {
             || (NULL == CU_add_test(pSuite, "SCPI_ResultText", testResultText))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArbitraryBlock", testResultArbitraryBlock))
             || (NULL == CU_add_test(pSuite, "SCPI_ResultArray", testResultArray))
+            || (NULL == CU_add_test(pSuite, "SCPI_ParamArray", testParamArray))
             || (NULL == CU_add_test(pSuite, "SCPI_NumberToStr", testNumberToStr))
             || (NULL == CU_add_test(pSuite, "SCPI_ErrorQueue", testErrorQueue))
             || (NULL == CU_add_test(pSuite, "Incomplete arbitrary parameter", testIncompleteArbitraryParameter))

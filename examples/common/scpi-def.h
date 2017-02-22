@@ -25,5 +25,5 @@ scpi_result_t SCPI_Flush(scpi_t * context);
 
 scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context);
 
-#endif // __SCPI_DEF_H_
+#endif /* __SCPI_DEF_H_ */
 

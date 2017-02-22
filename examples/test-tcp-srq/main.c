@@ -82,7 +82,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
-    // BEEP
+    /* BEEP */
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
@@ -99,7 +99,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     if (context->user_context != NULL) {
         user_data_t * u = (user_data_t *) (context->user_context);
         if (u->control_io >= 0) {
-            snprintf(b, sizeof (b), "SRQ%d\r\n", val);
+            sprintf(b, "SRQ%d\r\n", val);
             return write(u->control_io, b, strlen(b)) > 0 ? SCPI_RES_OK : SCPI_RES_ERR;
         }
     }
@@ -125,7 +125,7 @@ static int createServer(int port) {
     struct sockaddr_in servaddr;
 
     /* Configure TCP Server */
-    bzero(&servaddr, sizeof (servaddr));
+    memset(&servaddr, 0, sizeof (servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(port);
@@ -263,7 +263,7 @@ static void processSrqIo(user_data_t * user_data) {
         closeSrqIo(user_data);
         printf("Control Connection closed\r\n");
     } else {
-        // nothing to do
+        /* nothing to do */
     }
 }
 
@@ -275,6 +275,16 @@ int main(int argc, char** argv) {
     (void) argv;
     int rc;
 
+#ifdef __cplusplus
+    user_data_t user_data = {
+        /*.io_listen =*/ -1,
+        /*.io =*/ -1,
+        /*.control_io_listen =*/ -1,
+        /*.control_io =*/ -1,
+        /*.fio =*/ NULL,
+        /*.fds =*/ 0,
+    };
+#else
     user_data_t user_data = {
         .io_listen = -1,
         .io = -1,
@@ -282,8 +292,9 @@ int main(int argc, char** argv) {
         .control_io = -1,
         .fio = NULL,
     };
+#endif
 
-    // user_context will be pointer to socket
+    /* user_context will be pointer to socket */
     SCPI_Init(&scpi_context,
             scpi_commands,
             &scpi_interface,
@@ -299,12 +310,12 @@ int main(int argc, char** argv) {
     while (1) {
         rc = waitServer(&user_data);
 
-        if (rc < 0) { // failed
+        if (rc < 0) { /* failed */
             perror("select failed");
             exit(-1);
         }
 
-        if (rc == 0) { // timeout
+        if (rc == 0) { /* timeout */
             SCPI_Input(&scpi_context, NULL, 0);
         }
 

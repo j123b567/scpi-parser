@@ -41,6 +41,8 @@
 extern "C" {
 #endif
 
+#include "cc.h"
+
 #ifdef SCPI_USER_CONFIG
 #include "scpi_user_config.h"
 #endif
@@ -183,68 +185,6 @@ extern "C" {
 #define USE_UNITS_ELECTRIC_CHARGE_CONDUCTANCE SYSTEM_TYPE
 #endif
 
-/* Compiler specific */
-/* RealView/Keil ARM Compiler, e.g. Cortex-M CPUs */
-#if defined(__CC_ARM)
-#define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        1
-#define HAVE_STRNICMP           0
-#endif
-
-/* National Instruments (R) CVI x86/x64 PC platform */
-#if defined(_CVI_)
-#define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        0
-#define HAVE_STRNICMP           1
-#define HAVE_STDBOOL            0
-#endif
-
-/* 8bit PIC - PIC16, etc */
-#if defined(_MPC_)
-#define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        0
-#define HAVE_STRNICMP           1
-#endif
-
-/* PIC24 */
-#if defined(__C30__)
-#define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        0
-#define HAVE_STRNICMP           0
-#endif
-
-/* PIC32mx */
-#if defined(__C32__)
-#define HAVE_STRNLEN            0
-#define HAVE_STRNCASECMP        0
-#define HAVE_STRNICMP           0
-#define isfinite                finite
-#define signbit(x)              ((x)<0)
-#endif
-
-/* AVR libc */
-#if defined(__AVR__)
-#include <stdlib.h>
-#define HAVE_DTOSTRE            1
-#endif
-
-/* ======== test strnlen ======== */
-#ifndef HAVE_STRNLEN
-#define HAVE_STRNLEN            1
-#endif
-/* ======== test strncasecmp ======== */
-#ifndef HAVE_STRNCASECMP
-#define HAVE_STRNCASECMP        1
-#endif
-/* ======== test strnicmp ======== */
-#ifndef HAVE_STRNICMP
-#define HAVE_STRNICMP           0
-#endif
-
-#ifndef HAVE_STDBOOL
-#define HAVE_STDBOOL            1
-#endif
-
 /* define local macros depending on existance of strnlen */
 #if HAVE_STRNLEN
 #define SCPIDEFINE_strnlen(s, l)	strnlen((s), (l))
@@ -262,39 +202,93 @@ extern "C" {
 #endif
 
 #if HAVE_DTOSTRE
-#define SCPIDEFINE_floatToStr(v, s, l) strlen(dtostre((double)(v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#define SCPIDEFINE_floatToStr(v, s, l) dtostre((double)(v), (s), 6, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE)
 #elif USE_CUSTOM_DTOSTRE
-#define SCPIDEFINE_floatToStr(v, s, l) strlen(SCPI_dtostre((v), (s), (l), 6, 0))
-#else
+#define SCPIDEFINE_floatToStr(v, s, l) SCPI_dtostre((v), (s), (l), 6, 0)
+#elif HAVE_SNPRINTF
 #define SCPIDEFINE_floatToStr(v, s, l) snprintf((s), (l), "%g", (v))
+#else
+#define SCPIDEFINE_floatToStr(v, s, l) SCPI_dtostre((v), (s), (l), 6, 0)
 #endif
 
 #if HAVE_DTOSTRE
-#define SCPIDEFINE_doubleToStr(v, s, l) strlen(dtostre((v), (s), 15, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE))
+#define SCPIDEFINE_doubleToStr(v, s, l) dtostre((v), (s), 15, DTOSTR_PLUS_SIGN | DTOSTR_ALWAYS_SIGN | DTOSTR_UPPERCASE)
 #elif USE_CUSTOM_DTOSTRE
-#define SCPIDEFINE_doubleToStr(v, s, l) strlen(SCPI_dtostre((v), (s), (l), 15, 0))
-#else
+#define SCPIDEFINE_doubleToStr(v, s, l) SCPI_dtostre((v), (s), (l), 15, 0)
+#elif HAVE_SNPRINTF
 #define SCPIDEFINE_doubleToStr(v, s, l) snprintf((s), (l), "%.15lg", (v))
+#else
+#define SCPIDEFINE_doubleToStr(v, s, l) SCPI_dtostre((v), (s), (l), 15, 0)
 #endif
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
 
-#if USE_MEMORY_ALLOCATION_FREE
-#include <stdlib.h>
-#include <string.h>
-#define SCPIDEFINE_DESCRIPTION_MAX_PARTS		2
-#define SCPIDEFINE_strndup(h, s, l)                     strndup((s), (l))
-#define SCPIDEFINE_free(h, s, r)                        free((s))
+  #if USE_MEMORY_ALLOCATION_FREE
+    #include <stdlib.h>
+    #include <string.h>
+    #define SCPIDEFINE_DESCRIPTION_MAX_PARTS            2
+    #if HAVE_STRNDUP
+      #define SCPIDEFINE_strndup(h, s, l)               strndup((s), (l))
+    #else
+      #define SCPIDEFINE_strndup(h, s, l)               OUR_strndup((s), (l))
+    #endif
+    #define SCPIDEFINE_free(h, s, r)                    free((s))
+  #else
+    #define SCPIDEFINE_DESCRIPTION_MAX_PARTS            3
+    #define SCPIDEFINE_strndup(h, s, l)                 scpiheap_strndup((h), (s), (l))
+    #define SCPIDEFINE_free(h, s, r)                    scpiheap_free((h), (s), (r))
+    #define SCPIDEFINE_get_parts(h, s, l1, s2, l2)      scpiheap_get_parts((h), (s), (l1), (s2), (l2))
+  #endif
 #else
-#define SCPIDEFINE_DESCRIPTION_MAX_PARTS                3
-#define SCPIDEFINE_strndup(h, s, l)                     scpiheap_strndup((h), (s), (l))
-#define SCPIDEFINE_free(h, s, r)                        scpiheap_free((h), (s), (r))
-#define SCPIDEFINE_get_parts(h, s, l1, s2, l2)          scpiheap_get_parts((h), (s), (l1), (s2), (l2))
+  #define SCPIDEFINE_DESCRIPTION_MAX_PARTS              1
+  #define SCPIDEFINE_strndup(h, s, l)                   NULL
+  #define SCPIDEFINE_free(h, s, r)
 #endif
+
+#if HAVE_SIGNBIT
+  #define SCPIDEFINE_signbit(n)                         signbit(n)
 #else
-#define SCPIDEFINE_DESCRIPTION_MAX_PARTS                1
-#define SCPIDEFINE_strndup(h, s, l)                     NULL
-#define SCPIDEFINE_free(h, s, r)
+  #define SCPIDEFINE_signbit(n)                         ((n)<0)
+#endif
+
+#if HAVE_FINITE
+  #define SCPIDEFINE_isfinite(n)                        finite(n)
+#elif HAVE_ISFINITE
+  #define SCPIDEFINE_isfinite(n)                        isfinite(n)
+#else
+  #define SCPIDEFINE_isfinite(n)                        (!SCPIDEFINE_isnan((n)) && ((n) < INFINITY) && ((n) > -INFINITY))
+#endif
+
+#if HAVE_STRTOF
+  #define SCPIDEFINE_strtof(n, p)                       strtof((n), (p))
+#else
+  #define SCPIDEFINE_strtof(n, p)                       strtod((n), (p))
+#endif
+
+#if HAVE_STRTOLL
+  #define SCPIDEFINE_strtoll(n, p, b)                   strtoll((n), (p), (b))
+  #define SCPIDEFINE_strtoull(n, p, b)                  strtoull((n), (p), (b))
+#else
+  #define SCPIDEFINE_strtoll(n, p, b)                   strtoll((n), (p), (b))
+  #define SCPIDEFINE_strtoull(n, p, b)                  strtoull((n), (p), (b))
+  extern long long int strtoll(const char *nptr, char **endptr, int base);
+  extern unsigned long long int strtoull(const char *nptr, char **endptr, int base);
+  /* TODO: implement OUR_strtoll and OUR_strtoull */
+  /* #warning "64bit string to int conversion not implemented" */
+#endif
+
+#if HAVE_ISNAN
+  #define SCPIDEFINE_isnan(n)                           isnan((n))
+#else
+  #define SCPIDEFINE_isnan(n)                           ((n) != (n))
+#endif
+
+#ifndef NAN
+  #define NAN                                           (0.0 / 0.0)
+#endif
+
+#ifndef INFINITY
+  #define INFINITY                                      (1.0 / 0.0)
 #endif
 
 #ifdef	__cplusplus

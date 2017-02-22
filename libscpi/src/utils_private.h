@@ -94,6 +94,10 @@ extern "C" {
     scpi_bool_t scpiheap_get_parts(scpi_error_info_heap_t * heap, const char *s1, size_t * len1, const char ** s2, size_t * len2) LOCAL;
 #endif
 
+#if !HAVE_STRNDUP
+    char *OUR_strndup(const char *s, size_t n);
+#endif
+
 #ifndef min
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 #endif
