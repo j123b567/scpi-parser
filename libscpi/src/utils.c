@@ -752,7 +752,7 @@ int OUR_strncasecmp(const char *s1, const char *s2, size_t n) {
 }
 #endif
 
-#if !HAVE_STRNDUP
+#if USE_MEMORY_ALLOCATION_FREE && !HAVE_STRNDUP
 char *OUR_strndup(const char *s, size_t n) {
     size_t len = SCPIDEFINE_strnlen(s, n);
     char * result = malloc(len + 1);
