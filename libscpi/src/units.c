@@ -248,7 +248,7 @@ const scpi_unit_def_t scpi_units_def[] = {
     /* Temperature */
     {/* name */ "CEL", /* unit */ SCPI_UNIT_CELSIUS, /* mult */ 1},
 #if USE_UNITS_IMPERIAL
-    {/* name */ "FAR", /* unit */ SCPI_UNIT_FAGRENHEIT, /* mult */ 1},
+    {/* name */ "FAR", /* unit */ SCPI_UNIT_FAHRENHEIT, /* mult */ 1},
 #endif /* USE_UNITS_IMPERIAL */
     {/* name */ "K", /* unit */ SCPI_UNIT_KELVIN, /* mult */ 1},
 #endif /* USE_UNITS_TEMPERATURE */
