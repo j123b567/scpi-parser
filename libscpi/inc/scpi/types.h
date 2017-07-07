@@ -281,7 +281,7 @@ extern "C" {
         SCPI_UNIT_BAR,
         SCPI_UNIT_DECIBEL,
         SCPI_UNIT_UNITLESS,
-        SCPI_UNIT_FAGRENHEIT,
+        SCPI_UNIT_FAHRENHEIT,
         SCPI_UNIT_KELVIN,
         SCPI_UNIT_DAY,
         SCPI_UNIT_YEAR,
