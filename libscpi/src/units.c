@@ -285,6 +285,15 @@ const scpi_choice_def_t scpi_special_numbers_def[] = {
     SCPI_CHOICE_LIST_END,
 };
 
+/*
+ * Special number values definition
+ */
+const scpi_choice_def_t scpi_bool_def[] = {
+    {"OFF", 0},
+    {"ON", 1},
+    SCPI_CHOICE_LIST_END /* termination of option list */
+};
+
 /**
  * Convert string describing unit to its representation
  * @param units units patterns
