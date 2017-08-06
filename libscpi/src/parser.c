@@ -1270,6 +1270,15 @@ scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, co
     return FALSE;
 }
 
+/*
+ * Definition of BOOL choice list
+ */
+const scpi_choice_def_t scpi_bool_def[] = {
+    {"OFF", 0},
+    {"ON", 1},
+    SCPI_CHOICE_LIST_END /* termination of option list */
+};
+
 /**
  * Read BOOL parameter (0,1,ON,OFF)
  * @param context
@@ -1281,12 +1290,6 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
     scpi_bool_t result;
     scpi_parameter_t param;
     int32_t intval;
-
-    scpi_choice_def_t bool_options[] = {
-        {"OFF", 0},
-        {"ON", 1},
-        SCPI_CHOICE_LIST_END /* termination of option list */
-    };
 
     if (!value) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
@@ -1300,7 +1303,7 @@ scpi_bool_t SCPI_ParamBool(scpi_t * context, scpi_bool_t * value, scpi_bool_t ma
             SCPI_ParamToInt32(context, &param, &intval);
             *value = intval ? TRUE : FALSE;
         } else {
-            result = SCPI_ParamToChoice(context, &param, bool_options, &intval);
+            result = SCPI_ParamToChoice(context, &param, scpi_bool_def, &intval);
             if (result) {
                 *value = intval ? TRUE : FALSE;
             }
