@@ -44,7 +44,6 @@
 #include "scpi/error.h"
 #include "scpi/constants.h"
 #include "scpi/utils.h"
-#include "scpi/units.h"
 
 /**
  * Write data to SCPI output
@@ -1270,6 +1269,15 @@ scpi_bool_t SCPI_ChoiceToName(const scpi_choice_def_t * options, int32_t tag, co
 
     return FALSE;
 }
+
+/*
+ * Definition of BOOL choice list
+ */
+const scpi_choice_def_t scpi_bool_def[] = {
+    {"OFF", 0},
+    {"ON", 1},
+    SCPI_CHOICE_LIST_END /* termination of option list */
+};
 
 /**
  * Read BOOL parameter (0,1,ON,OFF)
