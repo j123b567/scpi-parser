@@ -81,6 +81,11 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
     { .pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
 
+    {.pattern = "STATus:OPERation[:EVENt]?", .callback = SCPI_StatusOperationEventQ, },
+    {.pattern = "STATus:OPERation:CONDition?", .callback = SCPI_StatusOperationConditionQ, },
+    {.pattern = "STATus:OPERation:ENABle", .callback = SCPI_StatusOperationEnable, },
+    {.pattern = "STATus:OPERation:ENABle?", .callback = SCPI_StatusOperationEnableQ, },
+
     { .pattern = "STATus:PRESet", .callback = SCPI_StatusPreset,},
 
     { .pattern = "TEXTfunction?", .callback = text_function,},
@@ -439,6 +444,25 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "1\r\n");
     TEST_IEEE4882_REG(SCPI_REG_QUES, 0);
     TEST_IEEE4882("STATus:QUEStionable:EVENt?\r\n", "0\r\n");
+
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPERE, 1);
+    TEST_IEEE4882("STATus:OPERation:ENABle?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPERE, 1);
+    TEST_IEEE4882("STATus:OPERation:ENABle 2\r\n", "");
+    TEST_IEEE4882_REG(SCPI_REG_OPERE, 2);
+
+    TEST_IEEE4882("STATus:OPERation:CONDition?\r\n", "0\r\n");
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPERC, 1);
+    TEST_IEEE4882("STATus:OPERation:CONDition?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPERC, 1);
+    TEST_IEEE4882("STATus:OPERation:EVENt?\r\n", "1\r\n");
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPERC, 0);
+    TEST_IEEE4882("STATus:OPERation:CONDition?\r\n", "0\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPERC, 0);
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPER, 1);
+    TEST_IEEE4882("STATus:OPERation:EVENt?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPER, 0);
+    TEST_IEEE4882("STATus:OPERation:EVENt?\r\n", "0\r\n");
 
     TEST_IEEE4882("STUB\r\n", "");
     TEST_IEEE4882("STUB?\r\n", "0\r\n");

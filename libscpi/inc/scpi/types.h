@@ -74,6 +74,7 @@ extern "C" {
         SCPI_REG_ESE, /* Event Status Enable Register */
         SCPI_REG_OPER, /* OPERation Status Register */
         SCPI_REG_OPERE, /* OPERation Status Enable Register */
+        SCPI_REG_OPERC, /* OPERation Status Condition Register */
         SCPI_REG_QUES, /* QUEStionable status register */
         SCPI_REG_QUESE, /* QUEStionable status Enable Register */
 
