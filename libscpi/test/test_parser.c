@@ -454,10 +454,14 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("STATus:OPERation:CONDition?\r\n", "0\r\n");
     TEST_IEEE4882_REG_SET(SCPI_REG_OPERC, 1);
     TEST_IEEE4882("STATus:OPERation:CONDition?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPERC, 1);
     TEST_IEEE4882("STATus:OPERation:EVENt?\r\n", "1\r\n");
-    TEST_IEEE4882_REG(SCPI_REG_OPERC, 0);
+    TEST_IEEE4882_REG_SET(SCPI_REG_OPERC, 0);
     TEST_IEEE4882("STATus:OPERation:CONDition?\r\n", "0\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPERC, 0);
+    TEST_IEEE4882_REG(SCPI_REG_OPER, 1);
     TEST_IEEE4882("STATus:OPERation:EVENt?\r\n", "1\r\n");
+    TEST_IEEE4882_REG(SCPI_REG_OPER, 0);
     TEST_IEEE4882("STATus:OPERation:EVENt?\r\n", "0\r\n");
 
     TEST_IEEE4882("STUB\r\n", "");
