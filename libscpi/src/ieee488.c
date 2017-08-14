@@ -51,14 +51,14 @@ static void regUpdate(scpi_t * context, scpi_reg_name_t name) {
 }
 
 /**
-* Update latching event register value based on bit transitions from 0 -> 1
-* in the condition register
-* @param context
-* @param condReg - condition register name
-* @param eventReg - event register name
-*/
+ * Update latching event register value based on bit transitions from 0 -> 1
+ * in the condition register
+ * @param context
+ * @param condReg - condition register name
+ * @param eventReg - event register name
+ */
 static void regUpdateEvent(scpi_t * context, scpi_reg_val_t oldCondVal, scpi_reg_val_t newCondVal, scpi_reg_name_t eventReg) {
-	SCPI_RegSet(context, eventReg, ((oldCondVal ^ newCondVal) & newCondVal) | SCPI_RegGet(context, eventReg));
+    SCPI_RegSet(context, eventReg, ((oldCondVal ^ newCondVal) & newCondVal) | SCPI_RegGet(context, eventReg));
 }
 
 /**
@@ -160,7 +160,7 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
             regUpdate(context, SCPI_REG_OPER);
             break;
         case SCPI_REG_OPERC:
-        regUpdateEvent(context, old_val, val, SCPI_REG_OPER);
+            regUpdateEvent(context, old_val, val, SCPI_REG_OPER);
             break;
 
 
