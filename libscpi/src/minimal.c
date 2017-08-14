@@ -139,6 +139,58 @@ scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
 }
 
 /**
+ * STATus:OPERation:CONDition?
+ * @param context
+ * @return
+ */
+scpi_result_t SCPI_StatusOperationConditionQ(scpi_t * context) {
+    /* return value */
+    SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_OPERC));
+
+    return SCPI_RES_OK;
+}
+
+/**
+ * STATus:OPERation[:EVENt]?
+ * @param context
+ * @return
+ */
+scpi_result_t SCPI_StatusOperationEventQ(scpi_t * context) {
+    /* return value */
+    SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_OPER));
+
+    /* clear register */
+    SCPI_RegSet(context, SCPI_REG_OPER, 0);
+
+    return SCPI_RES_OK;
+}
+
+/**
+ * STATus:OPERation:ENABle?
+ * @param context
+ * @return
+ */
+ scpi_result_t SCPI_StatusOperationEnableQ(scpi_t * context) {
+    /* return value */
+    SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_OPERE));
+
+    return SCPI_RES_OK;
+}
+
+/**
+ * STATus:OPERation:ENABle
+ * @param context
+ * @return
+ */
+scpi_result_t SCPI_StatusOperationEnable(scpi_t * context) {
+    int32_t new_OPERE;
+    if (SCPI_ParamInt32(context, &new_OPERE, TRUE)) {
+        SCPI_RegSet(context, SCPI_REG_OPERE, (scpi_reg_val_t) new_OPERE);
+    }
+    return SCPI_RES_OK;
+}
+
+/**
  * STATus:PRESet
  * @param context
  * @return
