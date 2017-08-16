@@ -3,7 +3,7 @@ LIBNAME = scpi
 
 CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -Iinc
 CFLAGS_SHARED += $(CFLAGS) -fPIC
-LDFLAGS += -Wl,--as-needed
+LDFLAGS += -lm -Wl,--as-needed
 #TESTCFLAGS += $(CFLAGS) `pkg-config --cflags cunit`
 #TESTLDFLAGS += $(LDFLAGS) `pkg-config --libs cunit`
 TESTCFLAGS += $(CFLAGS)
