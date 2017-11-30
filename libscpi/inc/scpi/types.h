@@ -77,7 +77,7 @@ extern "C" {
         SCPI_REG_OPERC, /* OPERation Status Condition Register */
         SCPI_REG_QUES, /* QUEStionable status register */
         SCPI_REG_QUESE, /* QUEStionable status Enable Register */
-        SCPI_REG_QUESC, /* QUEStionable status Condition Register
+        SCPI_REG_QUESC, /* QUEStionable status Condition Register */
 
         /* last definition - number of registers */
         SCPI_REG_COUNT
