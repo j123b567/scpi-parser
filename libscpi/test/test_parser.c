@@ -78,7 +78,7 @@ static const scpi_command_t scpi_commands[] = {
     { .pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
 
     { .pattern = "STATus:QUEStionable[:EVENt]?", .callback = SCPI_StatusQuestionableEventQ,},
-    { .pattern = "STATus:QUEStionable:CONDition?", .callback = SCPI_Status_QuestionableConditionQ,},
+    { .pattern = "STATus:QUEStionable:CONDition?", .callback = SCPI_StatusQuestionableConditionQ,},
     { .pattern = "STATus:QUEStionable:ENABle", .callback = SCPI_StatusQuestionableEnable,},
     { .pattern = "STATus:QUEStionable:ENABle?", .callback = SCPI_StatusQuestionableEnableQ,},
 
@@ -440,7 +440,7 @@ static void testIEEE4882(void) {
     TEST_IEEE4882("STATus:QUEStionable:ENABle 2\r\n", "");
     TEST_IEEE4882_REG(SCPI_REG_QUESE, 2);
 
-    EST_IEEE4882("STATus:QUEStionable:CONDition?\r\n", "0\r\n");
+    TEST_IEEE4882("STATus:QUEStionable:CONDition?\r\n", "0\r\n");
     TEST_IEEE4882_REG_SET(SCPI_REG_QUESC, 1);
     TEST_IEEE4882("STATus:QUEStionable:CONDition?\r\n", "1\r\n");
     TEST_IEEE4882_REG(SCPI_REG_QUESC, 1);
