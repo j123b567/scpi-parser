@@ -50,6 +50,7 @@ extern "C" {
     scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context);
     scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context);
     scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context);
+    scpi_result_t SCPI_StatusQuestionableConditionQ(scpi_t * context);
     scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context);
     scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context);
     scpi_result_t SCPI_StatusOperationConditionQ(scpi_t * context);
