@@ -99,6 +99,18 @@ scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
 }
 
 /**
+ * STATus:QUEStionable:CONDition?
+ * @param context
+ * @return
+ */
+scpi_result_t SCPI_StatusQuestionableConditionQ(scpi_t * context) {
+    /* return value */
+    SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_QUESC));
+
+    return SCPI_RES_OK;
+}
+
+/**
  * STATus:QUEStionable[:EVENt]?
  * @param context
  * @return

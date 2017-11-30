@@ -153,6 +153,9 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
         case SCPI_REG_QUESE:
             regUpdate(context, SCPI_REG_QUES);
             break;
+        case SCPI_REG_QUESC:
+            regUpdateEvent(context, old_val, val, SCPI_REG_QUES);
+            break;
         case SCPI_REG_OPER:
             regUpdateSTB(context, val, SCPI_REG_OPERE, STB_OPS);
             break;
