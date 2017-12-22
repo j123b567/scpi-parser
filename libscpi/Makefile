@@ -3,7 +3,8 @@ LIBNAME = scpi
 
 CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -Iinc
 CFLAGS_SHARED += $(CFLAGS) -fPIC
-LDFLAGS += -lm -Wl,--as-needed
+LDFLAGS += -lm -Wl
+# LDFLAGS += -lm -Wl,--as-needed
 #TESTCFLAGS += $(CFLAGS) `pkg-config --cflags cunit`
 #TESTLDFLAGS += $(LDFLAGS) `pkg-config --libs cunit`
 TESTCFLAGS += $(CFLAGS)
@@ -20,7 +21,8 @@ LIBDIR := $(PREFIX)/lib
 INCDIR := $(PREFIX)/include
 
 STATICLIBFLAGS = rcs
-SHAREDLIBFLAGS = $(LDFLAGS) -shared -Wl,-soname,$(SHAREDLIB)
+# SHAREDLIBFLAGS = $(LDFLAGS) -shared -Wl,-soname,$(SHAREDLIB)
+SHAREDLIBFLAGS = $(LDFLAGS) -shared -Wl
 
 STATICLIB = lib$(LIBNAME).a
 SHAREDLIB = lib$(LIBNAME).so
