@@ -52,3 +52,8 @@ SCPI parser library is based on these standards
 
 
 [![travis build](https://travis-ci.org/j123b567/scpi-parser.svg?branch=master)](https://travis-ci.org/j123b567/scpi-parser) [![Coverage Status](https://coveralls.io/repos/j123b567/scpi-parser/badge.svg?branch=master&service=github)](https://coveralls.io/github/j123b567/scpi-parser?branch=master)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fj123b567%2Fscpi-parser.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fj123b567%2Fscpi-parser?ref=badge_shield)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fj123b567%2Fscpi-parser.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fj123b567%2Fscpi-parser?ref=badge_large)
