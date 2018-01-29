@@ -6,7 +6,7 @@ addons:
     - clang
     - gcc-multilib
 
-sudo: false
+sudo: true
 
 before_install:
   - pip install --user cpp-coveralls
