@@ -9,7 +9,7 @@ About
 
 [SCPI](http://en.wikipedia.org/wiki/Standard_Commands_for_Programmable_Instruments) Parser library aims to provide parsing ability of SCPI commands on **instrument side**. All commands are defined by its patterns eg: `"STATus:QUEStionable:EVENt?"`.
 
-Source codes are published with open source Simplified BSD license.
+Source codes are published with open source BSD 2-Clause License.
 
 SCPI parser library is based on these standards
 
