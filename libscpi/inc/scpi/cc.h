@@ -54,37 +54,57 @@ extern "C" {
 # endif
 #endif
 
-#if POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700
+#if (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200809L) || \
+    (defined _XOPEN_SOURCE && _XOPEN_SOURCE >= 700)
     #define HAVE_STRNDUP 1
     #define HAVE_STRNLEN 1
 #endif
 
-#if _BSD_SOURCE || _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L || C99
+#if (defined _BSD_SOURCE && _BSD_SOURCE) || \
+    (defined _XOPEN_SOURCE  && _XOPEN_SOURCE >= 500) || \
+    (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || \
+    (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L) || \
+    C99
     #define HAVE_SNPRINTF 1
 #endif
 
-#if _POSIX_C_SOURCE >= 200112L
+#if (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L) 
     #define HAVE_STRNCASECMP 1
 #endif
 
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L || C99
+#if (defined _BSD_SOURCE && _BSD_SOURCE) || \
+    (defined _SVID_SOURCE && _SVID_SOURCE) || \
+    (defined _XOPEN_SOURCE && _XOPEN_SOURCE) || \
+    (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || \
+    (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L) ||\
+    C99
     #define HAVE_ISNAN 1
 #endif
 
-#if _XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L || C99
+#if (defined _XOPEN_SOURCE && _XOPEN_SOURCE >= 600)|| \
+    (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || \
+    (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L) || \
+    C99
     #define HAVE_ISFINITE 1
     #define HAVE_SIGNBIT 1
 #endif
 
-#if XOPEN_SOURCE >= 600 || _BSD_SOURCE || _SVID_SOURCE || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+#if (defined _XOPEN_SOURCE && XOPEN_SOURCE >= 600) || \
+    (defined _BSD_SOURCE && _BSD_SOURCE) || \
+    (defined _SVID_SOURCE && _SVID_SOURCE) || \
+    (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || \
+    (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L)
     #define HAVE_STRTOLL 1
 #endif
 
-#if _XOPEN_SOURCE >= 600 || _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L || C99
+#if (defined _XOPEN_SOURCE && _XOPEN_SOURCE >= 600) || \
+    (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || \
+    (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L) || \
+    C99
     #define HAVE_STRTOF 1
 #endif
 
-#if _ISOC99_SOURCE || C99
+#if (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || C99
     #define HAVE_STDBOOL 1
 #endif
 
@@ -130,6 +150,10 @@ extern "C" {
 #define HAVE_STRDUP             0
 #endif
 
+#ifndef HAVE_STRNDUP
+#define HAVE_STRNDUP             0
+#endif
+
 #ifndef HAVE_STRNICMP
 #define HAVE_STRNICMP           0
 #endif
@@ -168,6 +192,10 @@ extern "C" {
 
 #ifndef HAVE_STRTOF
 #define HAVE_STRTOF             0
+#endif
+
+#ifndef  HAVE_DTOSTRE
+#define  HAVE_DTOSTRE           0 
 #endif
 
 #ifdef	__cplusplus
