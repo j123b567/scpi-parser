@@ -265,6 +265,14 @@ static void testCommandsHandling(void) {
     TEST_INPUT("\r\n", "MA,IN,0,VER\r\n");
     output_buffer_clear();
 
+    /* Test empty command at the beggining */
+    TEST_INPUT(";*IDN?\r\n", "MA,IN,0,VER\r\n");
+    output_buffer_clear();
+
+    TEST_INPUT(";", "");
+    TEST_INPUT("*IDN?\r\n", "MA,IN,0,VER\r\n");
+    output_buffer_clear();
+
     /* Test input "timeout" - input with length == 0 */
     TEST_INPUT("*IDN?", "");
     TEST_INPUT("", "MA,IN,0,VER\r\n");

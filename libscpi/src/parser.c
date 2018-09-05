@@ -340,7 +340,8 @@ scpi_bool_t SCPI_Input(scpi_t * context, const char * data, int len) {
                 context->buffer.position -= totcmdlen;
                 totcmdlen = 0;
             } else {
-                if (context->parser_state.programHeader.type == SCPI_TOKEN_UNKNOWN) break;
+                if (context->parser_state.programHeader.type == SCPI_TOKEN_UNKNOWN
+                        && context->parser_state.termination == SCPI_MESSAGE_TERMINATION_NONE) break;
                 if (totcmdlen >= context->buffer.position) break;
             }
         }
