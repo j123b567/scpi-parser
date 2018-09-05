@@ -68,7 +68,7 @@ extern "C" {
     #define HAVE_SNPRINTF 1
 #endif
 
-#if (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L) 
+#if (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200112L)
     #define HAVE_STRNCASECMP 1
 #endif
 
@@ -195,7 +195,7 @@ extern "C" {
 #endif
 
 #ifndef  HAVE_DTOSTRE
-#define  HAVE_DTOSTRE           0 
+#define  HAVE_DTOSTRE           0
 #endif
 
 #ifdef	__cplusplus
