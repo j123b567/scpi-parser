@@ -100,6 +100,10 @@ extern "C" {
 #ifndef USE_MEMORY_ALLOCATION_FREE
 #define USE_MEMORY_ALLOCATION_FREE 1
 #endif
+#else
+#ifndef USE_MEMORY_ALLOCATION_FREE
+#define USE_MEMORY_ALLOCATION_FREE 0
+#endif
 #endif
 
 #ifndef USE_COMMAND_TAGS
@@ -110,8 +114,8 @@ extern "C" {
 #define USE_DEPRECATED_FUNCTIONS 1
 #endif
 
-#ifndef USE_CUSTOM_DTOSTR
-#define USE_CUSTOM_DTOSTR 0
+#ifndef USE_CUSTOM_DTOSTRE
+#define USE_CUSTOM_DTOSTRE 0
 #endif
 
 #ifndef USE_UNITS_IMPERIAL
