@@ -206,9 +206,13 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
             result = FALSE;
         } else if (state->programHeader.len > 0) {
 
-            composeCompoundCommand(&cmd_prev, &state->programHeader);
-
-            if (findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)) {
+            if ( findCommandHeader(context, state->programHeader.ptr, state->programHeader.len) || 
+                 ( composeCompoundCommand(&cmd_prev, &state->programHeader) && 
+                   findCommandHeader(context, state->programHeader.ptr, state->programHeader.len)
+                 ) /* to comply with section 7.6.1.5, first check if the current message is a valid program message,
+                    * and perform compoundCommand check only if it is not. 
+                    */
+               ) {
 
                 context->param_list.lex_state.buffer = state->programData.ptr;
                 context->param_list.lex_state.pos = context->param_list.lex_state.buffer;

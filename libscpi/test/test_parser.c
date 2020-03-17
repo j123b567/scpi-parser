@@ -285,6 +285,9 @@ static void testCommandsHandling(void) {
     TEST_INPUT("TEST:TREEA?;:TEXT? \"PARAM1\", \"PARAM2\"\r\n", "10;\"PARAM2\"\r\n");
     output_buffer_clear();
 
+    TEST_INPUT("TEST:TREEA?;TEXT? \"PARAM1\", \"PARAM2\"\r\n", "10;\"PARAM2\"\r\n"); /* valid according to IEEE 488 Annex A.1 */
+    output_buffer_clear();
+
     /* Test special characters in parameters */
     TEST_INPUT("TEXT? \"\", \"test\r\n\"\r\n", "\"test\r\n\"\r\n");
     output_buffer_clear();
