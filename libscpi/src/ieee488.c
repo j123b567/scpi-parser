@@ -42,6 +42,60 @@
 
 #include <stdio.h>
 
+static const scpi_reg_info_t scpi_reg_details[SCPI_REG_COUNT] = {
+    { SCPI_REG_CLASS_STB, SCPI_REG_GROUP_STB },
+    { SCPI_REG_CLASS_SRE, SCPI_REG_GROUP_STB },
+    { SCPI_REG_CLASS_EVEN, SCPI_REG_GROUP_ESR },
+    { SCPI_REG_CLASS_ENAB, SCPI_REG_GROUP_ESR },
+    { SCPI_REG_CLASS_EVEN, SCPI_REG_GROUP_OPER },
+    { SCPI_REG_CLASS_ENAB, SCPI_REG_GROUP_OPER },
+    { SCPI_REG_CLASS_COND, SCPI_REG_GROUP_OPER },
+    { SCPI_REG_CLASS_EVEN, SCPI_REG_GROUP_QUES },
+    { SCPI_REG_CLASS_ENAB, SCPI_REG_GROUP_QUES },
+    { SCPI_REG_CLASS_COND, SCPI_REG_GROUP_QUES },
+    /* Add device specific register details here*/
+};
+
+static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] = {
+    { 
+        SCPI_REG_STB,
+        SCPI_REG_SRE,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        0
+    }, //SCPI_REG_GROUP_STB
+    { 
+        SCPI_REG_ESR,
+        SCPI_REG_ESE,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        SCPI_REG_STB,
+        STB_ESR
+    }, //SCPI_REG_GROUP_ESR
+    { 
+        SCPI_REG_OPER,
+        SCPI_REG_OPERE,
+        SCPI_REG_OPERC,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        SCPI_REG_STB,
+        STB_OPS
+    }, //SCPI_REG_GROUP_OPER
+    { 
+        SCPI_REG_QUES,
+        SCPI_REG_QUESE,
+        SCPI_REG_QUESC,
+        SCPI_REG_NONE,
+        SCPI_REG_NONE,
+        SCPI_REG_STB,
+        STB_QES
+    }, //SCPI_REG_GROUP_QUES
+    /* Add device specific register group details here*/
+};
+
 /**
  * Update register value
  * @param context
