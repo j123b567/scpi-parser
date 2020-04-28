@@ -263,7 +263,9 @@ scpi_result_t SCPI_CoreCls(scpi_t * context) {
     SCPI_ErrorClear(context);
     for (int i = 0; i < SCPI_REG_GROUP_COUNT; ++i) {
         scpi_reg_name_t event_reg = scpi_reg_group_details[i].event;
-        SCPI_RegSet(context, event_reg, 0);
+        if (event_reg != SCPI_REG_STB) {
+            SCPI_RegSet(context, event_reg, 0);
+        }
     }
     return SCPI_RES_OK;
 }
