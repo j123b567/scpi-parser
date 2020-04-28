@@ -53,7 +53,15 @@ static const scpi_reg_info_t scpi_reg_details[SCPI_REG_COUNT] = {
     { SCPI_REG_CLASS_EVEN, SCPI_REG_GROUP_QUES },
     { SCPI_REG_CLASS_ENAB, SCPI_REG_GROUP_QUES },
     { SCPI_REG_CLASS_COND, SCPI_REG_GROUP_QUES },
-    /* Add device specific register details here*/
+
+#if USE_CUSTOM_REGISTERS
+#ifndef USER_REGISTER_DETAILS
+#error "No user register details defined"
+#else
+    USER_REGISTER_DETAILS
+#endif
+#endif
+
 };
 
 static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] = {
@@ -93,7 +101,15 @@ static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] 
         SCPI_REG_STB,
         STB_QES
     }, //SCPI_REG_GROUP_QUES
-    /* Add device specific register group details here*/
+
+#if USE_CUSTOM_REGISTERS
+#ifndef USER_REGISTER_GROUP_DETAILS
+#error "No user register group details defined"
+#else
+    USER_REGISTER_GROUP_DETAILS
+#endif
+#endif
+
 };
 
 /**

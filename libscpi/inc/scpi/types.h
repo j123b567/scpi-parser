@@ -78,7 +78,13 @@ extern "C" {
         SCPI_REG_QUESE, /* QUEStionable status Enable Register */
         SCPI_REG_QUESC, /* QUEStionable status Condition Register */
 
-        /* Add device specific registers here*/
+#if USE_CUSTOM_REGISTERS
+#ifndef USER_REGISTERS
+#error "No user registers defined"
+#else
+        USER_REGISTERS
+#endif
+#endif
 
         /* number of registers */
         SCPI_REG_COUNT,
@@ -126,7 +132,13 @@ extern "C" {
         SCPI_REG_GROUP_OPER,
         SCPI_REG_GROUP_QUES,
 
-        /* Add device specific register groups here*/
+#if USE_CUSTOM_REGISTERS
+#ifndef USER_REGISTER_GROUPS
+#error "No user register groups defined"
+#else
+        USER_REGISTER_GROUPS
+#endif
+#endif
 
         /* last definition - number of register groups */
         SCPI_REG_GROUP_COUNT
