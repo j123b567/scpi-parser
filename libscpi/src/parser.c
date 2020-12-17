@@ -1399,13 +1399,6 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
     for (result = 1; result != 0; result = scpiLex_Comma(state, &tmp)) {
         token->len += result;
 
-        if (result == 0) {
-            token->type = SCPI_TOKEN_UNKNOWN;
-            token->len = 0;
-            paramCount = -1;
-            break;
-        }
-
         result = scpiParser_parseProgramData(state, &tmp);
         if (tmp.type != SCPI_TOKEN_UNKNOWN) {
             token->len += result;
@@ -1416,10 +1409,6 @@ int scpiParser_parseAllProgramData(lex_state_t * state, scpi_token_t * token, in
             break;
         }
         paramCount++;
-    }
-
-    if (token->len == -1) {
-        token->len = 0;
     }
 
     if (numberOfParameters != NULL) {
