@@ -165,6 +165,7 @@ static void setError(int16_t err) {
 }
 
 void SCPI_RequestControl(void) {
+    BaseType_t xReturned;
     queue_event_t msg;
     msg.cmd = SCPI_MSG_SET_ESE_REQ;
 
@@ -174,18 +175,24 @@ void SCPI_RequestControl(void) {
     }
      */
 
-    xQueueSend(user_data.evtQueue, &msg, 1000);
+    xReturned = xQueueSend(user_data.evtQueue, &msg, 1000);
+    /* @fixme: replace by real error handling code */
+    LWIP_ASSERT("SCPI_RequestControl failed", xReturned == pdPASS);
 }
 
 void SCPI_AddError(int16_t err) {
+    BaseType_t xReturned;
     queue_event_t msg;
     msg.cmd = SCPI_MSG_SET_ERROR;
     msg.param2 = err;
 
-    xQueueSend(user_data.evtQueue, &msg, 1000);
+    xReturned = xQueueSend(user_data.evtQueue, &msg, 1000);
+    /* @fixme: replace by real error handling code */
+    LWIP_ASSERT("SCPI_AddError failed", xReturned == pdPASS);
 }
 
 void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t len) {
+    BaseType_t xReturned;
     queue_event_t msg;
     (void) len;
 
@@ -201,7 +208,9 @@ void scpi_netconn_callback(struct netconn * conn, enum netconn_evt evt, u16_t le
         } else if (conn == user_data.control_io_listen) {
             msg.cmd = SCPI_MSG_CONTROL_IO_LISTEN;
         }
-        xQueueSend(user_data.evtQueue, &msg, 1000);
+        xReturned = xQueueSend(user_data.evtQueue, &msg, 1000);
+        /* @fixme: replace by real error handling code */
+        LWIP_ASSERT("scpi_netconn_callback failed", xReturned == pdPASS);
     }
 }
 
@@ -357,6 +366,7 @@ static void scpi_server_thread(void *arg) {
     (void) arg;
 
     user_data.evtQueue = xQueueCreate(10, sizeof (queue_event_t));
+    LWIP_ASSERT("user_data.evtQueue != NULL", user_data.evtQueue != NULL);
 
     /* user_context will be pointer to socket */
     SCPI_Init(&scpi_context,
@@ -370,7 +380,10 @@ static void scpi_server_thread(void *arg) {
     scpi_context.user_context = &user_data;
 
     user_data.io_listen = createServer(DEVICE_PORT);
+    LWIP_ASSERT("user_data.io_listen != NULL", user_data.io_listen != NULL);
+
     user_data.control_io_listen = createServer(CONTROL_PORT);
+    LWIP_ASSERT("user_data.control_io_listen != NULL", user_data.control_io_listen != NULL);
 
     while (1) {
         waitServer(&user_data, &evt);
@@ -409,5 +422,8 @@ static void scpi_server_thread(void *arg) {
 }
 
 void scpi_server_init(void) {
-    sys_thread_new("SCPI", scpi_server_thread, NULL, 2 * DEFAULT_THREAD_STACKSIZE, SCPI_THREAD_PRIO);
+    TaskHandle_t xHandle = NULL;
+    BaseType_t xReturned;
+    xReturned = xTaskCreate(scpi_server_thread, "SCPI", DEFAULT_THREAD_STACKSIZE, NULL, SCPI_THREAD_PRIO, &xHandle);
+    LWIP_ASSERT("scpi_server_init failed", xReturned == pdPASS);
 }

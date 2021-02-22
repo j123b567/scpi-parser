@@ -1,8 +1,16 @@
 SCPI parser library v2
 ===========
 
-[Documentation](http://j123b567.github.io/scpi-parser)
+Documentation
 --------
+Documentation is available at [http://j123b567.github.io/scpi-parser](http://j123b567.github.io/scpi-parser).
+
+Examples
+--------
+Library contains several [examples](https://github.com/j123b567/scpi-parser/tree/master/examples) of usage but please note, that this code is just for educational purpose and not production ready.
+Examples are from several contributors and they are not tested and it is also not known, if they really work or can compile at all.
+
+The core library itself is well tested and has more then 93% of the code covered by unit tests and integration tests and tries to be SCPI-99 compliant as much as possible.
 
 About
 --------
