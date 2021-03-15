@@ -257,6 +257,9 @@ static void testCommandsHandling(void) {
     TEST_INPUT("*IDN?;*IDN?;*IDN?;*IDN?\r\n", "MA,IN,0,VER;MA,IN,0,VER;MA,IN,0,VER;MA,IN,0,VER\r\n");
     output_buffer_clear();
 
+    TEST_INPUT("*IDN?;STUB\r\n", "MA,IN,0,VER\r\n");
+    output_buffer_clear();
+
     TEST_INPUT("*IDN?;*OPC;*IDN?\r\n", "MA,IN,0,VER;MA,IN,0,VER\r\n");
     output_buffer_clear();
 

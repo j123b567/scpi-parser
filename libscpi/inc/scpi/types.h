@@ -371,6 +371,7 @@ extern "C" {
         scpi_interface_t * interface;
         int_fast16_t output_count;
         int_fast16_t input_count;
+        scpi_bool_t first_output;
         scpi_bool_t cmd_error;
         scpi_fifo_t error_queue;
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION && !USE_MEMORY_ALLOCATION_FREE
