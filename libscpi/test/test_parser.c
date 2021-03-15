@@ -150,7 +150,7 @@ static void error_buffer_clear(void) {
     err_buffer_pos = 0;
 
     SCPI_RegClearBits(&scpi_context, SCPI_REG_STB, STB_QMA);
-    SCPI_EventClear(&scpi_context);
+    SCPI_RegSet(&scpi_context, SCPI_REG_ESR, 0);
     SCPI_ErrorClear(&scpi_context);
 }
 
