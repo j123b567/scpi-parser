@@ -32,7 +32,7 @@ SCPI parser library is based on these standards
 | Compound command    | `CONFigure:VOLTage`                         |                       |
 | Query command       | `MEASure:VOLTage?`, `*IDN?`                 |                       |
 | Optional keywords   | `MEASure:VOLTage[:DC]?`                     |                       |
-| Numeric keyword suffix<br>Multiple identical capabilities | `OUTput#:FREQunecy` | [`SCPI_CommandNumbers()`]({{ site.baseurl }}/api/SCPI_CommandNumbers) |
+| Numeric keyword suffix<br>Multiple identical capabilities | `OUTput#:FREQuency` | [`SCPI_CommandNumbers()`]({{ site.baseurl }}/api/SCPI_CommandNumbers) |
 |---------------------+---------------------------------------------|-----------------------|
 
 **Supported parameter types**
