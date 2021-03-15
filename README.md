@@ -39,7 +39,7 @@ SCPI parser library is based on these standards
 <tr><td>Compound command<td><code>CONFigure:VOLTage</code><tr>
 <tr><td>Query command<td><code>MEASure:VOLTage?</code>, <code>*IDN?</code></tr>
 <tr><td>Optional keywords<td><code>MEASure:VOLTage[:DC]?</code></tr>
-<tr><td>Numeric keyword suffix<br>Multiple identical capabilities<td><code>OUTput#:FREQunecy</code></tr>
+<tr><td>Numeric keyword suffix<br>Multiple identical capabilities<td><code>OUTput#:FREQuency</code></tr>
 </table>
 
 **Supported parameter types**
