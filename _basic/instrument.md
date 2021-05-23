@@ -36,7 +36,7 @@ scpi_interface_t scpi_interface = {
 Test implementation of function myWrite, which outputs everything to stdout, can be
 
 ```c    
-size_t myWrite(scpi_context_t * context, const char * data, size_t len) {
+size_t myWrite(scpi_t * context, const char * data, size_t len) {
     (void) context;
     return fwrite(data, 1, len, stdout);
 }
