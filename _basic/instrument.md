@@ -72,7 +72,7 @@ while(1) {
 There is also need to allocate error queue. This can be done by
 ```c
 #define SCPI_ERROR_QUEUE_SIZE 17
-int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 ```
 
 SCPI parser context
