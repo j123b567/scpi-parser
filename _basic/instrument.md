@@ -36,7 +36,7 @@ scpi_interface_t scpi_interface = {
 Test implementation of function myWrite, which outputs everything to stdout, can be
 
 ```c    
-size_t myWrite(scpi_context_t * context, const char * data, size_t len) {
+size_t myWrite(scpi_t * context, const char * data, size_t len) {
     (void) context;
     return fwrite(data, 1, len, stdout);
 }
@@ -72,7 +72,7 @@ while(1) {
 There is also need to allocate error queue. This can be done by
 ```c
 #define SCPI_ERROR_QUEUE_SIZE 17
-int16_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
 ```
 
 SCPI parser context
