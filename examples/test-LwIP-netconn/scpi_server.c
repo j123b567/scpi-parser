@@ -49,10 +49,6 @@
 #include "lwip/tcp.h"
 #include "lwip/inet.h"
 
-
-#define DEVICE_PORT 5025
-#define CONTROL_PORT 5026
-
 #define SCPI_THREAD_PRIO (tskIDLE_PRIORITY + 2)
 
 #define SCPI_MSG_TIMEOUT                0
@@ -152,7 +148,7 @@ scpi_result_t SCPI_Reset(scpi_t * context) {
 }
 
 scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
-    SCPI_ResultInt(context, CONTROL_PORT);
+    SCPI_ResultInt(context, SCPI_CONTROL_PORT);
     return SCPI_RES_OK;
 }
 
@@ -379,10 +375,10 @@ static void scpi_server_thread(void *arg) {
 
     scpi_context.user_context = &user_data;
 
-    user_data.io_listen = createServer(DEVICE_PORT);
+    user_data.io_listen = createServer(SCPI_DEVICE_PORT);
     LWIP_ASSERT("user_data.io_listen != NULL", user_data.io_listen != NULL);
 
-    user_data.control_io_listen = createServer(CONTROL_PORT);
+    user_data.control_io_listen = createServer(SCPI_CONTROL_PORT);
     LWIP_ASSERT("user_data.control_io_listen != NULL", user_data.control_io_listen != NULL);
 
     while (1) {

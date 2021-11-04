@@ -32,6 +32,9 @@
 extern "C" {
 #endif
 
+#define SCPI_DEVICE_PORT  5025 // scpi-raw standard port
+#define SCPI_CONTROL_PORT 5026 // libscpi control port (not part of the standard)
+
 #include <stdint.h>
 
 void scpi_server_init(void);
