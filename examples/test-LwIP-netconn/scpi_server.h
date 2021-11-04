@@ -42,6 +42,12 @@ void scpi_server_init(void);
 void SCPI_AddError(int16_t err);
 void SCPI_RequestControl(void);
 
+// optional event handlers
+void SCPI_Event_DeviceConnected(struct netconn * conn);
+void SCPI_Event_DeviceDisconnected(struct netconn * conn);
+void SCPI_Event_ErrorIndicatorOn(scpi_t * context, int_fast16_t err);
+void SCPI_Event_ErrorIndicatorOff(scpi_t * context, int_fast16_t err);
+
 #ifdef __cplusplus
 }
 #endif

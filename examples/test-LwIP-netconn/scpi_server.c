@@ -113,11 +113,10 @@ int SCPI_Error(scpi_t * context, int_fast16_t err) {
     iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     if (err != 0) {
         /* New error */
-        /* Beep */
-        /* Error LED ON */
+        SCPI_Event_ErrorIndicatorOn(context, err);
     } else {
         /* No more errors in the queue */
-        /* Error LED OFF */
+        SCPI_Event_ErrorIndicatorOff(context, err);
     }
     return 0;
 }
@@ -248,6 +247,7 @@ static int processIoListen(user_data_t * user_data) {
             netconn_delete(newconn);
         } else {
             /* connection established */
+            SCPI_Event_DeviceConnected(newconn);
             iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
             user_data->io = newconn;
         }
@@ -275,6 +275,7 @@ static int processSrqIoListen(user_data_t * user_data) {
 
 static void closeIo(user_data_t * user_data) {
     /* connection closed */
+	SCPI_Event_DeviceDisconnected(user_data->io);
     netconn_close(user_data->io);
     netconn_delete(user_data->io);
     user_data->io = NULL;
@@ -422,4 +423,24 @@ void scpi_server_init(void) {
     BaseType_t xReturned;
     xReturned = xTaskCreate(scpi_server_thread, "SCPI", DEFAULT_THREAD_STACKSIZE, NULL, SCPI_THREAD_PRIO, &xHandle);
     LWIP_ASSERT("scpi_server_init failed", xReturned == pdPASS);
+}
+
+/* Called by processIoListen() for additional reporting. Override on demand. */
+void __attribute__((weak)) SCPI_Event_DeviceConnected(struct netconn * conn) {
+    /* Remote or Eth LED ON */
+}
+
+/* Called by closeIO() for additional reporting. Override on demand. */
+void __attribute__((weak)) SCPI_Event_DeviceDisconnected(struct netconn * conn) {
+    /* Remote or Eth LED OFF */
+}
+
+/* Called by SCPI_Error() for reporting. Override on demand. */
+void __attribute__((weak)) SCPI_Event_ErrorIndicatorOn(scpi_t * context, int_fast16_t err) {
+    /* New error : Beep, Error LED ON */
+}
+
+/* Called by SCPI_Error() for reporting. Override on demand. */
+void __attribute__((weak)) SCPI_Event_ErrorIndicatorOff(scpi_t * context, int_fast16_t err) {
+    /* No more errors in the queue : Error LED OFF */
 }
