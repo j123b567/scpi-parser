@@ -94,7 +94,7 @@ size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     if (context->user_context != NULL) {
         user_data_t * u = (user_data_t *) (context->user_context);
         if (u->io) {
-            return (netconn_write(u->io, data, len, NETCONN_NOCOPY) == ERR_OK) ? len : 0;
+            return (netconn_write(u->io, data, len, NETCONN_COPY) == ERR_OK) ? len : 0;
         }
     }
     return 0;
@@ -139,7 +139,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
         user_data_t * u = (user_data_t *) (context->user_context);
         if (u->control_io) {
             snprintf(b, sizeof (b), "SRQ%d\r\n", val);
-            return netconn_write(u->control_io, b, strlen(b), NETCONN_NOCOPY) == ERR_OK ? SCPI_RES_OK : SCPI_RES_ERR;
+            return netconn_write(u->control_io, b, strlen(b), NETCONN_COPY) == ERR_OK ? SCPI_RES_OK : SCPI_RES_ERR;
         }
     }
     return SCPI_RES_OK;
