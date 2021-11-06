@@ -36,6 +36,8 @@ extern "C" {
 #define SCPI_CONTROL_PORT 5026 // libscpi control port (not part of the standard)
 
 #include <stdint.h>
+#include "api.h"
+#include "scpi/types.h"
 
 void scpi_server_init(void);
 
