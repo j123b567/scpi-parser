@@ -235,7 +235,7 @@ static void waitServer(user_data_t * user_data, queue_event_t * evt) {
     }
 }
 
-static int processIoListen(user_data_t * user_data) {
+static int processIoListen(scpi_t * context, user_data_t * user_data) {
     struct netconn *newconn;
 
     if (netconn_accept(user_data->io_listen, &newconn) == ERR_OK) {
@@ -245,7 +245,7 @@ static int processIoListen(user_data_t * user_data) {
             netconn_delete(newconn);
         } else {
             /* connection established */
-            SCPI_Event_DeviceConnected(NULL, newconn);
+            SCPI_Event_DeviceConnected(context, newconn);
             user_data->io = newconn;
         }
     }
@@ -253,7 +253,7 @@ static int processIoListen(user_data_t * user_data) {
     return 0;
 }
 
-static int processSrqIoListen(user_data_t * user_data) {
+static int processSrqIoListen(scpi_t * context, user_data_t * user_data) {
     struct netconn *newconn;
 
     if (netconn_accept(user_data->control_io_listen, &newconn) == ERR_OK) {
@@ -262,7 +262,7 @@ static int processSrqIoListen(user_data_t * user_data) {
             netconn_delete(newconn);
         } else {
             /* control connection established */
-			SCPI_Event_ControlConnected(NULL, newconn);
+			SCPI_Event_ControlConnected(context, newconn);
             user_data->control_io = newconn;
         }
     }
@@ -270,17 +270,17 @@ static int processSrqIoListen(user_data_t * user_data) {
     return 0;
 }
 
-static void closeIo(user_data_t * user_data) {
+static void closeIo(scpi_t * context, user_data_t * user_data) {
     /* connection closed */
-	SCPI_Event_DeviceDisconnected(NULL, user_data->io);
+	SCPI_Event_DeviceDisconnected(context, user_data->io);
     netconn_close(user_data->io);
     netconn_delete(user_data->io);
     user_data->io = NULL;
 }
 
-static void closeSrqIo(user_data_t * user_data) {
+static void closeSrqIo(scpi_t * context, user_data_t * user_data) {
     /* control connection closed */
-	SCPI_Event_ControlDisconnected(NULL, user_data->io);
+	SCPI_Event_ControlDisconnected(context, user_data->io);
     netconn_close(user_data->control_io);
     netconn_delete(user_data->control_io);
     user_data->control_io = NULL;
@@ -386,19 +386,19 @@ static void scpi_server_thread(void *arg) {
         }
 
         if ((user_data.io_listen != NULL) && (evt.cmd == SCPI_MSG_IO_LISTEN)) {
-            processIoListen(&user_data);
+            processIoListen(&scpi_context, &user_data);
         }
 
         if ((user_data.control_io_listen != NULL) && (evt.cmd == SCPI_MSG_CONTROL_IO_LISTEN)) {
-            processSrqIoListen(&user_data);
+            processSrqIoListen(&scpi_context, &user_data);
         }
 
         if ((user_data.io != NULL) && (evt.cmd == SCPI_MSG_IO)) {
-            processIo(&user_data);
+            processIo(&scpi_context, &user_data);
         }
 
         if ((user_data.control_io != NULL) && (evt.cmd == SCPI_MSG_CONTROL_IO)) {
-            processSrqIo(&user_data);
+            processSrqIo(&scpi_context, &user_data);
         }
 
         if (evt.cmd == SCPI_MSG_SET_ESE_REQ) {
