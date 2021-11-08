@@ -108,9 +108,7 @@ scpi_result_t SCPI_Flush(scpi_t * context) {
 }
 
 int SCPI_Error(scpi_t * context, int_fast16_t err) {
-    (void) context;
-    /* BEEP */
-    iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    (void) context;    
     if (err != 0) {
         /* New error */
         SCPI_Event_ErrorIndicatorOn(context, err);
@@ -140,7 +138,7 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
-scpi_result_t SCPI_Reset(scpi_t * context) {
+scpi_result_t __attribute__((weak)) SCPI_Reset(scpi_t * context) {
     (void) context;
     iprintf("**Reset\r\n");
     return SCPI_RES_OK;
@@ -247,8 +245,7 @@ static int processIoListen(user_data_t * user_data) {
             netconn_delete(newconn);
         } else {
             /* connection established */
-            SCPI_Event_DeviceConnected(newconn);
-            iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
+            SCPI_Event_DeviceConnected(NULL, newconn);
             user_data->io = newconn;
         }
     }
@@ -265,7 +262,7 @@ static int processSrqIoListen(user_data_t * user_data) {
             netconn_delete(newconn);
         } else {
             /* control connection established */
-            iprintf("***Control Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
+			SCPI_Event_ControlConnected(NULL, newconn);
             user_data->control_io = newconn;
         }
     }
@@ -275,19 +272,18 @@ static int processSrqIoListen(user_data_t * user_data) {
 
 static void closeIo(user_data_t * user_data) {
     /* connection closed */
-	SCPI_Event_DeviceDisconnected(user_data->io);
+	SCPI_Event_DeviceDisconnected(NULL, user_data->io);
     netconn_close(user_data->io);
     netconn_delete(user_data->io);
     user_data->io = NULL;
-    iprintf("***Connection closed\r\n");
 }
 
 static void closeSrqIo(user_data_t * user_data) {
     /* control connection closed */
+	SCPI_Event_ControlDisconnected(NULL, user_data->io);
     netconn_close(user_data->control_io);
     netconn_delete(user_data->control_io);
     user_data->control_io = NULL;
-    iprintf("***Control Connection closed\r\n");
 }
 
 static int processIo(user_data_t * user_data) {
@@ -426,21 +422,35 @@ void scpi_server_init(void) {
 }
 
 /* Called by processIoListen() for additional reporting. Override on demand. */
-void __attribute__((weak)) SCPI_Event_DeviceConnected(struct netconn * conn) {
+void __attribute__((weak)) SCPI_Event_DeviceConnected(scpi_t * context, struct netconn * conn) {
+	iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
     /* Remote or Eth LED ON */
 }
 
 /* Called by closeIO() for additional reporting. Override on demand. */
-void __attribute__((weak)) SCPI_Event_DeviceDisconnected(struct netconn * conn) {
+void __attribute__((weak)) SCPI_Event_DeviceDisconnected(scpi_t * context, struct netconn * conn) {
+	iprintf("***Connection closed\r\n");
     /* Remote or Eth LED OFF */
+}
+
+/* Called by processIoListen() for additional reporting. Override on demand. */
+void __attribute__((weak)) SCPI_Event_ControlConnected(scpi_t * context, struct netconn * conn) {
+	iprintf("***Control Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
+}
+
+/* Called by closeIO() for additional reporting. Override on demand. */
+void __attribute__((weak)) SCPI_Event_ControlDisconnected(scpi_t * context, struct netconn * conn) {
+	iprintf("***Control Connection closed\r\n");
 }
 
 /* Called by SCPI_Error() for reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_ErrorIndicatorOn(scpi_t * context, int_fast16_t err) {
-    /* New error : Beep, Error LED ON */
+	iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    /* New error : BEEP, Error LED ON */
 }
 
 /* Called by SCPI_Error() for reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_ErrorIndicatorOff(scpi_t * context, int_fast16_t err) {
+	iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     /* No more errors in the queue : Error LED OFF */
 }

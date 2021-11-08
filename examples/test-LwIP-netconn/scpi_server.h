@@ -36,7 +36,7 @@ extern "C" {
 #define SCPI_CONTROL_PORT 5026 // libscpi control port (not part of the standard)
 
 #include <stdint.h>
-#include "api.h"
+#include "lwip/api.h"
 #include "scpi/types.h"
 
 void scpi_server_init(void);
@@ -45,8 +45,10 @@ void SCPI_AddError(int16_t err);
 void SCPI_RequestControl(void);
 
 // optional event handlers
-void SCPI_Event_DeviceConnected(struct netconn * conn);
-void SCPI_Event_DeviceDisconnected(struct netconn * conn);
+void SCPI_Event_DeviceConnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_DeviceDisconnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_ControlConnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_ControlDisconnected(scpi_t * context, struct netconn * conn);
 void SCPI_Event_ErrorIndicatorOn(scpi_t * context, int_fast16_t err);
 void SCPI_Event_ErrorIndicatorOff(scpi_t * context, int_fast16_t err);
 
