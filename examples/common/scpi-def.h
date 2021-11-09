@@ -28,6 +28,9 @@
 
 #ifndef __SCPI_DEF_H_
 #define __SCPI_DEF_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "scpi/scpi.h"
 
@@ -53,5 +56,8 @@ scpi_result_t SCPI_Flush(scpi_t * context);
 
 scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __SCPI_DEF_H_ */
 
