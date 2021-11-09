@@ -32,6 +32,10 @@
 extern "C" {
 #endif
 
+#define SCPI_KEEP_IDLE    2000 // (ms) keepalive quiet time after last TCP packet
+#define SCPI_KEEP_INTVL   1000 // (ms) keepalive repeat interval
+#define SCPI_KEEP_CNT        4 // Retry count before terminating connection (SCPI_KEEP_INTVL * SCPI_KEEP_INTVL (ms)).
+
 #define SCPI_DEVICE_PORT  5025 // scpi-raw standard port
 #define SCPI_CONTROL_PORT 5026 // libscpi control port (not part of the standard)
 

@@ -246,6 +246,10 @@ static int processIoListen(scpi_t * context, user_data_t * user_data) {
         } else {
             /* connection established */
             SCPI_Event_DeviceConnected(context, newconn);
+            ip_set_option(newconn->pcb.tcp, SOF_KEEPALIVE);
+            newconn->pcb.tcp->keep_idle   = SCPI_KEEP_IDLE;  // Override TCP_KEEPIDLE_DEFAULT  for this connection.
+            newconn->pcb.tcp->keep_intvl  = SCPI_KEEP_INTVL; // Override TCP_KEEPINTVL_DEFAULT for this connection.
+            newconn->pcb.tcp->keep_cnt    = SCPI_KEEP_CNT;   // Override TCP_KEEPCNT_DEFAULT   for this connection.
             user_data->io = newconn;
         }
     }
@@ -263,6 +267,10 @@ static int processSrqIoListen(scpi_t * context, user_data_t * user_data) {
         } else {
             /* control connection established */
             SCPI_Event_ControlConnected(context, newconn);
+            ip_set_option(newconn->pcb.tcp, SOF_KEEPALIVE);
+            newconn->pcb.tcp->keep_idle   = SCPI_KEEP_IDLE;  // Override TCP_KEEPIDLE_DEFAULT  for this connection.
+            newconn->pcb.tcp->keep_intvl  = SCPI_KEEP_INTVL; // Override TCP_KEEPINTVL_DEFAULT for this connection.
+            newconn->pcb.tcp->keep_cnt    = SCPI_KEEP_CNT;   // Override TCP_KEEPCNT_DEFAULT   for this connection.
             user_data->control_io = newconn;
         }
     }
