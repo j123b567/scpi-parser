@@ -1,0 +1,75 @@
+name: ubuntu-latest
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: allow_x86
+      run: sudo dpkg --add-architecture i386
+
+    - name: install_dependencies
+      run: sudo apt-get install libcunit1-dev clang gcc-multilib libcunit1-dev:i386
+
+    - name: make
+      run: make clean all
+
+    - name: clang_sanitize_address
+      env:
+        CC: clang
+        CFLAGS: -g -O0 -fsanitize=address
+        LDFLAGS: -g -fsanitize=address
+      run: make clean test
+
+    - name: clang_sanitize_address_device_errors
+      env:
+        CC: clang
+        CFLAGS: -g -O0 -fsanitize=address -DUSE_DEVICE_DEPENDENT_ERROR_INFORMATION=0
+        LDFLAGS: -g -fsanitize=address
+      run: make clean test
+      
+    - name: clang_sanitize_address_nomalloc
+      env:
+        CC: clang
+        CFLAGS: -g -O0 -fsanitize=address -DUSE_MEMORY_ALLOCATION_FREE=0
+        LDFLAGS: -g -fsanitize=address
+      run: make clean test
+
+    - name: gcc_x86
+      env:
+        CFLAGS: -m32
+        LDFLAGS: -m32
+      run: make clean test
+
+    - name: gcc_x86_c89
+      env:
+        CFLAGS: -m32 -std=c89
+        LDFLAGS: -m32
+      run: make clean test
+
+    - name: gcc_x86_c90
+      env:
+        CFLAGS: -m32 -std=c90
+        LDFLAGS: -m32
+      run: make clean test
+
+    - name: gcc_x86_c99
+      env:
+        CFLAGS: -m32 -std=c99
+        LDFLAGS: -m32
+      run: make clean test
+
+    - name: gcc_x86_gnu99
+      env:
+        CFLAGS: -m32 -std=gnu99
+        LDFLAGS: -m32
+      run: make clean test
+
+    - name: coverage
+      env:
+        CFLAGS: -fprofile-arcs -ftest-coverage
+        LDFLAGS: -lgcov
+      run: make clean all test
+     
