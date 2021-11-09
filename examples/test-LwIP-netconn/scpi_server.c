@@ -262,7 +262,7 @@ static int processSrqIoListen(scpi_t * context, user_data_t * user_data) {
             netconn_delete(newconn);
         } else {
             /* control connection established */
-			SCPI_Event_ControlConnected(context, newconn);
+            SCPI_Event_ControlConnected(context, newconn);
             user_data->control_io = newconn;
         }
     }
@@ -272,7 +272,7 @@ static int processSrqIoListen(scpi_t * context, user_data_t * user_data) {
 
 static void closeIo(scpi_t * context, user_data_t * user_data) {
     /* connection closed */
-	SCPI_Event_DeviceDisconnected(context, user_data->io);
+    SCPI_Event_DeviceDisconnected(context, user_data->io);
     netconn_close(user_data->io);
     netconn_delete(user_data->io);
     user_data->io = NULL;
@@ -280,7 +280,7 @@ static void closeIo(scpi_t * context, user_data_t * user_data) {
 
 static void closeSrqIo(scpi_t * context, user_data_t * user_data) {
     /* control connection closed */
-	SCPI_Event_ControlDisconnected(context, user_data->io);
+    SCPI_Event_ControlDisconnected(context, user_data->io);
     netconn_close(user_data->control_io);
     netconn_delete(user_data->control_io);
     user_data->control_io = NULL;
@@ -423,34 +423,34 @@ void scpi_server_init(void) {
 
 /* Called by processIoListen() for additional reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_DeviceConnected(scpi_t * context, struct netconn * conn) {
-	iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
+    iprintf("***Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
     /* Remote or Eth LED ON */
 }
 
 /* Called by closeIO() for additional reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_DeviceDisconnected(scpi_t * context, struct netconn * conn) {
-	iprintf("***Connection closed\r\n");
+    iprintf("***Connection closed\r\n");
     /* Remote or Eth LED OFF */
 }
 
 /* Called by processIoListen() for additional reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_ControlConnected(scpi_t * context, struct netconn * conn) {
-	iprintf("***Control Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
+    iprintf("***Control Connection established %s\r\n", inet_ntoa(newconn->pcb.ip->remote_ip));
 }
 
 /* Called by closeIO() for additional reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_ControlDisconnected(scpi_t * context, struct netconn * conn) {
-	iprintf("***Control Connection closed\r\n");
+    iprintf("***Control Connection closed\r\n");
 }
 
 /* Called by SCPI_Error() for reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_ErrorIndicatorOn(scpi_t * context, int_fast16_t err) {
-	iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     /* New error : BEEP, Error LED ON */
 }
 
 /* Called by SCPI_Error() for reporting. Override on demand. */
 void __attribute__((weak)) SCPI_Event_ErrorIndicatorOff(scpi_t * context, int_fast16_t err) {
-	iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
+    iprintf("**ERROR: %ld, \"%s\"\r\n", (int32_t) err, SCPI_ErrorTranslate(err));
     /* No more errors in the queue : Error LED OFF */
 }
