@@ -28,17 +28,35 @@
 
 #ifndef _SCPI_SERVER_H_
 #define _SCPI_SERVER_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SCPI_KEEP_IDLE    2000 // (ms) keepalive quiet time after last TCP packet
 #define SCPI_KEEP_INTVL   1000 // (ms) keepalive repeat interval
 #define SCPI_KEEP_CNT        4 // Retry count before terminating connection (SCPI_KEEP_INTVL * SCPI_KEEP_INTVL (ms)).
 
+#define SCPI_DEVICE_PORT  5025 // scpi-raw standard port
+#define SCPI_CONTROL_PORT 5026 // libscpi control port (not part of the standard)
+
 #include <stdint.h>
+#include "lwip/api.h"
+#include "scpi/types.h"
 
 void scpi_server_init(void);
 
 void SCPI_AddError(int16_t err);
 void SCPI_RequestControl(void);
 
+// optional event handlers
+void SCPI_Event_DeviceConnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_DeviceDisconnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_ControlConnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_ControlDisconnected(scpi_t * context, struct netconn * conn);
+void SCPI_Event_ErrorIndicatorOn(scpi_t * context, int_fast16_t err);
+void SCPI_Event_ErrorIndicatorOff(scpi_t * context, int_fast16_t err);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _SCPI_SERVER_H_ */
