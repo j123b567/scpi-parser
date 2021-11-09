@@ -39,9 +39,16 @@ jobs:
         CFLAGS: -fprofile-arcs -ftest-coverage
         LDFLAGS: -lgcov
       run: make clean all test
-     
+    
+    - name: lcov_capture
+      run: lcov --capture --directory . --output-file coverage.info
+
+    - name: lcov_cleanup
+      run: lcov --remove coverage.info 'test/*' --output-file coverage.info
+   
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         base-path: libscpi/
+        path-to-lcov: coverage.info
