@@ -40,3 +40,8 @@ jobs:
         LDFLAGS: -lgcov
       run: make clean all test
      
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        base-path: libscpi/
