@@ -141,7 +141,7 @@ static int createServer(int port) {
     }
 
     /* Listen on socket */
-    listen(fd, 1);
+    rc = listen(fd, 1);
     if (rc < 0) {
         perror("listen() failed");
         close(fd);
