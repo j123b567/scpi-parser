@@ -34,6 +34,7 @@
  *
  */
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -179,9 +180,6 @@ int main(int argc, char** argv) {
     int listenfd;
     char smbuffer[10];
 
-    /* user_context will be pointer to socket */
-    scpi_context.user_context = NULL;
-
     SCPI_Init(&scpi_context,
             scpi_commands,
             &scpi_interface,
@@ -190,12 +188,18 @@ int main(int argc, char** argv) {
             scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
             scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
+    signal(SIGPIPE, SIG_IGN);
+
     listenfd = createServer(5025);
 
     while (1) {
         int clifd;
         struct sockaddr_in cliaddr;
         socklen_t clilen;
+
+	/* wait for a user to connect */
+        rc = waitServer(clifd);
+	if (rc < 0) continue;
 
         clilen = sizeof (cliaddr);
         clifd = accept(listenfd, (struct sockaddr *) &cliaddr, &clilen);
