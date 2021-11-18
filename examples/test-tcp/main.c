@@ -45,6 +45,7 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <netinet/tcp.h>
 
 #include "scpi/scpi.h"
 #include "../common/scpi-def.h"
@@ -193,7 +194,7 @@ int main(int argc, char** argv) {
     listenfd = createServer(5025);
 
     while (1) {
-        int clifd;
+        int clifd, flag = 0;
         struct sockaddr_in cliaddr;
         socklen_t clilen;
 
@@ -201,6 +202,8 @@ int main(int argc, char** argv) {
         clifd = accept(listenfd, (struct sockaddr *) &cliaddr, &clilen);
 
         if (clifd < 0) continue;
+
+	setsockopt(clifd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(int));
 
         printf("Connection established %s\r\n", inet_ntoa(cliaddr.sin_addr));
 
