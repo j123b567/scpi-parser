@@ -614,6 +614,7 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
  * @return
  */
 size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len) {
+    size_t result = 0;
     char block_header[12];
     size_t header_len;
     block_header[0] = '#';
@@ -623,7 +624,9 @@ size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len) {
     block_header[1] = (char) (header_len + '0');
 
     context->arbitrary_remaining = len;
-    return writeData(context, block_header, header_len + 2);
+    result  = writeDelimiter(context);
+    result += writeData(context, block_header, header_len + 2);
+    return result;
 }
 
 /**
