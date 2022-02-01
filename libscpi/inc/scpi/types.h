@@ -50,7 +50,7 @@
 extern "C" {
 #endif
 
-#if !HAVE_STDBOOL
+#if (!HAVE_STDBOOL) && (!_GLIBCXX_HAVE_STDBOOL_H)
     typedef unsigned char bool;
 #endif
 
@@ -354,7 +354,7 @@ extern "C" {
 #if USE_COMMAND_TAGS
         int32_t tag;
 #endif /* USE_COMMAND_TAGS */
-    };
+};
 
     struct _scpi_interface_t {
         scpi_error_callback_t error;
@@ -381,7 +381,7 @@ extern "C" {
         void * user_context;
         scpi_parser_state_t parser_state;
         const char * idn[4];
-        size_t arbitrary_reminding;
+        size_t arbitrary_remaining;
     };
 
     enum _scpi_array_format_t {
