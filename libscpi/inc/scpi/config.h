@@ -49,9 +49,9 @@ extern "C" {
 #endif
 
 /* set the termination character(s)   */
-#define LINE_ENDING_CR          "\r"    /*   use a <CR> carriage return as termination charcter */
-#define LINE_ENDING_LF          "\n"    /*   use a <LF> line feed as termination charcter */
-#define LINE_ENDING_CRLF        "\r\n"  /*   use <CR><LF> carriage return + line feed as termination charcters */
+#define LINE_ENDING_CR          "\r"    /*   use a <CR> carriage return as termination character */
+#define LINE_ENDING_LF          "\n"    /*   use a <LF> line feed as termination character */
+#define LINE_ENDING_CRLF        "\r\n"  /*   use <CR><LF> carriage return + line feed as termination characters */
 
 #ifndef SCPI_LINE_ENDING
 #define SCPI_LINE_ENDING        LINE_ENDING_CRLF
@@ -59,7 +59,7 @@ extern "C" {
 
 /**
  * Detect, if it has limited resources or it is running on a full blown operating system.
- * All values can be overiden by scpi_user_config.h
+ * All values can be overridden by scpi_user_config.h
  */
 #define SYSTEM_BARE_METAL 0
 #define SYSTEM_FULL_BLOWN 1
@@ -76,8 +76,8 @@ extern "C" {
  * 0 = Minimal set of errors
  * 1 = Full set of errors
  *
- * For small systems, full set of errors will occupy large ammount of data
- * It is enabled by default on full blown systems and disabled on limited bare metal systems
+ * For small systems, full set of errors will occupy large amount of data.
+ * It is enabled by default on full blown systems and disabled on limited bare metal systems.
  */
 #ifndef USE_FULL_ERROR_LIST
 #define USE_FULL_ERROR_LIST SYSTEM_TYPE
@@ -174,14 +174,14 @@ extern "C" {
 #define USE_UNITS_ELECTRIC_CHARGE_CONDUCTANCE SYSTEM_TYPE
 #endif
 
-/* define local macros depending on existance of strnlen */
+/* define local macros depending on existence of strnlen */
 #if HAVE_STRNLEN
 #define SCPIDEFINE_strnlen(s, l)	strnlen((s), (l))
 #else
 #define SCPIDEFINE_strnlen(s, l)	BSD_strnlen((s), (l))
 #endif
 
-/* define local macros depending on existance of strncasecmp and strnicmp */
+/* define local macros depending on existence of strncasecmp and strnicmp */
 #if HAVE_STRNCASECMP
 #define SCPIDEFINE_strncasecmp(s1, s2, l) strncasecmp((s1), (s2), (l))
 #elif HAVE_STRNICMP
