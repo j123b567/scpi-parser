@@ -110,6 +110,10 @@ extern "C" {
 #define USE_COMMAND_TAGS 1
 #endif
 
+#ifndef USE_COMMAND_DESCRIPTIONS
+#define USE_COMMAND_DESCRIPTIONS 1
+#endif
+
 #ifndef USE_DEPRECATED_FUNCTIONS
 #define USE_DEPRECATED_FUNCTIONS 1
 #endif

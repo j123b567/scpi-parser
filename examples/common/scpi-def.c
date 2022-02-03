@@ -353,7 +353,22 @@ static scpi_result_t My_CoreTstQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+#if USE_COMMAND_DESCRIPTIONS
+#define SCPI_CMD_DESC(S) .description=(S),
+#else
+#define SCPI_CMD_DESC(S)
+#endif
+
+#if USE_COMMAND_TAGS
+#define SCPI_CMD_TAG(T) .tag=(T),
+#else
+#define SCPI_CMD_TAG(T)
+#endif
+
 const scpi_command_t scpi_commands[] = {
+    /* Optional help commmand */
+    {.pattern = "HELP?", .callback = SCPI_HelpQ, SCPI_CMD_DESC("\t - list supported commands")},
+	
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
     { .pattern = "*CLS", .callback = SCPI_CoreCls,},
     { .pattern = "*ESE", .callback = SCPI_CoreEse,},

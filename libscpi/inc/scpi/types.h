@@ -114,10 +114,14 @@ extern "C" {
 
     typedef struct _scpi_command_t scpi_command_t;
 
-#if USE_COMMAND_TAGS
-	#define SCPI_CMD_LIST_END       {NULL, NULL, 0}
+#if USE_COMMAND_DESCRIPTIONS && USE_COMMAND_TAGS
+#define SCPI_CMD_LIST_END {NULL, NULL, NULL, 0}
+#elif USE_COMMAND_DESCRIPTIONS
+#define SCPI_CMD_LIST_END {NULL, NULL, NULL}
+#elif USE_COMMAND_TAGS
+#define SCPI_CMD_LIST_END {NULL, NULL, 0}
 #else
-	#define SCPI_CMD_LIST_END       {NULL, NULL}
+#define SCPI_CMD_LIST_END {NULL, NULL}
 #endif
 
 
@@ -351,6 +355,9 @@ extern "C" {
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
+#if USE_COMMAND_DESCRIPTIONS
+        const char * description;
+#endif /* USE_COMMAND_DESCRIPTIONS */
 #if USE_COMMAND_TAGS
         int32_t tag;
 #endif /* USE_COMMAND_TAGS */

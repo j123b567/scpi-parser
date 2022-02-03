@@ -353,60 +353,75 @@ static scpi_result_t My_CoreTstQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+#if USE_COMMAND_DESCRIPTIONS
+#define SCPI_CMD_DESC(S) (S),
+#else
+#define SCPI_CMD_DESC(S)
+#endif
+
+#if USE_COMMAND_TAGS
+#define SCPI_CMD_TAG(T) (T),
+#else
+#define SCPI_CMD_TAG(T)
+#endif
+
 const scpi_command_t scpi_commands[] = {
+    /* Optional help command */
+    {"HELP?", SCPI_HelpQ, SCPI_CMD_DESC("\t - list supported commands") SCPI_CMD_TAG(0)},
+	
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
-    {"*CLS", SCPI_CoreCls, 0},
-    {"*ESE", SCPI_CoreEse, 0},
-    {"*ESE?", SCPI_CoreEseQ, 0},
-    {"*ESR?", SCPI_CoreEsrQ, 0},
-    {"*IDN?", SCPI_CoreIdnQ, 0},
-    {"*OPC", SCPI_CoreOpc, 0},
-    {"*OPC?", SCPI_CoreOpcQ, 0},
-    {"*RST", SCPI_CoreRst, 0},
-    {"*SRE", SCPI_CoreSre, 0},
-    {"*SRE?", SCPI_CoreSreQ, 0},
-    {"*STB?", SCPI_CoreStbQ, 0},
-    {"*TST?", My_CoreTstQ, 0},
-    {"*WAI", SCPI_CoreWai, 0},
+    {"*CLS", SCPI_CoreCls, SCPI_CMD_TAG(0)},
+    {"*ESE", SCPI_CoreEse, SCPI_CMD_TAG(0)},
+    {"*ESE?", SCPI_CoreEseQ, SCPI_CMD_TAG(0)},
+    {"*ESR?", SCPI_CoreEsrQ, SCPI_CMD_TAG(0)},
+    {"*IDN?", SCPI_CoreIdnQ, SCPI_CMD_TAG(0)},
+    {"*OPC", SCPI_CoreOpc, SCPI_CMD_TAG(0)},
+    {"*OPC?", SCPI_CoreOpcQ, SCPI_CMD_TAG(0)},
+    {"*RST", SCPI_CoreRst, SCPI_CMD_TAG(0)},
+    {"*SRE", SCPI_CoreSre, SCPI_CMD_TAG(0)},
+    {"*SRE?", SCPI_CoreSreQ, SCPI_CMD_TAG(0)},
+    {"*STB?", SCPI_CoreStbQ, SCPI_CMD_TAG(0)},
+    {"*TST?", My_CoreTstQ, SCPI_CMD_TAG(0)},
+    {"*WAI", SCPI_CoreWai, SCPI_CMD_TAG(0)},
 
     /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ, 0},
-    {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ, 0},
-    {"SYSTem:VERSion?", SCPI_SystemVersionQ, 0},
+    {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ, SCPI_CMD_TAG(0)},
+    {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ, SCPI_CMD_TAG(0)},
+    {"SYSTem:VERSion?", SCPI_SystemVersionQ, SCPI_CMD_TAG(0)},
 
-    //{"STATus:OPERation?", scpi_stub_callback, 0},
-    //{"STATus:OPERation:EVENt?", scpi_stub_callback, 0},
-    //{"STATus:OPERation:CONDition?", scpi_stub_callback, 0},
-    //{"STATus:OPERation:ENABle", scpi_stub_callback, 0},
-    //{"STATus:OPERation:ENABle?", scpi_stub_callback, 0},
+    //{"STATus:OPERation?", scpi_stub_callback, SCPI_CMD_TAG(0)},
+    //{"STATus:OPERation:EVENt?", scpi_stub_callback, SCPI_CMD_TAG(0)},
+    //{"STATus:OPERation:CONDition?", scpi_stub_callback, SCPI_CMD_TAG(0)},
+    //{"STATus:OPERation:ENABle", scpi_stub_callback, SCPI_CMD_TAG(0)},
+    //{"STATus:OPERation:ENABle?", scpi_stub_callback, SCPI_CMD_TAG(0)},
 
-    {"STATus:QUEStionable[:EVENt]?", SCPI_StatusQuestionableEventQ, 0},
-    //{"STATus:QUEStionable:CONDition?", scpi_stub_callback, 0},
-    {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable, 0},
-    {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ, 0},
+    {"STATus:QUEStionable[:EVENt]?", SCPI_StatusQuestionableEventQ, SCPI_CMD_TAG(0)},
+    //{"STATus:QUEStionable:CONDition?", scpi_stub_callback, SCPI_CMD_TAG(0)},
+    {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable, SCPI_CMD_TAG(0)},
+    {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ, SCPI_CMD_TAG(0)},
 
-    {"STATus:PRESet", SCPI_StatusPreset, 0},
+    {"STATus:PRESet", SCPI_StatusPreset, SCPI_CMD_TAG(0)},
 
     /* DMM */
-    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ, 0},
-    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc, 0},
-    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ, 0},
-    {"MEASure:VOLTage:AC?", DMM_MeasureVoltageAcQ, 0},
-    {"MEASure:CURRent:DC?", SCPI_StubQ, 0},
-    {"MEASure:CURRent:AC?", SCPI_StubQ, 0},
-    {"MEASure:RESistance?", SCPI_StubQ, 0},
-    {"MEASure:FRESistance?", SCPI_StubQ, 0},
-    {"MEASure:FREQuency?", SCPI_StubQ, 0},
-    {"MEASure:PERiod?", SCPI_StubQ, 0},
+    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ, SCPI_CMD_TAG(0)},
+    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc, SCPI_CMD_TAG(0)},
+    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ, SCPI_CMD_TAG(0)},
+    {"MEASure:VOLTage:AC?", DMM_MeasureVoltageAcQ, SCPI_CMD_TAG(0)},
+    {"MEASure:CURRent:DC?", SCPI_StubQ, SCPI_CMD_TAG(0)},
+    {"MEASure:CURRent:AC?", SCPI_StubQ, SCPI_CMD_TAG(0)},
+    {"MEASure:RESistance?", SCPI_StubQ, SCPI_CMD_TAG(0)},
+    {"MEASure:FRESistance?", SCPI_StubQ, SCPI_CMD_TAG(0)},
+    {"MEASure:FREQuency?", SCPI_StubQ, SCPI_CMD_TAG(0)},
+    {"MEASure:PERiod?", SCPI_StubQ, SCPI_CMD_TAG(0)},
 
-    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ, 0},
+    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ, SCPI_CMD_TAG(0)},
 
-    {"TEST:BOOL", TEST_Bool, 0},
-    {"TEST:CHOice?", TEST_ChoiceQ, 0},
-    {"TEST#:NUMbers#", TEST_Numbers, 0},
-    {"TEST:TEXT", TEST_Text, 0},
-    {"TEST:ARBitrary?", TEST_ArbQ, 0},
-    {"TEST:CHANnellist", TEST_Chanlst, 0},
+    {"TEST:BOOL", TEST_Bool, SCPI_CMD_TAG(0)},
+    {"TEST:CHOice?", TEST_ChoiceQ, SCPI_CMD_TAG(0)},
+    {"TEST#:NUMbers#", TEST_Numbers, SCPI_CMD_TAG(0)},
+    {"TEST:TEXT", TEST_Text, SCPI_CMD_TAG(0)},
+    {"TEST:ARBitrary?", TEST_ArbQ, SCPI_CMD_TAG(0)},
+    {"TEST:CHANnellist", TEST_Chanlst, SCPI_CMD_TAG(0)},
 
     SCPI_CMD_LIST_END
 };
