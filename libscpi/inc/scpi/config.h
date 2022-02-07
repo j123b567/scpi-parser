@@ -118,8 +118,8 @@ extern "C" {
 #define USE_DEPRECATED_FUNCTIONS 1
 #endif
 
-#ifndef USE_HELP_SEARCH
-#define USE_HELP_SEARCH 1
+#ifndef USE_HELP_FILTER
+#define USE_HELP_FILTER 1
 #endif
 
 #ifndef USE_CUSTOM_DTOSTRE
