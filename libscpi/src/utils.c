@@ -1140,3 +1140,63 @@ uint64_t SCPI_Swap64(uint64_t val) {
             ((val & 0x00FF000000000000ull) >> 40) |
             ((val & 0xFF00000000000000ull) >> 56);
 }
+
+
+/* Cherokee: strncasestrn() and strncasestr()
+ *
+ * Authors:
+ *      Alvaro Lopez Ortega <alvaro@alobbs.com>
+ *
+ * Copyright (C) 2001-2014 Alvaro Lopez Ortega
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2 of the GNU General Public
+ * License as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
+ 
+#define CHEROKEE_CHAR_TO_LOWER(_ch)     ((_ch) | 32)
+#define CHEROKEE_CHAR_TO_UPPER(_ch)     ((_ch) & ~32)
+ 
+char * strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
+{
+    char c;
+    char sc;
+
+    if (unlikely (find == NULL) || (findlen == 0))
+        return (char *)s;
+
+    if (unlikely (*find == '\0'))
+        return (char *)s;
+
+    c = *find;
+    find++;
+    findlen--;
+
+    do {
+        do {
+            if (slen-- < 1 || (sc = *s++) == '\0')
+                return NULL;
+        } while (CHEROKEE_CHAR_TO_LOWER(sc) != CHEROKEE_CHAR_TO_LOWER(c));
+        if (findlen > slen) {
+            return NULL;
+        }
+    } while (strncasecmp (s, find, findlen) != 0);
+
+    s--;
+    return (char *)s;
+}
+
+char * strncasestr (const char *s, const char *find, size_t slen)
+{
+    return strncasestrn (s, slen, find, strlen(find));
+}
