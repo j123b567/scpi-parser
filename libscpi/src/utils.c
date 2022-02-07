@@ -1172,10 +1172,10 @@ char * strncasestrn (const char *s, size_t slen, const char *find, size_t findle
     char c;
     char sc;
 
-    if (unlikely (find == NULL) || (findlen == 0))
+    if ((find == NULL) || (findlen == 0))
         return (char *)s;
 
-    if (unlikely (*find == '\0'))
+    if ((*find == '\0'))
         return (char *)s;
 
     c = *find;
