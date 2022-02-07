@@ -229,7 +229,7 @@ scpi_result_t SCPI_HelpQ(scpi_t * context) {
     for(int i = 0; context->cmdlist[i].pattern != NULL; i++) {
         size_t pattern_len = strlen(context->cmdlist[i].pattern);
 #if USE_HELP_FILTER
-        if(narrowed_down && not strncasestrn(context->cmdlist[i].pattern, pattern_len, search_string, search_string_len)){
+        if(narrowed_down && (NULL == strncasestrn(context->cmdlist[i].pattern, pattern_len, search_string, search_string_len))){
 	        continue;
         }
 #endif
