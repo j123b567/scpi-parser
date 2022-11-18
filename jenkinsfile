@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+stages {
+
+        // stage('robot'){
+        //     steps{
+                
+        //         git branch: 'main', credentialsId: '82f0d861-8180-41a7-8ce7-cdecc9100607', url: 'https://github.com/shailaja-j/First_Repo.git'  
+        //     }
+        // }
+        stage('make test-parser'){
+            steps{
+            
+               bat'make clean'
+               bat'main.c'
+            }
+        }
+  }
+}
