@@ -1,4 +1,3 @@
-
 PROG = test
 
 SRCS = main.c ../common/scpi-def.c
