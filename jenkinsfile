@@ -11,7 +11,7 @@ stages {
         stage('make test-parser'){
             steps{
             
-               bat'make clean'
+               bat'sh make clean'
                bat'main.c'
             }
         }
