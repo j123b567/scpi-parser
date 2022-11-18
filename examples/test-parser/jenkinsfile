@@ -1,7 +1,7 @@
 pipeline {
     agent any
 stages {
-    
+
         // stage('robot'){
         //     steps{
                 
@@ -17,3 +17,4 @@ stages {
         }
   }
 }
+
