@@ -351,7 +351,7 @@ extern "C" {
     typedef struct _scpi_data_parameter_t scpi_data_parameter_t;
 
     typedef scpi_token_t scpi_parameter_t;
-
+	
     struct _scpi_command_t {
         const char * pattern;
         scpi_command_callback_t callback;
@@ -362,6 +362,20 @@ extern "C" {
         int32_t tag;
 #endif /* USE_COMMAND_TAGS */
 };
+
+/* Helper macros for _scpi_command_t items. Usage: 
+    _scpi_command_t cmd = {.pattern=":SOME:PATTern", .callback=SCPI_StubQ, SCPI_CMD_DESC("\t - a command") SCPI_CMD_TAG(0)};
+*/
+#if USE_COMMAND_DESCRIPTIONS
+#define SCPI_CMD_DESC(S) (S),
+#else
+#define SCPI_CMD_DESC(S)
+#endif
+#if USE_COMMAND_TAGS
+#define SCPI_CMD_TAG(T) (T),
+#else
+#define SCPI_CMD_TAG(T)
+#endif
 
     struct _scpi_interface_t {
         scpi_error_callback_t error;
@@ -405,4 +419,3 @@ extern "C" {
 #endif
 
 #endif  /* SCPI_TYPES_H */
-
