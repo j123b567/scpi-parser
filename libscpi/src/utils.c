@@ -1140,37 +1140,23 @@ uint64_t SCPI_Swap64(uint64_t val) {
             ((val & 0x00FF000000000000ull) >> 40) |
             ((val & 0xFF00000000000000ull) >> 56);
 }
-
-
-/* Cherokee: strncasestrn() and strncasestr()
- *
- * Authors:
- *      Alvaro Lopez Ortega <alvaro@alobbs.com>
- *
- * Copyright (C) 2001-2014 Alvaro Lopez Ortega
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of version 2 of the GNU General Public
- * License as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ 
+#define CHAR_TO_UPPER(c) ((c)>96 && (c)<123 ? (char)((c) ^ 0x20) : (c))
+#define CHAR_TO_LOWER(c) ((c)>64 && (c)< 91 ? (char)((c) | 0x20) : (c))
+ 
+/**
+ * @brief Locate a binary substring within a binary string (case-insensitive `strnstrn`).
+ * @param[in]  s  binary string
+ * @param[in]  slen  length of binary string s
+ * @param[in]  find  binary substring
+ * @param[in]  findlen  length of binary substring find
+ * @return  Pointer to first match in s if found, otherwise `NULL`.
+ * @author  Alvaro Lopez Ortega <alvaro@alobbs.com>
  */
- 
-#define CHEROKEE_CHAR_TO_LOWER(_ch)     ((_ch) | 32)
-#define CHEROKEE_CHAR_TO_UPPER(_ch)     ((_ch) & ~32)
- 
 char * strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
 {
-    char c;
-    char sc;
+    char first;
+    char cursor_chr;
 
     if ((find == NULL) || (findlen == 0))
         return (char *)s;
@@ -1178,15 +1164,15 @@ char * strncasestrn (const char *s, size_t slen, const char *find, size_t findle
     if ((*find == '\0'))
         return (char *)s;
 
-    c = *find;
+    first = CHAR_TO_LOWER(*find);
     find++;
     findlen--;
 
     do {
         do {
-            if (slen-- < 1 || (sc = *s++) == '\0')
+            if (slen-- < 1 || (cursor_chr = *s++) == '\0')
                 return NULL;
-        } while (CHEROKEE_CHAR_TO_LOWER(sc) != CHEROKEE_CHAR_TO_LOWER(c));
+        } while (CHAR_TO_LOWER(cursor_chr) != first);
         if (findlen > slen) {
             return NULL;
         }
@@ -1196,6 +1182,13 @@ char * strncasestrn (const char *s, size_t slen, const char *find, size_t findle
     return (char *)s;
 }
 
+/**
+ * @brief Locate a substring in a binary string (case-insensitive `strnstr`).
+ * @param[in]  s  binary string
+ * @param[in]  find  substring (zero-terminated)
+ * @param[in]  slen  length of binary string s
+ * @return  Pointer to first match in s if found, otherwise `NULL`.
+ */
 char * strncasestr (const char *s, const char *find, size_t slen)
 {
     return strncasestrn (s, slen, find, strlen(find));
