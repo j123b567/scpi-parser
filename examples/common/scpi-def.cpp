@@ -359,7 +359,11 @@ static scpi_result_t My_CoreTstQ(scpi_t * context) {
 
 const scpi_command_t scpi_commands[] = {
     /* Optional help command */
-    {"HELP?", SCPI_HelpQ, SCPI_CMD_DESC("\t - list supported commands") SCPI_CMD_TAG(0)},
+#if USE_HELP_FILTER
+    {"HELP?", SCPI_HelpQ, SCPI_CMD_DESC("[<string>] - list supported commands [containing \"<string>\"] (multiple block data)") SCPI_CMD_TAG(0)},
+#else 
+    {"HELP?", SCPI_HelpQ, SCPI_CMD_DESC("\t - list supported commands (multiple block data)") SCPI_CMD_TAG(0)},
+#endif
     
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1): *CLS *ESE *ESE? *ESR? *IDN? *OPC *OPC? *RST *SRE *SRE? *STB? *TST? *WAI  */
     {"*CLS",  SCPI_CoreCls,  SCPI_CMD_DESC("\t - clear all Event Status registers, errors, output queue") SCPI_CMD_TAG(0)},
