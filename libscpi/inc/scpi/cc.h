@@ -54,6 +54,12 @@ extern "C" {
 # endif
 #endif
 
+#if defined(__cplusplus)
+# if (__cplusplus >= 199711)
+#  define CXX98
+# endif
+#endif
+
 #if (defined _POSIX_C_SOURCE && _POSIX_C_SOURCE >= 200809L) || \
     (defined _XOPEN_SOURCE && _XOPEN_SOURCE >= 700)
     #define HAVE_STRNDUP 1
@@ -104,7 +110,7 @@ extern "C" {
     #define HAVE_STRTOF 1
 #endif
 
-#if (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || C99
+#if (defined _ISOC99_SOURCE && _ISOC99_SOURCE) || C99 || CXX98
     #define HAVE_STDBOOL 1
 #endif
 
