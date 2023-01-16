@@ -45,22 +45,30 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <netinet/tcp.h>
 
 #include "scpi/scpi.h"
 #include "../common/scpi-def.h"
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
-    (void) context;
-
     if (context->user_context != NULL) {
         int fd = *(int *) (context->user_context);
+
+        int state = 1;
+        setsockopt(fd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+
         return write(fd, data, len);
     }
     return 0;
 }
 
 scpi_result_t SCPI_Flush(scpi_t * context) {
-    (void) context;
+    if (context->user_context != NULL) {
+        int fd = *(int *) (context->user_context);
+
+        int state = 0;
+        setsockopt(fd, IPPROTO_TCP, TCP_CORK, &state, sizeof(state));
+    }
 
     return SCPI_RES_OK;
 }
@@ -193,7 +201,7 @@ int main(int argc, char** argv) {
     listenfd = createServer(5025);
 
     while (1) {
-        int clifd;
+        int clifd, flag = 1;
         struct sockaddr_in cliaddr;
         socklen_t clilen;
 
@@ -201,6 +209,8 @@ int main(int argc, char** argv) {
         clifd = accept(listenfd, (struct sockaddr *) &cliaddr, &clilen);
 
         if (clifd < 0) continue;
+
+	setsockopt(clifd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(int));
 
         printf("Connection established %s\r\n", inet_ntoa(cliaddr.sin_addr));
 
