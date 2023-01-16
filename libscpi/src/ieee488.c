@@ -73,7 +73,7 @@ static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] 
         SCPI_REG_NONE,
         SCPI_REG_NONE,
         0
-    }, //SCPI_REG_GROUP_STB
+    }, /* SCPI_REG_GROUP_STB */
     { 
         SCPI_REG_ESR,
         SCPI_REG_ESE,
@@ -82,7 +82,7 @@ static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] 
         SCPI_REG_NONE,
         SCPI_REG_STB,
         STB_ESR
-    }, //SCPI_REG_GROUP_ESR
+    }, /* SCPI_REG_GROUP_ESR */
     { 
         SCPI_REG_OPER,
         SCPI_REG_OPERE,
@@ -91,7 +91,7 @@ static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] 
         SCPI_REG_NONE,
         SCPI_REG_STB,
         STB_OPS
-    }, //SCPI_REG_GROUP_OPER
+    }, /* SCPI_REG_GROUP_OPER */
     { 
         SCPI_REG_QUES,
         SCPI_REG_QUESE,
@@ -100,7 +100,7 @@ static const scpi_reg_group_info_t scpi_reg_group_details[SCPI_REG_GROUP_COUNT] 
         SCPI_REG_NONE,
         SCPI_REG_STB,
         STB_QES
-    }, //SCPI_REG_GROUP_QUES
+    }, /* SCPI_REG_GROUP_QUES */
 
 #if USE_CUSTOM_REGISTERS
 #ifndef USER_REGISTER_GROUP_DETAILS
@@ -261,7 +261,8 @@ void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bi
  */
 scpi_result_t SCPI_CoreCls(scpi_t * context) {
     SCPI_ErrorClear(context);
-    for (int i = 0; i < SCPI_REG_GROUP_COUNT; ++i) {
+    int i;
+    for (i = 0; i < SCPI_REG_GROUP_COUNT; ++i) {
         scpi_reg_name_t event_reg = scpi_reg_group_details[i].event;
         if (event_reg != SCPI_REG_STB) {
             SCPI_RegSet(context, event_reg, 0);
