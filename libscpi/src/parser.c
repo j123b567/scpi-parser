@@ -93,7 +93,7 @@ static size_t writeDelimiter(scpi_t * context) {
  * @return number of characters written
  */
 static size_t writeNewLine(scpi_t * context) {
-    if (context->output_count > 0) {
+    if (!context->first_output) {
         size_t len;
 #ifndef SCPI_LINE_ENDING
 #error no termination character defined
@@ -127,9 +127,12 @@ static scpi_bool_t processCommand(scpi_t * context) {
     const scpi_command_t * cmd = context->param_list.cmd;
     lex_state_t * state = &context->param_list.lex_state;
     scpi_bool_t result = TRUE;
+    scpi_bool_t is_query = context->param_list.cmd_raw.data[context->param_list.cmd_raw.length - 1] == '?';
 
-    /* conditionaly write ; */
-    writeSemicolon(context);
+    /* conditionally write ; */
+    if(!context->first_output && is_query) {
+        writeData(context, ";", 1);
+    }
 
     context->cmd_error = FALSE;
     context->output_count = 0;
@@ -146,6 +149,10 @@ static scpi_bool_t processCommand(scpi_t * context) {
         } else {
             if (context->cmd_error) {
                 result = FALSE;
+            } else {
+                if(context->first_output && is_query) {
+                    context->first_output = FALSE;
+                }
             }
         }
     }
@@ -197,6 +204,7 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
 
     state = &context->parser_state;
     context->output_count = 0;
+    context->first_output = TRUE;
 
     while (1) {
         r = scpiParser_detectProgramMessageUnit(state, data, len);

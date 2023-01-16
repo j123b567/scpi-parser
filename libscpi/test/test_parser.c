@@ -150,7 +150,7 @@ static void error_buffer_clear(void) {
     err_buffer_pos = 0;
 
     SCPI_RegClearBits(&scpi_context, SCPI_REG_STB, STB_QMA);
-    SCPI_EventClear(&scpi_context);
+    SCPI_RegSet(&scpi_context, SCPI_REG_ESR, 0);
     SCPI_ErrorClear(&scpi_context);
 }
 
@@ -255,6 +255,9 @@ static void testCommandsHandling(void) {
     output_buffer_clear();
 
     TEST_INPUT("*IDN?;*IDN?;*IDN?;*IDN?\r\n", "MA,IN,0,VER;MA,IN,0,VER;MA,IN,0,VER;MA,IN,0,VER\r\n");
+    output_buffer_clear();
+
+    TEST_INPUT("*IDN?;STUB\r\n", "MA,IN,0,VER\r\n");
     output_buffer_clear();
 
     TEST_INPUT("*IDN?;*OPC;*IDN?\r\n", "MA,IN,0,VER;MA,IN,0,VER\r\n");
