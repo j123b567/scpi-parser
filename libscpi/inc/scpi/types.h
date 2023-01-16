@@ -382,7 +382,7 @@ extern "C" {
         void * user_context;
         scpi_parser_state_t parser_state;
         const char * idn[4];
-        size_t arbitrary_reminding;
+        size_t arbitrary_remaining;
     };
 
     enum _scpi_array_format_t {
