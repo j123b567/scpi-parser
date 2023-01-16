@@ -41,14 +41,13 @@ jobs:
       run: make clean all test
     
     - name: lcov_capture
-      run: lcov --capture --directory . --output-file coverage.info
+      run: lcov --capture --directory libscpi/ --output-file lcov.info
 
     - name: lcov_cleanup
-      run: lcov --remove coverage.info 'test/*' --output-file coverage.info
-   
+      run: lcov --remove lcov.info '*/test/*' --output-file lcov.info
+
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        base-path: libscpi/
-        path-to-lcov: coverage.info
+        path-to-lcov: ./lcov.info
