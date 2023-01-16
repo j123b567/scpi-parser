@@ -34,15 +34,15 @@ jobs:
         LDFLAGS: -g -fsanitize=address
       run: make clean test
 
-#    - name: gcc-c89
-#      env:
-#        CFLAGS: -std=c89
-#      run: make clean all test
+    - name: gcc-c89
+      env:
+        CFLAGS: -std=c89
+      run: make clean all test
 
-#    - name: gcc-c90
-#      env:
-#        CFLAGS: -std=c90
-#      run: make clean all test
+    - name: gcc-c90
+      env:
+        CFLAGS: -std=c90
+      run: make clean all test
 
     - name: gcc-c99
       env:
