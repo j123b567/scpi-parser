@@ -57,6 +57,10 @@ extern "C" {
 #define SCPI_LINE_ENDING        LINE_ENDING_CRLF
 #endif
 
+#ifndef USE_CUSTOM_REGISTERS
+#define USE_CUSTOM_REGISTERS 0
+#endif
+
 /**
  * Detect, if it has limited resources or it is running on a full blown operating system.
  * All values can be overiden by scpi_user_config.h

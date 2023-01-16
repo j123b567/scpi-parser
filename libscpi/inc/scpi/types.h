@@ -78,8 +78,18 @@ extern "C" {
         SCPI_REG_QUESE, /* QUEStionable status Enable Register */
         SCPI_REG_QUESC, /* QUEStionable status Condition Register */
 
-        /* last definition - number of registers */
-        SCPI_REG_COUNT
+#if USE_CUSTOM_REGISTERS
+#ifndef USER_REGISTERS
+#error "No user registers defined"
+#else
+        USER_REGISTERS
+#endif
+#endif
+
+        /* number of registers */
+        SCPI_REG_COUNT,
+        /* last definition - a value for no register */
+        SCPI_REG_NONE
     };
     typedef enum _scpi_reg_name_t scpi_reg_name_t;
 
@@ -104,6 +114,53 @@ extern "C" {
     typedef enum _scpi_ctrl_name_t scpi_ctrl_name_t;
 
     typedef uint16_t scpi_reg_val_t;
+
+    enum _scpi_reg_class_t {
+        SCPI_REG_CLASS_STB = 0,
+        SCPI_REG_CLASS_SRE,
+        SCPI_REG_CLASS_EVEN,
+        SCPI_REG_CLASS_ENAB,
+        SCPI_REG_CLASS_COND,
+        SCPI_REG_CLASS_NTR,
+        SCPI_REG_CLASS_PTR,
+    };
+    typedef enum _scpi_reg_class_t scpi_reg_class_t;
+
+    enum _scpi_reg_group_t {
+        SCPI_REG_GROUP_STB = 0,
+        SCPI_REG_GROUP_ESR,
+        SCPI_REG_GROUP_OPER,
+        SCPI_REG_GROUP_QUES,
+
+#if USE_CUSTOM_REGISTERS
+#ifndef USER_REGISTER_GROUPS
+#error "No user register groups defined"
+#else
+        USER_REGISTER_GROUPS
+#endif
+#endif
+
+        /* last definition - number of register groups */
+        SCPI_REG_GROUP_COUNT
+    };
+    typedef enum _scpi_reg_group_t scpi_reg_group_t;
+
+    struct _scpi_reg_info_t {
+        scpi_reg_class_t type;
+        scpi_reg_group_t group;
+    };
+    typedef struct _scpi_reg_info_t scpi_reg_info_t;
+
+    struct _scpi_reg_group_info_t {
+        scpi_reg_name_t event;
+        scpi_reg_name_t enable;
+        scpi_reg_name_t condition;
+        scpi_reg_name_t ptfilt;
+        scpi_reg_name_t ntfilt;
+        scpi_reg_name_t parent_reg;
+        scpi_reg_val_t parent_bit;
+    };
+    typedef struct _scpi_reg_group_info_t scpi_reg_group_info_t;
 
     /* scpi commands */
     enum _scpi_result_t {
