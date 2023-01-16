@@ -1,6 +1,8 @@
 SCPI parser library v2
 ===========
 
+![Build status](https://github.com/j123b567/scpi-parser/actions/workflows/main.yml/badge.svg) [![Coverage Status](https://coveralls.io/repos/j123b567/scpi-parser/badge.svg?branch=master&service=github)](https://coveralls.io/github/j123b567/scpi-parser?branch=master)
+
 Documentation
 --------
 Documentation is available at [http://j123b567.github.io/scpi-parser](http://j123b567.github.io/scpi-parser).
@@ -57,6 +59,3 @@ SCPI parser library is based on these standards
 <tr><td>Channel list<td><code>(@1!2:3!4,5!6)</code></tr>
 <tr><td>Character data<td><code>MINimum</code>, <code>DEFault</code>, <code>INFinity</code></tr>
 </table>
-
-
-[![travis build](https://travis-ci.org/j123b567/scpi-parser.svg?branch=master)](https://travis-ci.org/j123b567/scpi-parser) [![Coverage Status](https://coveralls.io/repos/j123b567/scpi-parser/badge.svg?branch=master&service=github)](https://coveralls.io/github/j123b567/scpi-parser?branch=master)
