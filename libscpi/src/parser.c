@@ -50,11 +50,11 @@
  * Write data to SCPI output
  * @param context
  * @param data
- * @param len - lenght of data to be written
+ * @param len - length of data to be written
  * @return number of bytes written
  */
 static size_t writeData(scpi_t * context, const char * data, size_t len) {
-    if (len > 0) {
+    if ((len > 0) && (data != NULL)) {
         return context->interface->write(context, data, len);
     } else {
         return 0;
@@ -137,7 +137,7 @@ static scpi_bool_t processCommand(scpi_t * context) {
     context->cmd_error = FALSE;
     context->output_count = 0;
     context->input_count = 0;
-    context->arbitrary_reminding = 0;
+    context->arbitrary_remaining = 0;
 
     /* if callback exists - call command callback */
     if (cmd->callback != NULL) {
@@ -229,7 +229,7 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
                 cmd_prev = state->programHeader;
             } else {
                 /* place undefined header with error */
-                /* calculate length of errornouse header and trim \r\n */
+                /* calculate length of errorenous header and trim \r\n */
                 size_t r2 = r;
                 while (r2 > 0 && (data[r2 - 1] == '\r' || data[r2 - 1] == '\n')) r2--;
                 SCPI_ErrorPushEx(context, SCPI_ERROR_UNDEFINED_HEADER, data, r2);
@@ -246,7 +246,7 @@ scpi_bool_t SCPI_Parse(scpi_t * context, char * data, int len) {
 
     }
 
-    /* conditionaly write new line */
+    /* conditionally write new line */
     writeNewLine(context);
 
     return result;
@@ -514,7 +514,7 @@ size_t SCPI_ResultDouble(scpi_t * context, double val) {
 }
 
 /**
- * Write string withn " to the result
+ * Write string within "" to the result
  * @param context
  * @param data
  * @return
@@ -622,7 +622,7 @@ size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len) {
     header_len = strlen(block_header + 2);
     block_header[1] = (char) (header_len + '0');
 
-    context->arbitrary_reminding = len;
+    context->arbitrary_remaining = len;
     return writeData(context, block_header, header_len + 2);
 }
 
@@ -635,14 +635,14 @@ size_t SCPI_ResultArbitraryBlockHeader(scpi_t * context, size_t len) {
  */
 size_t SCPI_ResultArbitraryBlockData(scpi_t * context, const void * data, size_t len) {
 
-    if (context->arbitrary_reminding < len) {
+    if (context->arbitrary_remaining < len) {
         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
         return 0;
     }
 
-    context->arbitrary_reminding -= len;
+    context->arbitrary_remaining -= len;
 
-    if (context->arbitrary_reminding == 0) {
+    if (context->arbitrary_remaining == 0) {
         context->output_count++;
     }
 
