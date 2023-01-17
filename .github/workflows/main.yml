@@ -1,0 +1,97 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install_dependencies
+      run: sudo apt-get install libcunit1-dev clang
+
+    - name: make
+      run: make clean all test
+
+    - name: clang_sanitize_address
+      env:
+        CC: clang
+        CFLAGS: -g -O0 -fsanitize=address
+        LDFLAGS: -g -fsanitize=address
+      run: make clean test
+
+    - name: clang_sanitize_address_device_errors
+      env:
+        CC: clang
+        CFLAGS: -g -O0 -fsanitize=address -DUSE_DEVICE_DEPENDENT_ERROR_INFORMATION=0
+        LDFLAGS: -g -fsanitize=address
+      run: make clean test
+      
+    - name: clang_sanitize_address_nomalloc
+      env:
+        CC: clang
+        CFLAGS: -g -O0 -fsanitize=address -DUSE_MEMORY_ALLOCATION_FREE=0
+        LDFLAGS: -g -fsanitize=address
+      run: make clean test
+
+    - name: gcc-c89
+      env:
+        CFLAGS: -std=c89
+      run: make clean all test
+
+    - name: gcc-c90
+      env:
+        CFLAGS: -std=c90
+      run: make clean all test
+
+    - name: gcc-c99
+      env:
+        CFLAGS: -std=c99
+      run: make clean all test
+
+    - name: gcc-gnu99
+      env:
+        CFLAGS: -std=gnu99
+      run: make clean all test
+
+  build-arm:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: uraimo/run-on-arch-action@v2
+      name: Run commands
+      id: runcmd
+      with:
+        arch: armv7
+        distro: ubuntu_latest
+        install: |
+          apt-get update -q -y
+          apt-get install -q -y build-essential libcunit1-dev
+        run: make clean all test
+      
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install_dependencies
+      run: sudo apt-get install libcunit1-dev lcov
+
+    - name: coverage
+      env:
+        CFLAGS: -fprofile-arcs -ftest-coverage
+        LDFLAGS: -lgcov
+      run: make clean all test
+    
+    - name: lcov_capture
+      run: lcov --capture --directory libscpi/ --output-file lcov.info
+
+    - name: lcov_cleanup
+      run: lcov --remove lcov.info '*/test/*' --output-file lcov.info
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./lcov.info
