@@ -1176,7 +1176,7 @@ char * strncasestrn (const char *s, size_t slen, const char *find, size_t findle
         if (findlen > slen) {
             return NULL;
         }
-    } while (strncasecmp (s, find, findlen) != 0);
+    } while (SCPIDEFINE_strncasecmp(s, find, findlen) != 0);
 
     s--;
     return (char *)s;
