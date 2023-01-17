@@ -41,6 +41,8 @@ extern "C" {
 #define SCPI_IDN3 NULL
 #define SCPI_IDN4 "01-02"
 
+#define SCPI_ERROR_QUEUE_SIZE_STR PP_XSTR(SCPI_ERROR_QUEUE_SIZE)
+
 extern const scpi_command_t scpi_commands[];
 extern scpi_interface_t scpi_interface;
 extern char scpi_input_buffer[];

@@ -66,4 +66,3 @@ extern "C" {
 #endif
 
 #endif	/* SCPI_MINIMAL_H */
-

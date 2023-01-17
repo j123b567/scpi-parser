@@ -353,9 +353,6 @@ static scpi_result_t My_CoreTstQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-#define pp_xstr(s) pp_str(s)
-#define pp_str(s) #s
-#define SCPI_ERROR_QUEUE_SIZE_STR pp_xstr(SCPI_ERROR_QUEUE_SIZE)
 
 const scpi_command_t scpi_commands[] = {
     /* Optional help command */

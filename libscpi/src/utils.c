@@ -1182,14 +1182,14 @@ char * strncasestrn (const char *s, size_t slen, const char *find, size_t findle
     return (char *)s;
 }
 
-/**
- * @brief Locate a substring in a binary string (case-insensitive `strnstr`).
- * @param[in]  s  binary string
- * @param[in]  find  substring (zero-terminated)
- * @param[in]  slen  length of binary string s
- * @return  Pointer to first match in s if found, otherwise `NULL`.
- */
-char * strncasestr (const char *s, const char *find, size_t slen)
-{
-    return strncasestrn (s, slen, find, strlen(find));
-}
+#/**
+# * @brief Locate a substring in a binary string (case-insensitive `strnstr`).
+# * @param[in]  s  binary string
+# * @param[in]  find  substring (zero-terminated)
+# * @param[in]  slen  length of binary string s
+# * @return  Pointer to first match in s if found, otherwise `NULL`.
+# */
+#char * strncasestr (const char *s, const char *find, size_t slen)
+#{
+#    return strncasestrn (s, slen, find, strlen(find));
+#}
