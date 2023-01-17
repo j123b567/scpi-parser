@@ -1,9 +1,9 @@
 VERSION = 2.1.0
 LIBNAME = scpi
 
-CFLAGS += $(MODE) -Wextra -Wmissing-prototypes -Wimplicit -Iinc
+CFLAGS += -Wextra -Wmissing-prototypes -Wimplicit -Iinc
 CFLAGS_SHARED += $(CFLAGS) -fPIC
-LDFLAGS += $(MODE) -lm -Wl,--as-needed
+LDFLAGS += -lm -Wl,--as-needed
 #TESTCFLAGS += $(CFLAGS) `pkg-config --cflags cunit`
 #TESTLDFLAGS += $(LDFLAGS) `pkg-config --libs cunit`
 TESTCFLAGS += $(CFLAGS)
