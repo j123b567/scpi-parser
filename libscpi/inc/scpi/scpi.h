@@ -46,6 +46,7 @@
 #include "scpi/units.h"
 #include "scpi/utils.h"
 #include "scpi/expression.h"
+#include "scpi/help.h"
 
 #endif	/* SCPI_H */
 

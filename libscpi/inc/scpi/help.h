@@ -1,7 +1,7 @@
 /*-
  * BSD 2-Clause License
  *
- * Copyright (c) 2012-2018, Jan Breuer
+ * Copyright (c) 2023, Helge Wurst
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,16 @@
  */
 
 /**
- * @file   scpi_minimal.h
- * @date   Thu Nov 15 10:58:45 UTC 2012
- * 
- * @brief  SCPI minimal implementation
- * 
- * 
+ * @file   help.h
+ * @date   Tue Jan 17 16:27:00 UTC 2023
+ *
+ * @brief  HELP? ["<search string>"] command handler
+ *
+ *
  */
 
-#ifndef SCPI_MINIMAL_H
-#define	SCPI_MINIMAL_H
+#ifndef SCPI_HELP_H
+#define SCPI_HELP_H
 
 #include "scpi/types.h"
 
@@ -44,24 +44,10 @@
 extern "C" {
 #endif
 
-    scpi_result_t SCPI_Stub(scpi_t * context);
-    scpi_result_t SCPI_StubQ(scpi_t * context);
-
-    scpi_result_t SCPI_SystemVersionQ(scpi_t * context);
-    scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context);
-    scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context);
-    scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context);
-    scpi_result_t SCPI_StatusQuestionableConditionQ(scpi_t * context);
-    scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context);
-    scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context);
-    scpi_result_t SCPI_StatusOperationConditionQ(scpi_t * context);
-    scpi_result_t SCPI_StatusOperationEventQ(scpi_t * context);
-    scpi_result_t SCPI_StatusOperationEnableQ(scpi_t * context);
-    scpi_result_t SCPI_StatusOperationEnable(scpi_t * context);
-    scpi_result_t SCPI_StatusPreset(scpi_t * context);
+    scpi_result_t SCPI_HelpQ(scpi_t * context);
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* SCPI_MINIMAL_H */
+#endif /* SCPI_HELP_H */
