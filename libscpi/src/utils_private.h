@@ -100,7 +100,6 @@ extern "C" {
 #endif
 
     char * strncasestrn (const char *s, size_t slen, const char *find, size_t findlen);
-#    char * strncasestr  (const char *s, const char *find, size_t slen);
 
 #ifndef min
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
