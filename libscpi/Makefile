@@ -28,7 +28,7 @@ SHAREDLIBVER = $(SHAREDLIB).$(VERSION)
 
 SRCS = $(addprefix src/, \
 	error.c fifo.c ieee488.c \
-	minimal.c parser.c units.c utils.c \
+	minimal.c help.c parser.c units.c utils.c \
 	lexer.c expression.c \
 	)
 
@@ -37,7 +37,7 @@ OBJS_SHARED = $(addprefix $(OBJDIR_SHARED)/, $(notdir $(SRCS:.c=.o)))
 
 HDRS = $(addprefix inc/scpi/, \
 	scpi.h constants.h error.h \
-	ieee488.h minimal.h parser.h types.h units.h \
+	ieee488.h minimal.h help.h parser.h types.h units.h \
 	expression.h \
 	) \
 	$(addprefix src/, \

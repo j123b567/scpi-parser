@@ -1140,3 +1140,44 @@ uint64_t SCPI_Swap64(uint64_t val) {
             ((val & 0x00FF000000000000ull) >> 40) |
             ((val & 0xFF00000000000000ull) >> 56);
 }
+ 
+#define CHAR_TO_UPPER(c) ((c)>96 && (c)<123 ? (char)((c) ^ 0x20) : (c))
+#define CHAR_TO_LOWER(c) ((c)>64 && (c)< 91 ? (char)((c) | 0x20) : (c))
+ 
+/**
+ * @brief Locate a binary substring within a binary string (case-insensitive `strnstrn`).
+ * @param[in]  s  binary string
+ * @param[in]  slen  length of binary string s
+ * @param[in]  find  binary substring
+ * @param[in]  findlen  length of binary substring find
+ * @return  Pointer to first match in s if found, otherwise `NULL`.
+ * @author  Alvaro Lopez Ortega <alvaro@alobbs.com>
+ */
+char * strncasestrn (const char *s, size_t slen, const char *find, size_t findlen)
+{
+    char first;
+    char cursor_chr;
+
+    if ((find == NULL) || (findlen == 0))
+        return (char *)s;
+
+    if ((*find == '\0'))
+        return (char *)s;
+
+    first = CHAR_TO_LOWER(*find);
+    find++;
+    findlen--;
+
+    do {
+        do {
+            if (slen-- < 1 || (cursor_chr = *s++) == '\0')
+                return NULL;
+        } while (CHAR_TO_LOWER(cursor_chr) != first);
+        if (findlen > slen) {
+            return NULL;
+        }
+    } while (SCPIDEFINE_strncasecmp(s, find, findlen) != 0);
+
+    s--;
+    return (char *)s;
+}

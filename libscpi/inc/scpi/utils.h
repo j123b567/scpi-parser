@@ -54,9 +54,13 @@ extern "C" {
     /* deprecated finction, should be removed later */
 #define SCPI_LongToStr(val, str, len, base) SCPI_Int32ToStr((val), (str), (len), (base), TRUE)
 
+/* Pre-Processor Transform String (double indirection PP_XSTR(s) converts a number definition into a string definiton) */
+#define PP_STR(s) #s
+#define PP_XSTR(s) PP_STR(s)
+
+
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* SCPI_UTILS_H */
-

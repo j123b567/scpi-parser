@@ -60,10 +60,8 @@ extern "C" {
     scpi_result_t SCPI_StatusOperationEnable(scpi_t * context);
     scpi_result_t SCPI_StatusPreset(scpi_t * context);
 
-
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* SCPI_MINIMAL_H */
-

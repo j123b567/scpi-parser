@@ -99,6 +99,8 @@ extern "C" {
     char *OUR_strndup(const char *s, size_t n);
 #endif
 
+    char * strncasestrn (const char *s, size_t slen, const char *find, size_t findlen);
+
 #ifndef min
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 #endif

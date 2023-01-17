@@ -353,70 +353,75 @@ static scpi_result_t My_CoreTstQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
+
 const scpi_command_t scpi_commands[] = {
-    /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
-    {"*CLS", SCPI_CoreCls, 0},
-    {"*ESE", SCPI_CoreEse, 0},
-    {"*ESE?", SCPI_CoreEseQ, 0},
-    {"*ESR?", SCPI_CoreEsrQ, 0},
-    {"*IDN?", SCPI_CoreIdnQ, 0},
-    {"*OPC", SCPI_CoreOpc, 0},
-    {"*OPC?", SCPI_CoreOpcQ, 0},
-    {"*RST", SCPI_CoreRst, 0},
-    {"*SRE", SCPI_CoreSre, 0},
-    {"*SRE?", SCPI_CoreSreQ, 0},
-    {"*STB?", SCPI_CoreStbQ, 0},
-    {"*TST?", My_CoreTstQ, 0},
-    {"*WAI", SCPI_CoreWai, 0},
-
-    /* Required SCPI commands (SCPI std V1999.0 4.2.1) */
-    {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ, 0},
-    {"SYSTem:ERRor:COUNt?", SCPI_SystemErrorCountQ, 0},
-    {"SYSTem:VERSion?", SCPI_SystemVersionQ, 0},
-
-    //{"STATus:OPERation?", scpi_stub_callback, 0},
-    //{"STATus:OPERation:EVENt?", scpi_stub_callback, 0},
-    //{"STATus:OPERation:CONDition?", scpi_stub_callback, 0},
-    //{"STATus:OPERation:ENABle", scpi_stub_callback, 0},
-    //{"STATus:OPERation:ENABle?", scpi_stub_callback, 0},
-
-    {"STATus:QUEStionable[:EVENt]?", SCPI_StatusQuestionableEventQ, 0},
-    //{"STATus:QUEStionable:CONDition?", scpi_stub_callback, 0},
-    {"STATus:QUEStionable:ENABle", SCPI_StatusQuestionableEnable, 0},
-    {"STATus:QUEStionable:ENABle?", SCPI_StatusQuestionableEnableQ, 0},
-
-    {"STATus:PRESet", SCPI_StatusPreset, 0},
-
-    /* DMM */
-    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ, 0},
-    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc, 0},
-    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ, 0},
-    {"MEASure:VOLTage:AC?", DMM_MeasureVoltageAcQ, 0},
-    {"MEASure:CURRent:DC?", SCPI_StubQ, 0},
-    {"MEASure:CURRent:AC?", SCPI_StubQ, 0},
-    {"MEASure:RESistance?", SCPI_StubQ, 0},
-    {"MEASure:FRESistance?", SCPI_StubQ, 0},
-    {"MEASure:FREQuency?", SCPI_StubQ, 0},
-    {"MEASure:PERiod?", SCPI_StubQ, 0},
-
-    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ, 0},
-
-    {"TEST:BOOL", TEST_Bool, 0},
-    {"TEST:CHOice?", TEST_ChoiceQ, 0},
-    {"TEST#:NUMbers#", TEST_Numbers, 0},
-    {"TEST:TEXT", TEST_Text, 0},
-    {"TEST:ARBitrary?", TEST_ArbQ, 0},
-    {"TEST:CHANnellist", TEST_Chanlst, 0},
-
+    /* Optional help command */
+#if USE_HELP_FILTER
+    {"HELP?", SCPI_HelpQ, SCPI_CMD_DESC("[<string>] - list supported commands [containing \"<string>\"] (multiple block data)") SCPI_CMD_TAG(0)},
+#else 
+    {"HELP?", SCPI_HelpQ, SCPI_CMD_DESC("\t - list supported commands (multiple block data)") SCPI_CMD_TAG(0)},
+#endif
+    /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1): *CLS *ESE *ESE? *ESR? *IDN? *OPC *OPC? *RST *SRE *SRE? *STB? *TST? *WAI  */
+    {"*CLS",  SCPI_CoreCls,  SCPI_CMD_DESC("\t - clear all Event Status registers, errors, output queue") SCPI_CMD_TAG(0)},
+    /* -- Standard Event Status Group [EVENT]-[ENABLE] */
+    {"*ESE",  SCPI_CoreEse,  SCPI_CMD_DESC("<0..255> - set Standard Event Status Enable / event mask") SCPI_CMD_TAG(0)},
+    {"*ESE?", SCPI_CoreEseQ, SCPI_CMD_DESC("\t - read ESE (0..255)") SCPI_CMD_TAG(0)},
+    {"*ESR?", SCPI_CoreEsrQ, SCPI_CMD_DESC("\t - read+clear Standard Event Status register (0..255)") SCPI_CMD_TAG(0)},
+    /* -- IEEE Mandated Commands (continued ...) */
+    {"*IDN?", SCPI_CoreIdnQ, SCPI_CMD_DESC("\t - read device identifier (str,str,str,str)") SCPI_CMD_TAG(0)},
+    {"*OPC",  SCPI_CoreOpc,  SCPI_CMD_DESC("\t - complete ops preceding Operation Complete Command, set ESR.OPC 1") SCPI_CMD_TAG(0)},
+    {"*OPC?", SCPI_CoreOpcQ, SCPI_CMD_DESC("\t - read ESR.OPC (0:ongoing-ops 1:done)") SCPI_CMD_TAG(0)},
+    {"*RST",  SCPI_CoreRst,  SCPI_CMD_DESC("\t - reset instrument and interface") SCPI_CMD_TAG(0)},
+    {"*SRE",  SCPI_CoreSre,  SCPI_CMD_DESC("<0..255> - set Service Request Enable / event mask over STB") SCPI_CMD_TAG(0)},
+    {"*SRE?", SCPI_CoreSreQ, SCPI_CMD_DESC("\t - read SRE (0..255)") SCPI_CMD_TAG(0)},
+    {"*STB?", SCPI_CoreStbQ, SCPI_CMD_DESC("\t - read STatus Byte (0..255)") SCPI_CMD_TAG(0)},
+    {"*TST?", My_CoreTstQ,   SCPI_CMD_DESC("\t - read self-test result (0:no-failures)") SCPI_CMD_TAG(0)},
+    {"*WAI",  SCPI_CoreWai,  SCPI_CMD_DESC("\t - halt cmd execution until pending operations complete") SCPI_CMD_TAG(0)},
+    
+    /* Required SCPI commands (SCPI std V1999.0 4.2.1) : SYSTem:ERRor, STATus:OPERation, STATus:QUEStionable and STATus:PRESet */
+    {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ,  SCPI_CMD_DESC("\t - get next error in queue (int-errno,str)") SCPI_CMD_TAG(0)},
+    {"SYSTem:ERRor:COUNt?",  SCPI_SystemErrorCountQ, SCPI_CMD_DESC("\t - queued error count (0.." SCPI_ERROR_QUEUE_SIZE_STR ")") SCPI_CMD_TAG(0)},
+    {"SYSTem:VERSion?",      SCPI_SystemVersionQ,    SCPI_CMD_DESC("\t - query system version (str)") SCPI_CMD_TAG(0)},
+    /* -- Operation Status Group [CONDITION]-[EVENT]-[ENABLE] */
+    {"STATus:OPERation:CONDition?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"STATus:OPERation[:EVENt]?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"STATus:OPERation:ENABle", SCPI_Stub, SCPI_CMD_DESC("\t - not implemented") SCPI_CMD_TAG(0)},
+    {"STATus:OPERation:ENABle?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    /* -- Questionable Status Group [CONDITION]-[EVENT]-[ENABLE] */
+    {"STATus:QUEStionable:CONDition?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)}, /* "\t - read momentary Questionable Condition register (0..65535)" */
+    {"STATus:QUEStionable[:EVENt]?",   SCPI_StatusQuestionableEventQ, SCPI_CMD_DESC("\t - read Questionable Event register (0..65535)") SCPI_CMD_TAG(0)},
+    {"STATus:QUEStionable:ENABle",     SCPI_StatusQuestionableEnable, SCPI_CMD_DESC("<0..65535> - set Questionable Enable / event mask") SCPI_CMD_TAG(0)},
+    {"STATus:QUEStionable:ENABle?",    SCPI_StatusQuestionableEnableQ, SCPI_CMD_DESC("\t - Questionable Status Enable (0..65535)") SCPI_CMD_TAG(0)},
+    {"STATus:PRESet", SCPI_StatusPreset, SCPI_CMD_DESC("\t - load Status sub-system register defaults") SCPI_CMD_TAG(0)},
+    
+    /* commands specific to DMM example with TEST sub-system */
+    {"SYSTem:COMMunication:TCPIP:CONTROL?", SCPI_SystemCommTcpipControlQ, SCPI_CMD_DESC("\t - read TCPIP control port (int)") SCPI_CMD_TAG(0)},
+    {"CONFigure:VOLTage:DC", DMM_ConfigureVoltageDc, SCPI_CMD_DESC("<float>[,<float>] - test command") SCPI_CMD_TAG(0)},
+    {"MEASure:VOLTage:DC?", DMM_MeasureVoltageDcQ, SCPI_CMD_DESC("[<float>[,<float>]] - test command (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:VOLTage:DC:RATio?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented  (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:VOLTage:AC?", DMM_MeasureVoltageAcQ, SCPI_CMD_DESC("[<float>[,<float>]] - test command (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:CURRent:DC?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:CURRent:AC?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:RESistance?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:FRESistance?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:FREQuency?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"MEASure:PERiod?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
+    {"TEST:BOOL", TEST_Bool, SCPI_CMD_DESC("<bool> - test command") SCPI_CMD_TAG(0)},
+    {"TEST:CHOice?", TEST_ChoiceQ, SCPI_CMD_DESC("<choice> - test command (\"BUS\":5 \"IMMediate\":6 \"EXTernal\":7)") SCPI_CMD_TAG(0)},
+    {"TEST#:NUMbers#", TEST_Numbers, SCPI_CMD_DESC("\t - test command with optional numbers - default 1") SCPI_CMD_TAG(0)},
+    {"TEST:TEXT", TEST_Text, SCPI_CMD_DESC("<param>[, ...] - debug print param as received") SCPI_CMD_TAG(0)},
+    {"TEST:ARBitrary?", TEST_ArbQ, SCPI_CMD_DESC("<block data> - receive and return block data (block data)") SCPI_CMD_TAG(0)},
+    {"TEST:CHANnellist", TEST_Chanlst, SCPI_CMD_DESC("<channel_list> - test channel list parsing") SCPI_CMD_TAG(0)},
+    
     SCPI_CMD_LIST_END
 };
 
 scpi_interface_t scpi_interface = {
-    /*.error = */ SCPI_Error,
-    /*.write = */ SCPI_Write,
+    /*.error =   */ SCPI_Error,
+    /*.write =   */ SCPI_Write,
     /*.control = */ SCPI_Control,
-    /*.flush = */ SCPI_Flush,
-    /*.reset = */ SCPI_Reset,
+    /*.flush =   */ SCPI_Flush,
+    /*.reset =   */ SCPI_Reset,
 };
 
 char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
