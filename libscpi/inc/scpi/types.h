@@ -185,7 +185,7 @@ extern "C" {
 #define SCPI_CMD_TAG(T)
 #endif
 
-#define SCPI_CMD_LIST_END {NULL, NULL SCPI_CMD_DESC(NULL) SCPI_CMD_TAG(0)}
+#define SCPI_CMD_LIST_END {NULL, NULL, SCPI_CMD_DESC(NULL) SCPI_CMD_TAG(0)}
 
     /* scpi interface */
     typedef struct _scpi_t scpi_t;
