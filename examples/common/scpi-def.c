@@ -363,11 +363,11 @@ const scpi_command_t scpi_commands[] = {
 #endif
     /* IEEE Mandated Commands (SCPI std V1999.0 4.1.1): *CLS *ESE *ESE? *ESR? *IDN? *OPC *OPC? *RST *SRE *SRE? *STB? *TST? *WAI  */
     {"*CLS",  SCPI_CoreCls,  SCPI_CMD_DESC("\t - clear all Event Status registers, errors, output queue") SCPI_CMD_TAG(0)},
-    // -- Standard Event Status Group [EVENT]-[ENABLE]
+    /* -- Standard Event Status Group [EVENT]-[ENABLE] */
     {"*ESE",  SCPI_CoreEse,  SCPI_CMD_DESC("<0..255> - set Standard Event Status Enable / event mask") SCPI_CMD_TAG(0)},
     {"*ESE?", SCPI_CoreEseQ, SCPI_CMD_DESC("\t - read ESE (0..255)") SCPI_CMD_TAG(0)},
     {"*ESR?", SCPI_CoreEsrQ, SCPI_CMD_DESC("\t - read+clear Standard Event Status register (0..255)") SCPI_CMD_TAG(0)},
-    // -- IEEE Mandated Commands (continued ...)
+    /* -- IEEE Mandated Commands (continued ...) */
     {"*IDN?", SCPI_CoreIdnQ, SCPI_CMD_DESC("\t - read device identifier (str,str,str,str)") SCPI_CMD_TAG(0)},
     {"*OPC",  SCPI_CoreOpc,  SCPI_CMD_DESC("\t - complete ops preceding Operation Complete Command, set ESR.OPC 1") SCPI_CMD_TAG(0)},
     {"*OPC?", SCPI_CoreOpcQ, SCPI_CMD_DESC("\t - read ESR.OPC (0:ongoing-ops 1:done)") SCPI_CMD_TAG(0)},
@@ -378,17 +378,17 @@ const scpi_command_t scpi_commands[] = {
     {"*TST?", My_CoreTstQ,   SCPI_CMD_DESC("\t - read self-test result (0:no-failures)") SCPI_CMD_TAG(0)},
     {"*WAI",  SCPI_CoreWai,  SCPI_CMD_DESC("\t - halt cmd execution until pending operations complete") SCPI_CMD_TAG(0)},
     
-    /* Required SCPI commands (SCPI std V1999.0 4.2.1) : SYSTem:ERRor, STATus:OPERation, STATus:QUEStionable and STATus:PRESet  */
+    /* Required SCPI commands (SCPI std V1999.0 4.2.1) : SYSTem:ERRor, STATus:OPERation, STATus:QUEStionable and STATus:PRESet */
     {"SYSTem:ERRor[:NEXT]?", SCPI_SystemErrorNextQ,  SCPI_CMD_DESC("\t - get next error in queue (int-errno,str)") SCPI_CMD_TAG(0)},
     {"SYSTem:ERRor:COUNt?",  SCPI_SystemErrorCountQ, SCPI_CMD_DESC("\t - queued error count (0.." SCPI_ERROR_QUEUE_SIZE_STR ")") SCPI_CMD_TAG(0)},
     {"SYSTem:VERSion?",      SCPI_SystemVersionQ,    SCPI_CMD_DESC("\t - query system version (str)") SCPI_CMD_TAG(0)},
-    // -- Operation Status Group [CONDITION]-[EVENT]-[ENABLE]
+    /* -- Operation Status Group [CONDITION]-[EVENT]-[ENABLE] */
     {"STATus:OPERation:CONDition?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
     {"STATus:OPERation[:EVENt]?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
     {"STATus:OPERation:ENABle", SCPI_Stub, SCPI_CMD_DESC("\t - not implemented") SCPI_CMD_TAG(0)},
     {"STATus:OPERation:ENABle?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)},
-    // -- Questionable Status Group [CONDITION]-[EVENT]-[ENABLE]
-    {"STATus:QUEStionable:CONDition?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)}, // "\t - read momentary Questionable Condition register (0..65535)"
+    /* -- Questionable Status Group [CONDITION]-[EVENT]-[ENABLE] */
+    {"STATus:QUEStionable:CONDition?", SCPI_StubQ, SCPI_CMD_DESC("\t - not implemented (0)") SCPI_CMD_TAG(0)}, /* "\t - read momentary Questionable Condition register (0..65535)" */
     {"STATus:QUEStionable[:EVENt]?",   SCPI_StatusQuestionableEventQ, SCPI_CMD_DESC("\t - read Questionable Event register (0..65535)") SCPI_CMD_TAG(0)},
     {"STATus:QUEStionable:ENABle",     SCPI_StatusQuestionableEnable, SCPI_CMD_DESC("<0..65535> - set Questionable Enable / event mask") SCPI_CMD_TAG(0)},
     {"STATus:QUEStionable:ENABle?",    SCPI_StatusQuestionableEnableQ, SCPI_CMD_DESC("\t - Questionable Status Enable (0..65535)") SCPI_CMD_TAG(0)},
