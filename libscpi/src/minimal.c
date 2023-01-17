@@ -223,10 +223,10 @@ scpi_result_t SCPI_HelpQ(scpi_t * context) {
 #if USE_HELP_FILTER
     size_t search_string_len = 0;
     const char * search_string = NULL;
-    scpi_bool_t narrowed_down = SCPI_ParamCharacters(context, &search_string, &search_string_len, false);
+    scpi_bool_t narrowed_down = SCPI_ParamCharacters(context, &search_string, &search_string_len, FALSE);
 #endif
-
-    for(int i = 0; context->cmdlist[i].pattern != NULL; i++) {
+    size_t i;
+    for(i = 0; context->cmdlist[i].pattern != NULL; i++) {
         size_t pattern_len = strlen(context->cmdlist[i].pattern);
 #if USE_HELP_FILTER
         if(narrowed_down && (NULL == strncasestrn(context->cmdlist[i].pattern, pattern_len, search_string, search_string_len))){
