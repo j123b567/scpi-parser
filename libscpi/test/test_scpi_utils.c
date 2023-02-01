@@ -64,7 +64,7 @@ static void test_strnpbrk() {
 
 static void test_Int32ToStr() {
     const size_t max = 32 + 1;
-    int32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
+    int32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, (int32_t)0x89abcdef};
     int N = sizeof (val) / sizeof (int32_t);
     int i;
     char str[max];
@@ -79,7 +79,7 @@ static void test_Int32ToStr() {
         CU_ASSERT_STRING_EQUAL(str, ref);
     }
 
-    int16_t val16[] = {0, 1, -1, INT16_MIN, INT16_MAX, 0x0123, 0x4567, 0x89ab, 0xcdef};
+    int16_t val16[] = {0, 1, -1, INT16_MIN, INT16_MAX, 0x0123, 0x4567, (int16_t)0x89ab, (int16_t)0xcdef};
     int N16 = sizeof (val16) / sizeof (int16_t);
     /* test signed conversion to decimal numbers */
     for (i = 0; i < N16; i++) {
@@ -92,7 +92,7 @@ static void test_Int32ToStr() {
 
 static void test_UInt32ToStrBase() {
     const size_t max = 32 + 1;
-    uint32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
+    uint32_t val[] = {0, 1, (uint32_t)-1, (uint32_t)INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
     int N = sizeof (val) / sizeof (uint32_t);
     int i;
     char str[max];
@@ -147,7 +147,7 @@ static void test_UInt32ToStrBase() {
 
 static void test_Int64ToStr() {
     const size_t max = 64 + 1;
-    int64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
+    int64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, (int64_t)0xfedcba9876543210};
     int N = sizeof (val) / sizeof (int64_t);
     int i;
     char str[max];
@@ -165,7 +165,7 @@ static void test_Int64ToStr() {
 
 static void test_UInt64ToStrBase() {
     const size_t max = 64 + 1;
-    uint64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
+    uint64_t val[] = {0, 1, (uint64_t)-1, (uint64_t)INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
     int N = sizeof (val) / sizeof (uint64_t);
     int i;
     char str[max];
@@ -232,8 +232,8 @@ static void test_scpi_dtostre() {
         1.0000000001e-5, 1.00000000001e-5, 1.000000000001e-5,
         1.0000000000001e-5, 1, 12, 123, 1234, 12345, 123456, 1234567, 12345678,
         123456789, 1234567890, 12345678901, 123456789012, 1234567890123,
-        12345678901234, 123456789012345, 1234567890123456, 12345678901234567,
-        123456789012345678, 1234567890123456789, 1234567890123456789e1, 1.1,
+        12345678901234, 123456789012345, 1234567890123456, (double)12345678901234567,
+        (double)123456789012345678, (double)1234567890123456789, (double)1234567890123456789e1, 1.1,
         10.1, 100.1, 1000.1, 10000.1, 100000.1, 1000000.1, 10000000.1,
         100000000.1, 1000000000.1, 0.1234567890123456789,
         0.01234567890123456789, 0.001234567890123456789,

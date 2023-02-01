@@ -133,7 +133,10 @@ static scpi_bool_t SCPI_ErrorAddInternal(scpi_t * context, int16_t err, char * i
     /* SCPIDEFINE_strndup is sometimes a dumy that does not reference it's arguments. 
        Since info_len is not referenced elsewhere caoing to void prevents unusd argument warnings */
     (void) info_len;
-    char * info_ptr = info ? SCPIDEFINE_strndup(&context->error_info_heap, info, info_len) : NULL;
+    char * info_ptr = NULL;
+    if (info) {
+        info_ptr = SCPIDEFINE_strndup(&context->error_info_heap, info, info_len);
+    }
     SCPI_ERROR_SETVAL(&error_value, err, info_ptr);
     if (!fifo_add(&context->error_queue, &error_value)) {
         SCPIDEFINE_free(&context->error_info_heap, error_value.device_dependent_info, true);

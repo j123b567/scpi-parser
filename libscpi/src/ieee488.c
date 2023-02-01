@@ -169,7 +169,7 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
         switch (register_type) {
             case SCPI_REG_CLASS_STB:
             case SCPI_REG_CLASS_SRE:
-                ;
+            {
                 scpi_reg_val_t stb = context->registers[SCPI_REG_STB] & ~STB_SRQ;
                 scpi_reg_val_t sre = context->registers[SCPI_REG_SRE] & ~STB_SRQ;
 
@@ -183,8 +183,9 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
                     context->registers[SCPI_REG_STB] &= ~STB_SRQ;
                 }
                 break;
+            }
             case SCPI_REG_CLASS_EVEN:
-                ;
+            {
                 scpi_reg_val_t enable;
                 if(register_group.enable != SCPI_REG_NONE) {
                     enable = SCPI_RegGet(context, register_group.enable);
@@ -202,7 +203,9 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
                     val &= ~(register_group.parent_bit);
                 }
                 break;
+            }
             case SCPI_REG_CLASS_COND:
+            {
                 name = register_group.event;
 
                 if(register_group.ptfilt == SCPI_REG_NONE && register_group.ntfilt == SCPI_REG_NONE) {
@@ -227,6 +230,7 @@ void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
                     val = ((ptrans & ptfilt) | (ntrans & ntfilt)) | SCPI_RegGet(context, register_group.event);
                 }
                 break;
+            }
             case SCPI_REG_CLASS_ENAB:
             case SCPI_REG_CLASS_NTR:
             case SCPI_REG_CLASS_PTR:
