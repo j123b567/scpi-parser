@@ -56,7 +56,7 @@ extern "C" {
 
 #if defined(__cplusplus)
 # if (__cplusplus >= 199711)
-#  define CXX98
+#  define CXX98 1
 # endif
 #endif
 

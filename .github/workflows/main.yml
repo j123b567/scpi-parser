@@ -81,6 +81,7 @@ jobs:
     - name: coverage
       env:
         CFLAGS: -fprofile-arcs -ftest-coverage
+        CXXFLAGS: -fprofile-arcs -ftest-coverage
         LDFLAGS: -lgcov
       run: make clean all test
     
