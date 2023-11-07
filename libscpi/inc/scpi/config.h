@@ -54,7 +54,10 @@ extern "C" {
 #define LINE_ENDING_CRLF        "\r\n"  /*   use <CR><LF> carriage return + line feed as termination charcters */
 
 #ifndef SCPI_LINE_ENDING
+#ifndef USE_RUN_TIME_SCPI_LINE_ENDING
+#define USE_RUN_TIME_SCPI_LINE_ENDING 0
 #define SCPI_LINE_ENDING        LINE_ENDING_CRLF
+#endif
 #endif
 
 #ifndef USE_CUSTOM_REGISTERS
@@ -94,6 +97,15 @@ extern "C" {
  */
 #ifndef USE_USER_ERROR_LIST
 #define USE_USER_ERROR_LIST 0
+#endif
+
+/**
+ * Enable to use the run time error list in the interface
+ * 0 = Don't use the run time error list
+ * 1 = Use the run time error list
+ */
+#ifndef USE_RUN_TIME_USER_ERROR_LIST
+#define USE_RUN_TIME_USER_ERROR_LIST 0
 #endif
 
 #ifndef USE_DEVICE_DEPENDENT_ERROR_INFORMATION

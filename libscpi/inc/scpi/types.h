@@ -413,12 +413,25 @@ extern "C" {
 #endif /* USE_COMMAND_TAGS */
     };
 
+    typedef struct user_error_entry {
+        int val;
+        const char* str;
+    } user_error_entry;
+
+#define SCPI_RUN_TIME_USER_ERROR_LIST_END {0, NULL}
+
     struct _scpi_interface_t {
         scpi_error_callback_t error;
         scpi_write_t write;
         scpi_write_control_t control;
         scpi_command_callback_t flush;
         scpi_command_callback_t reset;
+#if USE_RUN_TIME_SCPI_LINE_ENDING
+        const char * line_ending;
+#endif
+#if USE_RUN_TIME_USER_ERROR_LIST
+        user_error_entry * user_error_list;
+#endif
     };
 
     struct _scpi_t {

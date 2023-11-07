@@ -51,7 +51,11 @@ extern "C" {
     void SCPI_ErrorPushEx(scpi_t * context, int16_t err, char * info, size_t info_len);
     void SCPI_ErrorPush(scpi_t * context, int16_t err);
     int32_t SCPI_ErrorCount(scpi_t * context);
+#if !USE_RUN_TIME_USER_ERROR_LIST
     const char * SCPI_ErrorTranslate(int16_t err);
+#else
+    const char * SCPI_ErrorTranslate(scpi_t * context, int16_t err);
+#endif
 
 
     /* Using X-Macro technique to define everything once

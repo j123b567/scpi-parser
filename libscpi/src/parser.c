@@ -95,11 +95,15 @@ static size_t writeDelimiter(scpi_t * context) {
 static size_t writeNewLine(scpi_t * context) {
     if (!context->first_output) {
         size_t len;
+#if USE_RUN_TIME_SCPI_LINE_ENDING
+        len = writeData(context, context->interface->line_ending, strlen(context->interface->line_ending));
+#else
 #ifndef SCPI_LINE_ENDING
 #error no termination character defined
 #endif
         len = writeData(context, SCPI_LINE_ENDING, strlen(SCPI_LINE_ENDING));
-        flushData(context);
+#endif
+		flushData(context);
         return len;
     } else {
         return 0;
@@ -558,7 +562,11 @@ size_t SCPI_ResultError(scpi_t * context, scpi_error_t * error) {
     size_t len[SCPIDEFINE_DESCRIPTION_MAX_PARTS];
     size_t i;
 
+#if USE_RUN_TIME_USER_ERROR_LIST
+    data[0] = SCPI_ErrorTranslate(context, error->error_code);
+#else
     data[0] = SCPI_ErrorTranslate(error->error_code);
+#endif
     len[0] = strlen(data[0]);
 
 #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
