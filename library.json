@@ -1,7 +1,7 @@
 {
     "name": "scpi-parser",
     "keywords": "scpi",
-    "version": "2.3",
+    "version": "2.4-pre",
     "description": "Open Source SCPI device library",
     "license": "BSD-2-Clause",
     "repository": {
