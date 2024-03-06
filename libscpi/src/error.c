@@ -215,6 +215,7 @@ void SCPI_ErrorPush(scpi_t * context, int16_t err) {
  * @param err - error number
  * @return Error string representation
  */
+#if !USE_RUN_TIME_USER_ERROR_LIST
 const char * SCPI_ErrorTranslate(int16_t err) {
     switch (err) {
 #define X(def, val, str) case def: return str;
@@ -233,5 +234,35 @@ const char * SCPI_ErrorTranslate(int16_t err) {
         default: return "Unknown error";
     }
 }
+#else
+const char * SCPI_ErrorTranslate(scpi_t * context, int16_t err) {
+    switch (err) {
+#define X(def, val, str) case def: return str;
+#if USE_FULL_ERROR_LIST
+#define XE X
+#else
+#define XE(def, val, str)
+#endif
+        LIST_OF_ERRORS
+
+#if USE_USER_ERROR_LIST
+        LIST_OF_USER_ERRORS
+#endif
+#undef X
+#undef XE
+        default: break;
+    }
+
+    // Loop until find the matching error
+    int index = 0;
+    while((context->interface->user_error_list[index].val != 0) && (context->interface->user_error_list[index].str != NULL)) {
+        if (context->interface->user_error_list[index].val == err) {
+            return context->interface->user_error_list[index].str;
+        }
+        index++;
+    }
+    return "Unknown error";
+}
+#endif
 
 
