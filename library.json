@@ -1,0 +1,25 @@
+{
+    "name": "scpi-parser",
+    "keywords": "scpi",
+    "version": "2.4-pre",
+    "description": "Open Source SCPI device library",
+    "license": "BSD-2-Clause",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/j123b567/scpi-parser.git"
+    },
+    "authors": {
+        "name": "Jan Breuer",
+        "email": "jan.breuer@jaybee.cz"
+    },
+    "build": {
+        "includeDir": "libscpi/inc",
+        "srcDir": "libscpi/src"
+    },
+    "examples": [
+        "examples/test-interactive/main.c"
+    ],
+    "frameworks": "*",
+    "platforms": "*"
+}
+
