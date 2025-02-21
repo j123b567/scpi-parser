@@ -23,7 +23,7 @@ Source codes are published with open source BSD 2-Clause License.
 
 SCPI parser library is based on these standards
 
-* [SCPI-99](http://www.ivifoundation.org/docs/scpi-99.pdf)
+* [SCPI-99](https://www.ivifoundation.org/downloads/SCPI/scpi-99.pdf)
 * [IEEE 488.2-2004](http://dx.doi.org/10.1109/IEEESTD.2004.95390)
 
 
