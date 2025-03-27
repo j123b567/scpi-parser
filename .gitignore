@@ -36,3 +36,8 @@ examples/*/test
 *.gcno
 *.gcda
 *.gcov
+
+CMakeUserPresets.json
+
+/build/.vs/scpi-parser
+/build
