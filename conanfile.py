@@ -39,6 +39,7 @@ class ScpiParserRecipe(ConanFile):
 
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_POLICY_DEFAULT_CMP0091"] = "NEW"
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "BOTH"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

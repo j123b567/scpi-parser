@@ -3,6 +3,15 @@ cmake_minimum_required(VERSION 3.28)
 # Set CMP0091 policy to NEW
 cmake_policy(SET CMP0091 NEW)
 
+# Set MSVC runtime to /MD
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
+
+
+set( CMAKE_MAP_IMPORTED_CONFIG_DEBUG RELEASE )
+set( CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE )
+
 project(scpi_parser VERSION 2.1.0 LANGUAGES C)
 
 # Compiler options
@@ -58,13 +67,14 @@ set(TEST_SOURCES
     test/test_parser.c
 )
 
-target_include_directories(scpi-static PUBLIC CUnit_INCLUDE_DIRS)
+# Add CUnit include directories to all test targets
+target_include_directories(scpi-static PUBLIC ${CUnit_INCLUDE_DIRS})
 
 foreach(test_source ${TEST_SOURCES})
     get_filename_component(test_name ${test_source} NAME_WE)
     add_executable(${test_name} ${test_source})
-    target_link_libraries(${test_name} PRIVATE scpi-static CUnit::cunit)
-    target_include_directories(${test_name} PUBLIC CUnit_INCLUDE_DIRS)
+    target_link_libraries(${test_name} PRIVATE scpi-static CUnit::cunit ${CMAKE_SOURCE_DIR}/../build/lib/cunit.lib)  # 
+    target_include_directories(${test_name} PUBLIC ${CUnit_INCLUDE_DIRS})
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
 
