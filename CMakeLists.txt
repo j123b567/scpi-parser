@@ -8,5 +8,12 @@ set( CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE )
 # Add subprojects
 add_subdirectory(libscpi)
 
+
+if( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples )
+    add_subdirectory(examples)
+endif()
+
+
+
 # Enable testing
 enable_testing()

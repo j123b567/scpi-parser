@@ -12,7 +12,10 @@ class ScpiParserRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
     short_paths = True
-    
+
+    options = {"shared": [True, False]}
+    default_options = {"shared": True}
+
     # Add exports for source files from libscpi folder
     exports_sources = [
         "libscpi/CMakeLists.txt",
@@ -20,7 +23,8 @@ class ScpiParserRecipe(ConanFile):
         "libscpi/src/*",
         "libscpi/test/*"
     ]
-    
+
+
     def requirements(self):
         self.requires("conan_cunit/2.1-3")
 
@@ -29,6 +33,13 @@ class ScpiParserRecipe(ConanFile):
         self.folders.generators = "build"
         self.cpp.build.libdirs = "lib"
         self.cpp.build.bindirs = "bin"
+
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            if self.options.shared:
+                self.options.rm_safe("fPIC")
+
 
     def generate(self):
         for dep in self.dependencies.values():
@@ -74,3 +85,4 @@ class ScpiParserRecipe(ConanFile):
         self.cpp_info.components["libscpi"].includedirs = ["include"]
         self.cpp_info.components["libscpi-static"].libs = ["scpi-static"]
         self.cpp_info.components["libscpi-static"].requires = ["libscpi"]
+

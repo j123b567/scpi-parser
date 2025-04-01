@@ -219,7 +219,7 @@ static void test_UInt64ToStrBase() {
 }
 
 static void test_scpi_dtostre() {
-    #define strsize  (49 + 1)
+    #define strsize (49 + 1)
     double val[] = {
 #ifdef INFINITY
         INFINITY, -INFINITY,
