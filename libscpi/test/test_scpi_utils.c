@@ -67,8 +67,8 @@ static void test_Int32ToStr() {
     int32_t val[] = {0, 1, -1, INT32_MIN, INT32_MAX, 0x01234567, (int32_t)0x89abcdef};
     int N = sizeof (val) / sizeof (int32_t);
     int i;
-    char str[max];
-    char ref[max];
+    char str[33];
+    char ref[33];
     size_t len;
 
     /* test signed conversion to decimal numbers */
@@ -95,8 +95,8 @@ static void test_UInt32ToStrBase() {
     uint32_t val[] = {0, 1, (uint32_t)-1, (uint32_t)INT32_MIN, INT32_MAX, 0x01234567, 0x89abcdef};
     int N = sizeof (val) / sizeof (uint32_t);
     int i;
-    char str[max];
-    char ref[max];
+    char str[33];
+    char ref[33];
     size_t len;
 
     /* test conversion to decimal numbers */
@@ -150,8 +150,8 @@ static void test_Int64ToStr() {
     int64_t val[] = {0, 1, -1, INT64_MIN, INT64_MAX, 0x0123456789abcdef, (int64_t)0xfedcba9876543210};
     int N = sizeof (val) / sizeof (int64_t);
     int i;
-    char str[max];
-    char ref[max];
+    char str[65];
+    char ref[65];
     size_t len;
 
     /* test conversion to decimal numbers */
@@ -168,8 +168,8 @@ static void test_UInt64ToStrBase() {
     uint64_t val[] = {0, 1, (uint64_t)-1, (uint64_t)INT64_MIN, INT64_MAX, 0x0123456789abcdef, 0xfedcba9876543210};
     int N = sizeof (val) / sizeof (uint64_t);
     int i;
-    char str[max];
-    char ref[max];
+    char str[65];
+    char ref[65];
     size_t len;
 
     /* test conversion to decimal numbers */
@@ -219,7 +219,7 @@ static void test_UInt64ToStrBase() {
 }
 
 static void test_scpi_dtostre() {
-    const size_t strsize = 49 + 1;
+    #define strsize  (49 + 1)
     double val[] = {
 #ifdef INFINITY
         INFINITY, -INFINITY,
@@ -296,8 +296,8 @@ static void test_floatToStr() {
     float val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
     int N = sizeof (val) / sizeof (float);
     int i;
-    char str[max];
-    char ref[max];
+    char str[50];
+    char ref[50];
     size_t len;
 
     for (i = 0; i < N; i++) {
@@ -313,8 +313,8 @@ static void test_doubleToStr() {
     double val[] = {1, -1, 1.1, -1.1, 1e3, 1e30, -1.3e30, -1.3e-30};
     int N = sizeof (val) / sizeof (*val);
     int i;
-    char str[max];
-    char ref[max];
+    char str[50];
+    char ref[50];
     size_t len;
 
     for (i = 0; i < N; i++) {

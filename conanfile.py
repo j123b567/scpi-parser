@@ -40,6 +40,15 @@ class ScpiParserRecipe(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_POLICY_DEFAULT_CMP0091"] = "NEW"
         tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "BOTH"
+
+
+        if self.settings.compiler == "Visual Studio":
+            if self.settings.build_type == "Release" or "MD" == str(self.settings.compiler.runtime):
+                print("compiler.runtime is MD")
+                tc.preprocessor_definitions.debug["CMAKE_MSVC_RUNTIME_LIBRARY"] = "MultiThreadedDLL"
+
+
+
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

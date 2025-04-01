@@ -4,8 +4,11 @@ cmake_minimum_required(VERSION 3.28)
 cmake_policy(SET CMP0091 NEW)
 
 # Set MSVC runtime to /MD
+# if(MSVC)
+#     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+# endif()
 if(MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
 
@@ -55,7 +58,7 @@ if(NOT WIN32)
 endif()
 target_compile_options(scpi-shared PRIVATE -fPIC)
 
-find_package(CUnit REQUIRED)
+
 
 # Tests
 enable_testing()
@@ -68,14 +71,20 @@ set(TEST_SOURCES
 )
 
 # Add CUnit include directories to all test targets
-target_include_directories(scpi-static PUBLIC ${CUnit_INCLUDE_DIRS})
+find_package(conan_cunit REQUIRED)
+target_include_directories(scpi-static PUBLIC ${conan_cunit_INCLUDE_DIRS})
 
 foreach(test_source ${TEST_SOURCES})
+
+    set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL" )
+
     get_filename_component(test_name ${test_source} NAME_WE)
     add_executable(${test_name} ${test_source})
-    target_link_libraries(${test_name} PRIVATE scpi-static CUnit::cunit ${CMAKE_SOURCE_DIR}/../build/lib/cunit.lib)  # 
-    target_include_directories(${test_name} PUBLIC ${CUnit_INCLUDE_DIRS})
+    target_link_libraries(${test_name} PRIVATE scpi-static conan_cunit::conan_cunit ${CMAKE_SOURCE_DIR}/../build/lib/cunit.lib)  # 
+    target_include_directories(${test_name} PUBLIC ${conan_cunit_INCLUDE_DIRS})
     add_test(NAME ${test_name} COMMAND ${test_name})
+    
+    
 endforeach()
 
 # Installation

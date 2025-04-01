@@ -68,7 +68,7 @@ static scpi_result_t test_treeB(scpi_t* context) {
     return SCPI_RES_OK;
 }
 
-static double test_sample_received = NAN;
+static double test_sample_received = 0;
 
 static scpi_result_t SCPI_Sample(scpi_t * context) {
     const char * val;
