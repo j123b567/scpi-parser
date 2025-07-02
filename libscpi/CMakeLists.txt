@@ -71,6 +71,8 @@ else()
 endif()
 
 
+if( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libscpi/test )
+
 
 
 # Tests
@@ -108,3 +110,7 @@ install(TARGETS scpi
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/scpi
 )
+
+
+
+endif()

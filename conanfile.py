@@ -21,8 +21,7 @@ class ScpiParserRecipe(ConanFile):
         "CMakeLists.txt",
         "libscpi/CMakeLists.txt",
         "libscpi/inc/*",
-        "libscpi/src/*",
-        "libscpi/test/*"
+        "libscpi/src/*"
     ]
 
 

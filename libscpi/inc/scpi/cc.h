@@ -125,6 +125,19 @@ extern "C" {
 #define HAVE_STRNICMP           1
 #endif
 
+/* Microsoft Visual C++ Compiler (Windows) */
+#if defined(_MSC_VER)
+#define HAVE_STRNICMP           1
+#if (_MSC_VER >= 1800)  /* Visual Studio 2013 and later */
+#define HAVE_STRTOLL            1
+#define HAVE_STRTOF             1
+#define HAVE_ISNAN              1
+#define HAVE_ISFINITE           1
+#define HAVE_SIGNBIT            1
+#define HAVE_SNPRINTF           1
+#endif
+#endif
+
 /* 8bit PIC - PIC16, etc */
 #if defined(_MPC_)
 #define HAVE_STRNICMP           1
