@@ -44,11 +44,27 @@ if(BUILD_SHARED_LIBS)
         SOVERSION ${PROJECT_VERSION_MAJOR}
         PUBLIC_HEADER "inc/scpi/scpi.h;inc/scpi/constants.h;inc/scpi/error.h;inc/scpi/ieee488.h;inc/scpi/minimal.h;inc/scpi/parser.h;inc/scpi/types.h;inc/scpi/units.h;inc/scpi/expression.h"
     )
-    target_include_directories(scpi PUBLIC inc)
-    if(NOT WIN32)
+    
+    # Windows-specific configuration for shared libraries
+    if(WIN32)
+        # Enable symbol exports for Windows DLL
+        set_target_properties(scpi PROPERTIES
+            WINDOWS_EXPORT_ALL_SYMBOLS ON
+            ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        )
+        # Ensure import library is generated
+        set_target_properties(scpi PROPERTIES
+            IMPORT_SUFFIX ".lib"
+            IMPORT_PREFIX ""
+        )
+    else()
         target_link_libraries(scpi PRIVATE m)
         target_compile_options(scpi PRIVATE -fPIC)
     endif()
+    
+    target_include_directories(scpi PUBLIC inc)
     
     # Create alias for backwards compatibility
     add_library(scpi-static ALIAS scpi)
@@ -59,6 +75,7 @@ else()
     set_target_properties(scpi PROPERTIES
         OUTPUT_NAME scpi
         PUBLIC_HEADER "inc/scpi/scpi.h;inc/scpi/constants.h;inc/scpi/error.h;inc/scpi/ieee488.h;inc/scpi/minimal.h;inc/scpi/parser.h;inc/scpi/types.h;inc/scpi/units.h;inc/scpi/expression.h"
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
     )
     target_include_directories(scpi PUBLIC inc)
     if(NOT WIN32)
