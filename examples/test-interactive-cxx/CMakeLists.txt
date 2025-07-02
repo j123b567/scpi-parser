@@ -4,7 +4,7 @@ project(scpi-test-interactive-cxx LANGUAGES CXX)
 
 add_executable(scpi-test-interactive-cxx main.cpp)
 
-target_link_libraries(scpi-test-interactive-cxx PRIVATE scpi-static)
+target_link_libraries(scpi-test-interactive-cxx PRIVATE scpi-static scpi-common-cxx-example)
 
 install(TARGETS scpi-test-interactive-cxx
     RUNTIME DESTINATION bin

@@ -34,29 +34,42 @@ set(SOURCES
     src/expression.c
 )
 
-# Create static library
-add_library(scpi-static STATIC ${SOURCES})
-set_target_properties(scpi-static PROPERTIES
-    OUTPUT_NAME scpi
-    PUBLIC_HEADER "inc/scpi/scpi.h;inc/scpi/constants.h;inc/scpi/error.h;inc/scpi/ieee488.h;inc/scpi/minimal.h;inc/scpi/parser.h;inc/scpi/types.h;inc/scpi/units.h;inc/scpi/expression.h"
-)
-target_include_directories(scpi-static PUBLIC inc)
-if(NOT WIN32)
-    target_link_libraries(scpi-static PRIVATE m)
+# Create library based on BUILD_SHARED_LIBS (set by conan based on shared option)
+if(BUILD_SHARED_LIBS)
+    # Create shared library
+    add_library(scpi SHARED ${SOURCES})
+    set_target_properties(scpi PROPERTIES
+        OUTPUT_NAME scpi
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        PUBLIC_HEADER "inc/scpi/scpi.h;inc/scpi/constants.h;inc/scpi/error.h;inc/scpi/ieee488.h;inc/scpi/minimal.h;inc/scpi/parser.h;inc/scpi/types.h;inc/scpi/units.h;inc/scpi/expression.h"
+    )
+    target_include_directories(scpi PUBLIC inc)
+    if(NOT WIN32)
+        target_link_libraries(scpi PRIVATE m)
+        target_compile_options(scpi PRIVATE -fPIC)
+    endif()
+    
+    # Create alias for backwards compatibility
+    add_library(scpi-static ALIAS scpi)
+    add_library(scpi-shared ALIAS scpi)
+else()
+    # Create static library
+    add_library(scpi STATIC ${SOURCES})
+    set_target_properties(scpi PROPERTIES
+        OUTPUT_NAME scpi
+        PUBLIC_HEADER "inc/scpi/scpi.h;inc/scpi/constants.h;inc/scpi/error.h;inc/scpi/ieee488.h;inc/scpi/minimal.h;inc/scpi/parser.h;inc/scpi/types.h;inc/scpi/units.h;inc/scpi/expression.h"
+    )
+    target_include_directories(scpi PUBLIC inc)
+    if(NOT WIN32)
+        target_link_libraries(scpi PRIVATE m)
+    endif()
+    
+    # Create alias for backwards compatibility
+    add_library(scpi-static ALIAS scpi)
+    add_library(scpi-shared ALIAS scpi)
 endif()
 
-# Create shared library
-add_library(scpi-shared SHARED ${SOURCES})
-set_target_properties(scpi-shared PROPERTIES
-    OUTPUT_NAME scpi
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
-target_include_directories(scpi-shared PUBLIC inc)
-if(NOT WIN32)
-    target_link_libraries(scpi-shared PRIVATE m)
-endif()
-target_compile_options(scpi-shared PRIVATE -fPIC)
 
 
 
@@ -72,7 +85,7 @@ set(TEST_SOURCES
 
 # Add CUnit include directories to all test targets
 find_package(conan_cunit REQUIRED)
-target_include_directories(scpi-static PUBLIC ${conan_cunit_INCLUDE_DIRS})
+target_include_directories(scpi PUBLIC ${conan_cunit_INCLUDE_DIRS})
 
 foreach(test_source ${TEST_SOURCES})
 
@@ -80,7 +93,7 @@ foreach(test_source ${TEST_SOURCES})
 
     get_filename_component(test_name ${test_source} NAME_WE)
     add_executable(${test_name} ${test_source})
-    target_link_libraries(${test_name} PRIVATE scpi-static conan_cunit::conan_cunit ${CMAKE_SOURCE_DIR}/../build/lib/cunit.lib)  # 
+    target_link_libraries(${test_name} PRIVATE scpi conan_cunit::conan_cunit ${CMAKE_SOURCE_DIR}/build/lib/cunit.lib)  # 
     target_include_directories(${test_name} PUBLIC ${conan_cunit_INCLUDE_DIRS})
     add_test(NAME ${test_name} COMMAND ${test_name})
     
@@ -89,7 +102,7 @@ endforeach()
 
 # Installation
 include(GNUInstallDirs)
-install(TARGETS scpi-static scpi-shared
+install(TARGETS scpi
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

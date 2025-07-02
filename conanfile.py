@@ -10,7 +10,7 @@ class ScpiParserRecipe(ConanFile):
     name = "scpi_parser"
     version = "2.1.0"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    
     short_paths = True
 
     options = {"shared": [True, False]}
@@ -18,6 +18,7 @@ class ScpiParserRecipe(ConanFile):
 
     # Add exports for source files from libscpi folder
     exports_sources = [
+        "CMakeLists.txt",
         "libscpi/CMakeLists.txt",
         "libscpi/inc/*",
         "libscpi/src/*",
@@ -26,10 +27,11 @@ class ScpiParserRecipe(ConanFile):
 
 
     def requirements(self):
+        # self.requires("cunit/2.1-3")
         self.requires("conan_cunit/2.1-3")
 
     def layout(self):
-        cmake_layout(self, src_folder="libscpi")
+        cmake_layout(self, src_folder=".")
         self.folders.generators = "build"
         self.cpp.build.libdirs = "lib"
         self.cpp.build.bindirs = "bin"
@@ -53,7 +55,7 @@ class ScpiParserRecipe(ConanFile):
         tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "BOTH"
 
 
-        if self.settings.compiler == "Visual Studio":
+        if self.settings.compiler == "msvc":
             if self.settings.build_type == "Release" or "MD" == str(self.settings.compiler.runtime):
                 print("compiler.runtime is MD")
                 tc.preprocessor_definitions.debug["CMAKE_MSVC_RUNTIME_LIBRARY"] = "MultiThreadedDLL"
