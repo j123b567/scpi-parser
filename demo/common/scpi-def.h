@@ -47,13 +47,6 @@ extern char scpi_input_buffer[];
 extern scpi_error_t scpi_error_queue_data[];
 extern scpi_t scpi_context;
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-#ifdef	__cplusplus
-}
-#endif
 
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len);

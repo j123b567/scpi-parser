@@ -1,61 +1,79 @@
-/*
- * TCP SCPI Demo
- * 
- * This demo shows how to use the SCPI Parser library to create
- * a TCP-based SCPI server that can handle remote connections.
+/*-
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2018, Jan Breuer
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+ /**
+  * @file   main-cross.c
+  * @date   Thu Nov 15 10:58:45 UTC 2012
+  *
+  * @brief  Cross-Platform TCP/IP SCPI Server
+  *         Works on both Windows and Unix-like systems
+  *
+  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <scpi/scpi.h>
-#include "scpi-commands.h"
 
-// Platform-specific includes and definitions
+#include "scpi/scpi.h"
+#include "../common/scpi-def.h"
+
+  // Platform-specific includes and definitions
 #ifdef _WIN32
-    #define WIN32_LEAN_AND_MEAN
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    
-    // Windows compatibility definitions
-    #define close(s) closesocket(s)
-    typedef int socklen_t;
-    #define SHUT_RDWR SD_BOTH
-    #ifndef EWOULDBLOCK
-        #define EWOULDBLOCK WSAEWOULDBLOCK
-    #endif
-    
-    // Platform name for logging
-    #define PLATFORM_NAME "Windows"
-    
-#else
-    #include <netinet/in.h>
-    #include <sys/select.h>
-    #include <sys/socket.h>
-    #include <sys/ioctl.h>
-    #include <errno.h>
-    #include <arpa/inet.h>
-    #include <unistd.h>
-    #include <netinet/tcp.h>
-    
-    // Platform name for logging
-    #define PLATFORM_NAME "Unix"
-    
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+// Windows compatibility definitions
+#define close(s) closesocket(s)
+typedef int socklen_t;
+#define SHUT_RDWR SD_BOTH
+#ifndef EWOULDBLOCK
+#define EWOULDBLOCK WSAEWOULDBLOCK
 #endif
 
-#define SCPI_INPUT_BUFFER_LENGTH 256
-#define SCPI_ERROR_QUEUE_SIZE 17
-#define DEFAULT_PORT 5025
+// Platform name for logging
+#define PLATFORM_NAME "Windows"
 
-/* SCPI buffer and error queue */
-static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
-static scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
+#else
+#include <netinet/in.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netinet/tcp.h>
 
-/* SCPI Context */
-static scpi_t scpi_context;
+// Platform name for logging
+#define PLATFORM_NAME "Unix"
 
-/* Test mode flag for automated testing */
-static bool test_mode = false;
+#endif
 
 // Cross-platform socket functions
 static int socket_startup(void);
@@ -103,7 +121,7 @@ static int socket_set_nonblocking(int socket) {
     return ioctlsocket(socket, FIONBIO, &nonBlocking);
 #else
     int on = 1;
-    return ioctl(socket, FIONBIO, (char *) &on);
+    return ioctl(socket, FIONBIO, (char*)&on);
 #endif
 }
 
@@ -125,17 +143,17 @@ static const char* socket_error_string(int error_code) {
 #ifdef _WIN32
     static char error_buffer[256];
     FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                   NULL, error_code, 0, error_buffer, sizeof(error_buffer), NULL);
+        NULL, error_code, 0, error_buffer, sizeof(error_buffer), NULL);
     return error_buffer;
 #else
     return strerror(error_code);
 #endif
 }
 
-/* SCPI Interface Implementation */
-static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
+// SCPI Interface Implementation
+size_t SCPI_Write(scpi_t* context, const char* data, size_t len) {
     if (context->user_context != NULL) {
-        int fd = *(int *) (context->user_context);
+        int fd = *(int*)(context->user_context);
 
 #ifndef _WIN32
         // Unix-specific TCP_CORK optimization
@@ -153,9 +171,9 @@ static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     return 0;
 }
 
-static scpi_result_t SCPI_Flush(scpi_t * context) {
+scpi_result_t SCPI_Flush(scpi_t* context) {
     if (context->user_context != NULL) {
-        int fd = *(int *) (context->user_context);
+        int fd = *(int*)(context->user_context);
 
 #ifndef _WIN32
         // Unix-specific TCP_CORK disable to flush
@@ -167,38 +185,35 @@ static scpi_result_t SCPI_Flush(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-static int SCPI_Error(scpi_t * context, int_fast16_t err) {
-    (void) context;
-    printf("**ERROR: %d, \"%s\" [%s]\r\n", 
-            (int16_t) err, SCPI_ErrorTranslate(err), PLATFORM_NAME);
+int SCPI_Error(scpi_t* context, int_fast16_t err) {
+    (void)context;
+    fprintf(stderr, "**ERROR: %d, \"%s\" [%s]\r\n",
+        (int16_t)err, SCPI_ErrorTranslate(err), PLATFORM_NAME);
     return 0;
 }
 
-static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
-    (void) context;
+scpi_result_t SCPI_Control(scpi_t* context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+    (void)context;
 
     if (SCPI_CTRL_SRQ == ctrl) {
-        printf("**SRQ: 0x%X (%d) [%s]\r\n", val, val, PLATFORM_NAME);
-    } else {
-        printf("**CTRL %02x: 0x%X (%d) [%s]\r\n", ctrl, val, val, PLATFORM_NAME);
+        fprintf(stderr, "**SRQ: 0x%X (%d) [%s]\r\n", val, val, PLATFORM_NAME);
+    }
+    else {
+        fprintf(stderr, "**CTRL %02x: 0x%X (%d) [%s]\r\n", ctrl, val, val, PLATFORM_NAME);
     }
     return SCPI_RES_OK;
 }
 
-static scpi_result_t SCPI_Reset(scpi_t * context) {
-    (void) context;
-    printf("**Reset [%s]\r\n", PLATFORM_NAME);
+scpi_result_t SCPI_Reset(scpi_t* context) {
+    (void)context;
+    fprintf(stderr, "**Reset [%s]\r\n", PLATFORM_NAME);
     return SCPI_RES_OK;
 }
 
-/* SCPI Interface structure */
-static const scpi_interface_t scpi_interface = {
-    .error = SCPI_Error,
-    .write = SCPI_Write,
-    .control = SCPI_Control,
-    .flush = SCPI_Flush,
-    .reset = SCPI_Reset,
-};
+scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t* context) {
+    (void)context;
+    return SCPI_RES_ERR;
+}
 
 /**
  * Create and configure a TCP server socket
@@ -209,7 +224,7 @@ static int createServer(int port) {
     int on = 1;
     struct sockaddr_in servaddr;
 
-    printf("Creating TCP SCPI server on port %d [%s]\n", port, PLATFORM_NAME);
+    printf("Creating server on port %d [%s]\n", port, PLATFORM_NAME);
 
     /* Configure TCP Server */
     memset(&servaddr, 0, sizeof(servaddr));
@@ -221,17 +236,17 @@ static int createServer(int port) {
     fd = (int)socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
         int error = socket_get_error();
-        fprintf(stderr, "socket() failed: %s (%d) [%s]\n", 
-                socket_error_string(error), error, PLATFORM_NAME);
+        fprintf(stderr, "socket() failed: %s (%d) [%s]\n",
+            socket_error_string(error), error, PLATFORM_NAME);
         return -1;
     }
 
     /* Set address reuse enable */
-    rc = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof(on));
+    rc = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
     if (rc < 0) {
         int error = socket_get_error();
-        fprintf(stderr, "setsockopt(SO_REUSEADDR) failed: %s (%d) [%s]\n", 
-                socket_error_string(error), error, PLATFORM_NAME);
+        fprintf(stderr, "setsockopt(SO_REUSEADDR) failed: %s (%d) [%s]\n",
+            socket_error_string(error), error, PLATFORM_NAME);
         close(fd);
         return -1;
     }
@@ -240,18 +255,18 @@ static int createServer(int port) {
     rc = socket_set_nonblocking(fd);
     if (rc < 0) {
         int error = socket_get_error();
-        fprintf(stderr, "set_nonblocking() failed: %s (%d) [%s]\n", 
-                socket_error_string(error), error, PLATFORM_NAME);
+        fprintf(stderr, "set_nonblocking() failed: %s (%d) [%s]\n",
+            socket_error_string(error), error, PLATFORM_NAME);
         close(fd);
         return -1;
     }
 
     /* Bind to socket */
-    rc = bind(fd, (struct sockaddr *) &servaddr, sizeof(servaddr));
+    rc = bind(fd, (struct sockaddr*)&servaddr, sizeof(servaddr));
     if (rc < 0) {
         int error = socket_get_error();
-        fprintf(stderr, "bind() failed: %s (%d) [%s]\n", 
-                socket_error_string(error), error, PLATFORM_NAME);
+        fprintf(stderr, "bind() failed: %s (%d) [%s]\n",
+            socket_error_string(error), error, PLATFORM_NAME);
         close(fd);
         return -1;
     }
@@ -260,13 +275,13 @@ static int createServer(int port) {
     rc = listen(fd, 1);
     if (rc < 0) {
         int error = socket_get_error();
-        fprintf(stderr, "listen() failed: %s (%d) [%s]\n", 
-                socket_error_string(error), error, PLATFORM_NAME);
+        fprintf(stderr, "listen() failed: %s (%d) [%s]\n",
+            socket_error_string(error), error, PLATFORM_NAME);
         close(fd);
         return -1;
     }
 
-    printf("TCP SCPI server listening on port %d [%s]\n", port, PLATFORM_NAME);
+    printf("Server listening on port %d [%s]\n", port, PLATFORM_NAME);
     return fd;
 }
 
@@ -283,7 +298,7 @@ static int waitServer(int fd) {
     max_fd = fd;
     FD_SET((unsigned int)fd, &fds);
 
-    timeout.tv_sec = test_mode ? 1 : 5;  // Shorter timeout in test mode
+    timeout.tv_sec = 5;
     timeout.tv_usec = 0;
 
     rc = select(max_fd + 1, &fds, NULL, NULL, &timeout);
@@ -291,79 +306,17 @@ static int waitServer(int fd) {
     return rc;
 }
 
-/* Print help information */
-static void print_help(const char* program_name) {
-    printf("\n=== SCPI Parser TCP Demo ===\n\n");
-    printf("Usage: %s [options]\n\n", program_name);
-    printf("Options:\n");
-    printf("  -p, --port <port>     Set TCP port (default: %d)\n", DEFAULT_PORT);
-    printf("  --test-mode           Enable test mode (exits after startup)\n");
-    printf("  -h, --help            Show this help\n");
-    printf("  -v, --version         Show version information\n\n");
-    
-    printf("This demo creates a TCP SCPI server that accepts connections\n");
-    printf("on the specified port. You can connect using telnet or any\n");
-    printf("TCP client and send SCPI commands.\n\n");
-    
-    printf("Example connection:\n");
-    printf("  telnet localhost %d\n\n", DEFAULT_PORT);
-    
-    printf("Example SCPI commands:\n");
-    printf("  *IDN?\\r\\n                        - Get instrument identification\n");
-    printf("  SOUR:VOLT 5.0\\r\\n                - Set voltage to 5.0V\n");
-    printf("  SOUR:VOLT?\\r\\n                   - Query voltage setting\n");
-    printf("  MEAS:VOLT?\\r\\n                   - Measure voltage\n");
-    printf("  OUTP ON\\r\\n                      - Enable output\n");
-}
-
-/* Process command line arguments */
-static int process_arguments(int argc, char* argv[], int* port) {
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            print_help(argv[0]);
-            return 1; // Exit after showing help
-        }
-        else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) {
-            printf("SCPI Parser TCP Demo v1.0.0\n");
-            printf("Built with SCPI Parser library\n");
-            printf("Platform: %s\n", PLATFORM_NAME);
-            return 1; // Exit after showing version
-        }
-        else if (strcmp(argv[i], "--test-mode") == 0) {
-            test_mode = true;
-            printf("Test mode enabled\n");
-        }
-        else if ((strcmp(argv[i], "--port") == 0 || strcmp(argv[i], "-p") == 0) && i + 1 < argc) {
-            *port = atoi(argv[++i]);
-            if (*port <= 0 || *port > 65535) {
-                fprintf(stderr, "Error: Invalid port number %d\n", *port);
-                return -1;
-            }
-        }
-        else {
-            fprintf(stderr, "Error: Unknown option %s\n", argv[i]);
-            return -1;
-        }
-    }
-    return 0; // Continue execution
-}
-
 /**
- * Main function
+ * Main server function
  */
-int main(int argc, char* argv[]) {
-    int port = DEFAULT_PORT;
+int main(int argc, char** argv) {
+    (void)argc;
+    (void)argv;
     int rc;
     int listenfd;
     char smbuffer[10];
 
-    /* Process command line arguments */
-    rc = process_arguments(argc, argv, &port);
-    if (rc != 0) {
-        return (rc > 0) ? 0 : 1;
-    }
-
-    printf("Starting TCP SCPI Demo Server [%s]\n", PLATFORM_NAME);
+    printf("Starting Cross-Platform SCPI TCP Server [%s]\n", PLATFORM_NAME);
 
     // Initialize socket subsystem
     if (socket_startup() < 0) {
@@ -375,29 +328,21 @@ int main(int argc, char* argv[]) {
 
     // Initialize SCPI
     SCPI_Init(&scpi_context,
-            scpi_commands,
-            &scpi_interface,
-            NULL, /* No units */
-            "DEMO", "TCP_SCPI_PARSER", "TCP Demo", "v1.0",
-            scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
-            scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
+        scpi_commands,
+        &scpi_interface,
+        scpi_units_def,
+        SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+        scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+        scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
     // Create server socket
-    listenfd = createServer(port);
+    listenfd = createServer(5025);
     if (listenfd < 0) {
         socket_cleanup();
         return 1;
     }
 
-    if (test_mode) {
-        printf("Test mode: Server started successfully, exiting.\n");
-        close(listenfd);
-        socket_cleanup();
-        return 0;
-    }
-
-    printf("TCP SCPI Server ready. Waiting for connections... [%s]\n", PLATFORM_NAME);
-    printf("Connect using: telnet localhost %d\n", port);
+    printf("SCPI Server ready. Waiting for connections... [%s]\n", PLATFORM_NAME);
 
     // Main server loop
     while (1) {
@@ -406,15 +351,15 @@ int main(int argc, char* argv[]) {
         socklen_t clilen;
 
         clilen = sizeof(cliaddr);
-        clifd = (int)accept(listenfd, (struct sockaddr *) &cliaddr, &clilen);
+        clifd = (int)accept(listenfd, (struct sockaddr*)&cliaddr, &clilen);
 
         if (clifd < 0) continue;
 
         // Disable Nagle's algorithm for better interactive response
-        setsockopt(clifd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(int));
+        setsockopt(clifd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int));
 
-        printf("Connection established from %s [%s]\r\n", 
-               inet_ntoa(cliaddr.sin_addr), PLATFORM_NAME);
+        printf("Connection established from %s [%s]\r\n",
+            inet_ntoa(cliaddr.sin_addr), PLATFORM_NAME);
 
         scpi_context.user_context = &clifd;
 
@@ -423,8 +368,8 @@ int main(int argc, char* argv[]) {
             rc = waitServer(clifd);
             if (rc < 0) { /* failed */
                 int error = socket_get_error();
-                fprintf(stderr, "select() failed: %s (%d) [%s]\n", 
-                        socket_error_string(error), error, PLATFORM_NAME);
+                fprintf(stderr, "select() failed: %s (%d) [%s]\n",
+                    socket_error_string(error), error, PLATFORM_NAME);
                 break;
             }
             if (rc == 0) { /* timeout */
@@ -439,26 +384,28 @@ int main(int argc, char* argv[]) {
 #else
                     if (error != EWOULDBLOCK) {
 #endif
-                        fprintf(stderr, "recv() failed: %s (%d) [%s]\n", 
-                                socket_error_string(error), error, PLATFORM_NAME);
+                        fprintf(stderr, "recv() failed: %s (%d) [%s]\n",
+                            socket_error_string(error), error, PLATFORM_NAME);
                         break;
                     }
-                } else if (rc == 0) {
+                    }
+                else if (rc == 0) {
                     printf("Connection closed by client [%s]\r\n", PLATFORM_NAME);
                     break;
-                } else {
+                }
+                else {
                     SCPI_Input(&scpi_context, smbuffer, rc);
                 }
+                }
             }
-        }
 
         close(clifd);
         printf("Client disconnected [%s]\n", PLATFORM_NAME);
-    }
+        }
 
     // Cleanup (never reached in this implementation, but good practice)
     close(listenfd);
     socket_cleanup();
-    
-    return 0;
-} 
+
+    return (EXIT_SUCCESS);
+    }

@@ -4,7 +4,7 @@ project(scpi-test-parser LANGUAGES C)
 
 add_executable(scpi-test-parser main.c)
 
-target_link_libraries(scpi-test-parser PRIVATE scpi-static scpi-common-example)
+target_link_libraries(scpi-test-parser PRIVATE scpi scpi-common-example)
 
 install(TARGETS scpi-test-parser
     RUNTIME DESTINATION bin

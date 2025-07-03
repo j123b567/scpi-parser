@@ -6,7 +6,7 @@ add_library(scpi-common-cxx-example STATIC scpi-def.cpp)
 
 target_include_directories(scpi-common-cxx-example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(scpi-common-cxx-example PRIVATE scpi-static)
+target_link_libraries(scpi-common-cxx-example PRIVATE scpi)
 
 install(TARGETS scpi-common-cxx-example
     LIBRARY DESTINATION lib

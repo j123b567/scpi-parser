@@ -4,9 +4,11 @@ project(scpi-common-example LANGUAGES C)
 
 add_library(scpi-common-example STATIC scpi-def.c)
 
-target_include_directories(scpi-common-example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(scpi-common-example PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${scpi_parser_INCLUDE_DIR})
 
-target_link_libraries(scpi-common-example PRIVATE scpi)
+target_link_libraries(scpi-common-example PRIVATE scpi_parser::scpi_parser)
 
 install(TARGETS scpi-common-example
     LIBRARY DESTINATION lib

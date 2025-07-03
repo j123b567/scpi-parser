@@ -32,7 +32,11 @@ set(SOURCES
     src/utils.c
     src/lexer.c
     src/expression.c
+
 )
+
+
+
 
 # Create library based on BUILD_SHARED_LIBS (set by conan based on shared option)
 if(BUILD_SHARED_LIBS)
@@ -47,12 +51,17 @@ if(BUILD_SHARED_LIBS)
     
     # Windows-specific configuration for shared libraries
     if(WIN32)
+    
+        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/exports.def)
+            list(APPEND SOURCES exports.def)
+        endif()
+
         # Enable symbol exports for Windows DLL
         set_target_properties(scpi PROPERTIES
             WINDOWS_EXPORT_ALL_SYMBOLS ON
-            ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
-            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+            # ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+            # LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+            # RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
         )
         # Ensure import library is generated
         set_target_properties(scpi PROPERTIES
@@ -66,9 +75,6 @@ if(BUILD_SHARED_LIBS)
     
     target_include_directories(scpi PUBLIC inc)
     
-    # Create alias for backwards compatibility
-    add_library(scpi-static ALIAS scpi)
-    add_library(scpi-shared ALIAS scpi)
 else()
     # Create static library
     add_library(scpi STATIC ${SOURCES})

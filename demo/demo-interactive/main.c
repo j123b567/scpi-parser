@@ -1,41 +1,72 @@
-/*
- * Interactive SCPI Demo
- * 
+/*-
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2018, Jan Breuer
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * @file   main.c
+ * @date   Thu Nov 15 10:58:45 UTC 2012
+ *
+ * @brief  Interactive SCPI Demo
+ *
  * This demo shows how to use the SCPI Parser library to create
  * an interactive command-line instrument interface.
+ * 
+ * This version includes enhanced features like help system and
+ * command-line processing. For a simpler version, see 
+ * examples/test-interactive/main.c
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <scpi/scpi.h>
-#include "scpi-commands.h"
+#include "../common/scpi-def.h"
 
 #define SCPI_INPUT_BUFFER_LENGTH 256
 #define SCPI_ERROR_QUEUE_SIZE 17
 
-/* SCPI buffer and error queue */
-static char scpi_input_buffer[SCPI_INPUT_BUFFER_LENGTH];
-static scpi_error_t scpi_error_queue_data[SCPI_ERROR_QUEUE_SIZE];
-
-/* SCPI Interface Implementation */
-static size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
+/* SCPI interface functions - these are referenced from the examples pattern but implemented per-demo */
+size_t SCPI_Write(scpi_t * context, const char * data, size_t len) {
     (void) context;
     return fwrite(data, 1, len, stdout);
 }
 
-static scpi_result_t SCPI_Flush(scpi_t * context) {
+scpi_result_t SCPI_Flush(scpi_t * context) {
     (void) context;
-    return fflush(stdout) == 0 ? SCPI_RES_OK : SCPI_RES_ERR;
+    return SCPI_RES_OK;
 }
 
-static int SCPI_Error(scpi_t * context, int_fast16_t err) {
+int SCPI_Error(scpi_t * context, int_fast16_t err) {
     (void) context;
     fprintf(stderr, "**ERROR: %d, \"%s\"\r\n", (int16_t) err, SCPI_ErrorTranslate(err));
     return 0;
 }
 
-static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
     (void) context;
     if (SCPI_CTRL_SRQ == ctrl) {
         fprintf(stderr, "**SRQ: 0x%X (%d)\r\n", val, val);
@@ -45,23 +76,22 @@ static scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_
     return SCPI_RES_OK;
 }
 
-static scpi_result_t SCPI_Reset(scpi_t * context) {
+scpi_result_t SCPI_Reset(scpi_t * context) {
     (void) context;
-    printf("**Reset\r\n");
+    fprintf(stderr, "**Reset\r\n");
     return SCPI_RES_OK;
 }
 
-/* SCPI Interface structure */
-static const scpi_interface_t scpi_interface = {
-    .error = SCPI_Error,
-    .write = SCPI_Write,
-    .control = SCPI_Control,
-    .flush = SCPI_Flush,
-    .reset = SCPI_Reset,
-};
+scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context) {
+    (void) context;
+    return SCPI_RES_ERR;
+}
 
-/* SCPI Context */
-static scpi_t scpi_context;
+/**
+ * Note: This demo includes enhanced interactive features.
+ * For a simpler implementation, see examples/test-interactive/main.c
+ * which demonstrates the core functionality with minimal code.
+ */
 
 /* Print help information */
 static void print_help() {
@@ -121,8 +151,8 @@ int main(int argc, char* argv[]) {
     SCPI_Init(&scpi_context,
              scpi_commands,
              &scpi_interface,
-             NULL, /* No units */
-             "DEMO", "SCPI_PARSER", "Interactive Demo", "v1.0",
+             scpi_units_def,
+             SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
              scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
              scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
     

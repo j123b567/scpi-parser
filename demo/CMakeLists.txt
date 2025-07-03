@@ -27,7 +27,7 @@ if(scpi_parser_FOUND)
     message(STATUS "SCPI Include directories: ${SCPI_INCLUDE_DIRS}")
 endif()
 
-# Add subdirectories for demo projects
+add_subdirectory(common)
 add_subdirectory(demo-interactive)
 add_subdirectory(demo-tcp)
 
