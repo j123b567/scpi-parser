@@ -41,6 +41,7 @@ set(SOURCES
 
 # Create library based on BUILD_SHARED_LIBS (set by conan based on shared option)
 if(BUILD_SHARED_LIBS)
+    message(STATUS "Building shared library")
     # Create shared library
     add_library(scpi SHARED ${SOURCES})
     set_target_properties(scpi PROPERTIES
@@ -77,6 +78,7 @@ if(BUILD_SHARED_LIBS)
     target_include_directories(scpi PUBLIC inc)
     
 else()
+    message(STATUS "Building static library")
     # Create static library
     add_library(scpi STATIC ${SOURCES})
     set_target_properties(scpi PROPERTIES
@@ -95,7 +97,7 @@ else()
 endif()
 
 
-if( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test )
+if( (WIN32 OR NOT BUILD_SHARED_LIBS) AND IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test )
 
 
 
@@ -115,12 +117,13 @@ target_include_directories(scpi PUBLIC ${conan_cunit_INCLUDE_DIRS})
 
 foreach(test_source ${TEST_SOURCES})
 
-    set( CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL" )
-
     get_filename_component(test_name ${test_source} NAME_WE)
     add_executable(${test_name} ${test_source})
-    target_link_libraries(${test_name} PRIVATE scpi conan_cunit::conan_cunit ${CMAKE_SOURCE_DIR}/build/lib/cunit.lib)  # 
-    target_include_directories(${test_name} PUBLIC ${conan_cunit_INCLUDE_DIRS})
+    target_link_libraries(${test_name} PRIVATE scpi conan_cunit::conan_cunit)  # 
+    target_include_directories(${test_name} PUBLIC 
+        ${conan_cunit_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    )
     add_test(NAME ${test_name} COMMAND ${test_name})
     
     
