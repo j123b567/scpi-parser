@@ -33,6 +33,7 @@ set(SOURCES
     src/lexer.c
     src/expression.c
 
+    exports.def
 )
 
 
@@ -51,10 +52,10 @@ if(BUILD_SHARED_LIBS)
     
     # Windows-specific configuration for shared libraries
     if(WIN32)
-    
-        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/exports.def)
-            list(APPEND SOURCES exports.def)
-        endif()
+
+        # if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/exports.def)
+        #     list(APPEND SOURCES exports.def)
+        # endif()
 
         # Enable symbol exports for Windows DLL
         set_target_properties(scpi PROPERTIES
