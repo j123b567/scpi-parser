@@ -95,7 +95,7 @@ else()
 endif()
 
 
-if( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libscpi/test )
+if( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test )
 
 
 
