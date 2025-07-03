@@ -19,6 +19,13 @@ set_target_properties(demo-tcp-scpi PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_BINARY_DIR}/bin $<TARGET_FILE_DIR:${PROJECT_NAME}> 
+  COMMAND_EXPAND_LISTS
+)
+
 # Installation
 install(TARGETS demo-tcp-scpi
     RUNTIME DESTINATION bin
