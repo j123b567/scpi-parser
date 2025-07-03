@@ -127,26 +127,10 @@ class ScpiParserRecipe(ConanFile):
                  dst=join(self.package_folder, "bin"), 
                  keep_path=False)
         
-        # Copy documentation files
-        copy(self, "README.md", 
-             src=self.source_folder, 
-             dst=join(self.package_folder, "doc"), 
-             keep_path=False)
-        copy(self, "LICENSE", 
-             src=self.source_folder, 
-             dst=join(self.package_folder, "doc"), 
-             keep_path=False)
 
     def package_info(self):
         # Set the main library name (matches the CMake target name)
-        self.cpp_info.libs = ["scpi"]
-        
-        # Set include directories
-        self.cpp_info.includedirs = ["include"]
-        
-        # Set library and binary directories
-        self.cpp_info.libdirs = ["lib"]
-        self.cpp_info.bindirs = ["bin"]
+        self.cpp_info.libs = collect_libs(self)
         
         # Platform-specific settings
         if self.settings.os == "Windows":
@@ -156,7 +140,3 @@ class ScpiParserRecipe(ConanFile):
             # Link with math library on Linux
             self.cpp_info.system_libs.append("m")
         
-        # Set the package target name for modern CMake
-        self.cpp_info.set_property("cmake_target_name", "scpi_parser::scpi_parser")
-        self.cpp_info.set_property("cmake_file_name", "scpi_parser")
-
