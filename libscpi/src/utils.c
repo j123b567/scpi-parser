@@ -44,6 +44,10 @@
 #include "utils_private.h"
 #include "scpi/utils.h"
 
+#if HAVE_STRNCASECMP
+#include <strings.h>
+#endif // HAVE_STRNCASECMP
+
 static size_t patternSeparatorShortPos(const char * pattern, size_t len);
 static size_t patternSeparatorPos(const char * pattern, size_t len);
 static size_t cmdSeparatorPos(const char * cmd, size_t len);
