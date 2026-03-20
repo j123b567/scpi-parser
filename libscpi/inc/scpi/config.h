@@ -199,7 +199,7 @@ extern "C" {
 #elif USE_CUSTOM_DTOSTRE
 #define SCPIDEFINE_floatToStr(v, s, l) SCPI_dtostre((v), (s), (l), 6, 0)
 #elif HAVE_SNPRINTF
-#define SCPIDEFINE_floatToStr(v, s, l) snprintf((s), (l), "%g", (v))
+#define SCPIDEFINE_floatToStr(v, s, l) snprintf((s), (l), "%g", (double)(v))
 #else
 #define SCPIDEFINE_floatToStr(v, s, l) SCPI_dtostre((v), (s), (l), 6, 0)
 #endif
