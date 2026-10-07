@@ -46,11 +46,16 @@
 extern "C" {
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ >= 4)
+#if defined(__GNUC__) && (__GNUC__ >= 4) && !defined(SCPI_NO_HIDDEN_VISIBILITY)
 #define LOCAL __attribute__((visibility ("hidden")))
 #else
 #define LOCAL
 #endif
+/* Note: symbol visibility only matters when building a shared library.
+ * Bare-metal toolchains (PIC32/XC32, AVR, some RISC-V configs) don't
+ * support it and warn "visibility attribute not supported in this
+ * configuration", which breaks -Werror builds. Define
+ * SCPI_NO_HIDDEN_VISIBILITY (e.g. via -D) to drop the attribute. */
 
     char * strnpbrk(const char *str, size_t size, const char *set) LOCAL;
     scpi_bool_t compareStr(const char * str1, size_t len1, const char * str2, size_t len2) LOCAL;
